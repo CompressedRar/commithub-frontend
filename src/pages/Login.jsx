@@ -5,15 +5,15 @@ function Login(){
     return (
         <div className="login-container">
             
-            <img src="nc-splash.png" alt="" id="splash"/>
+            
             <div className="splash-container">
+                <img src="nc-splash-new.jpg" alt="" />
                 
             </div>
-
             <div className="login-form-container">
                 <span className="logo-slogan">
                     <img src="CommitHub.png" alt="" />
-                                         
+                    
                 </span>
                 <div className="slogan-container">                    
                     <span style={{fontSize: "2rem"}}>Login to</span>
@@ -40,13 +40,14 @@ function Login(){
 
                     <input type="submit" value={"Login"}/>
                 </form>
-                
+                    
                 <div className="register-container">
                     <span>
-                        Don't have an account? <a href="">Click Here.</a>
+                        Don't have an account? <a href="/register">Click Here.</a>
                     </span>
                 </div>
             </div>
+
         </div>
     )
 }

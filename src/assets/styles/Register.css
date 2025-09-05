@@ -1,0 +1,127 @@
+.register-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: 100vh;
+    padding: 10%;
+    box-sizing: border-box;
+    overflow: scroll;
+    
+}
+
+.bg-container {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;    
+    
+    background-color: rgba(0, 57, 212, 0.9);
+}
+
+.bg-container img {
+    opacity: 0.2;
+    z-index: -10;
+}
+
+
+.register-form-container .textboxes {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    gap: 10px;
+}
+
+.register-form-container .textboxes label {
+    font-weight: 700;
+}
+
+.register-form-container .textboxes input,
+ .register-form-container .textboxes select,
+ .register-form-container .submit-container input {
+    width: 100%;
+    padding: 15px;
+    box-sizing: border-box;
+    font-size: 1rem;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 4px;
+    background-color: rgb(246, 246, 246);
+    color: black;
+    font-weight: light;
+    font-family: "Inter";
+    
+}
+
+.register-form-container .submit-container {
+    grid-column: span 2;
+}
+
+.register-form-container .submit-container input {
+    background-color: rgba(0, 68, 255);
+    color: white;
+}
+
+
+.register-form-container {
+    width: 90%;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    background-color: white;
+    border-radius: 10px;
+    box-sizing: border-box;
+    z-index: 100;
+    padding: 5%;
+    margin-top: 5%;
+    gap: 20px;
+}
+
+.back-to-login {
+    grid-column: span 2;
+}
+
+.back-to-login a {
+    text-decoration: underline;
+}
+
+.account-information, .personal-information {
+    display: grid;
+    grid-template-rows: 0.5fr 1fr 1fr 1fr 1fr 1fr;
+    gap: 20px;
+}
+
+.profile-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.profile {
+    border-style: dashed;
+    border-color: black;
+    border-radius: 10px;
+    width: 200px;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(240,240,240);
+}
+
+.profile label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    font-weight: 600;
+    font-size: 1rem;
+}
