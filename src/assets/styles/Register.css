@@ -89,6 +89,10 @@
     text-decoration: underline;
 }
 
+.required {
+    color: red;
+}
+
 .account-information, .personal-information {
     display: grid;
     grid-template-rows: 0.5fr 1fr 1fr 1fr 1fr 1fr;
@@ -115,6 +119,7 @@
     justify-content: center;
     align-items: center;
     background-color: rgb(240,240,240);
+    background-size: cover;
 }
 
 .profile label {
@@ -124,4 +129,12 @@
     gap: 5px;
     font-weight: 600;
     font-size: 1rem;
+}
+
+.profile img {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100%;
 }
