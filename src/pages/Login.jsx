@@ -41,7 +41,7 @@ function Login(){
                     <input type="submit" value={"Login"}/>
                 </form>
                     
-                <div className="register-container">
+                <div className="register-container-link">
                     <span>
                         Don't have an account? <a href="/register">Click Here.</a>
                     </span>

@@ -4,7 +4,6 @@
     align-items: center;
     justify-content: center;
     width: 100vw;
-    height: 100vh;
     padding: 10%;
     box-sizing: border-box;
     overflow: scroll;
@@ -59,7 +58,7 @@
 }
 
 .register-form-container .submit-container {
-    grid-column: span 2;
+    grid-column: span 1;
 }
 
 .register-form-container .submit-container input {
@@ -69,15 +68,14 @@
 
 
 .register-form-container {
-    width: 90%;
+    width: 50%;
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
     background-color: white;
     border-radius: 10px;
     box-sizing: border-box;
     z-index: 100;
     padding: 5%;
-    margin-top: 5%;
     gap: 20px;
 }
 
@@ -95,7 +93,6 @@
 
 .account-information, .personal-information {
     display: grid;
-    grid-template-rows: 0.5fr 1fr 1fr 1fr 1fr 1fr;
     gap: 20px;
 }
 
