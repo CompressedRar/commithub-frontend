@@ -4,7 +4,7 @@ import Swal from "sweetalert2"
 import "../assets/styles/Register.css"
 
 import { getPositions } from "../services/positionService"
-import { registerAccount } from "../services/userService"
+import { registerAccount, checkEmail } from "../services/userService"
 import { objectToFormData } from "../components/api"
 
 function Register(){
@@ -14,6 +14,9 @@ function Register(){
     const [preview, setPreview] = useState(null)
     const [password, setPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
+    
+    const [emailQuery, setEmailQuery] = useState("")
+    const [emailQueryResult, setEmailQueryResult] = useState(null)
     const fileInput = useRef(null)
 
     useEffect(()=> {
@@ -118,7 +121,7 @@ function Register(){
         }
     }
     
-
+    //pang check ng password tas pangkulay ng border 
     function checkPassword(){
         
         var pass = document.getElementById("password")
@@ -141,6 +144,8 @@ function Register(){
 
     }
 
+    //pang clear ng fields pagsuccessful yung registration
+
     function clearAllFields() {        
         fileInput.current.value = null
         document.getElementById("email").value = ""
@@ -151,6 +156,32 @@ function Register(){
         document.getElementById("department").value = "computing_studies"
         document.getElementById("position").value = "1"
     }
+
+    //check niya dito if existing na yung email
+    useEffect( ()=>{
+        
+        if(!emailQuery) return
+        
+        
+        var timeOut = setTimeout(async ()=>{
+            
+            var a = await checkEmail(emailQuery)
+            var msg = a.data.message
+
+            if(msg == "Available"){
+                setEmailQueryResult(<span style={{color: "green"}}>{msg}</span>)
+            }
+            else if(msg == "Email was already taken.") {
+                setEmailQueryResult(<span style={{color: "red"}}>{msg}</span>)
+            }
+            else {
+                setEmailQueryResult(<span>An error has occured.</span>)
+            }
+            
+        }, 400)
+
+        return ()=>clearTimeout(timeOut)
+    }, [emailQuery])
 
     
 
@@ -169,18 +200,36 @@ function Register(){
                 </div>
                 <div className="account-information">
                     <h2>Account Information</h2>
-                    <div className="profile-container" style={{display:"flex"}}>
-                        <div className="profile" style={{backgroundImage: `url('${preview}')`}}>
-                            <label htmlFor="profile-pic" >
-                                {!preview && <span>Add Profile Picture</span>}
+                    <label className="profile-container" style={{display:"flex"}} >
+                        <label className="profile" style={{backgroundImage: `url('${preview}')`}} >
+                            <label >
+                                {!preview && 
+                                    <label style={{display:"flex", flexDirection: "column", justifyContent:"center", alignItems: "center"}}htmlFor="profile-pic">
+                                        <span className="material-symbols-outlined" style={{fontSize:"5rem"}}>add</span>
+                                        <span>Add Profile Picture</span>
+                                    </label>
+                                }
                             </label>
                             <input type="file" name="profile-pic" id="profile-pic" onChange={handleImageChange} ref={fileInput} required accept="image/*" hidden/>
-                        </div>
-                    </div>
+                        </label>
+                    </label>
 
                     <div className="textboxes">
-                        <label htmlFor="email">Email Address <span className="required">*</span></label>
-                        <input type="email" id="email" name="email" placeholder="Eg. johndoe@gmail.com" onInput={handleDataChange} required/>
+                        <label htmlFor="email" className="email-label">
+                            <div>
+                                <span>Email Address</span>
+                                <span className="required">*</span>
+                            </div>
+                            <span>
+                                {emailQueryResult}
+                            </span>
+                        </label>
+                        <input type="email" id="email" name="email" placeholder="Eg. johndoe@gmail.com"
+                        onInput={(e)=>{
+                            handleDataChange(e)
+                            setEmailQuery(e.target.value)
+                        }} 
+                        required/>
                     </div>
 
                     {/* <div className="textboxes">

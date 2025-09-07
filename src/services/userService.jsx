@@ -10,3 +10,11 @@ export async function registerAccount(data) {
     })
 }
 
+export async function checkEmail(email) {
+    console.log("checking email")
+    return api.get(`/api/v1/auth/check/${email}`, {
+        headers: {
+            "Content-type": "multipart/form-data"
+        }
+    })
+}
