@@ -1,0 +1,121 @@
+.admin-dashboard-container {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-rows: 1fr 2fr 1fr;
+    gap: 10px;
+}
+
+.quick-stats-container {
+    background-color: white;
+    border-radius: 10px;
+    padding: 2%;
+    box-sizing: border-box;
+    box-shadow: 0px 5px 10px rgb(223, 223, 223);
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 10px;
+    color: var(--primary-color);
+    
+}
+
+.total-users-container {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+}
+
+.total-count-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    
+}
+
+.total-count-container .material-symbols-outlined {
+    font-size: 3rem;
+}
+
+.total-count-container .count {
+    font-size: 3rem;
+    font-weight: 600;
+}
+
+.count-per-department {
+    display: grid;
+    grid-template-columns: 1fr 1fr; 
+    gap: 10px;
+}
+
+.count-per-department .department-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    border-radius: 10px;
+    color: var(--primary-color);
+    background-color: rgba(85, 130, 255, 0.2);
+}
+
+.department-stats .material-symbols-outlined {
+    font-size: 3rem;
+}
+
+.count-per-department .department-count {
+    font-size: 2.5rem;
+    text-align: center;
+}
+
+.count-per-department .department-label {
+    grid-column: span 1.3;
+}
+
+
+.total-tasks {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.system-overview {
+    display: grid;
+    grid-template-rows: 1.2fr 6fr;
+    background-color: white;
+    border-radius: 10px;
+    padding: 2%;
+    gap: 20px;
+}
+
+.shortcuts {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    border-color: rgb(218, 218, 218);
+    padding: 10px;
+    box-sizing: border-box;
+    gap: 10px;
+}
+
+.shortcuts .manage {
+    border-radius: 10px;
+    padding: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    justify-content: flex-start;
+    color: var(--primary-color);
+    background-color: rgba(85, 130, 255, 0.2);
+    transition: all 300ms;
+}
+
+.shortcuts .manage:hover {
+    color: white;
+    background-color: var(--lighter-primary-color);
+}
+
+.graph-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+}
