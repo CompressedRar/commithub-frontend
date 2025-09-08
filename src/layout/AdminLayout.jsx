@@ -18,6 +18,10 @@ function AdminLayout(){
                     <span className="material-symbols-outlined">dashboard</span>
                     <span>Dashboard</span>
                 </a>
+                <a className="pages" href="/department">
+                    <span className="material-symbols-outlined">apartment</span>
+                    <span>Department Management</span>
+                </a>
                 <a className="pages">
                     <span className="material-symbols-outlined">manage_accounts</span>
                     <span>User Management</span>

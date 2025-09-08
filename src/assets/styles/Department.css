@@ -1,0 +1,327 @@
+.department-container {
+    display: grid;
+    grid-template-columns: 1fr 5fr;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.all-departments-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    
+    background-color: white;
+    z-index: 100;
+    box-sizing: border-box;
+    box-shadow: 0px 0px 10px rgb(190, 190, 190);
+    padding: 20px;
+    gap: 20px;
+}
+
+.all-departments-container .sidebar-title {
+    width: 100%;
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--primary-font-color);
+}
+
+.all-departments-container .all-departments {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.all-departments .department {
+    padding: 7px;
+    box-sizing: border-box;
+    width: 100%;
+    color: var(--sec-font-color);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    transition: all 300ms;
+    border-radius: 10px;
+}
+
+.all-departments .department:hover {
+    color: var(--primary-color);
+    background-color: rgba(85, 130, 255, 0.2);
+}
+
+.department-info-container {
+    display: grid;
+    grid-template-rows: 2fr 4fr;
+    padding: 2%;
+    overflow: scroll;
+    gap: 10px;
+    
+}
+
+.department-overview {
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    background-color: white;
+    border-radius: 10px;
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    
+    color: var(--primary-font-color);
+}
+
+
+.department-overview .image-container {
+    width: 100%;
+    background-color: rgba(0, 83, 160, 0.5);
+}
+
+.department-overview .image-container .image {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
+    background-image: url("nc-splash-new.jpg");
+    opacity: 0.3;
+}
+
+.department-overview .department-stats {
+    display: grid;
+    grid-template-rows: 1fr 0.5fr;
+    padding: 2%;
+    box-sizing: border-box;
+    gap: 10px;
+}
+
+.department-overview .department-stats .main-stats {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+}
+
+.main-stats .stats {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    align-items: center;
+}
+
+.main-stats .stats .count {
+    font-size: 1.2rem;
+    font-weight: 300;
+}
+
+.main-stats .stats .type {
+    font-weight: 300;
+}
+
+.department-stats .profile-image-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+}
+
+.department-stats .profile-image-container .prof-image {
+    background-color: aqua;
+    color: transparent;
+    width: 120px;
+    height: 120px;
+    max-width: 300px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    
+}
+
+.department-stats .profile-image-container .profile-title {
+    
+    display: flex;
+    flex-direction: column;
+    width: 70%;
+}
+
+.profile-title .dept-name {
+    font-size: 3rem;
+}
+
+.profile-title .dept-head-container {
+    font-size: 1.2rem;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 20px;
+}
+
+.dept-head-container .dept-head {
+    display: flex;
+    
+    font-weight: lighter;
+    
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.dept-head .img-container {
+    background-color: aqua;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    border-radius: 50%;
+}
+
+.dept-head .img-container img {
+    width: 100%;
+    height: 100%;
+}
+
+.department-stats .profile-image-container span {
+    font-weight: 600;
+}
+
+.prof-image img {
+    width: 100%;
+    height: 100%;
+    scale: 2;
+}
+
+.department-overview .department-stats .department-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    font-size: 1rem;
+    place-items: center;
+    gap: 10px;
+}
+
+.department-stats .material-symbols-outlined {
+    font-size: 2rem;
+}
+
+.department-options .option .material-symbols-outlined {
+    font-size: 1.5rem;
+}
+
+.department-options .option{
+    font-size: 1rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;    
+    height: 50%;
+    width: 100%;
+    padding: 25px;
+    box-sizing: border-box;
+    gap: 10px;
+    color: var(--primary-color);
+    background-color: rgba(85, 130, 255, 0.2);
+    font-weight: 200;
+}
+
+.member-container {
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    border-radius: 10px;
+}
+
+.member-container .table-header-container {
+    padding: 2%;
+    width: 100%;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: center;
+    color: var(--primary-font-color);
+}
+
+.table-header-container .table-title {
+    font-size: 2rem;
+    font-weight: 500;
+}
+
+.table-header-container .add-members {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.add-members button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.table-header-container .sorting-container {
+    font-size: 1.2rem;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+}
+
+.sorting-container select {
+    padding: 10px;
+    font-size: 1rem;
+}
+
+.table-header-container .search-members {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    width: 100%;
+
+}
+
+.table-header-container .search-members input {
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 10px;
+    width: auto;
+    border-style: solid;
+    border-color: var(--primary-font-color);
+    background-color: transparent;
+    color: var(--primary-font-color);
+}
+
+.table-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.table-container table {
+    padding: 20px;
+    width: 100%;
+    color: var(--primary-font-color);
+    border-collapse: collapse;
+}
+
+.table-container table th {
+    text-align: left;
+    font-size: 1rem;
+    
+    border-color: var(--primary-font-color);
+    padding: 10px;
+}
+
+.table-container table tr:nth-child(odd) {
+    background-color: rgb(243, 246, 248);
+}
+
+.table-container table td{
+    font-size: 1rem;
+    
+    border-color: var(--primary-font-color);
+    padding: 10px;
+}

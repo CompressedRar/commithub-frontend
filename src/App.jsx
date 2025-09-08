@@ -10,6 +10,7 @@ import Register from "./pages/Register"
 import Administrator from './pages/Administrator'
 import AdminLayout from './layout/AdminLayout'
 import Logout from './components/Logout'
+import Department from './pages/Department'
 function App() {
   return (
     <div>
@@ -23,6 +24,7 @@ function App() {
       
         <Route element = {<AdminLayout></AdminLayout>}>
           <Route path = "/dashboard" element={<Administrator></Administrator>}></Route>
+          <Route path = "/department" element={<Department></Department>}></Route>
         </Route>
 
       </Routes>

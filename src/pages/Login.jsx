@@ -28,7 +28,7 @@ function Login(){
 
         if(a.data.message == "Authenticated.") {
             localStorage.setItem("token", a.data.token)
-            window.location.href = "/admin"
+            window.location.href = "/dashboard"
         }
         else {
             Swal.fire({

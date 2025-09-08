@@ -4,16 +4,15 @@
     display: grid;
     grid-template-rows: 1fr 2fr 1fr;
     gap: 10px;
+    padding: 2%;
+    box-sizing: border-box;
 }
 
 .quick-stats-container {
-    background-color: white;
     border-radius: 10px;
-    padding: 2%;
     box-sizing: border-box;
-    box-shadow: 0px 5px 10px rgb(223, 223, 223);
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 10px;
     color: var(--primary-color);
     
@@ -21,7 +20,7 @@
 
 .total-users-container {
     display: grid;
-    grid-template-columns: 3fr 1fr;
+    grid-template-columns:1fr;
 }
 
 .total-count-container {
@@ -56,7 +55,7 @@
     padding: 10px;
     border-radius: 10px;
     color: var(--primary-color);
-    background-color: rgba(85, 130, 255, 0.2);
+    background-color: white;
 }
 
 .department-stats .material-symbols-outlined {
@@ -75,7 +74,9 @@
 
 .total-tasks {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
+    background-color: white;
+    border-radius: 10px;
 }
 
 .system-overview {
@@ -109,7 +110,7 @@
     transition: all 300ms;
 }
 
-.shortcuts .manage:hover {
+.shortcuts .manage:hover, .logs-options button:hover {
     color: white;
     background-color: var(--lighter-primary-color);
 }
@@ -119,3 +120,66 @@
     grid-template-columns: 2fr 1fr;
     gap: 20px;
 }
+
+.logs-container {
+    display: flex;
+    flex-direction: column;
+    padding: 2%;
+    box-sizing: border-box;
+    background-color: white;
+    border-radius: 10px;
+    gap: 10px;
+    
+}
+
+.logs-options {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.logs-options button {
+    color: var(--primary-color);
+    background-color: rgba(85, 130, 255, 0.2);
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    transition: all 300ms;
+}
+
+.logs {
+    display: flex;
+    flex-direction: column;
+    overflow: scroll;
+    height: 300px;
+    max-height: 200px;
+    gap: 10px;
+}
+
+.logs .activity{
+    display: grid;
+    grid-template-columns:8fr 1fr;
+    border-radius: 10px;
+    padding: 10px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--primary-color);
+}
+
+.activity .description {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    color: var(--primary-color);
+}
+
+.activity .timestamp {
+    color: rgb(38, 38, 94);
+    font-weight: 200;
+}
+

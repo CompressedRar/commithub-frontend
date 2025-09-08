@@ -34,14 +34,15 @@ function Administrator(){
                                             
                     </div>
 
+                    
+                </div>  
+                
+                <div className="total-tasks">
                     <div className="total-count-container">
                         <span className="material-symbols-outlined">group</span>
                         <span className="count">120</span>
                         <span>Total Users</span>
                     </div>
-                </div>  
-                
-                <div className="total-tasks">
 
                     <div className="total-count-container">
                         <span className="material-symbols-outlined">task</span>                        
@@ -83,6 +84,58 @@ function Administrator(){
                         <UsersPieChart></UsersPieChart>
                     </div>
                     
+                </div>
+            </div>
+
+            <div className="logs-container">
+                <div className="logs-options">
+                    <button className="option">
+                        <span className="material-symbols-outlined">history_2</span>
+                        <span>All Logs</span>
+                    </button>
+                    <button className="option">
+                        <span className="material-symbols-outlined">door_open</span>
+                        <span>Recent Logins</span>
+                    </button>
+                    <button className="option">
+                        <span className="material-symbols-outlined">browse_activity</span>
+                        <span>Recent Activities</span>
+                    </button>
+                </div>
+                <div className="logs">
+                    <div className="activity">
+                        
+                        <span className="description">
+                            <span className="material-symbols-outlined">login</span> 
+                            User: "Jiovanni" logged into the system.
+                        </span>
+                        <span className="timestamp">Sept. 12, 2025 12:41pm</span>
+                    </div>
+                    <div className="activity">
+                        
+                        <span className="description"><span className="material-symbols-outlined">logout</span> User: "Jiovanni" logged out the system.</span>
+                        <span className="timestamp">Sept. 12, 2025 12:41pm</span>
+                    </div>
+                    <div className="activity">
+                        
+                        <span className="description"><span className="material-symbols-outlined">assignment_add</span> User: "Jiovanni" created a new IPCR.</span>
+                        <span className="timestamp">Sept. 12, 2025 12:41pm</span>
+                    </div>
+                    <div className="activity">
+                        
+                        <span className="description"><span className="material-symbols-outlined">assignment_turned_in</span> User: "Jiovanni" submitted IPCR.</span>
+                        <span className="timestamp">Sept. 12, 2025 12:41pm</span>
+                    </div>
+                    <div className="activity">
+                         
+                        <span className="description"><span className="material-symbols-outlined">assignment_turned_in</span>User: "Jiovanni" submitted IPCR.</span>
+                        <span className="timestamp">Sept. 12, 2025 12:41pm</span>
+                    </div>
+                    <div className="activity">
+
+                        <span className="description"><span className="material-symbols-outlined">attach_file_add</span> User: "Jiovanni" attached supporting documents.</span>
+                        <span className="timestamp">Sept. 12, 2025 12:41pm</span>
+                    </div>
                 </div>
             </div>
         </div>
