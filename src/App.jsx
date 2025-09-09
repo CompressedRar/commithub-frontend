@@ -11,6 +11,7 @@ import Administrator from './pages/Administrator'
 import AdminLayout from './layout/AdminLayout'
 import Logout from './components/Logout'
 import Department from './pages/Department'
+import UserManagement from './pages/UserManagement'
 function App() {
   return (
     <div>
@@ -25,6 +26,7 @@ function App() {
         <Route element = {<AdminLayout></AdminLayout>}>
           <Route path = "/dashboard" element={<Administrator></Administrator>}></Route>
           <Route path = "/department" element={<Department></Department>}></Route>
+          <Route path = "/manage-users" element={<UserManagement></UserManagement>}></Route>
         </Route>
 
       </Routes>

@@ -22,7 +22,7 @@ function AdminLayout(){
                     <span className="material-symbols-outlined">apartment</span>
                     <span>Department Management</span>
                 </a>
-                <a className="pages">
+                <a className="pages" href = "/manage-users">
                     <span className="material-symbols-outlined">manage_accounts</span>
                     <span>User Management</span>
                 </a>
