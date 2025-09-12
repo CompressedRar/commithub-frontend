@@ -1,12 +1,31 @@
 import {Navigate, Outlet } from "react-router-dom";
 import "../assets/styles/Main.css"
+import { jwtDecode } from "jwt-decode";
+import { useEffect, useState } from "react";
 
 function AdminLayout(){
     const token = localStorage.getItem("token")
+    const [profilePictureLink, setProfile] = useState("")
+
+    function readTokenInformation(){
+        let payload = {}
+        try {
+            payload = jwtDecode(token)
+            //console.log(payload)
+            setProfile(payload.profile_picture_link)
+        }
+        catch(err){
+            console.log(err)
+        }
+    }
     
     if(!token){
         return <Navigate to="/" replace></Navigate>
     }
+    
+    useEffect(()=>{
+        readTokenInformation()
+    }, [])
 
     return (
         <div className="main-layout-container">
@@ -22,21 +41,21 @@ function AdminLayout(){
                     <span className="material-symbols-outlined">apartment</span>
                     <span>Department Management</span>
                 </a>
-                <a className="pages" href = "/manage-users">
+                <a className="pages" href = "/users">
                     <span className="material-symbols-outlined">manage_accounts</span>
                     <span>User Management</span>
                 </a>
-                <a className="pages">
+                <a className="pages" href="/tasks">
                     <span className="material-symbols-outlined">task</span>
                     <span>Category and Task</span>
                 </a>
-                <a className="pages">
+                <a className="pages" href = "/logs">
                     <span className="material-symbols-outlined">article_person</span>
                     <span>Audit Logs</span>
                 </a>
                 <a className="pages">
                     <span className="material-symbols-outlined">analytics</span>
-                    <span>Reports</span>
+                    <span>Performance Commitments and Review</span>
                 </a>
             </div>
             <header className="header-container">
@@ -44,12 +63,9 @@ function AdminLayout(){
                     <span className="material-symbols-outlined">menu</span>
                 </div>
                 <div className="current-page-container">
+                    
                     <span className="page">
-                        <span>Home</span>
-                    </span>
-                    <span> / </span>
-                    <span className="page">
-                        <span>Dashboard</span>
+                        <span>{window.location.pathname.replaceAll("/", "")[0].toLocaleUpperCase() + window.location.pathname.substring(2)}</span>
                     </span>
                 </div>
 
@@ -58,7 +74,7 @@ function AdminLayout(){
                 </div>
                 <div className="profile-container">
                     <div className="profile-image-container">
-                        <img src="dummy.jpg" alt="" />
+                        <img src={profilePictureLink} alt="" />
                     </div>
                 </div>
             </header>

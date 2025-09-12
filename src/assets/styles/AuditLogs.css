@@ -1,0 +1,78 @@
+.audit-logs-container {
+    display: flex;
+    flex-direction: column;
+    padding: 2%;
+    color: var(--primary-font-color);
+}
+
+.audit-table-container {
+    background-color: white;
+    border-radius: 10px;
+    
+}
+
+.audit-table-container .table-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.audit-table-container .table-container table td {
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.audit-table-container .table-headers {
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.table-headers .table-title {
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.audit-table-container .table-headers .filter-modes {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-modes .modes {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-modes .modes .pair {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    align-items: center;
+}
+
+.table-headers select, .table-headers .options {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.options .search-bar {
+    width: 200px;
+}
+
+.table-headers select, .table-headers input {
+    font-size: 1rem;
+    padding: 7px;
+    font-family: "Outfit";
+    background-color: transparent;
+    color: var(--primary-font-color);
+    border-style: solid;
+    border-radius: 10px;
+    width: 70px;
+}

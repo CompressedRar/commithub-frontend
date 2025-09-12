@@ -12,6 +12,11 @@ import AdminLayout from './layout/AdminLayout'
 import Logout from './components/Logout'
 import Department from './pages/Department'
 import UserManagement from './pages/UserManagement'
+import CategoryAndTask from './pages/CategoryAndTask'
+import AuditLogs from './pages/AuditLogs'
+
+
+
 function App() {
   return (
     <div>
@@ -26,7 +31,9 @@ function App() {
         <Route element = {<AdminLayout></AdminLayout>}>
           <Route path = "/dashboard" element={<Administrator></Administrator>}></Route>
           <Route path = "/department" element={<Department></Department>}></Route>
-          <Route path = "/manage-users" element={<UserManagement></UserManagement>}></Route>
+          <Route path = "/users" element={<UserManagement></UserManagement>}></Route>
+          <Route path = "/tasks" element={<CategoryAndTask></CategoryAndTask>}></Route>
+          <Route path = "/logs" element={<AuditLogs></AuditLogs>}></Route>
         </Route>
 
       </Routes>

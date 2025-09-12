@@ -1,0 +1,94 @@
+.user-management-container {
+    
+    padding: 2%;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.user-table-container {
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    border-radius: 10px;
+    text-align: left;
+    color: var(--primary-font-color);
+}
+
+.user-table-container .table-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+}
+
+.table-header .table-title {
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.table-header .options {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.table-header .options button {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.table-header .search-container {
+    display: flex;
+    flex-direction: row;
+}
+
+.table-header .search-container input {
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 1rem;
+    border-color: black;
+    border-style: solid;
+    color: var(--primary-font-color);
+    background-color: white;
+}
+
+.user-table-container table {
+    border-collapse: collapse;
+}
+
+.user-table-container table td,  .user-table-container table th{
+    padding: 10px;
+}
+
+.user-table-container table tr:nth-child(odd){
+    background-color: rgb(243, 246, 248);
+}
+
+.action-header {
+    gap: 10px;
+    max-width: 50px;
+}
+
+.user-table-container table .actions {
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-table-container table .actions .action-button{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    border-radius: 10px;
+    background-color: black;
+    color: white;
+    padding: 10px;
+    box-sizing: border-box;
+}

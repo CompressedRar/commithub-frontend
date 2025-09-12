@@ -1,8 +1,30 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../assets/styles/dashboard.css"
 import UsersPieChart from "../components/Piechart";
 import SubmissionsChart from "../components/Barchart";
+
+import { getUserCount } from "../services/tableServices";
+
 function Administrator(){
+
+    const [csCount, setCSCount] = useState(0)
+    const [educCount, setEDCount] = useState(0)
+    const [hmCount, setHMCount] = useState(0)
+    const [otherCount, setOtherCount] = useState(0)
+    const [allCount, setAllCount] = useState(0)
+
+    useEffect(()=> {
+        getUserCount().then(data => {
+            console.log(data.data.message)
+            setCSCount(data.data.message.cs)
+            setEDCount(data.data.message.educ)
+            setHMCount(data.data.message.hm)
+            setOtherCount(data.data.message.other)
+            setAllCount(data.data.message.all)
+        })
+        
+        
+    }, [])
     
     return (
         <div className="admin-dashboard-container">
@@ -13,23 +35,23 @@ function Administrator(){
                     <div className="count-per-department">
                         <span className="department-stats cs">
                             <span className="material-symbols-outlined">computer</span>
-                            <span className="department-count">120</span>
+                            <span className="department-count">{csCount}</span>
                             <span className="department-label">Computing Studies Users</span>
                         </span>
                         <span className="department-stats ed">
                             <span className="material-symbols-outlined">auto_stories</span>
-                            <span className="department-count">120</span>
+                            <span className="department-count">{educCount}</span>
                             <span className="department-label">Education Users</span>
                         </span>
                         <span className="department-stats hm">
                             <span className="material-symbols-outlined">flights_and_hotels</span>
-                            <span className="department-count">120</span>
+                            <span className="department-count">{hmCount}</span>
                             <span className="department-label">Hospitality Management Users</span>
                         </span>
                         <span className="department-stats ad">
                             <span className="material-symbols-outlined">format_ink_highlighter</span>
-                            <span className="department-count">120</span>
-                            <span className="department-label">Administrative Office Users</span>
+                            <span className="department-count">{otherCount}</span>
+                            <span className="department-label">Administrative Offices Users</span>
                         </span>                        
                                             
                     </div>
@@ -40,7 +62,7 @@ function Administrator(){
                 <div className="total-tasks">
                     <div className="total-count-container">
                         <span className="material-symbols-outlined">group</span>
-                        <span className="count">120</span>
+                        <span className="count">{allCount}</span>
                         <span>Total Users</span>
                     </div>
 
@@ -70,7 +92,7 @@ function Administrator(){
                     </div>
                     <div className="manage">
                         <span className="material-symbols-outlined">admin_panel_settings</span>
-                        <span>Manage Roles</span>
+                        <span>Manage Tasks</span>
                     </div>
                 </div>
 
