@@ -22,9 +22,15 @@ function AdminLayout(){
     if(!token){
         return <Navigate to="/" replace></Navigate>
     }
+
+    function detectCurrentPage(detect){
+        var current = window.location.pathname.replaceAll("/", "").toLocaleLowerCase()
+        return String(detect).includes(current)? {backgroundColor: "rgba(85, 130, 255, 0.2)", color:"var(--primary-color)"}: {}
+    }
     
     useEffect(()=>{
         readTokenInformation()
+        detectCurrentPage("dashboard")
     }, [])
 
     return (
@@ -33,28 +39,28 @@ function AdminLayout(){
                 <div className="logo-container">
                     <img src="CommitHub-Banner.png" alt="" />
                 </div>
-                <a className="pages" href="/dashboard">
+                <a className="pages" href="/dashboard" style={detectCurrentPage("dashboard")}>
                     <span className="material-symbols-outlined">dashboard</span>
                     <span>Dashboard</span>
                 </a>
-                <a className="pages" href="/department">
+                <a className="pages" href="/department" style={detectCurrentPage("department")}>
                     <span className="material-symbols-outlined">apartment</span>
                     <span>Department Management</span>
                 </a>
-                <a className="pages" href = "/users">
+                <a className="pages" href = "/users" style={detectCurrentPage("users")}>
                     <span className="material-symbols-outlined">manage_accounts</span>
                     <span>User Management</span>
                 </a>
-                <a className="pages" href="/tasks">
+                <a className="pages" href="/tasks" style={detectCurrentPage("tasks")}>
                     <span className="material-symbols-outlined">task</span>
                     <span>Category and Task</span>
                 </a>
-                <a className="pages" href = "/logs">
+                <a className="pages" href = "/logs" style={detectCurrentPage("logs")}>
                     <span className="material-symbols-outlined">article_person</span>
                     <span>Audit Logs</span>
                 </a>
                 <a className="pages">
-                    <span className="material-symbols-outlined">analytics</span>
+                    <span className="material-symbols-outlined" style={detectCurrentPage("")}>analytics</span>
                     <span>Performance Commitments and Review</span>
                 </a>
             </div>

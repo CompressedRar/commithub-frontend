@@ -4,8 +4,11 @@ import Swal from "sweetalert2"
 import "../assets/styles/Register.css"
 
 import { getPositions } from "../services/positionService"
+import { getDepartments } from "../services/departmentService"
 import { registerAccount, checkEmail } from "../services/userService"
 import { objectToFormData } from "../components/api"
+
+
 
 function Register(){
 
@@ -19,17 +22,26 @@ function Register(){
     const [emailQueryResult, setEmailQueryResult] = useState(null)
     const fileInput = useRef(null)
 
+    const [allDepartments, setAllDepartments] = useState([])
+
     useEffect(()=> {
         //console.log(formData)
     }, [formData])
 
     useEffect(()=> {
-        console.log(positions)
+        //console.log(positions)
     }, [positions])
 
     useEffect(()=> {
         loadPositions()
+        loadDepartments()
     }, [])
+
+    async function loadDepartments(){
+        var res = await getDepartments().then(data => data.data)
+        setAllDepartments(res)
+        console.log(res)
+    }
 
     const handleDataSubmission = async (e) => {
         e.preventDefault()
@@ -274,11 +286,9 @@ function Register(){
                     <div className="textboxes">
                         <label htmlFor="department">Department <span className="required">*</span></label>
                         <select name="department" id="department" onInput={handleDataChange}>
-                            <option value="computing_studies">College of Computing Studies</option>
-                            <option value="education">College of Education</option>
-                            <option value="hospitality_management">College of Hospitality Management</option>
-                            <option value="administrative">Administrative Office</option>
-                            <option value="staff">Staff</option>
+                            {allDepartments.map(dept => (
+                                <option value = {`${dept.id}` }key={dept.name}>{dept.name}</option>
+                            ))}
                         </select>
                     </div>
 
@@ -286,7 +296,7 @@ function Register(){
                         <label htmlFor="position">Position <span className="required">*</span></label>
                         <select name="position" id="position" onInput={handleDataChange}>
                             {positions.map(pos => (
-                                <option value = {`${pos.id}`}>{pos.name}</option>
+                                <option value = {`${pos.id}`} key={pos.id}>{pos.name}</option>
                             ))}
                             
                         </select>
