@@ -25,7 +25,7 @@ function Register(){
     const [allDepartments, setAllDepartments] = useState([])
 
     useEffect(()=> {
-        //console.log(formData)
+        console.log(formData)
     }, [formData])
 
     useEffect(()=> {
@@ -285,18 +285,18 @@ function Register(){
                     
                     <div className="textboxes">
                         <label htmlFor="department">Department <span className="required">*</span></label>
-                        <select name="department" id="department" onInput={handleDataChange}>
+                        <select name="department" id="department" onChange={handleDataChange}>
                             {allDepartments.map(dept => (
-                                <option value = {`${dept.id}` }key={dept.name}>{dept.name}</option>
+                                <option value = {dept.id}key={dept.name}>{dept.name}</option>
                             ))}
                         </select>
                     </div>
 
                     <div className="textboxes">
                         <label htmlFor="position">Position <span className="required">*</span></label>
-                        <select name="position" id="position" onInput={handleDataChange}>
+                        <select name="position" id="position" onChange={handleDataChange}>
                             {positions.map(pos => (
-                                <option value = {`${pos.id}`} key={pos.id}>{pos.name}</option>
+                                <option value = {pos.id} key={pos.id}>{pos.name}</option>
                             ))}
                             
                         </select>

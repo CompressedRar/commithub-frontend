@@ -4,29 +4,94 @@ import { getDepartments, getDepartment, getDepartmentMembers } from "../services
 
 function DepartmentMemberTable(props) {
 
-    
+    const [allMembers, setAllMembers] = useState([])
+    const [filteredMembers, setFilteredMembers] = useState([])
+
     const [tenMembers, setTenMembers] = useState([])
     const [pages, setPages] = useState([]) 
+    const [currentPage, setCurrentPage] = useState(1)
     const [memberLimit, setMemberLimit] = useState({"offset": 0, "limit": 10})
-
-    async function loadAllMembers(id, offset, limit) {
-        var res = await getDepartment(id).then(data => data.data)
-        var calculatedPage = res.users.length / 10
+    const [searchQuery, setQuery] = useState("")
     
-        for(var i = 1; i <= calculatedPage; i++){
-            setPages([...pages, {"id": 1, "page": {i}}])
-        }        
-        var res = await getDepartmentMembers(id, offset, limit).then(data => data.data)
-        setTenMembers(res)
+    async function loadAllMembers(id) {      
+        var res = await getDepartment(id).then(data => data.data.users)
+        setAllMembers(res)
+        setFilteredMembers(res)
+        generatePagination(res)
+        
+
     }
 
+    function loadLimited(){
+        var slicedMembers = filteredMembers.slice(memberLimit["offset"], memberLimit["limit"])
+        setTenMembers(slicedMembers)
+    }
+
+    function loadSearchedData(query){
+        console.log("displatyed")
+        var matchedMembers = []
+
+        for(const member of allMembers){
+            
+            if( member.email.includes(query) || 
+            member.first_name.includes(query) || 
+            member.last_name.includes(query) || 
+            member.position.name.includes(query) || 
+            String(member.id).includes(query) ){
+                matchedMembers = [...matchedMembers, member]
+            }
+        }
+        console.log(matchedMembers)
+        
+        setFilteredMembers(matchedMembers)
+        generatePagination(matchedMembers)
+        setMemberLimit({"offset": 0, "limit": 10})
+    }
+
+
+    function generatePagination(array){
+        var calculatedPage = array.length / 10
+        
+        var newPages = []
+        for(var i = 1; i <= Math.ceil(calculatedPage); i++){
+            console.log(i)
+            newPages = [...newPages, {"id": i, "page": i}]
+        }  
+        console.log(newPages)
+        setPages(newPages)
+    }
+
+    useEffect(()=>{
+        if(searchQuery.length == 0) {
+            loadLimited()
+            loadAllMembers(props.deptid)
+            return   
+        }
+        const debounce = setTimeout(()=>{
+            loadSearchedData(searchQuery)
+        }, 500)
+
+        return ()=> clearTimeout(debounce)
+
+
+    }, [searchQuery])
+
     useEffect(()=> {
-        console.log("loading members")
-        loadAllMembers(props.deptid, memberLimit["offset"], memberLimit["limit"])
-        console.log("members loaded")
+        
+        loadLimited()
+        
+    }, [allMembers])
+
+    useEffect(()=> {
+        
+        loadLimited()
+        
     }, [memberLimit])
 
     useEffect(()=>{
+        console.log("loading members")
+        loadAllMembers(props.deptid)
+        console.log("members loaded")
         
     },[])
     return (
@@ -55,7 +120,7 @@ function DepartmentMemberTable(props) {
                             
                         }
                 <div className="search-members">
-                        <input type="text" placeholder="Search member..."/>                        
+                        <input type="text" placeholder="Search member..." onInput={(element)=>{setQuery(element.target.value)}}/>                        
                 </div>                        
             </div>
 
@@ -65,8 +130,8 @@ function DepartmentMemberTable(props) {
                         <tr>
                             <th>ID</th>
                             <th>EMAIL ADDRESS</th>
-                            <th>FIRST NAME</th>
-                            <th>LAST NAME</th>
+                            <th>FULL NAME</th>
+                            
                             <th>POSITION</th>
                             <th>ROLE</th>
                             <th>ACTIONS</th>
@@ -74,12 +139,11 @@ function DepartmentMemberTable(props) {
                                 
                         {tenMembers != 0? tenMembers.map(mems => (
                         <tr key = {mems.id}>
-                            <td>{mems.name}</td>                                    
-                            <td>johndoe@gmail.com</td>
-                            <td>John</td>
-                            <td>Doe</td>
-                            <td>Instructor</td>
-                            <td>Faculty</td>
+                            <td>{mems.id}</td>                                    
+                            <td>{mems.email}</td>
+                            <td>{mems.first_name + " " + mems.last_name}</td>
+                            <td>{mems.position.name}</td>
+                            <td>{mems.role}</td>
                             <td>
                                 <span className="material-symbols-outlined">more_vert</span>
                                 {/**
@@ -99,9 +163,10 @@ function DepartmentMemberTable(props) {
                 </table>                        
             </div>
             <div className="pagination">
-                {pages.map(page => (
-                    <span className="pages" key={page.id}> {page.page}</span>
-                ))}
+                {pages.map(data => (<span className="pages" key={data.id} onClick={()=>{
+                    setMemberLimit({"offset": 0+((data.page * 10) - 10), "limit": data.page * 10})
+                    
+                }}> {data.page}</span>))}
             </div>
         </div>
     )
