@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
-import { getDepartments, getDepartment, getDepartmentMembers } from "../services/departmentService";
-
+import { getDepartments, getDepartment, getDepartmentMembers } from "../../services/departmentService";
+import DepartmentMembers from "./DepartmentMembers";
 
 function DepartmentMemberTable(props) {
 
@@ -134,26 +134,11 @@ function DepartmentMemberTable(props) {
                             
                             <th>POSITION</th>
                             <th>ROLE</th>
-                            <th>ACTIONS</th>
+                            <th></th>
                         </tr>
                                 
                         {tenMembers != 0? tenMembers.map(mems => (
-                        <tr key = {mems.id}>
-                            <td>{mems.id}</td>                                    
-                            <td>{mems.email}</td>
-                            <td>{mems.first_name + " " + mems.last_name}</td>
-                            <td>{mems.position.name}</td>
-                            <td>{mems.role}</td>
-                            <td>
-                                <span className="material-symbols-outlined">more_vert</span>
-                                {/**
-                                             * assign tasks
-                                             * edit position
-                                             * remove
-                                */}
-                            </td>
-                        </tr>
-                        )):
+                        <DepartmentMembers mems = {mems}></DepartmentMembers>)):
 
                         <tr className="empty-table">
                             <td>No users</td>

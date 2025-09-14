@@ -15,3 +15,21 @@ export async function getDepartmentMembers(id, offset, limit) {
     console.log("fetching department members")
     return api.get(`/api/v1/department/members/${id}?offset=${offset}&limit=${limit}`)
 }
+
+export async function registerDepartment(data) {
+    console.log("registering department")
+    return api.post("/api/v1/department/create", data, {
+        headers: {
+            "Content-type": "multipart/form-data"
+        }
+    })
+}
+
+export async function updateDepartment(data) {
+    console.log("updating department")
+    return api.post("/api/v1/department/update", data, {
+        headers: {
+            "Content-type": "multipart/form-data"
+        }
+    })
+}
