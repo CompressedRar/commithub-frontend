@@ -33,3 +33,8 @@ export async function updateDepartment(data) {
         }
     })
 }
+
+export async function archiveDepartment(id) {
+    console.log("archiving department")
+    return api.delete(`/api/v1/department/${id}`)
+}

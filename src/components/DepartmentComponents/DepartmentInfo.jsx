@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { updateDepartment, getDepartment, getDepartmentMembers } from "../../services/departmentService";
+import { updateDepartment, getDepartment, getDepartmentMembers, archiveDepartment } from "../../services/departmentService";
 import DepartmentMemberTable from "./DepartmentMemberTable";
 import { objectToFormData } from "../api";
 import Swal from "sweetalert2";
@@ -12,6 +12,7 @@ function DepartmentInfo(props){
     const [open, setOpen] = useState(false)
     const [formData, setFormData] = useState({"department_name": "", "icon": ""})
     const [submitting, setSubmission] = useState(false)
+    const [archiving, setArchiving] = useState(false)
 
     async function loadDepartmentInfo(id){
         var res = await getDepartment(id).then(data => data.data)
@@ -75,10 +76,59 @@ function DepartmentInfo(props){
         props.loadDepts();
     }
 
+    const handleArchive = async () => {
+        
+        var a = await archiveDepartment(props.id)
+        setArchiving(true)
+        if(a.data.message == "Department successfully archived.") {
+            Swal.fire({
+                title:"Success",
+                text: a.data.message,
+                icon:"success"
+            })
+        }
+         else {
+            Swal.fire({
+                title:"Error",
+                text: a.data.message,
+                icon:"error"
+            })
+        }
+        
+
+        const modalEl = document.getElementById("archive-department");
+        const modal = Modal.getInstance(modalEl) || new Modal(modalEl);
+        modal.hide();
+
+        setArchiving(false)
+        props.firstLoad();
+    }
+
     
 
     return (
         <div className="department-info-container">
+
+            <div className="modal fade" id="archive-department" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div className="modal-dialog modal-dialog-centered" >
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="staticBackdropLabel">Archive Department</h5>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div className="modal-body">                            
+                            Do you want to archive this department?
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" className="btn btn-danger" onClick={handleArchive}>
+                                {archiving ? <span className="material-symbols-outlined loading">progress_activity</span> : <span>Archive Department</span>}
+                            </button>
+                           
+                        </div>
+                    </div>
+                </div>
+            </div>
             
             <div className="modal fade" id="edit-department" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                 <div className="modal-dialog modal-dialog-centered" >
@@ -180,9 +230,9 @@ function DepartmentInfo(props){
                                             <span className="material-symbols-outlined">edit</span>
                                             <span>Edit Info</span>
                                         </span>
-                                        <span className="option">
+                                        <span className="option" data-bs-toggle="modal" data-bs-target="#archive-department">
                                             <span className="material-symbols-outlined">remove</span>
-                                            <span>Remove</span>
+                                            <span>Archive</span>
                                         </span>
                                     </div>}
                                 </div>

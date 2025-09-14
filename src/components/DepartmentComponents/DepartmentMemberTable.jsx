@@ -24,6 +24,7 @@ function DepartmentMemberTable(props) {
 
     function loadLimited(){
         var slicedMembers = filteredMembers.slice(memberLimit["offset"], memberLimit["limit"])
+        console.log(slicedMembers)
         setTenMembers(slicedMembers)
     }
 
@@ -133,7 +134,8 @@ function DepartmentMemberTable(props) {
                             <th>FULL NAME</th>
                             
                             <th>POSITION</th>
-                            <th>ROLE</th>
+                            <th>NO. OF TASKS</th>
+                            <th>STATUS</th>
                             <th></th>
                         </tr>
                                 

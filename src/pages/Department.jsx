@@ -20,7 +20,10 @@ function Department(){
     }
 
     async function loadFirstDepartment() {
-        setCurrentDepartment(departments[0].id)
+        loadAllDepartments().then(res => {
+            console.log("loading first")
+            if (res.length > 0) setCurrentDepartment(res[0].id);
+        });
     }
     
     function loadAnotherDepartment(id){
@@ -61,10 +64,7 @@ function Department(){
     }, [departments])
 
     useEffect(()=>{
-        loadAllDepartments().then(res => {
-            console.log(res)
-            if (res.length > 0) setCurrentDepartment(res[0].id);
-        });
+        loadFirstDepartment()
     },[])
 
     useEffect(()=>{
@@ -166,13 +166,13 @@ function Department(){
                 </div>
                 <div className = "all-departments">
                     {departments.map(dept => (
-                        <AllDepartmentMember dept={dept} key={dept.id} onClick={()=>{loadAnotherDepartment(dept.id)}}></AllDepartmentMember>
+                        <AllDepartmentMember dept={dept} key={dept.id} onClick={()=>{loadAnotherDepartment(dept.id)}} ></AllDepartmentMember>
                     ))}
 
                 </div>  
             </div>
             
-            {currentDepartment && <DepartmentInfo key = {currentDepartment} id = {currentDepartment} loadDepts = {()=>{loadAllDepartments()}}></DepartmentInfo>}
+            {currentDepartment && <DepartmentInfo key = {currentDepartment} id = {currentDepartment} loadDepts = {()=>{loadAllDepartments()}} firstLoad = {()=>{loadFirstDepartment()}}></DepartmentInfo>}
         </div>
     )
 }
