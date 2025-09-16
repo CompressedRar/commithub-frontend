@@ -1,77 +1,133 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../assets/styles/CategoryAndTask.css"
 import SubmissionsChart from "../components/Barchart";
+import { getCategories, getCategory, archiveCategory, registerCategory } from "../services/categoryService";
+import { objectToFormData } from "../components/api";
+import CategoryTasks from "../components/CategoryAndTaskComponents/CategoryTasks";
 
+import Swal from "sweetalert2";
+import { Modal } from "bootstrap";
+import TaskInfo from "../components/CategoryAndTaskComponents/TaskInfo";
 function CategoryAndTask(){
+    const [allCategory, setAllCategory] = useState([])
+    const [submitting, setSubmission] = useState(false)
+    const [formData, setFormData] = useState({"category_name": ""})
+
+    const [pageNumber, setPageNumber] = useState(1)
+    const [firstCategoryID, setFirst] = useState(1)
+
+    const [currentTaskID, setCurrentTaskID] = useState()
+
+    async function loadCategories(){
+        var res = await getCategories().then(data => data.data)
+        setAllCategory(res)
+        
+        return res
+    }
+
+    async function loadTaskProfile(id){
+        var res = await getCategory(id).then(data => data.data)
+        console.log(res)
+        if(res.main_tasks.length != 0){
+            setCurrentTaskID(res.main_tasks[0].id)
+        }
+    }
+
+    const handleDataChange = (e) => {
+        setFormData({...formData, [e.target.name]: e.target.value})        
+    }
+
+    const handleSubmission = async () =>{
+        var converted_data = objectToFormData(formData)
+        setSubmission(true)
+        var res = await registerCategory(converted_data)
+        if(res.data.message == "Category created.") {
+                    Swal.fire({
+                        title:"Success",
+                        text: res.data.message,
+                        icon:"success"
+                    })
+                }
+                else {
+                    Swal.fire({
+                        title:"Error",
+                        text: res.data.message,
+                        icon:"error"
+                    })
+                }
+        const modalEl = document.getElementById("add-category");
+        const modal = Modal.getInstance(modalEl) || new Modal(modalEl);
+        modal.hide();
+        setSubmission(false)
+        loadCategories()
+    }
+
+    useEffect(()=>{
+        console.log(formData)
+    }, [formData])
+
+    useEffect(()=>{
+        loadCategories().then(data => {
+            if(data.length == 0) return;
+
+            setFirst(data[0].id)
+            console.log(data[0].id)
+        })
+    }, [])
+
     return (
         <div className="category-task-container">
+            <div className="modal fade" id="add-category" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div className="modal-dialog modal-dialog-centered" >
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="staticBackdropLabel">Create Category</h5>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="textboxes">
+                                <label htmlFor="category_name">Category Name <span className="required">*</span></label>
+                                <input type="category_name" id="category_name" name="category_name" placeholder="Eg. Research Services" onInput={handleDataChange} required/>
+                            </div>
+                            
+                            
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" className="btn btn-primary" onClick={handleSubmission}>
+                                 {submitting ?<span className="material-symbols-outlined loading">progress_activity</span> : <span>Create Category</span>}
+                            </button>
+                           
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div className="all-categories-container">
                 <div className="sidebar-title">
                     Categories
                 </div>
                 <div className="add-category-container">
-                    <button className="add-category">
+                    <button className="add-category btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-category">
                         <span className="material-symbols-outlined">add</span>
                         <span>Add Category</span>
                     </button>
                     <input type="text" placeholder="Search Category"/>
                 </div>
                 <div className = "all-categories">
-                    <div className="department">
-                        <span className="material-symbols-outlined">category</span>
-                        <span>School Leadership and Management Services</span>
-                    </div>
-                    <div className="department">
-                        <span className="material-symbols-outlined">category</span>
-                        <span>Curriculum and Instructions</span>
-                    </div>
-                    <div className="department">
-                        <span className="material-symbols-outlined">category</span>
-                        <span>Research Services</span>
-                    </div>
+                    
+                    {allCategory.map(category => (
+                        <div className="department" onClick={()=>{setFirst(category.id)}}>
+                            <span className="material-symbols-outlined">category</span>
+                            <span>{category.name}</span>
+                        </div>    
+                    ))}
+
                 </div>  
             </div>
 
-            <div className="category-main-container">
-                <div className="tasks-average-rating">
-                    <span className="graph-title">Average Rating per Task</span>
-                    <SubmissionsChart></SubmissionsChart>
-                </div>
-                
-                <div className="all-tasks-container">
-                    <span className="all-tasks-title">Tasks</span>
-                    <div className="all-tasks">
-                        <div className="task">
-                            <div className="task-title">
-                                <span className="material-symbols-outlined">highlight_mouse_cursor</span>
-                                <span>Periodical Examination</span>
-                            </div>
-                            <div className="task-description">
-                                Evaluates and prepares summary reports of student's grades per grading period.		
-                            </div>
-                        </div>
-                        <div className="task">
-                            <div className="task-title">
-                                <span className="material-symbols-outlined">highlight_mouse_cursor</span>
-                                <span>Periodical Examination</span>
-                            </div>
-                            <div className="task-description">
-                                Evaluates and prepares summary reports of student's grades per grading period.		
-                            </div>
-                        </div>
-                        <div className="task">
-                            <div className="task-title">
-                                <span className="material-symbols-outlined">highlight_mouse_cursor</span>
-                                <span>Periodical Examination</span>
-                            </div>
-                            <div className="task-description">
-                                Evaluates and prepares summary reports of student's grades per grading period.		
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
+            {pageNumber == 1? <CategoryTasks id = {firstCategoryID} key={firstCategoryID} changeTaskID = {(id)=>{setCurrentTaskID(id); setPageNumber(2)}} reloadCategory = {(id)=>{setFirst(id);}}></CategoryTasks>: 
+                            <TaskInfo id = {currentTaskID} backToPage = {()=>{setPageNumber(1)}}></TaskInfo>}            
         </div>
     )
 }

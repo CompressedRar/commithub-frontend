@@ -12,7 +12,7 @@ const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff7f50", "#8dd1e1"];
 
 export default function UsersPieChart() {
   return (
-    <div style={{ width: "100%", height: "100%"}}>
+    <div style={{ width: "100%", height: "400px"}}>
         <ResponsiveContainer>
             <PieChart>
                 <Pie

@@ -7,10 +7,63 @@
     color: var(--primary-font-color);
 }
 
+.category-task-container .textboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.category-main-container .textboxes {
+    margin: 20px;
+}   
+
+.category-main-container .modal-content .modal-body {
+}
+
+.task-measurement-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.category-main-container .modal-content {
+    color: var(--primary-font-color);
+    box-sizing: content-box;
+}
+
+.category-task-container .textboxes input,
+.category-main-container .textboxes select,
+.category-main-container .textboxes textarea {
+    padding: 10px;
+    border-radius: 5px;
+    background-color: white;
+    border-style: solid;
+    border-width: 1px;
+    color: var(--primary-font-color);
+    resize: none;
+}
+
+.category-main-container .textboxes .editables {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.category-task-container .textboxes label {
+    font-weight: 500;
+    font-size: 1.2rem;
+}
+
+.category-task-container .modal-title {
+    font-size: 2rem;
+    font-weight: 600;
+}
+
 .all-categories-container {
     display: flex;
     flex-direction: column;
     height: 100%;
+    overflow: scroll;
     
     background-color: white;
     z-index: 100;
@@ -86,6 +139,7 @@
     gap: 10px;
     display: flex;
     flex-direction: column;
+    overflow: scroll;
 }
 
 .tasks-average-rating {
@@ -107,31 +161,47 @@
     background-color: white;
     padding: 2%;
     border-radius: 10px;
+    gap: 20px;
+    transition: all 200ms;
 }
 
 .all-tasks-container .all-tasks-title {
     font-size: 2rem;
     font-weight: 600;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.all-tasks-title .create-task-btn {
+    font-size: 1rem;
+}
+
+.all-tasks-title .create-task-btn button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 .all-tasks-container .all-tasks {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 10px;
 }
 
 .all-tasks .task {
     display: flex;
     flex-direction: column;
-    box-shadow: 0px 0px 10px rgb(230, 230, 230);   
-    padding: 20px;
+    justify-content: space-between;
+    box-shadow: 0px 0px 10px rgb(230, 230, 230);  
     box-sizing: border-box; 
     border-radius: 10px;
     border-style: solid;
     border-width: 1px;
     border-color: rgb(216, 216, 216);
-    gap: 10px;
+    gap: 20px;
     transition: all 200ms;
+    overflow: hidden;
 }
 
 .all-tasks .task:hover {
@@ -140,15 +210,211 @@
     box-shadow: 0px 0px 0px rgb(230, 230, 230);
 }
 
+.task .department-name {
+    width: 100%;
+    background-image: linear-gradient(to left,var(--secondary-color), rgb(255, 136, 0), rgb(255, 136, 0));
+    background-image: linear-gradient(to left, rgb(143, 143, 250), var(--lighter-primary-color), var(--primary-color));
+    padding: 10px;
+    box-sizing: border-box;
+    font-size: 1.3rem;
+    color: white;
+}
+
 .all-tasks .task .task-title {
     display: flex;
     flex-direction: row;
     align-items: center;
     gap: 10px;
-    font-size: 1.2rem;
+    font-size: 1.4rem;
+    font-weight: 600;
+    padding-left: 20px;
+    padding-right: 20px;
+    box-sizing: border-box;
+}
+
+.all-tasks .task-description {
+    padding-left: 20px;
+    padding-right: 20px;
+    box-sizing: border-box;
+}
+
+.all-tasks .task .title {
     font-weight: 600;
 }
 
-.all-tasks .task .task-description {
+.all-tasks .task .description {
     font-weight: 300;
+    
+}
+
+.all-tasks .task .assigned-users {
+    display: flex;
+    flex-direction: column;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 20px;
+    box-sizing: border-box;
+    
+}
+
+.assigned-users .container {
+    display: flex;
+    flex-direction: row;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.tasks-measurements {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding-left: 20px;
+    padding-right: 20px;
+    box-sizing: border-box;
+}
+
+.all-tasks .task .assigned-pic {
+    background-image: url("dummy.jpg");
+    width: 40px;
+    height: 40px;
+    background-size: cover;
+    color: transparent;
+    border-radius: 50%;
+    margin-right: -15px;
+    box-shadow: 0px 0px 5px rgb(241, 241, 241, 0.2);
+}
+
+.empty-tasks {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    font-weight: 600;
+    font-size: 2rem;
+
+    border-style: dashed;
+    padding: 20px;
+    box-sizing: border-box;
+    border-radius: 10px;
+}
+
+.task-info-container {
+    display: flex;
+    flex-direction: column;
+    padding: 2%;
+    box-sizing: border-box;
+    height: 100%;
+    overflow: scroll;
+}
+
+.main-task-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.task-description {
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-sizing: border-box;
+    gap: 30px;
+}
+
+.description-container {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.description-container .task-title{
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.description-container .description {
+    display: flex;
+    flex-direction: column;
+
+}
+
+.description-container .description .title,
+.task-measurements .description .title,
+.users-assigned .title {
+    font-weight: 600;
+    font-size: 1.3rem;
+}
+
+.description-container .description .content {
+    color: var(--sec-font-color);
+}
+
+.task-description .task-measurements {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    box-sizing: border-box;
+}
+
+.users-assigned {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.user-container .user {
+    display: flex;
+    flex-direction: row;
+    padding: 5px;
+    justify-content: space-between;
+    box-sizing: border-box;
+    gap: 10px;
+    padding: 10px;
+}
+
+.user-container .user .user-image {
+    background-image: url("dummy.jpg");
+    width: 50px;
+    height: 50px;
+    background-size: cover;
+    border-radius: 50%;
+}
+
+.user-container .user .user-profile {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.user-container .user .user-profile .user-name {
+    font-weight: 500;
+    font-size: 1.2rem;
+}
+
+.user .option button{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.back {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    box-sizing: border-box;
+    transition: all 200ms;
+}
+
+.back:hover {
+    color: var(--primary-color);
+}
+
+.custom-switch .form-check-input:checked {
+    background-color: var(--primary-color);
 }

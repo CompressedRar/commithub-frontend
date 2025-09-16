@@ -1,9 +1,30 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 const data = [
-  { name: "Registrar", IPCR: 30, OPCR: 20 },
-  { name: "IT Dept", IPCR: 40, OPCR: 35 },
-  { name: "Finance", IPCR: 20, OPCR: 15 },
+  { name: "Registrar", Quantity: 4, Efficiency: 5, Timeliness: 4, Average: 4 },
+  { name: "IT Dept", Quantity: 3, Efficiency: 4, Timeliness: 2, Average: 3 },
+  { name: "Comittee Chairmanship Assignment", Quantity: 4, Efficiency: 3, Timeliness: 4, Average: 4 },
+  { name: "Registrar", Quantity: 4, Efficiency: 5, Timeliness: 4, Average: 4 },
+  { name: "IT Dept", Quantity: 3, Efficiency: 4, Timeliness: 2, Average: 3 },
+  { name: "Comittee Chairmanship Assignment", Quantity: 4, Efficiency: 3, Timeliness: 4, Average: 4 },
+  { name: "Registrar", Quantity: 4, Efficiency: 5, Timeliness: 4, Average: 4 },
+  { name: "IT Dept", Quantity: 3, Efficiency: 4, Timeliness: 2, Average: 3 },
+  { name: "Comittee Chairmanship Assignment", Quantity: 4, Efficiency: 3, Timeliness: 4, Average: 4 },
+  { name: "Registrar", Quantity: 4, Efficiency: 5, Timeliness: 4, Average: 4 },
+  { name: "IT Dept", Quantity: 3, Efficiency: 4, Timeliness: 2, Average: 3 },
+  { name: "Comittee Chairmanship Assignment", Quantity: 4, Efficiency: 3, Timeliness: 4, Average: 4 },
+  { name: "Registrar", Quantity: 4, Efficiency: 5, Timeliness: 4, Average: 4 },
+  { name: "IT Dept", Quantity: 3, Efficiency: 4, Timeliness: 2, Average: 3 },
+  { name: "Comittee Chairmanship Assignment", Quantity: 4, Efficiency: 3, Timeliness: 4, Average: 4 },
+  { name: "Registrar", Quantity: 4, Efficiency: 5, Timeliness: 4, Average: 4 },
+  { name: "IT Dept", Quantity: 3, Efficiency: 4, Timeliness: 2, Average: 3 },
+  { name: "Comittee Chairmanship Assignment", Quantity: 4, Efficiency: 3, Timeliness: 4, Average: 4 },
+  { name: "Registrar", Quantity: 4, Efficiency: 5, Timeliness: 4, Average: 4 },
+  { name: "IT Dept", Quantity: 3, Efficiency: 4, Timeliness: 2, Average: 3 },
+  { name: "Comittee Chairmanship Assignment", Quantity: 4, Efficiency: 3, Timeliness: 4, Average: 4 },
+  { name: "Registrar", Quantity: 4, Efficiency: 5, Timeliness: 4, Average: 4 },
+  { name: "IT Dept", Quantity: 3, Efficiency: 4, Timeliness: 2, Average: 3 },
+  { name: "Comittee Chairmanship Assignment", Quantity: 4, Efficiency: 3, Timeliness: 4, Average: 4 },
 ];
 
 export default function SubmissionsChart() {
@@ -16,8 +37,10 @@ export default function SubmissionsChart() {
             <YAxis />
             <Tooltip />
             <Legend />
-            <Bar dataKey="IPCR" fill="#82ca9d" />
-            <Bar dataKey="OPCR" fill="#8884d8" />
+            <Bar dataKey="Quantity" fill="#82ca9d" />
+            <Bar dataKey="Efficiency" fill="#8884d8" />
+            <Bar dataKey="Timeliness" fill="#cfd300ff" />
+            <Bar dataKey="Average" fill="#1105f0ff" />
             </BarChart>
         </ResponsiveContainer>
     </div>
