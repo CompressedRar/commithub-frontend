@@ -224,12 +224,13 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 10px;
+    gap: 20px;
     font-size: 1.4rem;
     font-weight: 600;
     padding-left: 20px;
     padding-right: 20px;
     box-sizing: border-box;
+    
 }
 
 .all-tasks .task-description {
@@ -240,6 +241,9 @@
 
 .all-tasks .task .title {
     font-weight: 600;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
 }
 
 .all-tasks .task .description {
@@ -310,6 +314,7 @@
 .main-task-info {
     display: grid;
     grid-template-columns: 1fr 1fr;
+    gap: 10px;
 }
 
 .task-description {
@@ -331,6 +336,22 @@
 .description-container .task-title{
     font-size: 2rem;
     font-weight: 700;
+    transition: all 200ms;
+}
+.description-container span, 
+.description-container div,
+.task-measurements div{
+    border-style: none;
+    transition: all 200ms;
+    border-width: 1px;
+    border-radius: 5px;
+}
+
+.description-container span[contenteditable="true"], 
+.description-container div[contenteditable="true"],
+.task-measurements div[contenteditable="true"]{
+    border-style: solid;
+    padding: 10px;
 }
 
 .description-container .description {
@@ -344,6 +365,9 @@
 .users-assigned .title {
     font-weight: 600;
     font-size: 1.3rem;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
 }
 
 .description-container .description .content {
@@ -417,4 +441,30 @@
 
 .custom-switch .form-check-input:checked {
     background-color: var(--primary-color);
+}
+
+.task-stats {
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    padding: 20px;
+    box-sizing: border-box;
+    border-radius: 10px;
+}
+
+.task-stats .graph-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.edit-toggle {
+    font-size: 1.4rem;
+}
+
+.task-options {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
 }

@@ -3,7 +3,7 @@ import SubmissionsChart from "../Barchart";
 import { objectToFormData } from "../api";
 import Swal from "sweetalert2";
 import { Modal } from "bootstrap";
-import { getCategory } from "../../services/categoryService";
+import { archiveCategory, getCategory } from "../../services/categoryService";
 
 import { getDepartments } from "../../services/departmentService";
 import { createMainTask } from "../../services/taskService";
@@ -29,15 +29,19 @@ function CategoryTasks(props){
         var res = await getCategory(id).then(data => data.data)
         console.log(res.main_tasks)
         await setCategoryTasks(res.main_tasks)
-        setFormData({"id":id, "category_name": res.name, 
-                    "task_name": "",
-                    "department_id": 0,
-                    "modification_editable": 0, 
-                    "time_editable": 0, 
+        setFormData({"task_name": "",
+                    "department": "0",
+                    "task_desc": "",
+                    "time_measurement": "day",   // default value
+                    "modification": "correction", // default value
                     "accomplishment_editable": 0,
-                    "department": 0})
+                    "time_editable": 0,
+                    "modification_editable": 0,
+                    "id": id})
         
     }
+
+    
     
     useEffect(()=>{
         loadCategoryTasks(props.id)
@@ -45,7 +49,6 @@ function CategoryTasks(props){
     },[props.id])
 
     useEffect(()=>{
-        console.log(formData)
     }, [formData])
 
 
@@ -105,33 +108,47 @@ function CategoryTasks(props){
         setSubmission(false)
     }
 
-    const handleArchive = async () => {
-        
-        var a = await archiveDepartment(props.id)
-        setArchiving(true)
-        if(a.data.message == "Department successfully archived.") {
+    const handleArch = async () => {
+            var a = await archiveCategory(props.id)
+            console.log(a)
+            if(a.data.message == "Category successfully archived.") {
+                Swal.fire({
+                    title:"Success",
+                    text: a.data.message,
+                    icon:"success"
+                })
+                props.reloadAll()
+            }
+            else {
+                Swal.fire({
+                    title:"Error",
+                    text: a.data.message,
+                    icon:"error"
+                })
+            }
+            
+        }
+
+    const handleArchive = async ()=>{
+            
             Swal.fire({
-                title:"Success",
-                text: a.data.message,
-                icon:"success"
+                title: 'Do you want to archive the category?',
+                showDenyButton: true,
+                confirmButtonText: 'Yes',
+                denyButtonText: 'No',
+                customClass: {
+                    actions: 'my-actions',
+                    cancelButton: 'order-1 right-gap',
+                    confirmButton: 'order-2'
+                },
+                }).then(async (result) => {
+                if (result.isConfirmed) {
+                    handleArch()
+                } else if (result.isDenied) {
+                    
+                }
             })
         }
-         else {
-            Swal.fire({
-                title:"Error",
-                text: a.data.message,
-                icon:"error"
-            })
-        }
-        
-
-        const modalEl = document.getElementById("archive-department");
-        const modal = Modal.getInstance(modalEl) || new Modal(modalEl);
-        modal.hide();
-
-        setArchiving(false)
-        props.firstLoad();
-    }
 
     
 
@@ -216,6 +233,13 @@ function CategoryTasks(props){
                         </div>
                     </div>
                 </div>
+            
+            </div>
+            <div style={{display: "flex", alignItems:"center", gap: "10px", justifyContent:"flex-end"}}>
+                <button className="btn btn-danger" style={{display: "flex", alignItems:"center", gap: "10px", justifyContent:"flex-end"}} onClick={handleArchive}>
+                    <span className="material-symbols-outlined">archive</span>
+                    <span>Archive Category</span>
+                </button>  
             </div>
                 <div className="tasks-average-rating">
                     <span className="graph-title">Average Rating per Task</span>
@@ -236,7 +260,8 @@ function CategoryTasks(props){
                     <div className="all-tasks">
                     
                     {Array.isArray(categoryTasks) && categoryTasks.map(category =>(
-                        <div className="task" key={category.id} onClick={()=>{props.changeTaskID(category.id)}}>
+                        
+                        category.status == 1?<div className="task" key={category.id} onClick={()=>{props.changeTaskID(category.id)}}>
                             <div className="department-name" style={category.department == "General"? {backgroundImage: "linear-gradient(to left, rgb(143, 143, 250), var(--lighter-primary-color), var(--primary-color))"}: {backgroundImage: "linear-gradient(to left,var(--secondary-color), rgb(255, 136, 0), rgb(255, 136, 0))"}}>
                                 {category.department}
                             </div>
@@ -272,7 +297,7 @@ function CategoryTasks(props){
                                     <div className="assigned-pic">.</div>
                                 </div>
                             </div>
-                        </div>
+                        </div>:""
                     ))}
                         
                         

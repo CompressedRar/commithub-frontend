@@ -33,6 +33,15 @@ function CategoryAndTask(){
         }
     }
 
+    function reloadAllCategories(){
+        loadCategories().then(data => {
+            if(data.length == 0) return;
+
+            setFirst(data[0].id)
+            console.log(data[0].id)
+        })
+    }
+
     const handleDataChange = (e) => {
         setFormData({...formData, [e.target.name]: e.target.value})        
     }
@@ -126,8 +135,8 @@ function CategoryAndTask(){
                 </div>  
             </div>
 
-            {pageNumber == 1? <CategoryTasks id = {firstCategoryID} key={firstCategoryID} changeTaskID = {(id)=>{setCurrentTaskID(id); setPageNumber(2)}} reloadCategory = {(id)=>{setFirst(id);}}></CategoryTasks>: 
-                            <TaskInfo id = {currentTaskID} backToPage = {()=>{setPageNumber(1)}}></TaskInfo>}            
+            {pageNumber == 1? <CategoryTasks id = {firstCategoryID} key={firstCategoryID} changeTaskID = {(id)=>{setCurrentTaskID(id); setPageNumber(2)}} reloadAll = {()=>{reloadAllCategories()}} reloadCategory = {(id)=>{setFirst(id);}}></CategoryTasks>: 
+                            <TaskInfo id = {currentTaskID} backAfterArchive = {()=> {setFirst(firstCategoryID); setPageNumber(1)}} backToPage = {()=>{setPageNumber(1)}}></TaskInfo>}            
         </div>
     )
 }

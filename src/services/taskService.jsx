@@ -19,3 +19,17 @@ export async function createMainTask(data){
     })
 }
 
+export async function updateMainTaskInfo(data){
+    return api.patch("/api/v1/task/", data, {
+        headers: {
+            "Content-type": "multipart/form-data"
+        }
+    })
+}
+
+export async function archiveMainTask(id) {
+    console.log("archiving task info")
+    return api.delete(`/api/v1/task/${id}`)
+}
+
+
