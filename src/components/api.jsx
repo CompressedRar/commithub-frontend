@@ -1,4 +1,5 @@
 import axios from "axios";
+import { io } from "socket.io-client";
 
 
 export function objectToFormData(obj) {
@@ -10,6 +11,8 @@ export function objectToFormData(obj) {
   }
   return formData;
 }
+
+export var socket = io("http://127.0.0.1:5000")
 
 const api = axios.create({
         baseURL: "http://127.0.0.1:5000"

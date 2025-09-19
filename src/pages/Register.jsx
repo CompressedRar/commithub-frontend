@@ -10,7 +10,7 @@ import { objectToFormData } from "../components/api"
 
 
 
-function Register(){
+function Register(props){
 
     const [formData, setFormData] = useState({"position": "none", "department": "staff"})
     const [positions, setPositions] = useState([])
@@ -207,9 +207,9 @@ function Register(){
             </div>
 
             <form className="register-form-container" onSubmit={handleDataSubmission}>
-                <div className="back-to-login">
+                {!props.admin? <div className="back-to-login">
                     <a href="/">Back to login page.</a>
-                </div>
+                </div>: ""}
                 <div className="account-information">
                     <h2>Account Information</h2>
                     <label className="profile-container" style={{display:"flex"}} >

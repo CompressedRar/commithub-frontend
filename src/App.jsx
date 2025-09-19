@@ -25,6 +25,7 @@ function App() {
         <Route element = {<AuthLayout />}>
           <Route path='/' element = {<Login></Login>}></Route>
           <Route path='/register' element = {<Register></Register>}></Route>
+          <Route path='/create' element = {<Register admin = {true}></Register>}></Route>
           <Route path='/logout' element = {<Logout></Logout>}></Route>  
         </Route>
       

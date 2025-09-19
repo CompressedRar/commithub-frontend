@@ -25,3 +25,10 @@ export async function archiveCategory(id) {
     return api.delete(`/api/v1/category/${id}`)
 }
 
+export async function updateCategory(data){
+    return api.patch("/api/v1/category/", data, {
+        headers: {
+            "Content-type": "multipart/form-data"
+        }
+    })
+}

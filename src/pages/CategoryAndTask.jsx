@@ -18,6 +18,8 @@ function CategoryAndTask(){
 
     const [currentTaskID, setCurrentTaskID] = useState()
 
+    
+
     async function loadCategories(){
         var res = await getCategories().then(data => data.data)
         setAllCategory(res)

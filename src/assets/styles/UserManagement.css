@@ -1,3 +1,8 @@
+.user-management {
+    padding: 2%;
+    box-sizing: border-box;    
+}
+
 .user-management-container {
     
     padding: 2%;
@@ -91,4 +96,252 @@
     color: white;
     padding: 10px;
     box-sizing: border-box;
+}
+
+#user-table {
+    display: flex;
+    flex-direction: row;
+}
+
+.create-user-container {
+    width: 300px;
+}
+
+.create-user-container button{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.member-coninter .model-register {
+    max-width: 700px;
+    width: 700px;
+}
+
+.register-page {
+    height: 100%;
+    width: 100%;
+}
+
+.member-profile-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.member-profile-container .profile-container {
+    display: flex; 
+    flex-direction: row;
+    color: var(--primary-font-color);
+}
+
+.member-profile-container .profile-container .profile {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    background-color: transparent;
+    color: var(--primary-font-color);
+    border-style: none;
+    height: auto;
+    justify-content: flex-start;
+    gap: 20px;
+    padding: 10px;
+}
+
+.member-profile-container .profile-container .profile .profile-image-container {
+    width: 70px;
+    height: 70px;
+}
+
+.member-profile-container .profile-container .profile .profile-image-container .profile-picture {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    border-radius: 50%;
+}
+
+.member-profile-container .profile-container .profile .profile-name-container .profile-name {
+    font-weight: 600;
+    font-size: 1.5rem;
+}
+
+.tabs-container {
+    width: 100%;
+    font-size: 1.3rem;
+    display: flex; 
+    flex-direction: row;
+    padding: 10px;
+    gap: 10px;
+}
+
+.tabs-container .tab {
+    transition: all 200ms;
+    border-bottom-style: solid;
+    padding: 5px;
+}
+
+.tabs-container .tab.active {
+    color: var(--primary-color);
+}
+
+.tab-content-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.tab-content-container .basic-info-container {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.basic-info-container .graph-container {
+    grid-column: span 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.basic-info-container .pair {
+    display: flex;
+    flex-direction: column;
+    color: var(--secondary-font-color);
+    padding: 10px;
+    padding-left: 20%;
+    box-sizing: border-box;
+    font-weight: 300;
+    text-align: left;
+}
+
+.basic-info-container .pair .title {
+    font-weight: 600;
+}
+
+.ipcr-submitted-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    color: var(--primary-font-color);
+}
+
+.ipcr-submitted-container{
+    display: flex;
+    flex-direction: column;
+    
+}
+
+.ipcr-submitted-container .ipcr-submitted {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    background-color: rgb(243, 243, 243);
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.ipcr-submitted .ipcr-stat-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+}
+.ipcr-stat-container .ipcr-stat {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-edit-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    box-sizing: border-box;
+    gap: 10px;
+}
+
+.edit-profile-image-container {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    
+}
+
+.profile-image {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 4rem;
+    color: transparent;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: rgb(230, 230, 230);
+    background-size: cover;
+    background-position: center;
+    transition: all 200ms;
+}
+
+.profile-image:hover {
+    color: white;
+    opacity: 0.8;
+}
+
+.profile-edit-container .pair {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.profile-edit-container .pair .title {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.profile-edit-container .pair input, 
+.profile-edit-container .pair select{
+    padding: 10px;
+    box-sizing: border-box;
+    border-radius: 5px;
+    border-style: solid;
+    border-width: 1px;
+    background-color: white;
+    color: var(--primary-font-color);
+}
+
+.reset-password {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.reset-password button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 200px;
+}
+
+.changes-container {
+    border-color: var(--primary-font-color);
+    box-sizing: border-box;
+    gap: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
 }

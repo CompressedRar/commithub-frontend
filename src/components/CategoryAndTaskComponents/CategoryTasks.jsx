@@ -3,7 +3,7 @@ import SubmissionsChart from "../Barchart";
 import { objectToFormData } from "../api";
 import Swal from "sweetalert2";
 import { Modal } from "bootstrap";
-import { archiveCategory, getCategory } from "../../services/categoryService";
+import { archiveCategory, getCategory, updateCategory } from "../../services/categoryService";
 
 import { getDepartments } from "../../services/departmentService";
 import { createMainTask } from "../../services/taskService";
@@ -12,12 +12,14 @@ function CategoryTasks(props){
 
     const [categoryTasks, setCategoryTasks] = useState({})
     const [allDepartments, setAllDepartments] = useState([])
+    const [categoryInfo, setCategoryInfo] = useState({})
     
-    const [formData, setFormData] = useState({"category_name": ""})
+    const [formData, setFormData] = useState({"category_name": "", "id": props.id})
 
     const [submitting, setSubmission] = useState(false)
     const [archiving, setArchiving] = useState(false)
     const [open, setOpen] = useState(false)
+    const [titleEditable, setTitleEditable] = useState(false)
 
     async function loadDepartments(){
         var res = await getDepartments().then(data => data.data)
@@ -28,6 +30,7 @@ function CategoryTasks(props){
     async function loadCategoryTasks(id){
         var res = await getCategory(id).then(data => data.data)
         console.log(res.main_tasks)
+        setCategoryInfo(res)
         await setCategoryTasks(res.main_tasks)
         setFormData({"task_name": "",
                     "department": "0",
@@ -49,11 +52,16 @@ function CategoryTasks(props){
     },[props.id])
 
     useEffect(()=>{
+        console.log(formData)
     }, [formData])
 
 
     const handleDataChange = (e) => {
         setFormData({...formData, [e.target.name]: e.target.value})        
+    }
+
+    const handleTitleChange = (e) => {
+        setFormData({...formData, [e.target.id]: e.target.textContent})        
     }
 
     const handleSwitchChange = (e) => {
@@ -96,7 +104,7 @@ function CategoryTasks(props){
 
         // gawin bukas yung past tense ng description
         // gawin din yung graphs at create sub tasks sa backend
-        //update delete ng category at nung task
+        // update ng category at nung task
 
         
         await loadCategoryTasks(props.id)
@@ -150,6 +158,27 @@ function CategoryTasks(props){
             })
         }
 
+    const handleUpdate = async () => {
+            var a = await updateCategory(formData)
+            console.log(a)
+            if(a.data.message == "Category updated.") {
+                Swal.fire({
+                    title:"Success",
+                    text: a.data.message,
+                    icon:"success"
+                })
+                props.reloadAll()
+            }
+            else {
+                Swal.fire({
+                    title:"Error",
+                    text: a.data.message,
+                    icon:"error"
+                })
+            }
+            
+        }
+    
     
 
     return (
@@ -242,6 +271,14 @@ function CategoryTasks(props){
                 </button>  
             </div>
                 <div className="tasks-average-rating">
+                    <div className="category-title">
+                        <h2 contentEditable ={titleEditable} id = "title" onInput={handleTitleChange} style={{fontSize: "2.5rem", fontWeight:"700"}}>{categoryInfo && categoryInfo["name"]}</h2>
+                        <span className="material-symbols-outlined" onClick={()=>{
+                                setTitleEditable(!titleEditable);
+                                console.log(titleEditable)
+                                if (titleEditable) handleUpdate();
+                                }}>edit</span>
+                    </div>
                     <span className="graph-title">Average Rating per Task</span>
                     <SubmissionsChart></SubmissionsChart>
                 </div>

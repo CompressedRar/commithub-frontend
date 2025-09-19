@@ -27,3 +27,20 @@ export async function authenticateAccount(data) {
         }
     })
 }
+
+export async function updateMemberInfo(data){
+    return api.patch("/api/v1/users/", data, {
+        headers: {
+            "Content-type": "multipart/form-data"
+        }
+    })
+}
+
+export async function getAccounts() {
+    console.log("registering")
+    return api.get("/api/v1/users/")
+}
+
+export async function getAccountInfo(id) {
+    return api.get(`/api/v1/users/${id}`)
+}
