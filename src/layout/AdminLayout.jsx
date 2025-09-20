@@ -48,7 +48,7 @@ function AdminLayout(){
                     <span>Department Management</span>
                 </a>
                 <a className="pages" href = "/users" style={detectCurrentPage("users")}>
-                    <span className="material-symbols-outlined">manage_accounts</span>
+                    <span className="material-symbols-outlined">group</span>
                     <span>User Management</span>
                 </a>
                 <a className="pages" href="/tasks" style={detectCurrentPage("tasks")}>
@@ -60,8 +60,8 @@ function AdminLayout(){
                     <span>Audit Logs</span>
                 </a>
                 <a className="pages">
-                    <span className="material-symbols-outlined" style={detectCurrentPage("")}>analytics</span>
-                    <span>Performance Commitments and Review</span>
+                    <span className="material-symbols-outlined" style={detectCurrentPage("")}>manage_accounts</span>
+                    <span>Account Setting</span>
                 </a>
             </div>
             <header className="header-container">

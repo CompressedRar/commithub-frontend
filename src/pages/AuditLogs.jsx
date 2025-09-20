@@ -1,11 +1,25 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../assets/styles/AuditLogs.css"
 
+import { getLogs } from "../services/logService";
+import LogTable from "../components/AuditLogs/LogTable";
 
 function AuditLogs() {
+
+    const [allLogs, setAllLogs] = useState([])
+
+    async function loadAllLogs(){
+        var res = await getLogs().then(data => data)
+        setAllLogs(res)
+    }
+
+    useEffect(()=>{
+    }, [])
+
     return (
         <div className="audit-logs-container">
-            <div className="audit-table-container">
+            {/**
+             * <div className="audit-table-container">
                 <div className=" table-headers">
                     <span className="table-title">Audit Logs</span>
 
@@ -37,41 +51,19 @@ function AuditLogs() {
 
                 <div className="table-container">
                     <table>
-                        <tr>
-                            <th>Timestamp</th>
-                            <th>User</th>
-                            <th>Department</th>
-                            <th>Action</th>
-                            <th>Target</th>
-                        </tr>
-                        <tr>
-                            <td>2025-08-20 09:32 AM</td>
-                            <td>User: John Doe</td>
-                            <td>Computing Studies</td>
-                            <td>Created IPCR</td>
-                            <td>IPCR ID 21</td>
-                        </tr>
-                        <tr>
-                            <td>2025-08-20 09:32 AM</td>
-                            <td>User: John Doe</td>
-                            <td>Computing Studies</td>
-                            <td>Created IPCR</td>
-                            <td>IPCR ID 21</td>
-                        </tr>
-                        <tr>
-                            <td>2025-08-20 09:32 AM</td>
-                            <td>User: John Doe</td>
-                            <td>Computing Studies</td>
-                            <td>Created IPCR</td>
-                            <td>IPCR ID 21</td>
-                        </tr>
-                        <tr>
-                            <td>2025-08-20 09:32 AM</td>
-                            <td>User: John Doe</td>
-                            <td>Computing Studies</td>
-                            <td>Created IPCR</td>
-                            <td>IPCR ID 21</td>
-                        </tr>
+                        <tbody>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>User</th>
+                                <th>Department</th>
+                                <th>Action</th>
+                                <th>Target</th>
+                                <th>IP Address</th>
+                                <th>User Agent</th>
+                            </tr>
+                            
+                            
+                        </tbody>
                         
                     </table>
                     <div className="pagination">
@@ -84,6 +76,9 @@ function AuditLogs() {
                 </div>
 
             </div>
+             */}
+
+            <LogTable></LogTable>
         </div>
     )
 }

@@ -1,14 +1,10 @@
 import { useEffect, useState } from "react"
-import { getDepartments, getDepartment, getDepartmentMembers } from "../../services/departmentService";
 
-import { getAccounts } from "../../services/userService";
-import Members from "./Members";
-
-import Register from "../../pages/Register";
 import { socket } from "../api";
-import MemberProfile from "./MemberProfile";
+import { getLogs } from "../../services/logService";
+import Logs from "./Logs";
 
-function MemberTable(props) {
+function LogTable() {
 
     const [allMembers, setAllMembers] = useState([])
     const [filteredMembers, setFilteredMembers] = useState([])
@@ -23,15 +19,23 @@ function MemberTable(props) {
     const [currentUserID, setCurrentUserID] = useState(0)
     
     async function loadAllMembers() {      
-        var res = await getAccounts().then(data => data.data)
+        var res = await getLogs().then(data => data.data)
         console.log(res)
         setAllMembers(res)
         setFilteredMembers(res)
         generatePagination(res)
-        console.log("loaded all the members")
+        console.log("loaded all the logs")
 
     }
 
+    //assign task bukas
+    //account settings
+    //department tasks at user settings non
+    //remove user sa department
+    //update yung dashboard
+    //reset password
+    //change email user
+ 
     function loadLimited(){
         var slicedMembers = filteredMembers.slice(memberLimit["offset"], memberLimit["limit"])
         console.log(slicedMembers)
@@ -44,14 +48,14 @@ function MemberTable(props) {
 
         for(const member of allMembers){
             
-            if( member.email.includes(query) || 
-            member.first_name.includes(query) || 
-            member.last_name.includes(query) || 
-            member.position.name.includes(query) || 
+            if( member.full_name.includes(query) ||
+            member.action.includes(query) || 
             String(member.id).includes(query)|| 
-            member.created_at.includes(query) ||
-            member.role.includes(query) ||
-            member.department.name.includes(query) ){
+            member.timestamp.includes(query) ||
+            
+            member.ip_address.includes(query) ||
+            member.user_agent.includes(query) ||
+            member.department.includes(query) ){
                 matchedMembers = [...matchedMembers, member]
             }
         }
@@ -78,7 +82,7 @@ function MemberTable(props) {
     useEffect(()=>{
         if(searchQuery.length == 0) {
             loadLimited()
-            loadAllMembers(props.deptid)
+            loadAllMembers()
             return   
         }
         const debounce = setTimeout(()=>{
@@ -107,62 +111,12 @@ function MemberTable(props) {
         loadAllMembers()
         console.log("members loaded")
 
-        socket.on("user_created", ()=>{
-            loadAllMembers()
-            console.log("new user added")
-        })
-
-        socket.on("user_modified", ()=>{
-            loadAllMembers()
-            console.log("user modified")
-        })
-
-        return () => {
-            socket.off("user_created");
-        }
         
     },[])
     return (
         <div className="member-container">
-            <div className="modal fade " id="add-user"  data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                <div className="modal-dialog modal-dialog-centered modal-fullscreen" >
-                    <div className="modal-content model-register">
-                        <div className="modal-header">
-                            <h5 className="modal-title" id="staticBackdropLabel">Create Account</h5>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div className="modal-body">
-                            <iframe className="register-page" src="/create" frameborder="0"></iframe>                                                        
-                        </div>
-                        
-                    </div>
-                </div>
-            </div>
-
-            <div className="modal fade " id="user-profile"  data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                <div className="modal-dialog modal-dialog-centered modal-lg" >
-                    <div className="modal-content model-register">
-                        <div className="modal-header">
-                            <h5 className="modal-title" id="staticBackdropLabel">Profile Page</h5>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div className="modal-body">
-                            {currentUserID? <MemberProfile key={currentUserID} id = {currentUserID}></MemberProfile> :""}                                                   
-                        </div>
-                        
-                    </div>
-                </div>
-            </div>
-
-
             <div className="table-header-container" id="user-table">
-                <div className="table-title">Accounts</div>
-                <div className="create-user-container">
-                    <button data-bs-toggle="modal" data-bs-target="#add-user" className="btn btn-primary">
-                        <span className="material-symbols-outlined">add</span>
-                        <span>Create Account</span>
-                    </button>
-                </div>
+                <div className="table-title">Logs</div>
                         {/**<div className="add-members">
                             <button>
                                 <span className="material-symbols-outlined">add</span>
@@ -185,7 +139,7 @@ function MemberTable(props) {
                             
                         }
                 <div className="search-members">
-                        <input type="text" placeholder="Search user..." onInput={(element)=>{setQuery(element.target.value)}}/>                        
+                        <input type="text" placeholder="Search logs..." onInput={(element)=>{setQuery(element.target.value)}}/>                        
                 </div>                        
             </div>
 
@@ -193,22 +147,21 @@ function MemberTable(props) {
                 <table>
                     <tbody>
                         <tr>
-                            <th>ID</th>
-                            <th>EMAIL ADDRESS</th>
-                            <th>FULL NAME</th>
+                            <th>USER AGENT</th>                            
+                            <th>USER</th>
                             <th>DEPARTMENT</th>
-                            <th>POSITION</th>
-                            <th>ROLE</th>
-                            <th style={{textAlign: "center"}}>STATUS</th>
-                            <th>DATE CREATED</th>
-                            <th></th>
+                            <th>ACTION</th>
+                            <th>TARGET</th>
+                            <th>IP ADDRESS</th>
+                            <th>TIMESTAMP</th>
                         </tr>
                                 
-                        {tenMembers != 0? tenMembers.map(mems => (
-                        <Members mems = {mems} switchMember = {(id) => {setCurrentUserID(id); console.log("hehe", id)}}></Members>)):
+                        {tenMembers != 0? tenMembers.map(log => (
+                            <Logs log = {log}></Logs>
+                        )):
 
                         <tr className="empty-table">
-                            <td>No users</td>
+                            <td>No logs</td>
                         </tr>
                         }
                     </tbody>                               
@@ -224,4 +177,4 @@ function MemberTable(props) {
     )
 }
 
-export default MemberTable
+export default LogTable

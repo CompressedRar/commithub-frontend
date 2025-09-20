@@ -345,3 +345,15 @@
     flex-direction: row;
     justify-content: flex-end;
 }
+
+.active {
+    color: rgb(0, 167, 0);
+    padding:7px;
+    border-radius: 5px;
+}
+
+.deactivated {
+    color: rgb(190, 0, 0);
+    padding:7px;
+    border-radius: 5px;
+}

@@ -4,10 +4,12 @@ import UsersPieChart from "../Piechart"
 
 
 import { getPositions } from "../../services/positionService"
-import { getDepartments } from "../../services/departmentService"
-import { getAccountInfo, updateMemberInfo } from "../../services/userService"
+import { archiveDepartment, getDepartments } from "../../services/departmentService"
+import { archiveAccount, getAccountInfo, updateMemberInfo, unarchiveAccount } from "../../services/userService"
 import { objectToFormData } from "../api"
 import Swal from "sweetalert2"
+import { Modal } from "bootstrap/js/dist/modal"
+import { socket } from "../api";
 
 
 function MemberProfile(props){
@@ -16,8 +18,9 @@ function MemberProfile(props){
     const [positions, setPositions] = useState([])   
     const [allDepartments, setAllDepartments] = useState([])
     const [formData, setFormData] = useState({"id": 0, "department": 0})
-    const [page, setPage] = useState(1)
+    const [page, setPage] = useState(0)
     const [dataChanged, setDataChanged] = useState(false)
+    const [archiving, setArchiving] = useState(false)
     
     const[preview, setPreview] = useState(null)
     const fileInput = useRef(null)
@@ -51,6 +54,97 @@ function MemberProfile(props){
 
         console.log("lock and loaded")
 
+    }
+
+    const Reactivate = async () => {
+            var res = await unarchiveAccount(props.id).then(data => data.data.message)
+            if(res == "User successfully reactivated") {
+                Swal.fire({
+                    title:"Success",
+                    text: res,
+                    icon:"success"
+                })
+            }
+            else {
+                Swal.fire({
+                    title:"Error",
+                    text: res,
+                    icon:"error"
+                })
+            }
+        }
+        const handleReactivate = async () => {
+            Swal.fire({
+                title: 'Do you want to reactivate this account?',
+                showDenyButton: true,
+                confirmButtonText: 'Yes',
+                denyButtonText: 'No',
+                customClass: {
+                    actions: 'my-actions',
+                    cancelButton: 'order-1 right-gap',
+                    confirmButton: 'order-2'
+                    },
+                            }).then(async (result) => {
+                            if (result.isConfirmed) {
+                                Reactivate()
+                            } else if (result.isDenied) {
+                                   
+                            }
+                        })
+                
+        
+            const modalEl = document.getElementById("user-profile");
+            const modal = Modal.getInstance(modalEl) || new Modal(modalEl);
+            modal.hide();
+        
+            setArchiving(false)
+        }
+
+    const handleArch = async () => {
+        var res = await archiveAccount(props.id).then(data => data.data.message)
+        if(res == "User successfully deactivated") {
+            Swal.fire({
+                title:"Success",
+                text: res,
+                icon:"success"
+            })
+        }
+         else {
+            Swal.fire({
+                title:"Error",
+                text: res,
+                icon:"error"
+            })
+        }
+    }
+
+    const handleArchive = async () => {
+        
+       Swal.fire({
+            title: 'Do you want to deactivate this account?',
+            showDenyButton: true,
+            confirmButtonText: 'Yes',
+            denyButtonText: 'No',
+            customClass: {
+                actions: 'my-actions',
+                cancelButton: 'order-1 right-gap',
+                confirmButton: 'order-2'
+                },
+                       }).then(async (result) => {
+                       if (result.isConfirmed) {
+                           handleArch()
+                       } else if (result.isDenied) {
+                           
+                       }
+                   })
+        
+
+        const modalEl = document.getElementById("user-profile");
+        const modal = Modal.getInstance(modalEl) || new Modal(modalEl);
+        modal.hide();
+
+        setArchiving(false)
+        props.firstLoad();
     }
 
     //gawin yung reset password
@@ -87,6 +181,7 @@ function MemberProfile(props){
     }
     
     function detectChange(){
+        if(page != 1) return;
         var fname = document.getElementById("first_name")
         var mname = document.getElementById("middle_name")
         var lname = document.getElementById("last_name")
@@ -132,6 +227,10 @@ function MemberProfile(props){
         console.log(dataChanged)
     }, [dataChanged])
 
+    useEffect(()=> {
+        loadUserInformation()
+    }, [page])
+
     useEffect(()=>{
         console.log(formData)
         detectChange()
@@ -140,13 +239,39 @@ function MemberProfile(props){
     useEffect(()=>{
         loadDepartments()
         loadPositions()
-        loadUserInformation()
+        
+
+        socket.on("user_modified", ()=>{
+            loadUserInformation()
+            console.log("user modified")
+        })
     }, [])
 
 
 
     return(
         <div className="member-profile-container">
+
+            <div className="modal fade" id="archive-account" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div className="modal-dialog modal-dialog-centered" >
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="staticBackdropLabel">Archive Department</h5>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div className="modal-body">                            
+                            Do you want to deactivate this account?
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" className="btn btn-danger" onClick={handleArchive}>
+                                {archiving ? <span className="material-symbols-outlined loading">progress_activity</span> : <span>Archive Department</span>}
+                            </button>
+                           
+                        </div>
+                    </div>
+                </div>
+            </div>
             
             <div className="tabs-container">
                 <div className={!page? "tab active": "tab"} onClick={()=>{setPage(0)}}>
@@ -198,7 +323,7 @@ function MemberProfile(props){
                     </div>
                     <div className="pair">
                         <span className="title">Role</span>
-                        <span className="content">{memberInformation.role[0].toUpperCase() + memberInformation.role.slice(1)}</span>
+                        <span className="content">{memberInformation.role?memberInformation.role[0].toUpperCase() + memberInformation.role.slice(1):""}</span>
                     </div>
                 </div>
                 <h2>IPCR Submitted</h2>
@@ -273,9 +398,16 @@ function MemberProfile(props){
                             <span className="material-symbols-outlined">restart_alt</span>
                             <span>Reset Password</span>
                         </button>
-                        <button className="btn btn-danger">
-                            <span className="material-symbols-outlined">account_circle_off</span>
-                            <span>Deactivate Account</span>
+                        <button className={memberInformation.account_status == 0? "btn btn-success": "btn btn-danger"} onClick={()=>{
+                            if(memberInformation.account_status) {
+                                handleArchive()
+                            }
+                            else {
+                                handleReactivate()
+                            }
+                        }}>
+                            <span className="material-symbols-outlined">{memberInformation.account_status == 0? "account_circle": "account_circle_off"}</span>
+                            <span>{memberInformation.account_status == 0? "Reactivate": "Deactivate"}</span>
                         </button>
                     </div>
                     

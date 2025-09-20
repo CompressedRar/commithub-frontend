@@ -36,6 +36,16 @@ export async function updateMemberInfo(data){
     })
 }
 
+export async function archiveAccount(id) {
+    console.log("archiving")
+    return api.delete(`/api/v1/users/${id}`)
+}
+
+export async function unarchiveAccount(id) {
+    console.log("unarchiving")
+    return api.post(`/api/v1/users/${id}`)
+}
+
 export async function getAccounts() {
     console.log("registering")
     return api.get("/api/v1/users/")
