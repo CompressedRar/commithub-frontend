@@ -1,0 +1,169 @@
+import { use, useEffect, useState } from "react"
+import { assignUsers, getAssignedUsers, getDepartmentMembers, unAssignUsers } from "../../services/departmentService"
+import Swal from "sweetalert2"
+import { socket } from "../api"
+
+
+function DepartmentAssignTask(props){
+    const [members, setMembers] = useState([])
+    const [assignedMembers, setAssignedMembers] = useState([])
+    const [archiving, setArchiving] = useState(false)
+
+    async function loadAssignedMembers(){
+        var res = await getAssignedUsers(props.dept_id, props.task_id).then(data => data.data)
+
+        setAssignedMembers(res)
+        console.log("assigned members: ", res)
+    }
+
+    function checkIfAssigned(user_id){
+
+        for(const i of assignedMembers){
+            console.log(i.id == user_id)
+            if(i.id == user_id) return true
+        }
+
+        return false
+    }
+
+    async function name(params) {
+        
+    }
+
+    async function loadMembers(){
+        var res = await getDepartmentMembers(props.dept_id, 0, 100).then(data => data.data)
+        setMembers(res)
+    }
+
+    async function AssignUser(userid) {
+    
+            var res = await assignUsers(userid, props.task_id).then(data => data.data.message)
+            if(res == "User successfully assigned.") {
+                Swal.fire({
+                    title:"Success",
+                    text: res,
+                    icon:"success"
+                })
+            }
+            else {
+                Swal.fire({
+                    title:"Error",
+                    text: res,
+                    icon:"error"
+                })
+            }
+        }
+    async function handleAssign(userid){
+            Swal.fire({
+                title: 'Do you want to assign the task to this user?',
+                showDenyButton: true,
+                confirmButtonText: 'Yes',
+                denyButtonText: 'No',
+                customClass: {
+                    actions: 'my-actions',
+                    cancelButton: 'order-1 right-gap',
+                    confirmButton: 'order-2'
+                    },
+                        }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            AssignUser(userid)
+                        } else if (result.isDenied) {
+                                       
+                        }
+                    })
+             setArchiving(false)
+        }
+
+    async function UnassignUser(userid) {
+    
+            var res = await unAssignUsers(userid, props.task_id).then(data => data.data.message)
+            if(res == "Task successfully removed.") {
+                Swal.fire({
+                    title:"Success",
+                    text: res,
+                    icon:"success"
+                })
+            }
+            else {
+                Swal.fire({
+                    title:"Error",
+                    text: res,
+                    icon:"error"
+                })
+            }
+        }
+    async function handleUnassign(userid){
+            Swal.fire({
+                title: 'Do you want to remove the task to this user?',
+                showDenyButton: true,
+                confirmButtonText: 'Yes',
+                denyButtonText: 'No',
+                customClass: {
+                    actions: 'my-actions',
+                    cancelButton: 'order-1 right-gap',
+                    confirmButton: 'order-2'
+                    },
+                        }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            UnassignUser(userid)
+                        } else if (result.isDenied) {
+                                       
+                        }
+                    })
+             setArchiving(false)
+        }
+
+    useEffect(()=>{
+        loadAssignedMembers()
+        loadMembers()
+
+        socket.on("user_assigned", ()=>{
+            loadMembers()
+            loadAssignedMembers()
+            console.log("user assigned")
+        })
+
+        return () => {
+            socket.off("user_assigned");
+        }
+    }, [])
+
+    return(
+        <div className="assign-task-container">
+            <div className="members-container">
+                {members.map(member => (
+                    <div className="user">
+                    <div className="user-profile">
+                        <div className="user-image" style={{backgroundImage: `url('${member.profile_picture_link}')`}}>.</div>
+                        <div className="user-info">
+                            <div className="user-name">{member.first_name + " " + member.last_name}</div>
+                            <div className="user-dept">{member.department_name}</div>
+                        </div>
+                    </div>
+                    <div className="option">
+                        {checkIfAssigned(member.id)?
+                            <button className="btn btn-danger" onClick={()=>{
+                                handleUnassign(member.id)
+                            }}>
+                                <span className="material-symbols-outlined">remove</span>
+                                <span>Remove User</span>
+                            </button>
+                            :
+                            <button className="btn btn-success" onClick={()=>{
+                                handleAssign(member.id)
+                            }}>
+                                <span className="material-symbols-outlined">add</span>
+                                <span>Assign User</span>
+                            </button>
+                        }
+                    </div>
+                </div>
+                ))}
+                
+            </div>
+            
+        </div>
+    )   
+}
+
+export default DepartmentAssignTask

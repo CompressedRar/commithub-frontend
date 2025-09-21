@@ -161,7 +161,7 @@ function Department(){
                 <div className="add-container">
                     <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-department">
                         <span className="material-symbols-outlined">add</span>
-                        <span>Add Departments</span>
+                        <span>Create Department</span>
                     </button>
                 </div>
                 <div className = "all-departments">

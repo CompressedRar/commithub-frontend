@@ -1,0 +1,95 @@
+import { useState } from "react"
+import { Modal } from "bootstrap"
+
+import { archiveAccount, unarchiveAccount } from "../../services/userService"
+import Swal from "sweetalert2"
+import { removeTask } from "../../services/departmentService"
+
+function DepartmentTask({mems, switchMember}){
+    const [open, setOpen] = useState(false)
+    const [archiving, setArchiving] = useState(false)
+
+    const Remove = async () => {
+        var res = await removeTask(mems.id).then(data => data.data.message)
+        if(res == "Task successfully removed.") {
+            Swal.fire({
+                title:"Success",
+                text: res,
+                icon:"success"
+            })
+        }
+        else {
+            Swal.fire({
+                title:"Error",
+                text: res,
+                icon:"error"
+            })
+        }
+    }
+    const handleRemove = async () => {
+        Swal.fire({
+            title: 'Do you want to remove this task?',
+            showDenyButton: true,
+            confirmButtonText: 'Yes',
+            denyButtonText: 'No',
+            customClass: {
+                actions: 'my-actions',
+                cancelButton: 'order-1 right-gap',
+                confirmButton: 'order-2'
+                },
+                        }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            Remove()
+                        } else if (result.isDenied) {
+                               
+                        }
+                    })
+    
+        setArchiving(false)
+    }
+
+
+    return (
+        <tr key = {mems.id}>
+            <td>{mems.id}</td>                                    
+             <td>{mems.name}</td>
+            <td>{mems.target_accomplishment}</td>
+            <td>{mems.actual_accomplishment}</td>
+            <td>{mems.category.name}</td>
+            <td>{"None"}</td>
+            <td className="more-options">
+                <span  className="material-symbols-outlined open" onClick={()=>{setOpen(true)}}>more_vert</span>
+
+                {open && 
+                <div className="member-options" onMouseLeave={()=>{setOpen(false)}}>
+                    
+                    <span className="option" onClick={()=>{switchMember(mems.id)}} data-bs-toggle="modal" data-bs-target="#user-profile">
+                        <span className="material-symbols-outlined">account_circle</span>
+                        <span>Assign Member</span>
+                    </span>
+                    
+                    <span className="option" onClick={()=> {
+                        handleRemove()
+                    }}>
+                        <span className="material-symbols-outlined">remove</span>
+                        <span>Remove</span>
+                    </span>
+
+
+                </div>}
+
+                {/**
+                    * view profile
+                    * assign tasks
+                    * change role
+                    * remove
+                    * deactivate or reactivate
+                    * edt member info
+                */}
+             </td>
+             
+        </tr>
+    )
+}
+
+export default DepartmentTask

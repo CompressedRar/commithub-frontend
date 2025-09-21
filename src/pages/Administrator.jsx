@@ -3,7 +3,8 @@ import "../assets/styles/dashboard.css"
 import UsersPieChart from "../components/Piechart";
 import SubmissionsChart from "../components/Barchart";
 
-import { getUserCount } from "../services/tableServices";
+import { getCategoryCount, getTaskCount, getUserCount } from "../services/tableServices";
+import { Navigate } from "react-router-dom";
 
 function Administrator(){
 
@@ -13,6 +14,9 @@ function Administrator(){
     const [otherCount, setOtherCount] = useState(0)
     const [allCount, setAllCount] = useState(0)
 
+    const [taskCount, setTaskCount] = useState(0)
+    const [categoryCount, setCategoryCount] = useState(0)
+
     useEffect(()=> {
         getUserCount().then(data => {
             console.log(data.data.message)
@@ -21,6 +25,14 @@ function Administrator(){
             setHMCount(data.data.message.hm)
             setOtherCount(data.data.message.other)
             setAllCount(data.data.message.all)
+        })
+
+        getTaskCount().then(data => {
+            setTaskCount(data.data.message.count)
+        })
+
+        getCategoryCount().then(data => {
+            setCategoryCount(data.data.message.count)
         })
         
         
@@ -68,13 +80,13 @@ function Administrator(){
 
                     <div className="total-count-container">
                         <span className="material-symbols-outlined">task</span>                        
-                        <span className="count">120</span>
+                        <span className="count">{taskCount}</span>
                         <span>Total Tasks</span>
                     </div>
 
                     <div className="total-count-container">
                         <span className="material-symbols-outlined">category</span>
-                        <span className="count">17</span>
+                        <span className="count">{categoryCount}</span>
                         <span>Total Categories</span>
                     </div>
                 </div>  
@@ -82,18 +94,18 @@ function Administrator(){
 
             <div className="system-overview">
                 <div className="shortcuts">
-                    <div className="manage">
+                    <a className="manage" href = "/users">
                         <span className="material-symbols-outlined">manage_accounts</span>
                         <span>Manage Users</span>
-                    </div>
-                    <div className="manage">
+                    </a>
+                    <a className="manage" href = "/department">
                         <span className="material-symbols-outlined">apartment</span>
                         <span>Manage Departments</span>
-                    </div>
-                    <div className="manage">
+                    </a>
+                    <a className="manage" href = "/tasks">
                         <span className="material-symbols-outlined">admin_panel_settings</span>
                         <span>Manage Tasks</span>
-                    </div>
+                    </a>
                 </div>
 
                 <div className="graph-container">

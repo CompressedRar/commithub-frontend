@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { getDepartments, getDepartment, getDepartmentMembers } from "../../services/departmentService";
 import DepartmentMembers from "./DepartmentMembers";
-
+import { socket } from "../api";
 function DepartmentMemberTable(props) {
 
     const [allMembers, setAllMembers] = useState([])
@@ -93,6 +93,21 @@ function DepartmentMemberTable(props) {
         console.log("loading members")
         loadAllMembers(props.deptid)
         console.log("members loaded")
+
+        socket.on("user_modified", ()=>{
+            loadAllMembers(props.deptid)
+            console.log("user modified")
+        })
+
+        socket.on("user_created", ()=>{
+            loadAllMembers(props.deptid)
+            console.log("user modified")
+        })
+        
+        return () => {
+            socket.off("user_created");
+            socket.off("user_modified");
+        }
         
     },[])
     return (

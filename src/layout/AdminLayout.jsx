@@ -47,14 +47,15 @@ function AdminLayout(){
                     <span className="material-symbols-outlined">apartment</span>
                     <span>Department Management</span>
                 </a>
-                <a className="pages" href = "/users" style={detectCurrentPage("users")}>
-                    <span className="material-symbols-outlined">group</span>
-                    <span>User Management</span>
-                </a>
                 <a className="pages" href="/tasks" style={detectCurrentPage("tasks")}>
                     <span className="material-symbols-outlined">task</span>
                     <span>Category and Task</span>
                 </a>
+                <a className="pages" href = "/users" style={detectCurrentPage("users")}>
+                    <span className="material-symbols-outlined">group</span>
+                    <span>User Management</span>
+                </a>
+                
                 <a className="pages" href = "/logs" style={detectCurrentPage("logs")}>
                     <span className="material-symbols-outlined">article_person</span>
                     <span>Audit Logs</span>

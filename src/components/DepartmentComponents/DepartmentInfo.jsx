@@ -4,6 +4,7 @@ import DepartmentMemberTable from "./DepartmentMemberTable";
 import { objectToFormData } from "../api";
 import Swal from "sweetalert2";
 import { Modal } from "bootstrap";
+import DepartmentTasksTable from "./DepartmentTasksTable";
 
 function DepartmentInfo(props){
 
@@ -284,88 +285,7 @@ function DepartmentInfo(props){
                                        
                 <DepartmentMemberTable deptid ={props.id} ></DepartmentMemberTable>
 
-                <div className="member-container">
-                    <div className="table-header-container">
-
-                        <div className="table-title">Department Tasks</div>
-                        {/**<div className="add-members">
-                            <button>
-                                <span className="material-symbols-outlined">add</span>
-                                <span>Add Members</span>
-                            </button>
-                        </div>
-                        <div className="sorting-container">
-                            <label htmlFor="sort">Sort By: </label>
-                            <select name="sort" id="sort">
-                                <option value="">First Name</option>
-                                <option value="">Last Name</option>
-                                <option value="">Role</option>
-                                <option value="">Date Created</option>
-                            </select>
-                            <select name="sort" id="sort">
-                                <option value="">Ascending</option>
-                                <option value="">Descending</option>
-                            </select>
-                        </div> */
-                            
-                        }
-                        <div className="search-members">
-                            <input type="text" placeholder="Search task..."/>                        
-                        </div>                        
-                    </div>
-
-                    <div className="table-container">
-                        <table>
-                            <tbody>
-                                <tr>
-                                    <th>
-                                        ID
-                                    </th>
-                                    <th>
-                                        TASK NAME
-                                    </th>
-                                    <th>
-                                        TARGET
-                                    </th>
-                                    <th>
-                                        ACTUAL
-                                    </th>
-                                    <th>
-                                        CATEGORY
-                                    </th>
-                                    <th>
-                                        INDIVIDUALS ACCOUNTABLE
-                                    </th>
-                                    <th>
-                                    ACTIONS 
-                                    </th>
-                                </tr>
-                                <tr>
-                                    <td>12</td>                                    
-                                    <td>Board of Trustees meeting</td>
-                                    <td>Prepares agenda, invitation letter, budget for Board of Trustees meeting in</td>
-                                    <td>Prepares agenda, invitation letter, budget for Board of Trustees meeting in</td>
-                                    <td>School Leadership and Management Services</td>
-                                    <td>Dr. Ma. Liberty DG. Pascual</td>
-                                    <td>
-                                        <span className="material-symbols-outlined">more_vert
-                                            {/**
-                                             * remove task
-                                             * assign member
-                                             */}
-                                        </span>
-                                    </td>
-                                </tr>
-                            </tbody>
-
-                               
-                        </table>
-                        
-                    </div>
-                    <div className="pagination">
-                            
-                    </div>
-                </div>
+                <DepartmentTasksTable id = {props.id}></DepartmentTasksTable>
             </div>
     )
 }

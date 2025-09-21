@@ -581,3 +581,45 @@
         transform: rotate(1080deg);
     }
 }
+
+.members-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.members-container .user {
+    display: flex;
+    flex-direction: row;
+    padding: 5px;
+    justify-content: space-between;
+    box-sizing: border-box;
+    gap: 10px;
+    padding: 10px;
+}
+
+.members-container .user .user-image {
+    background-image: url("dummy.jpg");
+    width: 50px;
+    height: 50px;
+    background-size: cover;
+    border-radius: 50%;
+}
+
+.members-container .user .user-profile {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.members-container .user .user-profile .user-name {
+    font-weight: 500;
+    font-size: 1.2rem;
+}
+
+.user .option button{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}

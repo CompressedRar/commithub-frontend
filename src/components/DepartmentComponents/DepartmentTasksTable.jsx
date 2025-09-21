@@ -1,14 +1,12 @@
 import { useEffect, useState } from "react"
-import { getDepartments, getDepartment, getDepartmentMembers } from "../../services/departmentService";
+import { getDepartments, getDepartment, getDepartmentMembers, getDepartmentTasks } from "../../services/departmentService";
 
-import { getAccounts } from "../../services/userService";
-import Members from "./Members";
-
-import Register from "../../pages/Register";
 import { socket } from "../api";
-import MemberProfile from "./MemberProfile";
+import DepartmentTask from "./DepartmentTask";
+import DepartmentTaskInfo from "./DepartmentTaskInfo";
+import DepartmentAssignTask from "./DepartmentAssignTask";
 
-function MemberTable(props) {
+function DepartmentTasksTable(props) {
 
     const [allMembers, setAllMembers] = useState([])
     const [filteredMembers, setFilteredMembers] = useState([])
@@ -25,7 +23,7 @@ function MemberTable(props) {
     //department task assign
     
     async function loadAllMembers() {      
-        var res = await getAccounts().then(data => data.data)
+        var res = await getDepartmentTasks(props.id).then(data => data.data)
         console.log(res)
         setAllMembers(res)
         setFilteredMembers(res)
@@ -114,17 +112,20 @@ function MemberTable(props) {
             console.log("new user added")
         })
 
-        socket.on("user_modified", ()=>{
+        socket.on("task_modified", ()=>{
             loadAllMembers()
-            console.log("user modified")
+            console.log("task_modified")
         })
 
         return () => {
             socket.off("user_created");
-            socket.off("user_modified");
+            socket.off("task_modified");
         }
         
     },[])
+
+    //add tasks bukas
+    //simuklan na yung ipcr bukas
     return (
         <div className="member-container">
             <div className="modal fade " id="add-user"  data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -142,15 +143,16 @@ function MemberTable(props) {
                 </div>
             </div>
 
-            <div className="modal fade " id="user-profile"  data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div className="modal fade" id="user-profile"  data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                 <div className="modal-dialog modal-dialog-centered modal-lg" >
-                    <div className="modal-content model-register">
+                    <div className="modal-content model-register " style={{backgroundColor: "rgb(233, 233, 233)"}}>
                         <div className="modal-header">
-                            <h5 className="modal-title" id="staticBackdropLabel">Profile Page</h5>
+                            <h2>Assign Members</h2>
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
-                            {currentUserID? <MemberProfile key={currentUserID} id = {currentUserID}></MemberProfile> :""}                                                   
+                            {/**currentUserID? <DepartmentTaskInfo key={currentUserID} id = {currentUserID}></DepartmentTaskInfo> :""*/}    
+                            {currentUserID? <DepartmentAssignTask key={currentUserID} task_id = {currentUserID} dept_id = {props.id}></DepartmentAssignTask> :""}                                              
                         </div>
                         
                     </div>
@@ -159,34 +161,13 @@ function MemberTable(props) {
 
 
             <div className="table-header-container" id="user-table">
-                <div className="table-title">Accounts</div>
+                <div className="table-title">Tasks</div>
                 <div className="create-user-container">
                     <button data-bs-toggle="modal" data-bs-target="#add-user" className="btn btn-primary">
                         <span className="material-symbols-outlined">add</span>
-                        <span>Create Account</span>
+                        <span>Add Tasks</span>
                     </button>
                 </div>
-                        {/**<div className="add-members">
-                            <button>
-                                <span className="material-symbols-outlined">add</span>
-                                <span>Add Members</span>
-                            </button>
-                        </div>
-                        <div className="sorting-container">
-                            <label htmlFor="sort">Sort By: </label>
-                            <select name="sort" id="sort">
-                                <option value="">First Name</option>
-                                <option value="">Last Name</option>
-                                <option value="">Role</option>
-                                <option value="">Date Created</option>
-                            </select>
-                            <select name="sort" id="sort">
-                                <option value="">Ascending</option>
-                                <option value="">Descending</option>
-                            </select>
-                        </div> */
-                            
-                        }
                 <div className="search-members">
                         <input type="text" placeholder="Search user..." onInput={(element)=>{setQuery(element.target.value)}}/>                        
                 </div>                        
@@ -197,21 +178,19 @@ function MemberTable(props) {
                     <tbody>
                         <tr>
                             <th>ID</th>
-                            <th>EMAIL ADDRESS</th>
-                            <th>FULL NAME</th>
-                            <th>DEPARTMENT</th>
-                            <th>POSITION</th>
-                            <th>ROLE</th>
-                            <th style={{textAlign: "center"}}>STATUS</th>
-                            <th>DATE CREATED</th>
+                            <th>TASK NAME</th>
+                            <th>TARGET</th>
+                            <th>ACTUAL</th>
+                            <th>CATEGORY</th>
+                            <th>INDIVIDUALS ASSIGNED</th>
                             <th></th>
                         </tr>
                                 
                         {tenMembers != 0? tenMembers.map(mems => (
-                        <Members mems = {mems} switchMember = {(id) => {setCurrentUserID(id); console.log("hehe", id)}}></Members>)):
+                        <DepartmentTask mems = {mems} switchMember = {(id) => {setCurrentUserID(id); console.log("hehe", id)}}></DepartmentTask>)):
 
                         <tr className="empty-table">
-                            <td>No users</td>
+                            <td>No Tasks</td>
                         </tr>
                         }
                     </tbody>                               
@@ -227,4 +206,4 @@ function MemberTable(props) {
     )
 }
 
-export default MemberTable
+export default DepartmentTasksTable
