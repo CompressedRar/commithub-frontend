@@ -623,3 +623,105 @@
     align-items: center;
     justify-content: center;
 }
+
+
+
+.add-department-task-container{
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    color: var(--primary-font-color);
+}
+
+.tasks-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.tasks-container .category{
+    display: flex;
+    flex-direction: column;
+}
+
+.tasks-container .category .category-name {
+    font-size: 1.5rem;
+    font-weight: 600;
+    padding: 5px;
+    box-sizing: border-box;
+    border-bottom-style: solid;
+    border-color: var(--sec-font-color);
+    border-width: 1px;
+}
+
+.tasks-container .category .category-task-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    padding: 15px;
+    box-sizing: border-box;
+    gap: 20px;
+}
+
+.tasks-container .category .category-task-container .category-task {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background-color: aliceblue;
+    padding: 10px;
+    box-sizing: border-box;   
+    cursor: pointer;
+    
+    border-radius: 5px; 
+}
+
+.category-task .task-name {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: 1rem;
+    font-weight: 600;
+    gap: 10px;
+}
+
+.category-task button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+    gap: 10px;
+}
+
+.department-assigned {
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    background-image: linear-gradient(to left,rgb(255, 69, 69), rgb(255, 136, 0), rgb(255, 136, 0));
+    color: white;
+    border-radius: 20px;
+    font-size: 0.9rem;
+}
+
+.department-assigned.general {
+    background-image: linear-gradient(to left, rgb(57, 57, 252), var(--lighter-primary-color), var(--primary-color));
+}
+
+.profile-icon-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    padding: 10px;
+    align-items: center;
+}
+
+.profile-icon{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    border-style: solid;
+    border-width: 1px;
+    margin-left: -10px;
+}

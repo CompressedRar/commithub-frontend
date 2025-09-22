@@ -6,6 +6,12 @@ export async function getCategories() {
     return api.get("/api/v1/category/")
 }
 
+export async function getCategoriesWithTasks() {
+    console.log("fetching categories")
+    return api.get("/api/v1/category/tasks")
+}
+
+
 export async function getCategory(id) {
     console.log("fetching category info")
     return api.get(`/api/v1/category/${id}`)

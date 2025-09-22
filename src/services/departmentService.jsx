@@ -68,6 +68,9 @@ export async function unAssignUsers(user_id, task_id) {
     return api.post(`/api/v1/department/unassign/${user_id}&${task_id}`)
 }
 
+export async function assignDepartment(task_id, dept_id){
+    return api.post(`/api/v1/department/tasks/${task_id}&${dept_id}`)
+}
 
 export async function removeTask(task_id) {
     console.log("removing task")

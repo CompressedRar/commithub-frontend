@@ -198,6 +198,7 @@ function CategoryTasks(props){
                             <div className="textboxes">
                                 <label htmlFor="department">Department <span className="required">*</span></label>
                                 <select name="department" id="department" onChange={handleDataChange}>
+                                    <option value={0}>General</option>
                                     {allDepartments.map(dept => (
                                         <option value = {dept.id} key={dept.name}>{dept.name}</option>
                                     ))}
@@ -325,14 +326,11 @@ function CategoryTasks(props){
 
                             <div className="assigned-users">
                                 <div className="title">Assigned Users</div>
-                                <div className="container">
-                                    <div className="assigned-pic">.</div>
-                                    <div className="assigned-pic">.</div>
-                                    <div className="assigned-pic">.</div>
-                                    <div className="assigned-pic">.</div>
-                                    <div className="assigned-pic">.</div>
-                                    <div className="assigned-pic">.</div>
-                                </div>
+                                <div className="profile-icon-container">{
+                                    category.users.map(user => (
+                                        <div className="profile-icon" style={{backgroundImage: `url('${user.profile_picture_link}')`}}>.</div>
+                                    ))
+                                }</div>
                             </div>
                         </div>:""
                     ))}

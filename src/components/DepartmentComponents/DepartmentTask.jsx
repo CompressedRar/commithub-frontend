@@ -56,7 +56,11 @@ function DepartmentTask({mems, switchMember}){
             <td>{mems.target_accomplishment}</td>
             <td>{mems.actual_accomplishment}</td>
             <td>{mems.category.name}</td>
-            <td>{"None"}</td>
+            <td className="profile-icon-container">{
+                mems.users.map(user => (
+                    <div className="profile-icon" style={{backgroundImage: `url('${user.profile_picture_link}')`}}>.</div>
+                ))
+            }</td>
             <td className="more-options">
                 <span  className="material-symbols-outlined open" onClick={()=>{setOpen(true)}}>more_vert</span>
 

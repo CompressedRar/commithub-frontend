@@ -156,26 +156,7 @@ function TaskInfo(props){
                         </div>
                     </div>
 
-                    <div className="users-assigned">
-                        <div className="title">Users Assigned</div>
-                        <div className="user-container">
-                            <div className="user">
-                                <div className="user-profile">
-                                    <div className="user-image">.</div>
-                                    <div className="user-info">
-                                        <div className="user-name">John Doe</div>
-                                        <div className="user-dept">Computing Studies</div>
-                                    </div>
-                                </div>
-                                <div className="option">
-                                    <button className="btn btn-danger">
-                                        <span className="material-symbols-outlined">remove</span>
-                                        <span>Remove User</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    
 
                     <div className="IPCRs">
 
