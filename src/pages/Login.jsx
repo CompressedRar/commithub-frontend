@@ -4,11 +4,28 @@ import { objectToFormData } from "../components/api";
 import Swal from "sweetalert2";
 import "../assets/styles/Login.css"
 import { Navigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+
 
 function Login(){
 
     const [loginFormData, setLoginFormData] = useState({"email": "", "password":""})
     const [showPassword, setShowPassword] = useState(false)
+
+    function detectToken(){
+        if (Object.keys(localStorage).includes("token")){
+            var token = localStorage.getItem("token")
+            console.log("hey")
+            var payload = jwtDecode(token)
+            if (payload.role == "faculty"){
+                console.log('faculty')
+                window.location.href = "/faculty/ipcr"
+            }
+            else if (payload.role == "administrator"){
+                window.location.href = "/admin/dashboard"
+            }
+        }
+    }
 
     useEffect(()=> {
         console.log(loginFormData)
@@ -17,6 +34,10 @@ function Login(){
     useEffect(()=> {
         //console.log(showPassword)
     }, [showPassword])
+
+    useEffect(()=>{
+        detectToken()
+    }, [])
 
     const handleSubmission = async (e) => {
         e.preventDefault()
@@ -28,7 +49,14 @@ function Login(){
 
         if(a.data.message == "Authenticated.") {
             localStorage.setItem("token", a.data.token)
-            window.location.href = "/dashboard"
+
+            var payload = jwtDecode(a.data.token)
+            if (payload.role == "faculty"){
+                window.location.href = "/faculty/ipcr"
+            }
+            else if (payload.role == "administrator"){
+                window.location.href = "/admin/dashboard"
+            }
         }
         else {
             Swal.fire({

@@ -1,0 +1,234 @@
+.faculty-container  {
+    display: flex;
+    flex-direction: column;
+    padding: 2%;
+    box-sizing: border-box;
+    color: var(--primary-font-color);
+    height: 100%;
+}
+
+.ipcr-container {
+    border-radius: 10px;
+    box-sizing: border-box;
+    display: grid;
+    height: 100%;
+    grid-template-columns: 3fr 1fr;
+    gap: 10px;
+}
+
+.ipcr-list {
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    padding: 2%;
+    box-sizing: border-box;
+    border-radius: 10px;
+    height: 100%;
+}
+
+.ipcr-options-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.ipcr-options-container button {
+    width: auto;
+    align-self: center;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+}
+
+.options-header {
+    display: flex;
+    flex-direction: column;
+    align-items: first baseline;
+    padding: 10px;
+}
+
+.options-header .title{
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.options-header .content {
+    font-weight: 300;
+}
+
+.all-ipcr-container {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.all-ipcr-container .ipcr{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    border-style: solid;
+    border-color: var(--primary-font-color);
+    box-sizing: border-box;
+    box-shadow: 0px 0px 2px var(--primary-font-color);
+    border-width: 1px;
+    width: 200px;
+    height: 200px;
+    padding: 10px;
+    border-radius: 10px;
+    transition: all 300ms;
+}
+
+.all-ipcr-container .ipcr:hover {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+    box-shadow: none;
+}
+
+.all-ipcr-container .ipcr:hover .material-symbols-outlined{
+    color: var(--primary-color);
+}
+
+.all-ipcr-container .ipcr .description {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: -20px
+}
+
+.all-ipcr-container .ipcr .description .title {
+    font-weight: 600;
+}
+
+.all-ipcr-container .ipcr .description .created {
+    font-weight: 300;
+    font-size: 0.8rem;
+}
+
+.all-ipcr-container .ipcr .material-symbols-outlined {
+    color: var(--primary-font-color);
+    font-size: 5rem;
+    transition: all 300ms;
+}
+.choose-task-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.assigned-task-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.assigned-task-container .assigned-tasks {
+    display: grid;
+    grid-template-columns: 1fr;
+    padding: 10px;
+    gap: 10px;
+}
+
+.assigned-tasks .task-assigned {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 10px;
+    border-color: rgb(190, 190, 190);
+    transition: all 200ms;
+}
+
+.assigned-tasks .task-assigned .name {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.assigned-tasks .task-assigned .category {
+    display: flex;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    color: rgb(255, 255, 255);
+    border-radius: 20px;
+    background-image: linear-gradient(to left,rgb(255, 69, 69), rgb(255, 136, 0), rgb(240, 128, 0));
+}
+
+.assigned-tasks .task-assigned .category.unassigned {
+    display: flex;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    color: rgb(255, 255, 255);
+    border-radius: 20px;
+    background-image: linear-gradient(to left, rgb(57, 57, 252), var(--lighter-primary-color), var(--primary-color));
+}
+
+.choose:checked+.task-assigned{
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.modal-choices {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.department-members {
+    padding: 20px;
+    box-sizing: border-box;
+    background-color: white;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.department-members .member-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 10px;
+    box-sizing: border-box;
+    height: 100%;
+    overflow-y: scroll;
+}
+
+.department-members .member-container .member {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    align-items: center;
+}
+
+.member-container .member .image {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+}
+
+.member-container .member .desc {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.desc .name {
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+.desc .position {
+    margin-top: -5px;
+    font-size: 0.9rem;
+}

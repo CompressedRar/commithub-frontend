@@ -54,3 +54,20 @@ export async function getAccounts() {
 export async function getAccountInfo(id) {
     return api.get(`/api/v1/users/${id}`)
 }
+
+export async function getAccountTasks(id) {
+    return api.get(`/api/v1/users/tasks/${id}`)
+}
+
+export async function getAssignedAccountTasks(id) {
+    return api.get(`/api/v1/users/assigned/${id}`)
+}
+
+export async function createUserTasks(user_id, id_array){
+    console.log("creawting user tasks")
+    return api.post(`/api/v1/users/tasks/${user_id}`, {"task_ids": id_array}, {
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+}

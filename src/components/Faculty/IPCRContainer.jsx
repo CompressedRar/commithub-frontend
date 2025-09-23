@@ -1,0 +1,233 @@
+import { useEffect, useState } from "react"
+import { getDepartment, getDepartmentTasks } from "../../services/departmentService"
+import { jwtDecode } from "jwt-decode"
+import { createUserTasks, getAccountInfo, getAccountTasks, getAssignedAccountTasks } from "../../services/userService"
+import Swal from "sweetalert2"
+import { all } from "axios"
+
+
+
+function IPCRContainer() {
+    const [userinfo, setuserInfo] = useState({})
+    const [departmentInfo, setDepartmentInfo] = useState([])
+    const [allTasks, setAllTasks] = useState([])
+    const [accountTasks, setAccountTasks] = useState([])
+    const [allAssignedID , setAllAssignedID] = useState([])
+    const [checkedArray , setChecked] = useState([])
+    const [allIPCR, setAllIPCR] = useState([])
+
+    async function loadUserTasks(user_id){
+        setAllAssignedID([])
+        var res = await getAssignedAccountTasks(user_id).then(data => data)
+        var ids = []
+
+        var all_assigned_tasks = []
+        for(const task of res.data.assigned_tasks){
+            if(task.is_assigned){
+                all_assigned_tasks.push(task.tasks)
+                ids.push(task.tasks.id)
+            }
+        }
+        
+        setAccountTasks(all_assigned_tasks)
+        setAllAssignedID(ids)
+    }
+
+    async function loadUserInfo() {
+        if (Object.keys(localStorage).includes("token")){
+            var token = localStorage.getItem("token")
+            var payload = jwtDecode(token)
+            
+            var res = await getAccountInfo(payload.id).then(data => data.data)
+
+            setuserInfo(res)
+            setAllIPCR(res.ipcrs)
+            console.log(res.ipcrs)
+        }
+    }
+
+    async function loadDepartmenInfo(id){
+        setAllTasks([])
+        
+        var res = await getDepartment(id).then(data => data.data)
+        console.log(res)
+        setDepartmentInfo(res)       
+    }
+
+    async function loadDepartmentTasks(id){
+        setAllTasks([])
+
+        var res = await getDepartmentTasks(id).then(data => data.data)
+        console.log(allAssignedID)
+        var available = []
+        for(const task of res){
+            
+            if(allAssignedID.includes(task.id)) continue;
+            //console.log(allAssignedID)
+            available.push(task)
+            //setAllTasks([...allTasks, task])
+        }
+        setAllTasks(available)       
+    }
+
+    function getAllCheckedTasks(){
+        var all = document.getElementsByName("chosen")
+        var checkedID = [...allAssignedID]
+
+        for(const taskEl of all){
+            if (taskEl.checked) checkedID.push(parseInt(taskEl.id))
+        }
+
+        setChecked(checkedID)
+    }
+
+    async function createTasks() {
+
+        if(checkedArray.length == 0){
+            Swal.fire({
+                title:"Empty Task",
+                text:"You must have atleast one task for IPCR."
+            })
+        }
+        var res = await createUserTasks(userinfo.id, checkedArray)
+
+    }
+
+    useEffect(()=> {
+            
+    },[accountTasks])
+
+    useEffect(()=> {
+        if(userinfo.department) {
+            loadDepartmentTasks(userinfo.department.id)
+            loadDepartmenInfo(userinfo.department.id)
+
+        }
+       
+    },[allAssignedID])
+
+    useEffect(()=> {
+        if(userinfo.id) {
+            loadUserTasks(userinfo.id)
+            
+        }
+        
+    }, [userinfo])
+
+    useEffect(()=> {
+        loadUserInfo()
+    }, [])
+
+    return(
+
+        <div className="ipcr-container">
+            <div className="modal fade" id="create-ipcr" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div className="modal-dialog modal-dialog-centered modal-xl" >
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <div>
+                                <h3 className="modal-title" id="staticBackdropLabel">Create IPCR</h3>
+                                <span>To create IPCR, choose tasks available to your department. <strong>Assigned task</strong> can only be removed by department head.</span>
+                            </div>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div className="modal-body">                            
+                            <div className="choose-task-container">
+                                <div className="assigned-task-container">
+                                    <h4>Assigned Tasks</h4>
+                                    
+                                    <div className="assigned-tasks">
+                                    {accountTasks && accountTasks.map(task => (
+                                        <div className="task-assigned">
+                                            <div className="name">
+                                                <span className="material-symbols-outlined">highlight_mouse_cursor</span>
+                                                <span>{task.name}</span>
+                                            </div>
+                                            <div className="category">
+                                                {task.category.name}
+                                            </div>
+                                        </div>
+                                    ))}
+                                        
+
+                                    </div>
+                                </div>
+
+                                <div className="assigned-task-container">
+                                    <h4>Available Tasks</h4>
+                                    <div className="assigned-tasks">
+                                        {allTasks && allTasks.map(task => (
+                                            <div className="available-task"> 
+                                                <input type="checkbox" className="choose" value={task.id} id = {task.id} name="chosen" onChange={()=>{getAllCheckedTasks()}} hidden/>
+                                                <label className="task-assigned" htmlFor={task.id}>
+                                                    <div className="name">
+                                                        <span className="material-symbols-outlined">highlight_mouse_cursor</span>
+                                                        <span>{task.name}</span>
+                                                    </div>
+                                                    <div className="category unassigned">
+                                                        {task.category.name}
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        ))}                                        
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div className="modal-footer">
+                            <div className="modal-choices">
+                                <button className="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button className="btn btn-primary" onClick={()=>{
+                                    createTasks()
+                                }}>Create</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className="ipcr-list">
+                <div className="ipcr-options-container">
+                    <div className="options-header">
+                        <span className="title">Individual Performance Commitment Forms</span>
+                        <span className="content">This is where you create your IPCR. Click the 'Create IPCR' button to get started.</span>
+                    </div>
+                    <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#create-ipcr">
+                        <span className="material-symbols-outlined">add_notes</span>
+                        <span>Create IPCR</span>
+                    </button>
+                </div>
+                <div className="all-ipcr-container">
+                    {allIPCR && allIPCR.map(ipcr => (
+                        <div className="ipcr" >
+                            <span className="material-symbols-outlined">contract</span>
+                            <div className="description">
+                                <span className="title">IPCR #{ipcr.id}</span>
+                                <span className="created">{ipcr.created_at}</span>
+                            </div>
+                        </div>
+                    ))}
+                    
+                </div>
+
+            </div>
+            <div className="department-members">
+                <h3>Department Members</h3>
+                <div className="member-container">
+                    {departmentInfo.users && departmentInfo.users.map(user => (
+                        <div className="member"> 
+                            <div className="image" style={{backgroundImage: `url('${user.profile_picture_link}`}}>.</div>
+                            <div className="desc">
+                                <span className="name">{user.first_name + " " + user.last_name}</span>
+                                <span className="position">{user.position.name}</span>
+                            </div>
+                        </div>
+                    ))}
+                    
+                </div>  
+            </div>
+        </div>
+    )
+}
+
+export default IPCRContainer

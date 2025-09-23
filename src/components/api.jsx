@@ -1,4 +1,6 @@
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import { Navigate } from "react-router-dom";
 import { io } from "socket.io-client";
 
 
@@ -14,6 +16,18 @@ export function objectToFormData(obj) {
     }
   }
   return formData;
+}
+
+export function checkRole(){
+  if (token){
+    var payload = jwtDecode(token)
+    if (payload.role == "faculty"){
+      return <Navigate to = "/faculty/dashboard"></Navigate>
+    }
+    else if (payload.role == "administrator"){
+      return <Navigate to = "/admin/dashboard"></Navigate>
+    }
+  }
 }
 
 export var socket = io("http://127.0.0.1:5000")

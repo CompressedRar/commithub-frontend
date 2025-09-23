@@ -130,19 +130,20 @@ function AddDepartmentTask(props) {
                                 tasks.status?
                                 <div className="category-task" onClick={()=>{
                                     
-                                    if(tasks.department == departmentInfo.name){
-                                        handleRemove(tasks.id)
-                                    }
-                                    else {
-                                        handleAssign(tasks.id)
-                                    }
                                 }}>
                                     <div className="task-name">
                                         <span className="material-symbols-outlined">highlight_mouse_cursor</span>
                                         <span>{tasks.name}</span>
-                                    </div>
-                                    <div className={tasks.department == "General"? "department-assigned general": "department-assigned"}>
+                                        <div className={tasks.department == "General"? "department-assigned general": "department-assigned"}>
                                         {tasks.department}
+                                    </div>
+                                    </div>
+                                    
+                                    <div>
+                                        {
+                                            tasks.department != departmentInfo.name? <button className="btn btn-primary" onClick={()=>{handleAssign(tasks.id)}}>Add</button>:
+                                             <button className="btn btn-danger" onClick={()=>{handleRemove(tasks.id)}}>Remove</button>
+                                        }
                                     </div>
                                 </div>
                                 :""

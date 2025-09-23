@@ -2,12 +2,10 @@ import {Navigate, Outlet } from "react-router-dom";
 import "../assets/styles/Main.css"
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
-import { checkRole } from "../components/api";
 
-function AdminLayout(){
+function FacultyLayout(){
     const token = localStorage.getItem("token")
     const [profilePictureLink, setProfile] = useState("")
-    const [role, setRole] = useState(null)
 
     function readTokenInformation(){
         let payload = {}
@@ -15,26 +13,15 @@ function AdminLayout(){
             payload = jwtDecode(token)
             console.log("token: ",payload)
             setProfile(payload.profile_picture_link)
-            setRole(payload.role || null)
-            
         }
         catch(err){
             console.log(err)
         }
     }
-
-    //gawin create ipcr bukas
-    
     
     if(!token){
         return <Navigate to="/" replace></Navigate>
     }
-
-    if(role && role !== "administrator"){
-        console.log(role)
-        window.location.href = "/unauthorized"
-    }
-    
 
     function Logout(){
         localStorage.removeItem("token")
@@ -47,7 +34,6 @@ function AdminLayout(){
     }
     
     useEffect(()=>{
-        
         readTokenInformation()
         detectCurrentPage("dashboard")
     }, [])
@@ -58,31 +44,10 @@ function AdminLayout(){
                 <div className="logo-container">
                     <img src={`${import.meta.env.BASE_URL}CommitHub-Banner.png`} alt="" />
                 </div>
-                <a className="pages" href="/admin/dashboard" style={detectCurrentPage("dashboard")}>
-                    <span className="material-symbols-outlined">dashboard</span>
-                    <span>Dashboard</span>
-                </a>
-                <a className="pages" href="/admin/department" style={detectCurrentPage("department")}>
-                    <span className="material-symbols-outlined">apartment</span>
-                    <span>Department Management</span>
-                </a>
-                <a className="pages" href="/admin/tasks" style={detectCurrentPage("tasks")}>
-                    <span className="material-symbols-outlined">task</span>
-                    <span>Category and Task</span>
-                </a>
-                <a className="pages" href = "/admin/users" style={detectCurrentPage("users")}>
-                    <span className="material-symbols-outlined">group</span>
-                    <span>User Management</span>
-                </a>
-                
-                <a className="pages" href = "/admin/logs" style={detectCurrentPage("logs")}>
+                <a className="pages" href="/faculty/dashboard" style={detectCurrentPage("dashboard")}>
                     <span className="material-symbols-outlined">article_person</span>
-                    <span>Audit Logs</span>
-                </a>
-                <a className="pages">
-                    <span className="material-symbols-outlined" style={detectCurrentPage("")}>manage_accounts</span>
-                    <span>Account Setting</span>
-                </a>
+                    <span>IPCR</span>
+                </a>                
                 <a className="pages" onClick={()=>{
                     Logout()
                 }}>
@@ -121,4 +86,4 @@ function AdminLayout(){
     )
 }
 
-export default AdminLayout
+export default FacultyLayout

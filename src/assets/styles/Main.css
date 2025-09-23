@@ -4,7 +4,7 @@
     display: grid;
     grid-template-columns: 1.5fr 9fr;
     grid-template-rows: 0.5fr 9fr;
-    background-color: rgb(233, 233, 233);
+    background-color: rgb(233, 235, 241);
     width: 100vw;
     height: 100vh;
     margin-bottom: -10%;

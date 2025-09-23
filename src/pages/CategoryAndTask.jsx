@@ -123,7 +123,6 @@ function CategoryAndTask(){
                         <span className="material-symbols-outlined">add</span>
                         <span>Add Category</span>
                     </button>
-                    <input type="text" placeholder="Search Category"/>
                 </div>
                 <div className = "all-categories">
                     

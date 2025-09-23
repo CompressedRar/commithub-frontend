@@ -14,6 +14,9 @@ import Department from './pages/Department'
 import UserManagement from './pages/UserManagement'
 import CategoryAndTask from './pages/CategoryAndTask'
 import AuditLogs from './pages/AuditLogs'
+import FacultyLayout from './layout/FacultyLayout'
+import Unauthorized from './pages/Unauthorized'
+import Faculty from './pages/Faculty'
 
 
 
@@ -30,12 +33,18 @@ function App() {
         </Route>
       
         <Route element = {<AdminLayout></AdminLayout>}>
-          <Route path = "/dashboard" element={<Administrator></Administrator>}></Route>
-          <Route path = "/department" element={<Department></Department>}></Route>
-          <Route path = "/users" element={<UserManagement></UserManagement>}></Route>
-          <Route path = "/tasks" element={<CategoryAndTask></CategoryAndTask>}></Route>
-          <Route path = "/logs" element={<AuditLogs></AuditLogs>}></Route>
+          <Route path = "/admin/dashboard" element={<Administrator></Administrator>}></Route>
+          <Route path = "admin/department" element={<Department></Department>}></Route>
+          <Route path = "/admin/users" element={<UserManagement></UserManagement>}></Route>
+          <Route path = "/admin/tasks" element={<CategoryAndTask></CategoryAndTask>}></Route>
+          <Route path = "/admin/logs" element={<AuditLogs></AuditLogs>}></Route>
         </Route>
+
+        <Route element = {<FacultyLayout></FacultyLayout>}>
+          <Route path = "/faculty/ipcr" element={<Faculty></Faculty>}></Route>
+        </Route>
+
+        <Route path = "/unauthorized" element={<Unauthorized></Unauthorized>}></Route>
 
       </Routes>
     </div>

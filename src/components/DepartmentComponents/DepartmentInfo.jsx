@@ -214,7 +214,7 @@ function DepartmentInfo(props){
                 <div className="department-overview">
                     
                     <div className="image-container">
-                        <div className="image"></div>
+                        <div className="image" style={{backgroundImage: `url('${import.meta.env.BASE_URL}nc-splash-new.jpg')`}}></div>
                     </div>
                     <div  className="department-stats">
                         <div className="profile-image-container">
