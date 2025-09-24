@@ -44,7 +44,7 @@ function FacultyLayout(){
                 <div className="logo-container">
                     <img src={`${import.meta.env.BASE_URL}CommitHub-Banner.png`} alt="" />
                 </div>
-                <a className="pages" href="/faculty/dashboard" style={detectCurrentPage("dashboard")}>
+                <a className="pages" href="/faculty/ipcr" style={detectCurrentPage("dashboard")}>
                     <span className="material-symbols-outlined">article_person</span>
                     <span>IPCR</span>
                 </a>                

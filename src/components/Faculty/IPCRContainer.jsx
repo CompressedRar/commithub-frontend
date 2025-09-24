@@ -4,10 +4,12 @@ import { jwtDecode } from "jwt-decode"
 import { createUserTasks, getAccountInfo, getAccountTasks, getAssignedAccountTasks } from "../../services/userService"
 import Swal from "sweetalert2"
 import { all } from "axios"
+import { socket } from "../api"
+import { Modal } from "bootstrap"
 
 
 
-function IPCRContainer() {
+function IPCRContainer({switchPage}) {
     const [userinfo, setuserInfo] = useState({})
     const [departmentInfo, setDepartmentInfo] = useState([])
     const [allTasks, setAllTasks] = useState([])
@@ -15,6 +17,8 @@ function IPCRContainer() {
     const [allAssignedID , setAllAssignedID] = useState([])
     const [checkedArray , setChecked] = useState([])
     const [allIPCR, setAllIPCR] = useState([])
+
+    
 
     async function loadUserTasks(user_id){
         setAllAssignedID([])
@@ -89,8 +93,24 @@ function IPCRContainer() {
                 text:"You must have atleast one task for IPCR."
             })
         }
-        var res = await createUserTasks(userinfo.id, checkedArray)
+        var res = await createUserTasks(userinfo.id, checkedArray).then(data => data.data.message)
 
+        if(res == "IPCR successfully created"){
+            Swal.fire({
+                title:"Success",
+                text:res,
+                icon:"success"
+            })
+        }
+        else {
+            Swal.fire({
+                title:"Error",
+                text: "There is an error while creating IPCR",
+                icon:"error"
+            })
+        }
+
+        //
     }
 
     useEffect(()=> {
@@ -116,6 +136,12 @@ function IPCRContainer() {
 
     useEffect(()=> {
         loadUserInfo()
+
+        socket.on("ipcr_create", ()=>{
+            loadUserInfo()
+        })
+
+        return ()=> socket.off("ipcr_create")
     }, [])
 
     return(
@@ -199,7 +225,9 @@ function IPCRContainer() {
                 </div>
                 <div className="all-ipcr-container">
                     {allIPCR && allIPCR.map(ipcr => (
-                        <div className="ipcr" >
+                        <div className="ipcr" onClick={()=> {
+                            switchPage(ipcr.id)
+                        }}>
                             <span className="material-symbols-outlined">contract</span>
                             <div className="description">
                                 <span className="title">IPCR #{ipcr.id}</span>

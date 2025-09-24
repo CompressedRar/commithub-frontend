@@ -17,7 +17,7 @@ import AuditLogs from './pages/AuditLogs'
 import FacultyLayout from './layout/FacultyLayout'
 import Unauthorized from './pages/Unauthorized'
 import Faculty from './pages/Faculty'
-
+import EditIPCR from './components/Faculty/EditIPCR'
 
 
 function App() {
