@@ -5,6 +5,7 @@ import SubmissionsChart from "../components/Barchart";
 
 import { getCategoryCount, getTaskCount, getUserCount } from "../services/tableServices";
 import { Navigate } from "react-router-dom";
+import { test_tense } from "../services/tenseConverted";
 
 function Administrator(){
 
@@ -34,7 +35,6 @@ function Administrator(){
         getCategoryCount().then(data => {
             setCategoryCount(data.data.message.count)
         })
-        
         
     }, [])
     
@@ -94,15 +94,15 @@ function Administrator(){
 
             <div className="system-overview">
                 <div className="shortcuts">
-                    <a className="manage" href = "/users">
+                    <a className="manage" href = "/admin/users">
                         <span className="material-symbols-outlined">manage_accounts</span>
                         <span>Manage Users</span>
                     </a>
-                    <a className="manage" href = "/department">
+                    <a className="manage" href = "/admin/department">
                         <span className="material-symbols-outlined">apartment</span>
                         <span>Manage Departments</span>
                     </a>
-                    <a className="manage" href = "/tasks">
+                    <a className="manage" href = "/admin/tasks">
                         <span className="material-symbols-outlined">admin_panel_settings</span>
                         <span>Manage Tasks</span>
                     </a>
@@ -172,6 +172,7 @@ function Administrator(){
                     </div>
                 </div>
             </div>
+            
         </div>
     )
 }

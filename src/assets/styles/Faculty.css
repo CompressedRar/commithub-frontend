@@ -599,5 +599,22 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    margin: 10px;
+    margin: 10px    ;
+    gap: 10px;
+}
+
+.manage-tasks {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.manage-tasks .category {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
 }

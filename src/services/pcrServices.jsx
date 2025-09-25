@@ -13,3 +13,8 @@ export async function updateSubTask(sub_task_id, field, value) {
     console.log("updating sub task")
     return api.patch(`/api/v1/task/sub_task/${sub_task_id}?field=${field}&value=${value}`)
 }
+
+export async function assignMainIPCR(ipcr_id, user_id) {
+    console.log("assigning ipcr")
+    return api.patch(`/api/v1/pcr/ipcr/${ipcr_id}&${user_id}`)
+}

@@ -72,6 +72,14 @@ export async function assignDepartment(task_id, dept_id){
     return api.post(`/api/v1/department/tasks/${task_id}&${dept_id}`)
 }
 
+export async function assignDepartmentHead(user_id, dept_id){
+    return api.post(`/api/v1/users/head/${user_id}?dept_id=${dept_id}`)
+}
+
+export async function removeDepartmentHead(user_id){
+    return api.delete(`/api/v1/users/head/${user_id}`)
+}
+
 export async function removeTask(task_id) {
     console.log("removing task")
     return api.delete(`/api/v1/department/remove/${task_id}`)

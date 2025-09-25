@@ -2,6 +2,7 @@ import {Navigate, Outlet } from "react-router-dom";
 import "../assets/styles/Main.css"
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
+import Swal from "sweetalert2";
 
 function FacultyLayout(){
     const token = localStorage.getItem("token")
@@ -23,10 +24,26 @@ function FacultyLayout(){
         return <Navigate to="/" replace></Navigate>
     }
 
-    function Logout(){
-        localStorage.removeItem("token")
-        window.location.reload()
-    }
+    function Logout(){ 
+            Swal.fire({
+                title:"Logout",
+                text:"Do you want to logout?",
+                showDenyButton: true,
+                confirmButtonText:"Logout",
+                denyButtonText:"No",
+                icon:"warning",
+                customClass: {
+                    actions: 'my-actions',
+                    confirmButton: 'order-2',
+                    denyButton: 'order-1 right-gap',
+                },
+            }).then((result)=> {
+                if(result.isConfirmed){
+                    localStorage.removeItem("token")
+                    window.location.reload()
+                }
+            })  
+        }
 
     function detectCurrentPage(detect){
         var current = window.location.pathname.replaceAll("/", "").toLocaleLowerCase()

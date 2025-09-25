@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react"
-import { getIPCR, updateSubTask } from "../../services/pcrServices"
+import { assignMainIPCR, getIPCR, updateSubTask } from "../../services/pcrServices"
 import { socket } from "../api"
 import { jwtDecode } from "jwt-decode"
 import { getAccountInfo } from "../../services/userService"
+import Swal from "sweetalert2"
+import ManageTask from "./ManageTask"
 
 function EditIPCR(props) {
-    const [userinfo, setuserInfo] = useState({})
+    const [userinfo, setuserInfo] = useState(null)
     const [ipcrInfo, setIPCRInfo] = useState({})
     const [arrangedSubTasks, setArrangedSubTasks] = useState({})
     const [quantityAvg, setQuantityAvg] = useState(0)
@@ -17,6 +19,7 @@ function EditIPCR(props) {
     const [field, setField] = useState("")
     const [value, setValue] = useState(0)
     const [subTaskID, setSubTaskID] = useState(0)
+    
     async function loadIPCR(){
         var res = await getIPCR(props.ipcr_id).then(data => data.data)
         setIPCRInfo(res)
@@ -76,6 +79,46 @@ function EditIPCR(props) {
             }
         }
 
+    async function handleAssign(){
+            var res = await assignMainIPCR(ipcrInfo.id, userinfo.id).then(data => data.data.message)
+            
+            if (res == "IPCR successfully assigned."){
+                Swal.fire({
+                    title:"Success",
+                    text: res,
+                    icon:"success"
+                })
+            }
+            else {
+                Swal.fire({
+                    title:"Error",
+                    text: "Submission of IPCR failed",
+                    icon:"error"
+                })
+            }
+        } 
+    
+        async function assignIPCR(){
+            Swal.fire({
+                        title:"Assign",
+                        text:"Do you want to assign this IPCR as your main IPCR?",
+                        showDenyButton: true,
+                        confirmButtonText:"Assign",
+                        denyButtonText:"No",
+                        denyButtonColor:"grey",
+                        icon:"question",
+                        customClass: {
+                            actions: 'my-actions',
+                            confirmButton: 'order-2',
+                            denyButton: 'order-1 right-gap',
+                        },
+                    }).then((result)=> {
+                        if(result.isConfirmed){
+                            handleAssign()
+                        }
+                    }) 
+        }
+
     useEffect(()=> {
         console.log(subTaskID, field, value)
         if(value == "") {
@@ -90,6 +133,7 @@ function EditIPCR(props) {
 
         return ()=> clearTimeout(debounce)
     }, [value])
+    
 
 
     useEffect(()=> {
@@ -105,6 +149,8 @@ function EditIPCR(props) {
 
     return (
         <div className="edit-ipcr-container">
+
+            {userinfo && <ManageTask ipcr_id = {props.ipcr_id} user_id = {userinfo.id? userinfo.id: 0} dept_id = {userinfo.department ? userinfo.department.id: 0}></ManageTask>}
             
             <div className="option-header">
                 <div className="back" onClick={()=> {
@@ -115,9 +161,13 @@ function EditIPCR(props) {
                 </div>
 
                 <div className="ipcr-options">
-                    <button className="btn btn-primary">
+                    {userinfo && <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#manage-tasks">
+                        <span className="material-symbols-outlined">assignment</span>
+                        <span>Manage Task</span>
+                    </button>}
+                    <button className="btn btn-primary" onClick={()=>{assignIPCR()}}>
                         <span className="material-symbols-outlined">article_shortcut</span>
-                        <span>Submit this IPCR</span>
+                        <span>Submit</span>
                     </button>
                 </div>
             </div>

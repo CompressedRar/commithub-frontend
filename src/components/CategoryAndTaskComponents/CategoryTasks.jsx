@@ -7,6 +7,7 @@ import { archiveCategory, getCategory, updateCategory } from "../../services/cat
 
 import { getDepartments } from "../../services/departmentService";
 import { createMainTask } from "../../services/taskService";
+import { convert_tense } from "../../services/tenseConverted";
 
 function CategoryTasks(props){
 
@@ -20,6 +21,10 @@ function CategoryTasks(props){
     const [archiving, setArchiving] = useState(false)
     const [open, setOpen] = useState(false)
     const [titleEditable, setTitleEditable] = useState(false)
+    
+
+    const [pastTense , setPastTense] = useState("")
+    const [translating, setTranslating] = useState(false)
 
     async function loadDepartments(){
         var res = await getDepartments().then(data => data.data)
@@ -32,7 +37,7 @@ function CategoryTasks(props){
         console.log(res.main_tasks)
         setCategoryInfo(res)
         await setCategoryTasks(res.main_tasks)
-        setFormData({"task_name": "",
+        setFormData({"task_name": "",                         
                     "department": "0",
                     "task_desc": "",
                     "time_measurement": "day",   // default value
@@ -55,6 +60,21 @@ function CategoryTasks(props){
         console.log(formData)
     }, [formData])
 
+    useEffect(()=> {
+        if(pastTense == "") {
+            return 
+        }
+        const debounce = setTimeout(async ()=>{
+            setTranslating(true)
+            var converted_tense = await convert_tense(String(pastTense))
+            setFormData({...formData, ["past_task_desc"]: converted_tense})       
+            console.log(converted_tense)
+            setTranslating(false)
+        }, 500)
+        
+        return ()=> clearTimeout(debounce)
+    }, [pastTense])
+
 
     const handleDataChange = (e) => {
         setFormData({...formData, [e.target.name]: e.target.value})        
@@ -71,6 +91,10 @@ function CategoryTasks(props){
 
     
     const handleSubmission = async () => {
+        setSubmission(true)
+        
+        
+
         const newFormData = objectToFormData(formData);
 
         if(formData["task_name"] == ""){
@@ -82,6 +106,8 @@ function CategoryTasks(props){
             setSubmission(false)
             return
         }
+
+        console.log(newFormData)
 
 
         setSubmission(true)
@@ -213,7 +239,10 @@ function CategoryTasks(props){
                                         <label class="form-check-label" htmlFor="accomplishment_editable">Editable</label>
                                     </div>
                                 </label>
-                                <textarea type="task_desc" id="task_desc" name="task_desc" placeholder="Describe the task." rows={5} onInput={handleDataChange} required/>
+                                <textarea type="task_desc" id="task_desc" name="task_desc" placeholder="Describe the task." rows={5} onInput={(e)=> {
+                                    handleDataChange(e)
+                                    setPastTense(e.target.value)
+                                }} required/>
                             </div>
                             
                             <div className="task-measurement-container">
@@ -256,7 +285,7 @@ function CategoryTasks(props){
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" className="btn btn-primary" onClick={handleSubmission}>
+                            <button type="button" className="btn btn-primary" onClick={handleSubmission} disabled = {translating}>
                                  {submitting ?<span className="material-symbols-outlined loading">progress_activity</span> : <span>Create Task</span>}
                             </button>
                            

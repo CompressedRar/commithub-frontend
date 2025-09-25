@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { updateDepartment, getDepartment, getDepartmentMembers, archiveDepartment } from "../../services/departmentService";
 import DepartmentMemberTable from "./DepartmentMemberTable";
-import { objectToFormData } from "../api";
+import { objectToFormData, socket } from "../api";
 import Swal from "sweetalert2";
 import { Modal } from "bootstrap";
 import DepartmentTasksTable from "./DepartmentTasksTable";
+import DepartmentAssignHead from "./DepartmentAssignHead";
 
 function DepartmentInfo(props){
 
@@ -18,7 +19,17 @@ function DepartmentInfo(props){
     async function loadDepartmentInfo(id){
         var res = await getDepartment(id).then(data => data.data)
         await setDeptinfo(res)
-        await setManagerInfo(res.manager)
+        setManagerInfo(null)
+
+        for(const user of res.users){
+            
+            if(user.role == "head"){
+                setManagerInfo(user)
+                console.log(user)
+            }
+        }
+
+        
         setFormData({"id":id, "department_name": res.name, "icon": res.icon })
         
     }
@@ -26,6 +37,14 @@ function DepartmentInfo(props){
     useEffect(()=>{
         loadDepartmentInfo(props.id)
     },[props.id])
+
+    useEffect(()=>{
+        socket.on("department", ()=>{
+            loadDepartmentInfo(props.id)
+        })
+
+        return ()=> socket.off("department")
+    }, [])
 
     useEffect(()=>{
         console.log(formData)
@@ -125,6 +144,24 @@ function DepartmentInfo(props){
                             <button type="button" className="btn btn-danger" onClick={handleArchive}>
                                 {archiving ? <span className="material-symbols-outlined loading">progress_activity</span> : <span>Archive Department</span>}
                             </button>
+                           
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="modal fade" id="assign-head" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div className="modal-dialog modal-dialog-centered modal-lg" >
+                    <div className="modal-content " >
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="staticBackdropLabel">Assign Department Head</h5>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div className="modal-body">                            
+                            <DepartmentAssignHead dept_id = {props.id}></DepartmentAssignHead>
+                        </div>
+                        <div className="modal-footer">
+                            
                            
                         </div>
                     </div>
@@ -238,15 +275,20 @@ function DepartmentInfo(props){
                                     </div>}
                                 </div>
                                 <span className="dept-head-container">
-                                    <div style={{fontWeight:"light"}}>Managed by: </div>
+                                    <div style={{fontWeight:"light"}}>Department Head: </div>
                                     {managerInfo? <div className="dept-head">
                                         <div className="img-container">
-                                            <img src="dummy.jpg" alt="" />
+                                            <img src={managerInfo.profile_picture_link} alt="" />
                                         </div>
                                         <div className="dept-head-name">
-                                            John Doe
+                                            {managerInfo.first_name + " " + managerInfo.last_name}
                                         </div>
                                     </div>: <span>None</span> }
+
+                                    <button className="assign-button btn btn-primary" data-bs-toggle="modal" data-bs-target="#assign-head">
+                                        <span className="material-symbols-outlined">assignment_ind</span>
+                                        <span>Assign</span>
+                                    </button>
                                 </span>
                                 
                             </span>

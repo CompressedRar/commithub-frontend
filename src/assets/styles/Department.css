@@ -222,6 +222,7 @@
     flex-direction: row;
     align-items: flex-end;
     gap: 20px;
+    align-items: center;
 }
 
 .dept-head-container .dept-head {
@@ -724,4 +725,112 @@
     border-style: solid;
     border-width: 1px;
     margin-left: -10px;
+}
+
+.assign-button {
+    padding: 10px;
+    font-size: 1rem;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+}
+
+.assign-button .material-symbols-outlined {
+    font-size: 1.3rem;
+}
+
+
+.department-assign-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.department-assign-container .assigned-head-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.department-assign-container .assigned-head {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    padding: 20px;
+    box-sizing: border-box;
+    border-style: solid;
+    border-width: 1px;
+    margin: 10px;
+    border-radius: 10px;
+    justify-content: space-between;
+
+}
+
+.department-assign-container .assigned-head .user-image, .member-info .user-image {
+    color: transparent;
+    width: 50px;
+    height: 50px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 50%;
+}
+
+.department-assign-container .assigned-head .user-info, .member-info .user-info {
+    display: flex;
+    flex-direction: column;
+
+}
+
+.department-assign-container .member {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.department-assign-container .member .member-info {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.department-assign-container .member-info .user-info .name{
+    font-weight: 600;
+} 
+
+.department-assign-container .member-info .user-info .position {
+    color: grey;
+    font-weight: 300;
+}
+
+.department-assign-container .member button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    scale: 0.9;
+    border-radius: 50px;
+    padding-left: 20px;
+    padding-right: 20px;
+    background-image: linear-gradient(to left, rgb(57, 57, 252), var(--lighter-primary-color), var(--primary-color));
+}
+
+.department-assign-container .member button:hover {
+    opacity: 0.9;
+    background-color: black;
+}
+
+.already-assigned {
+    background-image: linear-gradient(to left,rgb(255, 69, 69), rgb(255, 136, 0), rgb(240, 128, 0));
+}
+
+.empty-head {
+    border-style: dashed;
+    border-width: 1px;
+    padding: 20px;
+    box-sizing: border-box;
+    text-align: center;
+    border-radius: 10px;
 }

@@ -3,6 +3,7 @@ import "../assets/styles/Main.css"
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 import { checkRole } from "../components/api";
+import Swal from "sweetalert2";
 
 function AdminLayout(){
     const token = localStorage.getItem("token")
@@ -36,9 +37,25 @@ function AdminLayout(){
     }
     
 
-    function Logout(){
-        localStorage.removeItem("token")
-        window.location.reload()
+    function Logout(){ 
+        Swal.fire({
+            title:"Logout",
+            text:"Do you want to logout?",
+            showDenyButton: true,
+            confirmButtonText:"Logout",
+            denyButtonText:"No",
+            icon:"warning",
+            customClass: {
+                actions: 'my-actions',
+                confirmButton: 'order-2',
+                denyButton: 'order-1 right-gap',
+            },
+        }).then((result)=> {
+            if(result.isConfirmed){
+                localStorage.removeItem("token")
+                window.location.reload()
+            }
+        })  
     }
 
     function detectCurrentPage(detect){
