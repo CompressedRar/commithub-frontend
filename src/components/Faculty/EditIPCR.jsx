@@ -23,10 +23,10 @@ function EditIPCR(props) {
     async function loadIPCR(){
         var res = await getIPCR(props.ipcr_id).then(data => data.data)
         setIPCRInfo(res)
-        console.log(res)
 
         //rearrange my tasks here
         var sub_tasks = res.sub_tasks
+        console.log(sub_tasks)
         var all_categories = {}
         for(const task of sub_tasks){
             var category = task.main_task.category.name
@@ -49,7 +49,6 @@ function EditIPCR(props) {
         }
         setArrangedSubTasks(all_categories)
 
-        console.log(q/res.sub_tasks_count)
         
         setQuantityAvg(q/res.sub_tasks_count)
         setEfficiencyAvg(e/res.sub_tasks_count)
@@ -58,7 +57,6 @@ function EditIPCR(props) {
 
         var keys = Object.keys(all_categories)
         for(const cat of keys){
-            console.log(all_categories[cat])
         }
     }
 
@@ -75,7 +73,6 @@ function EditIPCR(props) {
                 var res = await getAccountInfo(payload.id).then(data => data.data)
     
                 setuserInfo(res)
-                console.log(res)
             }
         }
 
@@ -101,7 +98,7 @@ function EditIPCR(props) {
         async function assignIPCR(){
             Swal.fire({
                         title:"Assign",
-                        text:"Do you want to assign this IPCR as your main IPCR?",
+                        text:"Submitting this IPCR would make this your main IPCR?",
                         showDenyButton: true,
                         confirmButtonText:"Assign",
                         denyButtonText:"No",
@@ -120,15 +117,12 @@ function EditIPCR(props) {
         }
 
     useEffect(()=> {
-        console.log(subTaskID, field, value)
         if(value == "") {
-            console.log(subTaskID, field, value)
             return   
         }
         const debounce = setTimeout(()=>{
             //loadSearchedData(searchQuery)
             updateSubTask(subTaskID, field, value)
-            console.log("nya")
         }, 500)
 
         return ()=> clearTimeout(debounce)
@@ -142,15 +136,31 @@ function EditIPCR(props) {
 
         socket.on("ipcr", ()=>{
             loadIPCR()
+            loadUserInfo()
+            console.log("IPCR LISTENED")
         })
 
-        return () => socket.off("ipcr")
+        socket.on("ipcr_added", ()=>{
+            loadIPCR()
+            loadUserInfo()
+            console.log("ADDED LISTENED")
+        })
+
+        socket.on("ipcr_remove", ()=>{
+            loadIPCR()
+            loadUserInfo()
+            console.log("REMOVE LISTENED")
+        })
+
+        return () => {
+            socket.off("ipcr")
+        }
     }, [])
 
     return (
         <div className="edit-ipcr-container">
 
-            {userinfo && <ManageTask ipcr_id = {props.ipcr_id} user_id = {userinfo.id? userinfo.id: 0} dept_id = {userinfo.department ? userinfo.department.id: 0}></ManageTask>}
+            {userinfo && <ManageTask key = {userinfo.id? userinfo.id: 0} ipcr_id = {props.ipcr_id} user_id = {userinfo.id? userinfo.id: 0} dept_id = {userinfo.department ? userinfo.department.id: 0}></ManageTask>}
             
             <div className="option-header">
                 <div className="back" onClick={()=> {
@@ -165,9 +175,9 @@ function EditIPCR(props) {
                         <span className="material-symbols-outlined">assignment</span>
                         <span>Manage Task</span>
                     </button>}
-                    <button className="btn btn-primary" onClick={()=>{assignIPCR()}}>
+                    <button className="btn btn-primary assign-btn" disabled = {ipcrInfo.isMain}   onClick={()=>{assignIPCR()}}>
                         <span className="material-symbols-outlined">article_shortcut</span>
-                        <span>Submit</span>
+                        <span>{ipcrInfo.isMain? "Submitted": "Submit"}</span>
                     </button>
                 </div>
             </div>

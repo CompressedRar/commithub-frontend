@@ -14,7 +14,7 @@ function Faculty(){
             }}></IPCRContainer>: 
             <EditIPCR ipcr_id = {currentIPCRID} switchPage = {()=> {
                 setCurrentPage(0)
-                setCurrentIPCRID(0)
+                setCurrentIPCRID(null)
             }}></EditIPCR>}
             
         </div>

@@ -18,3 +18,13 @@ export async function assignMainIPCR(ipcr_id, user_id) {
     console.log("assigning ipcr")
     return api.patch(`/api/v1/pcr/ipcr/${ipcr_id}&${user_id}`)
 }
+
+
+export async function removeSubTaskInIprc(main_task_id, batch_id) {
+    return api.delete(`/api/v1/pcr/ipcr/task/${main_task_id}&${batch_id}`)
+}
+
+
+export async function addSubTaskInIprc(main_task_id, batch_id, user_id, ipcr_id) {
+    return api.post(`/api/v1/pcr/ipcr/task/${main_task_id}&${batch_id}&${user_id}&${ipcr_id}`)
+}

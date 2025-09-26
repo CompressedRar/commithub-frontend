@@ -96,7 +96,6 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin: -20px
 }
 
 .all-ipcr-container .ipcr .description .title {
@@ -617,4 +616,36 @@
     padding: 5px;
     padding-left: 10px;
     padding-right: 10px;
+}
+
+.form-status, .main-form {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 2px 15px;
+    border-radius: 20px;
+    text-align: center;
+    font-size: 0.8rem;
+}
+
+.status-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-content: flex-end;
+    width: 100%;
+    gap: 10px;
+    
+}
+
+.main-form {
+    border-radius: 50px;
+    border-style: solid;
+    font-size: 0.8rem;
+    color: var(--primary-color);
+    background-color: white;
+    border-width: 1px;
+}
+
+.assign-btn {
+    border-radius: 100px;
+    padding: 10px 20px;
 }

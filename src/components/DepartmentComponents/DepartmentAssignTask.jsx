@@ -59,6 +59,7 @@ function DepartmentAssignTask(props){
                 showDenyButton: true,
                 confirmButtonText: 'Yes',
                 denyButtonText: 'No',
+                icon:"question",
                 customClass: {
                     actions: 'my-actions',
                     cancelButton: 'order-1 right-gap',
@@ -94,10 +95,14 @@ function DepartmentAssignTask(props){
         }
     async function handleUnassign(userid){
             Swal.fire({
-                title: 'Do you want to remove the task to this user?',
+                title: 'Do you want to remove the task from this user? ',
                 showDenyButton: true,
+                text:"Note: Removing this task will erase user\'s corresponding task data in all of its IPCR.",
                 confirmButtonText: 'Yes',
+                confirmButtonColor:"red",
                 denyButtonText: 'No',
+                denyButtonColor:"gray",
+                icon:"warning",
                 customClass: {
                     actions: 'my-actions',
                     cancelButton: 'order-1 right-gap',
@@ -120,12 +125,14 @@ function DepartmentAssignTask(props){
         socket.on("user_assigned", ()=>{
             loadMembers()
             loadAssignedMembers()
-            console.log("user assigned")
+            console.log("heheh user assigned")
         })
 
-        return () => {
-            socket.off("user_assigned");
-        }
+        socket.on("user_unassigned", ()=>{
+            loadMembers()
+            loadAssignedMembers()
+            console.log("heheh user unassigned")
+        })
     }, [])
 
     return(

@@ -124,6 +124,7 @@ function DepartmentTasksTable(props) {
         })
         socket.on("department_assigned", ()=>{
             loadAllMembers()
+            console.log("department_asigned")
         })
 
         
@@ -133,6 +134,7 @@ function DepartmentTasksTable(props) {
             socket.off("user_created");
             socket.off("task_modified");
             socket.off("user_assigned")
+            socket.off("user_unassigned")
         }
         
     },[])

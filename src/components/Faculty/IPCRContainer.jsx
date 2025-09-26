@@ -62,7 +62,7 @@ function IPCRContainer({switchPage}) {
         setAllTasks([])
 
         var res = await getDepartmentTasks(id).then(data => data.data)
-        console.log(allAssignedID)
+        console.log("assuigned id", allAssignedID)
         var available = []
         for(const task of res){
             
@@ -86,6 +86,7 @@ function IPCRContainer({switchPage}) {
     }
 
     async function createTasks() {
+        console.log("all main task id:",checkedArray)
 
         if(checkedArray.length == 0){
             Swal.fire({
@@ -102,6 +103,7 @@ function IPCRContainer({switchPage}) {
                 icon:"success"
             })
         }
+
         else {
             Swal.fire({
                 title:"Error",
@@ -227,7 +229,15 @@ function IPCRContainer({switchPage}) {
                     {allIPCR && allIPCR.map(ipcr => (
                         <div className="ipcr" onClick={()=> {
                             switchPage(ipcr.id)
-                        }}>
+                        }}> 
+
+                            <div className="status-container">
+                                
+                                <span className="form-status">{ipcr.form_status.toUpperCase()}</span>
+                                {ipcr.isMain == 1? <span className="main-form">MAIN</span>: ""}
+                                
+                                
+                            </div>
                             <span className="material-symbols-outlined">contract</span>
                             <div className="description">
                                 <span className="title">IPCR #{ipcr.id}</span>
