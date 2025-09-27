@@ -8,6 +8,11 @@ export async function getIPCR(ipcr_id) {
     return api.get(`/api/v1/pcr/ipcr/${ipcr_id}`)
 }
 
+export async function downloadIPCR(ipcr_id) {
+    console.log("fetching ipcr")
+    return api.get(`/api/v1/pcr/ipcr/download/${ipcr_id}`)
+}
+
 
 export async function updateSubTask(sub_task_id, field, value) {
     console.log("updating sub task")
@@ -28,3 +33,4 @@ export async function removeSubTaskInIprc(main_task_id, batch_id) {
 export async function addSubTaskInIprc(main_task_id, batch_id, user_id, ipcr_id) {
     return api.post(`/api/v1/pcr/ipcr/task/${main_task_id}&${batch_id}&${user_id}&${ipcr_id}`)
 }
+

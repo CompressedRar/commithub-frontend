@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { assignMainIPCR, getIPCR, updateSubTask } from "../../services/pcrServices"
+import { assignMainIPCR, downloadIPCR, getIPCR, updateSubTask } from "../../services/pcrServices"
 import { socket } from "../api"
 import { jwtDecode } from "jwt-decode"
 import { getAccountInfo } from "../../services/userService"
@@ -19,6 +19,8 @@ function EditIPCR(props) {
     const [field, setField] = useState("")
     const [value, setValue] = useState(0)
     const [subTaskID, setSubTaskID] = useState(0)
+
+    const [downloadURL, setDownloadURL] = useState(null)
     
     async function loadIPCR(){
         var res = await getIPCR(props.ipcr_id).then(data => data.data)
@@ -116,6 +118,13 @@ function EditIPCR(props) {
                     }) 
         }
 
+    async function download() {
+        var res = await downloadIPCR(props.ipcr_id).then(data => data.data.link)
+        setDownloadURL(res)
+        window.open(res, "_blank", "noopener,noreferrer");
+
+    }
+
     useEffect(()=> {
         if(value == "") {
             return   
@@ -159,6 +168,7 @@ function EditIPCR(props) {
 
     return (
         <div className="edit-ipcr-container">
+            
 
             {userinfo && <ManageTask key = {userinfo.id? userinfo.id: 0} ipcr_id = {props.ipcr_id} user_id = {userinfo.id? userinfo.id: 0} dept_id = {userinfo.department ? userinfo.department.id: 0}></ManageTask>}
             
@@ -171,6 +181,11 @@ function EditIPCR(props) {
                 </div>
 
                 <div className="ipcr-options">
+                    
+                    <button className="btn btn-primary" onClick={()=>{download()}}>
+                        <span className="material-symbols-outlined">download</span>
+                        <span>Download</span>
+                    </button>
                     {userinfo && <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#manage-tasks">
                         <span className="material-symbols-outlined">assignment</span>
                         <span>Manage Task</span>
