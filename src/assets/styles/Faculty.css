@@ -62,6 +62,7 @@
     grid-template-columns: repeat(5, 1fr);
     padding: 20px;
     box-sizing: border-box;
+    gap: 20px;
 }
 
 .all-ipcr-container .ipcr{
@@ -74,8 +75,8 @@
     box-sizing: border-box;
     box-shadow: 0px 0px 2px var(--primary-font-color);
     border-width: 1px;
-    width: 200px;
-    height: 200px;
+    width: 230px;
+    gap: 20px;
     padding: 10px;
     border-radius: 10px;
     transition: all 300ms;
@@ -628,9 +629,9 @@
 }
 
 .status-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    justify-content: flex-end;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
     width: 100%;
     gap: 10px;
     
@@ -648,4 +649,48 @@
 .assign-btn {
     border-radius: 100px;
     padding: 10px 20px;
+}
+
+.ipcr-wrapper{
+    position: relative;
+}
+
+
+
+.ipcr-wrapper .popup {
+    background-color: white;
+    z-index: 1000;
+    right: -50%;
+    top: 0;
+    position: absolute;
+    box-sizing: border-box;
+    box-shadow: 0px 0px 15px rgb(228, 228, 228);
+    overflow: hidden;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-style: solid;
+    border-width: 1px;
+    border-color: green;
+}
+
+.ipcr-wrapper .popup .choices {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+    transition: all 200ms;
+    padding: 10px 10px;
+}
+
+.ipcr-wrapper .popup .choices:hover {
+    background-color: rgb(221, 221, 221);
+}
+
+
+.ipcr-wrapper .popup .material-symbols-outlined {
+    font-size: 1rem;
 }

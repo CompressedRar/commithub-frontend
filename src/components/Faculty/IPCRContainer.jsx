@@ -6,6 +6,7 @@ import Swal from "sweetalert2"
 import { all } from "axios"
 import { socket } from "../api"
 import { Modal } from "bootstrap"
+import IPCR from "./IPCR"
 
 
 
@@ -227,23 +228,7 @@ function IPCRContainer({switchPage}) {
                 </div>
                 <div className="all-ipcr-container">
                     {allIPCR && allIPCR.map(ipcr => (
-                        <div className="ipcr" onClick={()=> {
-                            switchPage(ipcr.id)
-                        }}> 
-
-                            <div className="status-container">
-                                
-                                <span className="form-status">{ipcr.form_status.toUpperCase()}</span>
-                                {ipcr.isMain == 1? <span className="main-form">MAIN</span>: ""}
-                                
-                                
-                            </div>
-                            <span className="material-symbols-outlined">contract</span>
-                            <div className="description">
-                                <span className="title">IPCR #{ipcr.id}</span>
-                                <span className="created">{ipcr.created_at}</span>
-                            </div>
-                        </div>
+                        ipcr.status == 1?<IPCR ipcr={ipcr} onClick = {()=>{switchPage(ipcr.id)}}></IPCR>: ""
                     ))}
                     
                 </div>

@@ -125,6 +125,12 @@ function EditIPCR(props) {
 
     }
 
+    //ayusin yubng logo sa IPCR
+    //pati yung loading
+    //mag lagay ng supporting documents
+
+    //gawin yung head module at opcr generaton
+
     useEffect(()=> {
         if(value == "") {
             return   
