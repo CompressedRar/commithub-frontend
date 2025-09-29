@@ -6,7 +6,7 @@ function AllDepartmentMember({dept, onClick}) {
     return (
         <div className="department" key={dept.id} onClick={onClick}>
             <div className="pair">
-                <span className="material-symbols-outlined">{dept.icon}</span>
+                <span className="material-symbols-outlined"></span>
                 <span>{dept.name}</span>
             </div>
             

@@ -29,13 +29,27 @@ export async function archiveIprc(ipcr_id) {
     return api.delete(`/api/v1/pcr/ipcr/${ipcr_id}`)
 }
 
-
 export async function removeSubTaskInIprc(main_task_id, batch_id) {
     return api.delete(`/api/v1/pcr/ipcr/task/${main_task_id}&${batch_id}`)
 }
 
+export async function archiveDocument(document_id) {
+    return api.delete(`/api/v1/pcr/ipcr/documents/${document_id}`)
+}
 
 export async function addSubTaskInIprc(main_task_id, batch_id, user_id, ipcr_id) {
     return api.post(`/api/v1/pcr/ipcr/task/${main_task_id}&${batch_id}&${user_id}&${ipcr_id}`)
+}
+
+export async function generatePreSignedURL(data) {
+    return api.post(`/api/v1/pcr/generate_presigned_url`, data)
+}
+
+export async function getSupportingDocuments(ipcr_id) {
+    return api.get(`/api/v1/pcr/ipcr/documents/${ipcr_id}`)
+}
+
+export async function recordFileUploadInfo(data) {
+    return api.post(`/api/v1/pcr/record`, data)
 }
 

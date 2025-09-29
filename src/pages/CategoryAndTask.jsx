@@ -128,7 +128,7 @@ function CategoryAndTask(){
                     
                     {allCategory.map(category => (
                         <div className="department" onClick={()=>{setFirst(category.id)}}>
-                            <span className="material-symbols-outlined">category</span>
+                            <span className="material-symbols-outlined"></span>
                             <span>{category.name}</span>
                         </div>    
                     ))}

@@ -585,15 +585,19 @@
 }
 
 .option-header {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-}
-.ipcr-options {
     display: flex;
     flex-direction: row;
-    justify-content: flex-end;
 }
-
+.ipcr-options {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.additional {
+    display: flex;
+    flex-direction: row;
+}
 .ipcr-options button {
     display: flex;
     flex-direction: row;
@@ -693,4 +697,109 @@
 
 .ipcr-wrapper .popup .material-symbols-outlined {
     font-size: 1rem;
+}
+#manage-docs .modal-body{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#manage-docs .modal-body .add-docu-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 10px;
+    align-items: center;
+}
+
+#manage-docs .modal-body .add-docu-header button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 10px;
+}
+
+#manage-docs .modal-body .add-docu-header input {
+    border-style: solid;
+    display: flex;
+    flex-direction: column;align-items: center;
+    justify-content: center;
+    padding: 10px;
+    border-width: 1px;
+    border-radius: 10px;
+}
+
+.uploaded-documents-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.uploaded-documents-container .uploaded-documents {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+}
+
+.uploaded-documents .document {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    background-color: rgb(240, 242, 255);
+    gap: 10px;
+    border-radius: 10px;
+    align-items: center;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+.document .document-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.document .document-info .file-type {
+    color: rgb(138, 138, 138);
+    font-size: 0.7rem;
+}
+
+.document .document-options {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+} 
+
+.document .document-options button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.ipcr .ipcr-info {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    align-items: center;
+    justify-content: flex-start;
+    width:130%;
+}
+
+.ipcr-info .ipcr-profile {
+    background-color: antiquewhite;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background-position: center;
+    background-size: cover;
+}
+
+.ipcr-info .ipcr-details {
+    display: flex;
+    flex-direction: column;
 }

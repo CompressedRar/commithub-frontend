@@ -1,0 +1,58 @@
+import { useEffect, useState } from "react"
+import { getDepartmentIPCR } from "../../services/departmentService"
+import IPCR from "../Faculty/IPCR"
+import EditIPCR from "../Faculty/EditIPCR"
+import ManageSupportingDocuments from "../Faculty/ManageSupportingDocuments"
+
+
+function PerformanceReviews(props){
+    const [allIPCR, setAllIPCR] = useState(null)
+    const [currentPage, setCurrentPage] = useState(0)
+    const [currentIPCRID, setCurrentIPCRID] = useState(null)
+    const [batchID, setBatchID] = useState(null)
+
+    async function loadIPCR() {
+        var res = await getDepartmentIPCR(props.deptid).then(data => data.data)
+        setAllIPCR(res)
+        console.log(res)
+    }
+
+    useEffect(()=> {
+        loadIPCR()
+    }, [])
+    return (
+        <div className="performance-reviews-container">
+            {batchID && currentIPCRID? <ManageSupportingDocuments dept_mode = {true} key={currentIPCRID} ipcr_id = {currentIPCRID} batch_id = {batchID}></ManageSupportingDocuments>:""}
+            <div className="modal fade" id="view-ipcr" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div className="modal-dialog modal-dialog-centered modal-fullscreen" >
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div className="modal-body">
+                            {currentIPCRID && <EditIPCR key={currentIPCRID} ipcr_id = {currentIPCRID} dept_mode = {true} switchPage={()=>{
+
+                            }}></EditIPCR>}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Performance Review and Commitment Forms</h3>
+            <div className="all-ipcr-container">
+                
+                {allIPCR && allIPCR.map(ipcr => (
+                    <IPCR onMouseOver = {()=>{
+                        setBatchID(ipcr.batch_id)
+                        setCurrentIPCRID(ipcr.id)
+                        console.log(ipcr.id)
+                    }} onClick={()=>{
+                        setCurrentIPCRID(ipcr.id)
+                    }} ipcr = {ipcr} dept_mode = {true}></IPCR>
+                ))}
+            </div>
+        </div>
+    )
+}
+
+export default PerformanceReviews

@@ -13,6 +13,8 @@ function Department(){
     const [formData, setFormData] = useState({"department_name": "", "icon": ""})
     const [submitting, setSubmission] = useState(false)
 
+    
+
     async function loadAllDepartments(){
         var res = await getDepartments().then(data => data.data)
         setDepartments(res)
@@ -86,7 +88,7 @@ function Department(){
                                 <label htmlFor="last_name">Department Name <span className="required">*</span></label>
                                 <input type="department_name" id="department_name" name="department_name" onInput={handleDataChange} placeholder="Eg. Computing Studies"  required/>
                             </div>
-                            <div className="textboxes">
+                            <div className="textboxes" style={{display:"none"}}>
                                 <label htmlFor="department_icon">Choose Icon <span className="required">*</span></label>
                                 <div className="icons-container">
                                     <input type="radio" name = "icon" id = "cs" hidden onChange={handleDataChange} value = "computer"/>

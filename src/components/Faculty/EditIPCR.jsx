@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useSyncExternalStore } from "react"
 import { assignMainIPCR, downloadIPCR, getIPCR, updateSubTask } from "../../services/pcrServices"
 import { socket } from "../api"
 import { jwtDecode } from "jwt-decode"
 import { getAccountInfo } from "../../services/userService"
 import Swal from "sweetalert2"
 import ManageTask from "./ManageTask"
+import ManageSupportingDocuments from "./ManageSupportingDocuments"
 
 function EditIPCR(props) {
     const [userinfo, setuserInfo] = useState(null)
@@ -21,6 +22,7 @@ function EditIPCR(props) {
     const [subTaskID, setSubTaskID] = useState(0)
 
     const [downloadURL, setDownloadURL] = useState(null)
+    const [downloading, setDownloading] = useState(false)
     
     async function loadIPCR(){
         var res = await getIPCR(props.ipcr_id).then(data => data.data)
@@ -28,7 +30,7 @@ function EditIPCR(props) {
 
         //rearrange my tasks here
         var sub_tasks = res.sub_tasks
-        console.log(sub_tasks)
+        console.log(res)
         var all_categories = {}
         for(const task of sub_tasks){
             var category = task.main_task.category.name
@@ -119,10 +121,11 @@ function EditIPCR(props) {
         }
 
     async function download() {
+        setDownloading(true)
         var res = await downloadIPCR(props.ipcr_id).then(data => data.data.link)
         setDownloadURL(res)
         window.open(res, "_blank", "noopener,noreferrer");
-
+        setDownloading(false)
     }
 
     //ayusin yubng logo sa IPCR
@@ -169,37 +172,46 @@ function EditIPCR(props) {
 
         return () => {
             socket.off("ipcr")
+            socket.off("document")
         }
     }, [])
 
     return (
         <div className="edit-ipcr-container">
             
-
+            <ManageSupportingDocuments ipcr_id = {props.ipcr_id} batch_id = {ipcrInfo.batch_id}></ManageSupportingDocuments>
             {userinfo && <ManageTask key = {userinfo.id? userinfo.id: 0} ipcr_id = {props.ipcr_id} user_id = {userinfo.id? userinfo.id: 0} dept_id = {userinfo.department ? userinfo.department.id: 0}></ManageTask>}
-            
-            <div className="option-header">
-                <div className="back" onClick={()=> {
+            <div className="back">
+                <div className="back"  data-bs-dismiss="modal" data-bs-target={props.dept_mode? "#view-ipcr":""} onClick={()=> {
                     props.switchPage()
                 }}>
                     <span className="material-symbols-outlined">undo</span>
                     Back to IPCRs 
                 </div>
+            </div>
+            <div className="option-header">
+                
 
                 <div className="ipcr-options">
+                    <div className="additional">
+                        {!props.dept_mode? <button className="btn btn-primary" onClick={()=>{download()}}>
+                            <span className="material-symbols-outlined">{downloading? "refresh": "download"}</span>
+                            {!downloading? <span>Download</span>:""}
+                        </button>:""}
+                        {!props.dept_mode? userinfo && <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#manage-tasks">
+                            <span className="material-symbols-outlined">assignment</span>
+                            <span>Tasks</span>
+                        </button>:""}
+                        {!props.dept_mode? <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#manage-docs">
+                            <span className="material-symbols-outlined">attach_file</span>
+                            <span>Documents</span>
+                        </button>:""}
+                    </div>
                     
-                    <button className="btn btn-primary" onClick={()=>{download()}}>
-                        <span className="material-symbols-outlined">download</span>
-                        <span>Download</span>
-                    </button>
-                    {userinfo && <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#manage-tasks">
-                        <span className="material-symbols-outlined">assignment</span>
-                        <span>Manage Task</span>
-                    </button>}
-                    <button className="btn btn-primary assign-btn" disabled = {ipcrInfo.isMain}   onClick={()=>{assignIPCR()}}>
+                    {!props.dept_mode? <button className="btn btn-primary assign-btn" disabled = {ipcrInfo.isMain}   onClick={()=>{assignIPCR()}}>
                         <span className="material-symbols-outlined">article_shortcut</span>
                         <span>{ipcrInfo.isMain? "Submitted": "Submit"}</span>
-                    </button>
+                    </button>:""}
                 </div>
             </div>
             
@@ -221,7 +233,7 @@ function EditIPCR(props) {
                 <div className="ratee-information">
                     <div className="ratee-oath">
                         <span className="first-oath">
-                            <i>I, <div className="ratee-name"><strong>{userinfo && userinfo.first_name + " "+ userinfo.last_name}</strong></div>, <div className="ratee-position">Librarian</div> of the <strong>NORZAGARAY COLLEGE,</strong> commit to deliver and agree to be rated on the attainment of  </i>
+                            <i>I, <div className="ratee-name"><strong>{ipcrInfo.user_info && (ipcrInfo.user_info.first_name + " "+ ipcrInfo.user_info.last_name)}</strong></div>, <div className="ratee-position">Librarian</div> of the <strong>NORZAGARAY COLLEGE,</strong> commit to deliver and agree to be rated on the attainment of  </i>
                         </span>
                         <span className="second-oath">
                             <i>the following targets in accordance with the indicated measures for the period <strong>JULY - DECEMBER 2025</strong> </i>
@@ -229,7 +241,7 @@ function EditIPCR(props) {
                     </div>
                     <div className="ratee-signature">
                         <span className="date">
-                            <input type="text" value={userinfo && userinfo.first_name + " " + userinfo.last_name} style={{color:"black", textAlign:"center", fontWeight:"bold"}}/>
+                            <input type="text" value={ipcrInfo.user_info && (ipcrInfo.user_info.first_name + " "+ ipcrInfo.user_info.last_name)} style={{color:"black", textAlign:"center", fontWeight:"bold"}}/>
                             Ratee
                         </span>
                         <span className="date">

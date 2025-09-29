@@ -14,6 +14,7 @@ function IPCR(props) {
     const [optionsOpen, setOpen] = useState(false)
     const [downloading, setDownloading] = useState(false)
     const [archiving, setArchiving] = useState(false)
+    
 
     async function handleArchive(){
                 setArchiving(true)
@@ -28,7 +29,7 @@ function IPCR(props) {
                 }
                 else {
                     Swal.fire({
-                        title:"Error",
+                        title:"Error",  
                         text: "Archiving IPCR failed",
                         icon:"error"
                     })
@@ -72,15 +73,20 @@ function IPCR(props) {
                     {!downloading && <span>Download</span>}
                 </div>
                 <div className="choices" onClick={()=>{archiveIPCR()}}>
-                    <span className="material-symbols-outlined">{downloading ? "refresh": "archive"}</span>
+                    <span className="material-symbols-outlined">archive</span>
                     {!archiving && <span>Archive</span>}
+                </div>
+
+                <div className="choices"  data-bs-toggle="modal" data-bs-target={props.dept_mode? "#manage-docs":""}>
+                    <span className="material-symbols-outlined">attach_file</span>
+                    <span>Documents</span>
                 </div>
 
                 
             </div>}
             
 
-            <div className="ipcr"  >
+            <div className="ipcr"  onMouseOver={props.dept_mode? props.onMouseOver:null}>
                 
                 <div className="status-container">                             
                     <div style={{gap:"10px", display:"flex"}}> 
@@ -91,11 +97,25 @@ function IPCR(props) {
                 </div>
                 
                 
-                <div className="description"onClick={props.onClick}>
-                    <span className="material-symbols-outlined">contract</span>
-                    <span className="title">IPCR #{props.ipcr.id}</span>
-                    <span className="created">{props.ipcr.created_at}</span>
-                </div>
+                {
+                    !props.dept_mode?
+                    <div className="description"onClick={props.onClick}>
+                        <span className="material-symbols-outlined">contract</span>
+                        <span className="title">IPCR #{props.ipcr.id}</span>
+                        <span className="created">{props.ipcr.created_at}</span>
+                    </div>: 
+                    <div className="description"onClick={props.onClick} data-bs-toggle="modal" data-bs-target="#view-ipcr">
+                        
+                        <span className="material-symbols-outlined">contract</span>
+                        <div className="ipcr-info">
+                            <div className="ipcr-profile" style={{backgroundImage:`url('${props.ipcr.user.profile_picture_link}')`}}></div>
+                            <div className="ipcr-details">
+                                <span className="title">IPCR #{props.ipcr.id}</span>
+                                <span className="created">{props.ipcr.user.first_name + " " + props.ipcr.user.last_name}</span>
+                            </div>
+                        </div>
+                    </div> 
+                }
             </div>
         </div>
     )

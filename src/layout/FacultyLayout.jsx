@@ -73,22 +73,30 @@ function FacultyLayout(){
                 </a>
             </div>
             <header className="header-container">
-                <div className="menu-container">
-                    <span className="material-symbols-outlined">menu</span>
-                </div>
-                <div className="current-page-container">
-                    
-                    <span className="page">
-                        <span>{window.location.pathname.replaceAll("/", "")[0].toLocaleUpperCase() + window.location.pathname.substring(2)}</span>
-                    </span>
+                <div className="current-location">
+                    <div className="menu-container">
+                        <span className="material-symbols-outlined">menu</span>
+                    </div>
+                    <div className="current-page-container">                    
+                        <span className="page">
+                            <span>{window.location.pathname.replaceAll("/", "")[0].toLocaleUpperCase() + window.location.pathname.substring(2)}</span>
+                        </span>
+                    </div>
                 </div>
 
-                <div className="notification-container">
-                    <span className="material-symbols-outlined">notifications</span>
-                </div>
-                <div className="profile-container">
-                    <div className="profile-image-container">
-                        <img src={profilePictureLink} alt="" />
+                <div className="current-info">
+                    <div className="notification-container">
+                        <span className="material-symbols-outlined">notifications</span>
+                    </div>
+                    <div className="account-informations">
+                        <span>Jiovanni M. Pareja</span>
+                        <span className="current-department">Computing Studies</span>
+                    </div>
+
+                    <div className="profile-containers">                        
+                        <div className="profile-image-container">
+                            <img src={profilePictureLink} alt="" />
+                        </div>
                     </div>
                 </div>
             </header>

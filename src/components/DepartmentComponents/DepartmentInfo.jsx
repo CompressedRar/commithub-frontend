@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 import { Modal } from "bootstrap";
 import DepartmentTasksTable from "./DepartmentTasksTable";
 import DepartmentAssignHead from "./DepartmentAssignHead";
+import PerformanceReviews from "./PerformanceReview";
 
 function DepartmentInfo(props){
 
@@ -15,6 +16,9 @@ function DepartmentInfo(props){
     const [formData, setFormData] = useState({"department_name": "", "icon": ""})
     const [submitting, setSubmission] = useState(false)
     const [archiving, setArchiving] = useState(false)
+
+    const [currentPage, setCurrentPage] = useState(0)
+
 
     async function loadDepartmentInfo(id){
         var res = await getDepartment(id).then(data => data.data)
@@ -180,7 +184,7 @@ function DepartmentInfo(props){
                                 <label htmlFor="last_name">Department Name <span className="required">*</span></label>
                                 <input type="text" id="department_name" name="department_name" onInput={handleDataChange}  placeholder={deptInfo.name}  required/>
                             </div>
-                            <div className="textboxes">
+                            <div className="textboxes" style={{display:"none"}}>
                                 <label htmlFor="department_icon">Choose Icon <span className="required">*</span></label>
                                 <div className="icons-container">
                                     <input type="radio" name = "icon" id = "a" hidden onChange={handleDataChange} value = "computer"/>
@@ -264,6 +268,10 @@ function DepartmentInfo(props){
 
                                     {open && 
                                     <div className="member-options" onMouseLeave={()=>{setOpen(false)}}>
+                                        <span className="option" data-bs-toggle="modal" data-bs-target="#assign-head">
+                                            <span className="material-symbols-outlined">assignment_ind</span>
+                                        <span>Assign Head</span>
+                                        </span>
                                         <span className="option" data-bs-toggle="modal" data-bs-target="#edit-department">
                                             <span className="material-symbols-outlined">edit</span>
                                             <span>Edit Info</span>
@@ -284,11 +292,6 @@ function DepartmentInfo(props){
                                             {managerInfo.first_name + " " + managerInfo.last_name}
                                         </div>
                                     </div>: <span>None</span> }
-
-                                    <button className="assign-button btn btn-primary" data-bs-toggle="modal" data-bs-target="#assign-head">
-                                        <span className="material-symbols-outlined">assignment_ind</span>
-                                        <span>Assign</span>
-                                    </button>
                                 </span>
                                 
                             </span>
@@ -297,7 +300,7 @@ function DepartmentInfo(props){
                         
                         <div className="main-stats">
                             <div className="stats">
-                                <span className="material-symbols-outlined">article</span>
+                                <span className="material-symbols-outlined">assignment_globe</span>
                                 <span className="count">{deptInfo? deptInfo.opcr_count: ""}</span>
                                 <span className="type">OPCR</span>
                             </div>
@@ -319,15 +322,27 @@ function DepartmentInfo(props){
                                 <span className="type">Tasks</span>
                             </div>                            
                         </div>
+                        <div>
+                            <button className="btn btn-primary" style={{display:"flex", flexDirection:"row", gap:"10px", alignItems:"center"}}>
+                                <span className="material-symbols-outlined">assignment_globe</span>
+                                <span>Create OPCR</span>
+                            </button>
+                        </div>
 
                                                 
                     </div>
                 </div>
-
+                <div className="pages-container">
+                    <div className={currentPage == 0? "select": ""} onClick={()=>{setCurrentPage(0)}}>
+                        Members and Tasks
+                    </div>
+                    <div className={currentPage == 1? "select": ""} onClick={()=>{setCurrentPage(1)}}>
+                        Performance Review Forms
+                    </div>
+                </div>
                                        
-                <DepartmentMemberTable deptid ={props.id} ></DepartmentMemberTable>
-
-                <DepartmentTasksTable id = {props.id}></DepartmentTasksTable>
+                {currentPage == 0? <DepartmentMemberTable deptid ={props.id} ></DepartmentMemberTable>: <PerformanceReviews deptid ={props.id} ></PerformanceReviews>}
+                {currentPage == 0? <DepartmentTasksTable id = {props.id}></DepartmentTasksTable>: ""}
             </div>
     )
 }
