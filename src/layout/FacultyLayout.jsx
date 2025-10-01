@@ -8,12 +8,15 @@ function FacultyLayout(){
     const token = localStorage.getItem("token")
     const [profilePictureLink, setProfile] = useState("")
 
+    const [options, setOptions] = useState(false)
+    const [userInfo, setUserInfo] = useState({})
     function readTokenInformation(){
         let payload = {}
         try {
             payload = jwtDecode(token)
             console.log("token: ",payload)
             setProfile(payload.profile_picture_link)
+            setUserInfo(payload)
         }
         catch(err){
             console.log(err)
@@ -89,17 +92,32 @@ function FacultyLayout(){
                         <span className="material-symbols-outlined">notifications</span>
                     </div>
                     <div className="account-informations">
-                        <span>Jiovanni M. Pareja</span>
-                        <span className="current-department">Computing Studies</span>
+                        <span>{userInfo.first_name + " " + userInfo.last_name}</span>
+                        <span className="current-department">{userInfo.department ? userInfo.department.name :""}</span>
                     </div>
 
-                    <div className="profile-containers">                        
+                    <div className="profile-containers" onClick={()=>{setOptions(!options)}}>                        
                         <div className="profile-image-container">
                             <img src={profilePictureLink} alt="" />
                         </div>
                     </div>
                 </div>
             </header>
+
+            {
+                options && <div className="header-options" onMouseLeave={()=>{setOptions(false)}}>
+                    <div className="header-option">
+                        <span className="material-symbols-outlined" style={detectCurrentPage("")}>manage_accounts</span>
+                        <span>Account Setting</span>
+                    </div>
+                    <div className="header-option" onClick={()=>{
+                        Logout()
+                    }}>
+                        <span className="material-symbols-outlined">logout</span>
+                        <span>Logout</span>
+                    </div>
+                </div>
+            }
 
             
 

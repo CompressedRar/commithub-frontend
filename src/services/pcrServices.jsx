@@ -53,3 +53,6 @@ export async function recordFileUploadInfo(data) {
     return api.post(`/api/v1/pcr/record`, data)
 }
 
+export async function createOPCR(dept_id, data) {
+    return api.post(`/api/v1/pcr/opcr/${dept_id}`, data)
+}

@@ -7,6 +7,7 @@ import { Modal } from "bootstrap";
 import DepartmentTasksTable from "./DepartmentTasksTable";
 import DepartmentAssignHead from "./DepartmentAssignHead";
 import PerformanceReviews from "./PerformanceReview";
+import CreateOPCRModal from "./CreateOPCRModal";
 
 function DepartmentInfo(props){
 
@@ -132,7 +133,7 @@ function DepartmentInfo(props){
 
     return (
         <div className="department-info-container">
-
+            <CreateOPCRModal deptid ={props.id}></CreateOPCRModal>
             <div className="modal fade" id="archive-department" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                 <div className="modal-dialog modal-dialog-centered" >
                     <div className="modal-content">
@@ -323,7 +324,7 @@ function DepartmentInfo(props){
                             </div>                            
                         </div>
                         <div>
-                            <button className="btn btn-primary" style={{display:"flex", flexDirection:"row", gap:"10px", alignItems:"center"}}>
+                            <button className="btn btn-primary" style={{display:"flex", flexDirection:"row", gap:"10px", alignItems:"center"}} data-bs-toggle="modal" data-bs-target="#create-opcr">
                                 <span className="material-symbols-outlined">assignment_globe</span>
                                 <span>Create OPCR</span>
                             </button>

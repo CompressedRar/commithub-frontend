@@ -12,7 +12,7 @@ import { objectToFormData } from "../components/api"
 
 function Register(props){
 
-    const [formData, setFormData] = useState({"position": "none", "department": "staff"})
+    const [formData, setFormData] = useState({"position": "none", "department": "1"})
     const [positions, setPositions] = useState([])
     const [preview, setPreview] = useState(null)
     const [password, setPassword] = useState("")

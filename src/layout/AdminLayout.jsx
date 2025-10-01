@@ -10,6 +10,7 @@ function AdminLayout(){
     const [profilePictureLink, setProfile] = useState("")
     const [role, setRole] = useState(null)
     const [options, setOptions] = useState(false)
+    const [userInfo, setUserInfo] = useState({})
 
     function readTokenInformation(){
         let payload = {}
@@ -18,6 +19,7 @@ function AdminLayout(){
             console.log("token: ",payload)
             setProfile(payload.profile_picture_link)
             setRole(payload.role || null)
+            setUserInfo(payload)
             
         }
         catch(err){
@@ -115,8 +117,8 @@ function AdminLayout(){
                         <span className="material-symbols-outlined">notifications</span>
                     </div>
                     <div className="account-informations">
-                        <span>Jiovanni M. Pareja</span>
-                        <span className="current-department">Computing Studies</span>
+                        <span>{userInfo.first_name + " " + userInfo.last_name}</span>
+                        <span className="current-department">{userInfo.department ? userInfo.department.name :""}</span>
                     </div>
 
                     <div className="profile-containers" onClick={()=>{setOptions(!options)}}>                        
