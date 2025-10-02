@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react"
-import { getDepartmentIPCR } from "../../services/departmentService"
+import { getDepartmentIPCR, getDepartmentOPCR } from "../../services/departmentService"
 import IPCR from "../Faculty/IPCR"
+
 import EditIPCR from "../Faculty/EditIPCR"
 import ManageSupportingDocuments from "../Faculty/ManageSupportingDocuments"
+import OPCR from "./OPCR"
 
 
 function PerformanceReviews(props){
     const [allIPCR, setAllIPCR] = useState(null)
+    const [allOPCR, setAllOPCR] = useState(null)
     const [currentPage, setCurrentPage] = useState(0)
     const [currentIPCRID, setCurrentIPCRID] = useState(null)
     const [batchID, setBatchID] = useState(null)
@@ -17,8 +20,15 @@ function PerformanceReviews(props){
         console.log(res)
     }
 
+    async function loadOPCR() {
+        var res = await getDepartmentOPCR(props.deptid).then(data => data.data)
+        setAllOPCR(res)
+        console.log("OPCRS: ", res)
+    }
+
     useEffect(()=> {
         loadIPCR()
+        loadOPCR()
     }, [])
     return (
         <div className="performance-reviews-container">
@@ -37,8 +47,15 @@ function PerformanceReviews(props){
                     </div>
                 </div>
             </div>
+            <h3>Office Performance Review and Commitment Forms</h3>
+            <div className="all-ipcr-container">
+                
+                {allOPCR && allOPCR.map(opcr => (
+                    <OPCR opcr = {opcr}></OPCR>
+                ))}
+            </div>
 
-            <h3>Performance Review and Commitment Forms</h3>
+            <h3>Individual Performance Review and Commitment Forms</h3>
             <div className="all-ipcr-container">
                 
                 {allIPCR && allIPCR.map(ipcr => (

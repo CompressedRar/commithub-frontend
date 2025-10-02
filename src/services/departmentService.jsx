@@ -58,6 +58,12 @@ export async function getDepartmentIPCR(id) {
     return api.get(`/api/v1/department/ipcr/${id}`)
 }
 
+export async function getDepartmentOPCR(id) {
+    console.log("fetching department opcr")
+    return api.get(`/api/v1/department/opcr/${id}`)
+}
+
+
 export async function getAssignedUsers(dept_id, task_id) {
     console.log("fetching assigned users ")
     return api.get(`/api/v1/department/assigned/${dept_id}&${task_id}`)
