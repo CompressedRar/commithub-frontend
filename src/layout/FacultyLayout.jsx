@@ -59,8 +59,8 @@ function FacultyLayout(){
     }, [])
 
     return (
-        <div className="main-layout-container">
-            <div className="sidebar-container">
+        <div className="main-layout-container" style={{gridTemplateColumns:"1fr"}}>
+            <div className="sidebar-container" style={{display:"none"}}>
                 <div className="logo-container">
                     <img src={`${import.meta.env.BASE_URL}CommitHub-Banner.png`} alt="" />
                 </div>
@@ -77,12 +77,13 @@ function FacultyLayout(){
             </div>
             <header className="header-container">
                 <div className="current-location">
-                    <div className="menu-container">
-                        <span className="material-symbols-outlined">menu</span>
-                    </div>
+                    
                     <div className="current-page-container">                    
                         <span className="page">
-                            <span>{window.location.pathname.replaceAll("/", "")[0].toLocaleUpperCase() + window.location.pathname.substring(2)}</span>
+                            <img src={`${import.meta.env.BASE_URL}CommitHub-Banner.png`} alt="" style={{
+                                height:"100%",
+                                width:"20%"
+                            }}/>
                         </span>
                     </div>
                 </div>

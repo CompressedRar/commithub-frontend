@@ -5,6 +5,9 @@ import IPCR from "../Faculty/IPCR"
 import EditIPCR from "../Faculty/EditIPCR"
 import ManageSupportingDocuments from "../Faculty/ManageSupportingDocuments"
 import OPCR from "./OPCR"
+import { socket } from "../api"
+import EditOPCR from "./EditOPCR"
+import Swal from "sweetalert2"
 
 
 function PerformanceReviews(props){
@@ -12,16 +15,31 @@ function PerformanceReviews(props){
     const [allOPCR, setAllOPCR] = useState(null)
     const [currentPage, setCurrentPage] = useState(0)
     const [currentIPCRID, setCurrentIPCRID] = useState(null)
+    const [currentOPCRID, setCurrentOPCRID] = useState(null)
     const [batchID, setBatchID] = useState(null)
 
     async function loadIPCR() {
-        var res = await getDepartmentIPCR(props.deptid).then(data => data.data)
+        var res = await getDepartmentIPCR(props.deptid).then(data => data.data).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
         setAllIPCR(res)
         console.log(res)
     }
 
     async function loadOPCR() {
-        var res = await getDepartmentOPCR(props.deptid).then(data => data.data)
+        var res = await getDepartmentOPCR(props.deptid).then(data => data.data).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
         setAllOPCR(res)
         console.log("OPCRS: ", res)
     }
@@ -29,10 +47,27 @@ function PerformanceReviews(props){
     useEffect(()=> {
         loadIPCR()
         loadOPCR()
+
+        socket.on("ipcr_create", ()=>{
+            loadIPCR()
+            loadOPCR()
+        })
+
+        socket.on("opcr", ()=>{
+            loadIPCR()
+            loadOPCR()
+        })
+
+        socket.on("ipcr", ()=>{
+            loadIPCR()
+            loadOPCR()
+        })
+
+
     }, [])
     return (
         <div className="performance-reviews-container">
-            {batchID && currentIPCRID? <ManageSupportingDocuments dept_mode = {true} key={currentIPCRID} ipcr_id = {currentIPCRID} batch_id = {batchID}></ManageSupportingDocuments>:""}
+            {batchID && currentIPCRID? <ManageSupportingDocuments  dept_mode = {true} key={currentIPCRID} ipcr_id = {currentIPCRID} batch_id = {batchID}></ManageSupportingDocuments>:""}
             <div className="modal fade" id="view-ipcr" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                 <div className="modal-dialog modal-dialog-centered modal-fullscreen" >
                     <div className="modal-content">
@@ -40,9 +75,22 @@ function PerformanceReviews(props){
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
-                            {currentIPCRID && <EditIPCR key={currentIPCRID} ipcr_id = {currentIPCRID} dept_mode = {true} switchPage={()=>{
+                            {currentIPCRID && <EditIPCR dept_id = {props.deptid} key={currentIPCRID} ipcr_id = {currentIPCRID} dept_mode = {true} switchPage={()=>{
 
                             }}></EditIPCR>}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="modal fade" id="view-opcr" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div className="modal-dialog modal-dialog-centered modal-fullscreen" >
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div className="modal-body">
+                            {currentOPCRID && <EditOPCR opcr_id = {currentOPCRID}></EditOPCR>}
                         </div>
                     </div>
                 </div>
@@ -51,7 +99,9 @@ function PerformanceReviews(props){
             <div className="all-ipcr-container">
                 
                 {allOPCR && allOPCR.map(opcr => (
-                    <OPCR opcr = {opcr}></OPCR>
+                    <OPCR opcr = {opcr} onClick={()=>{
+                        setCurrentOPCRID(opcr.id)
+                    }}></OPCR>
                 ))}
             </div>
 

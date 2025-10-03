@@ -17,51 +17,65 @@ function OPCR(props) {
     
 
     async function handleArchive(){
-                setArchiving(true)
-                var res = await archiveOprc(props.opcr.id).then(data => data.data.message)
-                console.log(res)
-                if (res == "OPCR was archived successfully."){
-                    Swal.fire({
-                        title:"Success",
-                        text: res,
-                        icon:"success"
-                    })
-                }
-                else {
-                    Swal.fire({
-                        title:"Error",  
-                        text: "Archiving OPCR failed",
-                        icon:"error"
-                    })
-                }
-                setArchiving(false)
-            } 
+        setArchiving(true)
+        var res = await archiveOprc(props.opcr.id).then(data => data.data.message).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
+        console.log(res)
+        if (res == "OPCR was archived successfully."){
+            Swal.fire({
+                title:"Success",
+                text: res,
+                icon:"success"
+            })
+        }
+        else {
+            Swal.fire({
+                title:"Error",  
+                text: "Archiving OPCR failed",
+                icon:"error"
+            })
+        }
+        setArchiving(false)
+    } 
         
-            async function archiveOPCR(){
-                Swal.fire({
-                            title:"Archive",
-                            text:"Do you want to archive this OPCR?",
-                            showDenyButton: true,
-                            confirmButtonText:"Archive",
-                            confirmButtonColor:"red",
-                            denyButtonText:"No",
-                            denyButtonColor:"grey",
-                            icon:"warning",
-                            customClass: {
-                                actions: 'my-actions',
-                                confirmButton: 'order-2',
-                                denyButton: 'order-1 right-gap',
-                            },
-                        }).then((result)=> {
-                            if(result.isConfirmed){
-                                handleArchive()
-                            }
-                        }) 
+    async function archiveOPCR(){
+        Swal.fire({
+            title:"Archive",
+            text:"Do you want to archive this OPCR?",
+            showDenyButton: true,
+            confirmButtonText:"Archive",
+            confirmButtonColor:"red",
+            denyButtonText:"No",
+            denyButtonColor:"grey",
+            icon:"warning",
+            customClass: {
+                actions: 'my-actions',
+                confirmButton: 'order-2',
+                denyButton: 'order-1 right-gap',
+            },
+        }).then((result)=> {
+            if(result.isConfirmed){
+                handleArchive()
             }
+        }) 
+    }
 
     async function download() {
-            setDownloading(true)
-            var res = await downloadOPCR(props.opcr.id).then(data => data.data.link)
+        setDownloading(true)
+        var res = await downloadOPCR(props.opcr.id).then(data => data.data.link).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
             window.open(res, "_blank", "noopener,noreferrer");
             setDownloading(false)
         }
@@ -79,7 +93,7 @@ function OPCR(props) {
             </div>}
             
 
-            <div className="ipcr"  onMouseOver={props.dept_mode? props.onMouseOver:null}>
+            <div className="ipcr" data-bs-toggle="modal" data-bs-target="#view-opcr" onMouseOver={props.dept_mode? props.onMouseOver:null}>
                 
                 <div className="status-container">                             
                     <div style={{gap:"10px", display:"flex"}}> 

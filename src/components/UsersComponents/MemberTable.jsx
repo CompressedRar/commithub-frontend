@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react"
-import { getDepartments, getDepartment, getDepartmentMembers } from "../../services/departmentService";
 
 import { getAccounts } from "../../services/userService";
 import Members from "./Members";
 
-import Register from "../../pages/Register";
 import { socket } from "../api";
 import MemberProfile from "./MemberProfile";
 
@@ -15,17 +13,23 @@ function MemberTable(props) {
 
     const [tenMembers, setTenMembers] = useState([])
     const [pages, setPages] = useState([]) 
-    const [currentPage, setCurrentPage] = useState(1)
     const [memberLimit, setMemberLimit] = useState({"offset": 0, "limit": 10})
     const [searchQuery, setQuery] = useState("")
-    const [submitting, setSubmitting] = useState(false)
 
     const [currentUserID, setCurrentUserID] = useState(0)
 
     //department task assign
     
     async function loadAllMembers() {      
-        var res = await getAccounts().then(data => data.data)
+        var res = await getAccounts().then(data => data.data).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
+        
         console.log(res)
         setAllMembers(res)
         setFilteredMembers(res)

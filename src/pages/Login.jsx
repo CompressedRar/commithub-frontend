@@ -3,7 +3,6 @@ import { authenticateAccount } from "../services/userService";
 import { objectToFormData } from "../components/api";
 import Swal from "sweetalert2";
 import "../assets/styles/Login.css"
-import { Navigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
 
@@ -11,6 +10,7 @@ function Login(){
 
     const [loginFormData, setLoginFormData] = useState({"email": "", "password":""})
     const [showPassword, setShowPassword] = useState(false)
+    const [loggingIn, setLoggingIn] = useState(false)
 
     function detectToken(){
         if (Object.keys(localStorage).includes("token")){
@@ -41,11 +41,20 @@ function Login(){
 
     const handleSubmission = async (e) => {
         e.preventDefault()
+        setLoggingIn(true)
 
         
         var convertedData = objectToFormData(loginFormData)
         console.log(convertedData)
-        var a = await authenticateAccount(convertedData)
+        var a = await authenticateAccount(convertedData).catch(error => {
+            console.log(error.response.data.error)
+            setLoggingIn(false)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
 
         if(a.data.message == "Authenticated.") {
             localStorage.setItem("token", a.data.token)
@@ -58,13 +67,7 @@ function Login(){
                 window.location.href = "/admin/dashboard"
             }
         }
-        else {
-            Swal.fire({
-                title:"Error",
-                text: a.data.message,
-                icon:"error"
-            })
-        }
+        setLoggingIn(false)
 
     }
 
@@ -113,7 +116,10 @@ function Login(){
                         </span>
                     </div>
 
-                    <input type="submit" value={"Login"}/>
+                    <button type="submit" className="btn btn-primary w-100 p-3">
+                        {loggingIn? <span className="material-symbols-outlined">refresh</span>: <span>Login</span>}
+                    </button>
+
                 </form>
                     
                 <div className="register-container-link">

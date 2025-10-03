@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
 import { getDepartmentIPCR } from "../../services/departmentService"
-import IPCR from "../Faculty/IPCR"
 import Swal from "sweetalert2"
 import { createOPCR } from "../../services/pcrServices"
 import { Modal } from "bootstrap"
@@ -9,7 +8,14 @@ function CreateOPCRModal(props){
     const [allIPCR, setAllIPCR] = useState(null)
     
     async function loadIPCR() {
-        var res = await getDepartmentIPCR(props.deptid).then(data => data.data)
+        var res = await getDepartmentIPCR(props.deptid).then(data => data.data).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
         setAllIPCR(res)
         console.log(res)
     }
@@ -23,7 +29,14 @@ function CreateOPCRModal(props){
                     allChecked.push(ipcr.id)
                 }
             }
-            var a = await createOPCR(props.deptid, {"ipcr_ids": allChecked})
+            var a = await createOPCR(props.deptid, {"ipcr_ids": allChecked}).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
             console.log(a)
             if(a.data.message == "OPCR successfully created.") {
                 Swal.fire({
@@ -117,7 +130,8 @@ function CreateOPCRModal(props){
                     <div className="modal-body">
                         <span className="desc">Click the IPCR you want to include.</span>
                         <div className="select-ipcr-container">
-                
+                            {allIPCR &&
+                            <div className="empty">There is no IPCR to choose from.</div>}
                             {allIPCR && allIPCR.map(ipcr => (
                                 <div className="select-ipcr">
                                     <input type="radio" className="ipcrs" id = {ipcr.id} value = {ipcr.id} name = {ipcr.user.id} hidden/>

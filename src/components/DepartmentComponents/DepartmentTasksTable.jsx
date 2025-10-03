@@ -24,7 +24,14 @@ function DepartmentTasksTable(props) {
     //department task assign
     
     async function loadAllMembers() {      
-        var res = await getDepartmentTasks(props.id).then(data => data.data)
+        var res = await getDepartmentTasks(props.id).then(data => data.data).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
         console.log(res)
         setAllMembers(res)
         setFilteredMembers(res)
@@ -35,7 +42,7 @@ function DepartmentTasksTable(props) {
 
     function loadLimited(){
         var slicedMembers = filteredMembers.slice(memberLimit["offset"], memberLimit["limit"])
-        console.log(slicedMembers)
+        console.log("department tasks", slicedMembers)
         setTenMembers(slicedMembers)
     }
 

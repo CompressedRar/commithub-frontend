@@ -9,7 +9,14 @@ function DepartmentAssignHead(props){
     const [headInfo, setHeadinfo] = useState(null)
 
     async function loadDepartmentInfo(){
-        var res = await getDepartment(props.dept_id).then(data => data.data)
+        var res = await getDepartment(props.dept_id).then(data => data.data).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
         setDepartmentInfo(res)
         setHeadinfo(null)
 
@@ -30,7 +37,14 @@ function DepartmentAssignHead(props){
     }
 
     async function handleAssignment(user_id){
-        var res = await assignDepartmentHead(user_id, props.dept_id).then(data => data.data.message)
+        var res = await assignDepartmentHead(user_id, props.dept_id).then(data => data.data.message).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
         
         if (res == "Department head successfully assigned."){
             Swal.fire({
@@ -69,7 +83,14 @@ function DepartmentAssignHead(props){
     }
 
     async function handleRemoval(user_id){
-        var res = await removeDepartmentHead(user_id).then(data => data.data.message)
+        var res = await removeDepartmentHead(user_id).then(data => data.data.message).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
         
         if (res == "Department head successfully removed."){
             Swal.fire({

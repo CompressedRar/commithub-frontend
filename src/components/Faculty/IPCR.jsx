@@ -17,51 +17,58 @@ function IPCR(props) {
     
 
     async function handleArchive(){
-                setArchiving(true)
-                var res = await archiveIprc(props.ipcr.id).then(data => data.data.message)
-                console.log(res)
-                if (res == "IPCR was archived successfully."){
-                    Swal.fire({
-                        title:"Success",
-                        text: res,
-                        icon:"success"
-                    })
-                }
-                else {
-                    Swal.fire({
-                        title:"Error",  
-                        text: "Archiving IPCR failed",
-                        icon:"error"
-                    })
-                }
-                setArchiving(false)
-            } 
+        setArchiving(true)
+        var res = await archiveIprc(props.ipcr.id).then(data => data.data.message).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
+        console.log(res)
+        if (res == "IPCR was archived successfully."){
+            Swal.fire({
+                title:"Success",
+                text: res,
+                icon:"success"
+            })
+        }
+        setArchiving(false)
+    } 
         
-            async function archiveIPCR(){
-                Swal.fire({
-                            title:"Archive",
-                            text:"Do you want to archive this IPCR?",
-                            showDenyButton: true,
-                            confirmButtonText:"Archive",
-                            confirmButtonColor:"red",
-                            denyButtonText:"No",
-                            denyButtonColor:"grey",
-                            icon:"warning",
-                            customClass: {
-                                actions: 'my-actions',
-                                confirmButton: 'order-2',
-                                denyButton: 'order-1 right-gap',
-                            },
-                        }).then((result)=> {
-                            if(result.isConfirmed){
-                                handleArchive()
-                            }
-                        }) 
+    async function archiveIPCR(){
+        Swal.fire({
+            title:"Archive",
+            text:"Do you want to archive this IPCR?",
+            showDenyButton: true,
+            confirmButtonText:"Archive",
+            confirmButtonColor:"red",
+            denyButtonText:"No",
+            denyButtonColor:"grey",
+            icon:"warning",
+            customClass: {
+                actions: 'my-actions',
+                confirmButton: 'order-2',
+                denyButton: 'order-1 right-gap',
+            },
+        }).then((result)=> {
+            if(result.isConfirmed){
+                handleArchive()
             }
+        }) 
+    }
 
     async function download() {
-            setDownloading(true)
-            var res = await downloadIPCR(props.ipcr.id).then(data => data.data.link)
+        setDownloading(true)
+        var res = await downloadIPCR(props.ipcr.id).then(data => data.data.link).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
             window.open(res, "_blank", "noopener,noreferrer");
             setDownloading(false)
         }

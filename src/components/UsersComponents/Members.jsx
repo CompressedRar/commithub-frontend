@@ -10,19 +10,20 @@ function Members({mems, switchMember}){
     const [archiving, setArchiving] = useState(false)
 
     const Reactivate = async () => {
-        var res = await unarchiveAccount(mems.id).then(data => data.data.message)
+        var res = await unarchiveAccount(mems.id).then(data => data.data.message).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
+
         if(res == "User successfully reactivated") {
             Swal.fire({
                 title:"Success",
                 text: res,
                 icon:"success"
-            })
-        }
-        else {
-            Swal.fire({
-                title:"Error",
-                text: res,
-                icon:"error"
             })
         }
     }
@@ -54,19 +55,20 @@ function Members({mems, switchMember}){
     }
 
     const handleArch = async () => {
-        var res = await archiveAccount(mems.id).then(data => data.data.message)
+        var res = await archiveAccount(mems.id).then(data => data.data.message).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
+
         if(res == "User successfully deactivated") {
             Swal.fire({
                 title:"Success",
                 text: res,
                 icon:"success"
-            })
-        }
-        else {
-            Swal.fire({
-                title:"Error",
-                text: res,
-                icon:"error"
             })
         }
     }

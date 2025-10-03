@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { getDepartments, getDepartment, getDepartmentMembers } from "../../services/departmentService";
+import { getDepartment} from "../../services/departmentService";
 import DepartmentMembers from "./DepartmentMembers";
 import { socket } from "../api";
 function DepartmentMemberTable(props) {
@@ -9,12 +9,18 @@ function DepartmentMemberTable(props) {
 
     const [tenMembers, setTenMembers] = useState([])
     const [pages, setPages] = useState([]) 
-    const [currentPage, setCurrentPage] = useState(1)
     const [memberLimit, setMemberLimit] = useState({"offset": 0, "limit": 10})
     const [searchQuery, setQuery] = useState("")
     
     async function loadAllMembers(id) {      
-        var res = await getDepartment(id).then(data => data.data.users)
+        var res = await getDepartment(id).then(data => data.data.users).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
         setAllMembers(res)
         setFilteredMembers(res)
         generatePagination(res)

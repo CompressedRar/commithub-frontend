@@ -53,10 +53,22 @@ export async function getDepartmentTasks(id) {
     return api.get(`/api/v1/department/tasks/${id}`)
 }
 
+export async function getDepartmentHead(dept_id) {
+    console.log("fetching department head")
+    return api.get(`/api/v1/department/head/${dept_id}`)
+}
+
+export async function getGeneralTasks() {
+    console.log("fetching general tasks")
+    return api.get(`/api/v1/task/general`)
+}
+
 export async function getDepartmentIPCR(id) {
     console.log("fetching department ipcr")
     return api.get(`/api/v1/department/ipcr/${id}`)
 }
+
+
 
 export async function getDepartmentOPCR(id) {
     console.log("fetching department opcr")

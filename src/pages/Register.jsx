@@ -38,7 +38,14 @@ function Register(props){
     }, [])
 
     async function loadDepartments(){
-        var res = await getDepartments().then(data => data.data)
+        var res = await getDepartments().then(data => data.data).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: "Fetching Departments failed.",
+                icon: "error"
+            })
+        })
         setAllDepartments(res)
         console.log(res)
     }
@@ -73,6 +80,13 @@ function Register(props){
 
         const result = await registerAccount(newFormData).then(data => {
             return data.data
+        }).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
         })
         console.log(result["message"])
 
@@ -83,13 +97,6 @@ function Register(props){
                 icon: "success"
             })
             clearAllFields()
-        }
-        else {
-            Swal.fire({
-                title: "Registration Result",
-                text: result["message"],
-                icon: "error"
-            })
         }
 
 
@@ -104,6 +111,13 @@ function Register(props){
     const loadPositions = async () => {
         const result = await getPositions().then(data => {
             return data.data    
+        }).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
         })
         setPositions(result)
     }
@@ -286,7 +300,7 @@ function Register(props){
                     <div className="textboxes">
                         <label htmlFor="department">Department <span className="required">*</span></label>
                         <select name="department" id="department" onChange={handleDataChange}>
-                            {allDepartments.map(dept => (
+                            {allDepartments && allDepartments.map(dept => (
                                 <option value = {dept.id}key={dept.name}>{dept.name}</option>
                             ))}
                         </select>

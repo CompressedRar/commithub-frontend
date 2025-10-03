@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from "react"
 import SubmissionsChart from "../Barchart"
-import UsersPieChart from "../Piechart"
 
 
 import { getPositions } from "../../services/positionService"
-import { archiveDepartment, getDepartments } from "../../services/departmentService"
+import {  getDepartments } from "../../services/departmentService"
 import { archiveAccount, getAccountInfo, updateMemberInfo, unarchiveAccount } from "../../services/userService"
 import { objectToFormData } from "../api"
 import Swal from "sweetalert2"
@@ -26,7 +25,14 @@ function MemberProfile(props){
     const fileInput = useRef(null)
 
     async function loadUserInformation(){
-        var res = await getAccountInfo(props.id).then(data => data.data)
+        var res = await getAccountInfo(props.id).then(data => data.data).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
         setMemberInformation(res)
         
         var fname = document.getElementById("first_name")
@@ -57,51 +63,64 @@ function MemberProfile(props){
     }
 
     const Reactivate = async () => {
-            var res = await unarchiveAccount(props.id).then(data => data.data.message)
-            if(res == "User successfully reactivated") {
-                Swal.fire({
-                    title:"Success",
-                    text: res,
-                    icon:"success"
-                })
-            }
-            else {
-                Swal.fire({
-                    title:"Error",
-                    text: res,
-                    icon:"error"
-                })
-            }
-        }
-        const handleReactivate = async () => {
+        var res = await unarchiveAccount(props.id).then(data => data.data.message).catch(error => {
+            console.log(error.response.data.error)
             Swal.fire({
-                title: 'Do you want to reactivate this account?',
-                showDenyButton: true,
-                confirmButtonText: 'Yes',
-                denyButtonText: 'No',
-                customClass: {
-                    actions: 'my-actions',
-                    cancelButton: 'order-1 right-gap',
-                    confirmButton: 'order-2'
-                    },
-                            }).then(async (result) => {
-                            if (result.isConfirmed) {
-                                Reactivate()
-                            } else if (result.isDenied) {
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
+        if(res == "User successfully reactivated") {
+            Swal.fire({
+                title:"Success",
+                text: res,
+                icon:"success"
+            })
+        }
+    }
+    const handleReactivate = async () => {
+        Swal.fire({
+            title: 'Do you want to reactivate this account?',
+            showDenyButton: true,
+            confirmButtonText: 'Yes',
+            denyButtonText: 'No',
+            customClass: {
+                actions: 'my-actions',
+                cancelButton: 'order-1 right-gap',
+                confirmButton: 'order-2'
+                },
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                Reactivate()
+            } else if (result.isDenied) {
                                    
-                            }
-                        })
+            }
+        })
                 
         
-            const modalEl = document.getElementById("user-profile");
-            const modal = Modal.getInstance(modalEl) || new Modal(modalEl);
-            modal.hide();
+        const modalEl = document.getElementById("user-profile");
+        const modal = Modal.getOrCreateInstance(modalEl);
+
+        modal.hide();
+
+            // Cleanup leftover backdrop if any
+        document.querySelectorAll(".modal-backdrop").forEach(el => el.remove());
+        document.body.classList.remove("modal-open");
+        document.body.style.overflow = ""; // reset scroll lock
         
-            setArchiving(false)
-        }
+        setArchiving(false)
+    }
 
     const handleArch = async () => {
-        var res = await archiveAccount(props.id).then(data => data.data.message)
+        var res = await archiveAccount(props.id).then(data => data.data.message).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
         if(res == "User successfully deactivated") {
             Swal.fire({
                 title:"Success",
@@ -140,8 +159,14 @@ function MemberProfile(props){
         
 
         const modalEl = document.getElementById("user-profile");
-        const modal = Modal.getInstance(modalEl) || new Modal(modalEl);
+        const modal = Modal.getOrCreateInstance(modalEl);
+
         modal.hide();
+
+            // Cleanup leftover backdrop if any
+        document.querySelectorAll(".modal-backdrop").forEach(el => el.remove());
+        document.body.classList.remove("modal-open");
+        document.body.style.overflow = ""; // reset scroll lock
 
         setArchiving(false)
         props.firstLoad();
@@ -153,14 +178,28 @@ function MemberProfile(props){
     
 
     async function loadDepartments(){
-        var res = await getDepartments().then(data => data.data)
+        var res = await getDepartments().then(data => data.data).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
         setAllDepartments(res)
         console.log(res)
     }
 
     async function handleUpdate() {
         var converted_data = objectToFormData(formData)
-        var res = await updateMemberInfo(converted_data).then(data => data.data.message)
+        var res = await updateMemberInfo(converted_data).then(data => data.data.message).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
         console.log(res)
         if(res == "User successfully updated") {
                 Swal.fire({
@@ -196,7 +235,14 @@ function MemberProfile(props){
     const loadPositions = async () => {
             const result = await getPositions().then(data => {
                 return data.data    
+            }).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
             })
+        })
             setPositions(result)
         }
 

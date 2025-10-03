@@ -8,6 +8,11 @@ export async function getIPCR(ipcr_id) {
     return api.get(`/api/v1/pcr/ipcr/${ipcr_id}`)
 }
 
+export async function getOPCR(opcr_id) {
+    console.log("fetching opcr")
+    return api.get(`/api/v1/pcr/opcr/${opcr_id}`)
+}
+
 export async function downloadIPCR(ipcr_id) {
     console.log("fetching ipcr")
     return api.get(`/api/v1/pcr/ipcr/download/${ipcr_id}`)
@@ -18,7 +23,10 @@ export async function downloadOPCR(opcr_id) {
     return api.get(`/api/v1/pcr/opcr/download/${opcr_id}`)
 }
 
-
+export async function approveIPCR(ipcr_id) {
+    console.log("approving opcr")
+    return api.post(`/api/v1/pcr/ipcr/approve/${ipcr_id}`)
+}
 
 export async function updateSubTask(sub_task_id, field, value) {
     console.log("updating sub task")

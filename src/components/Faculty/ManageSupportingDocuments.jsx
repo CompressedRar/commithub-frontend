@@ -9,7 +9,14 @@ function ManageSupportingDocuments(props) {
     const [documents, setDocuments] = useState(null)
 
     async function loadDocuments(){
-        var res = await getSupportingDocuments(props.ipcr_id).then(data => data.data)
+        var res = await getSupportingDocuments(props.ipcr_id).then(data => data.data).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
         setDocuments(res)
         console.log("documents dito", res)
     }
@@ -28,7 +35,14 @@ function ManageSupportingDocuments(props) {
         try {
         // Step 1: Request pre-signed URL from Flask
             const res = await generatePreSignedURL({fileName: file.name,
-                fileType: file.type})
+                fileType: file.type}).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
 
             const  uploadUrl  = res.data.link;
             console.log(uploadUrl)
@@ -40,6 +54,13 @@ function ManageSupportingDocuments(props) {
                 let percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
                 console.log(`Upload progress: ${percent}%`);
                 },
+            }).catch(error => {
+                console.log(error.response.data.error)
+                Swal.fire({
+                    title: "Error",
+                    text: error.response.data.error,
+                    icon: "error"
+                })
             });
             
             var uploadRes = await recordFileUploadInfo({
@@ -47,7 +68,14 @@ function ManageSupportingDocuments(props) {
                 fileType: file.type,
                 ipcrID: props.ipcr_id,
                 batchID: props.batch_id
-            }).then(data => data.data.message)
+            }).then(data => data.data.message).catch(error => {
+                console.log(error.response.data.error)
+                Swal.fire({
+                    title: "Error",
+                    text: error.response.data.error,
+                    icon: "error"
+                })
+            })
 
             if (uploadRes == "File successfully uploaded."){
                 Swal.fire({
@@ -58,13 +86,6 @@ function ManageSupportingDocuments(props) {
 
                 document.getElementById("support").value = null
                 setFile(null)
-            }
-            else {
-                Swal.fire({
-                    title:"Success",
-                    text:"There is an error occured when uploading document.",
-                    icon: "success"
-                })
             }
             
         } catch (err) {
@@ -79,7 +100,14 @@ function ManageSupportingDocuments(props) {
     }
 
     async function handleRemove(document_id){
-        var res = await archiveDocument(document_id).then(data => data.data.message)
+        var res = await archiveDocument(document_id).then(data => data.data.message).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
                 
         if (res == "Document successfully archived."){
             Swal.fire({

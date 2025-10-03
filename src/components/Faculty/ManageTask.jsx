@@ -6,12 +6,10 @@ import Swal from "sweetalert2"
 import { socket } from "../api"
 
 function ManageTask(props){
-    const [userInfo, setUserInfo] = useState({})
 
     const [ipcrInfo, setIPCRInfo] = useState({})
     const [batchID, setBatchID] = useState("")
 
-    const [addedMainTasksID, setAddedMainTasksID] = useState([])
     const [allAssignedID , setAllAssignedID] = useState([])
 
     const [accountTasks, setAccountTasks] = useState([]) //assigned tasks to hindi pwedeng tanggalin
@@ -29,7 +27,14 @@ function ManageTask(props){
             setAllTasks([])
             setTasksAndSubTaskExists(null)
     
-            var res = await getDepartmentTasks(props.dept_id).then(data => data.data)
+            var res = await getDepartmentTasks(props.dept_id).then(data => data.data).catch(error => {
+                console.log(error.response.data.error)
+                Swal.fire({
+                    title: "Error",
+                    text: error.response.data.error,
+                    icon: "error"
+                })
+            })
             console.log(allAssignedID)
             var available = []
             var taste = {}
@@ -57,7 +62,14 @@ function ManageTask(props){
 
     async function loadUserTasks(){
         setAllAssignedID([])
-        var res = await getAssignedAccountTasks(props.user_id).then(data => data)
+        var res = await getAssignedAccountTasks(props.user_id).then(data => data).catch(error => {
+                console.log(error.response.data.error)
+                Swal.fire({
+                    title: "Error",
+                    text: error.response.data.error,
+                    icon: "error"
+                })
+            })
         var ids = []
     
         var all_assigned_tasks = []
@@ -74,7 +86,14 @@ function ManageTask(props){
     }
 
     async function loadIPCR(){
-        var res = await getIPCR(props.ipcr_id).then(data => data.data)
+        var res = await getIPCR(props.ipcr_id).then(data => data.data).catch(error => {
+                console.log(error.response.data.error)
+                Swal.fire({
+                    title: "Error",
+                    text: error.response.data.error,
+                    icon: "error"
+                })
+            })
         setIPCRInfo(res)
     
         var sub_tasks = res.sub_tasks   
@@ -88,20 +107,20 @@ function ManageTask(props){
     }
 
     async function handleRemoveIPCRTask(main_task_id){
-        var res = await removeSubTaskInIprc(main_task_id, batchID).then(data => data.data.message)
+        var res = await removeSubTaskInIprc(main_task_id, batchID).then(data => data.data.message).catch(error => {
+                console.log(error.response.data.error)
+                Swal.fire({
+                    title: "Error",
+                    text: error.response.data.error,
+                    icon: "error"
+                })
+            })
                 
         if (res == "Task was successfully removed."){
             Swal.fire({
                 title:"Success",
                 text: res,
                 icon:"success"
-            })
-        }
-        else {
-            Swal.fire({
-                title:"Error",
-                text: "Removal of task failed",
-                icon:"error"
             })
         }
     } 
@@ -129,20 +148,20 @@ function ManageTask(props){
     }
 
     async function handleAddIPCRTask(main_task_id){
-        var res = await addSubTaskInIprc(main_task_id, batchID, ipcrInfo.user, ipcrInfo.id).then(data => data.data.message)
+        var res = await addSubTaskInIprc(main_task_id, batchID, ipcrInfo.user, ipcrInfo.id).then(data => data.data.message).catch(error => {
+                console.log(error.response.data.error)
+                Swal.fire({
+                    title: "Error",
+                    text: error.response.data.error,
+                    icon: "error"
+                })
+            })
                 
         if (res == "Task successfully added."){
             Swal.fire({
                 title:"Success",
                 text: res,
                 icon:"success"
-            })
-        }
-        else {
-            Swal.fire({
-                title:"Error",
-                text: "Adding task failed",
-                icon:"error"
             })
         }
     } 

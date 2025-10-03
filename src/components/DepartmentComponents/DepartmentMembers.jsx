@@ -10,7 +10,14 @@ function DepartmentMembers({mems}){
 
     const RemoveUser = async () => {
 
-        var res = await removeUserFromDepartment(mems.id).then(data => data.data.message)
+        var res = await removeUserFromDepartment(mems.id).then(data => data.data.message).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
         if(res == "User successfully removed.") {
             Swal.fire({
                 title:"Success",

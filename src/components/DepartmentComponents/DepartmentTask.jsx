@@ -1,16 +1,36 @@
-import { useState } from "react"
-import { Modal } from "bootstrap"
-
-import { archiveAccount, unarchiveAccount } from "../../services/userService"
+import { useEffect, useState } from "react"
 import Swal from "sweetalert2"
 import { removeTask } from "../../services/departmentService"
 
 function DepartmentTask({mems, switchMember}){
     const [open, setOpen] = useState(false)
     const [archiving, setArchiving] = useState(false)
+    const [assigned, setAssigned] = useState([])
+
+    function filterAssigned(){
+        var iteratedmembers = []
+        var filteredMembers = []
+
+        for(const user of mems.users){
+            console.log("dpet task user",user)
+            if(iteratedmembers.includes(user.id)) continue;
+
+            iteratedmembers.push(user.id)
+            filteredMembers.push(user)            
+        }
+
+        setAssigned(filteredMembers)
+    }
 
     const Remove = async () => {
-        var res = await removeTask(mems.id).then(data => data.data.message)
+        var res = await removeTask(mems.id).then(data => data.data.message).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
         if(res == "Task successfully removed.") {
             Swal.fire({
                 title:"Success",
@@ -48,6 +68,10 @@ function DepartmentTask({mems, switchMember}){
         setArchiving(false)
     }
 
+    useEffect(()=>{
+        filterAssigned()
+    }, [])
+
 
     return (
         <tr key = {mems.id}>
@@ -57,7 +81,7 @@ function DepartmentTask({mems, switchMember}){
             <td>{mems.actual_accomplishment}</td>
             <td>{mems.category.name}</td>
             <td className="profile-icon-container">{
-                mems.users.map(user => (
+                assigned.map(user => (
                     <div className="profile-icon" style={{backgroundImage: `url('${user.profile_picture_link}')`}}>.</div>
                 ))
             }</td>

@@ -1,21 +1,8 @@
-import { useEffect, useState } from "react";
-import "../assets/styles/AuditLogs.css"
 
-import { getLogs } from "../services/logService";
+import "../assets/styles/AuditLogs.css"
 import LogTable from "../components/AuditLogs/LogTable";
 
 function AuditLogs() {
-
-    const [allLogs, setAllLogs] = useState([])
-
-    async function loadAllLogs(){
-        var res = await getLogs().then(data => data)
-        setAllLogs(res)
-    }
-
-    useEffect(()=>{
-    }, [])
-
     return (
         <div className="audit-logs-container">
             {/**

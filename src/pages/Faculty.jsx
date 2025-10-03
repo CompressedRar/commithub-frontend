@@ -6,13 +6,18 @@ import EditIPCR from "../components/Faculty/EditIPCR"
 function Faculty(){
     const [currentPage, setCurrentPage] = useState(0)
     const [currentIPCRID, setCurrentIPCRID] = useState(0)
+    const [departmentID, setDepartmentID] = useState(0)
     return(
         <div className="faculty-container">
-            {currentPage == 0? <IPCRContainer switchPage={(ipcr_id)=>{
+            {currentPage == 0? <IPCRContainer switchPage={(ipcr_id, dept_id)=>{
                 setCurrentPage(1)
                 setCurrentIPCRID(ipcr_id)
+                setDepartmentID(dept_id)
+                console.log("switching dept id: ", dept_id)
             }}></IPCRContainer>: 
-            <EditIPCR ipcr_id = {currentIPCRID} switchPage = {()=> {
+            <EditIPCR 
+                dept_id = {departmentID} ipcr_id = {currentIPCRID} 
+                switchPage = {()=> {
                 setCurrentPage(0)
                 setCurrentIPCRID(null)
             }}></EditIPCR>}

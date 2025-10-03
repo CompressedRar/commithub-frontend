@@ -22,14 +22,28 @@ function DepartmentTaskInfo(props){
     }
 
     async function loadTaskInfo(){
-        var res = await getMainTask(props.id).then(data => data.data)
+        var res = await getMainTask(props.id).then(data => data.data).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
         setTaskInfo(res)
         console.log(res)
         return res
     }
     const handleSubmission = async () => {
         const newFormData = objectToFormData(formData);
-        var a = await updateMainTaskInfo(newFormData)
+        var a = await updateMainTaskInfo(newFormData).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
         console.log(a)
         if(a.data.message == "Task successfully updated.") {
             Swal.fire({
@@ -48,7 +62,14 @@ function DepartmentTaskInfo(props){
     }
 
     const handleArch = async () => {
-        var a = await archiveMainTask(props.id)
+        var a = await archiveMainTask(props.id).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
         console.log(a)
         if(a.data.message == "Task successfully archived.") {
             Swal.fire({

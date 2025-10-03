@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
 
-import { socket } from "../api";
 import { getLogs } from "../../services/logService";
 import Logs from "./Logs";
+import Swal from "sweetalert2";
 
 function LogTable() {
 
@@ -19,7 +19,14 @@ function LogTable() {
     const [currentUserID, setCurrentUserID] = useState(0)
     
     async function loadAllMembers() {      
-        var res = await getLogs().then(data => data.data)
+        var res = await getLogs().then(data => data.data).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
         console.log(res)
         setAllMembers(res)
         setFilteredMembers(res)

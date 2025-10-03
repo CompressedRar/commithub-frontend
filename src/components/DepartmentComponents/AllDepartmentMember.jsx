@@ -2,7 +2,6 @@ import { useState } from "react"
 
 function AllDepartmentMember({dept, onClick}) {
 
-    const [open, setOpen] = useState(true)
     return (
         <div className="department" key={dept.id} onClick={onClick}>
             <div className="pair">

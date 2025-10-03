@@ -10,7 +10,14 @@ function DepartmentAssignTask(props){
     const [archiving, setArchiving] = useState(false)
 
     async function loadAssignedMembers(){
-        var res = await getAssignedUsers(props.dept_id, props.task_id).then(data => data.data)
+        var res = await getAssignedUsers(props.dept_id, props.task_id).then(data => data.data).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
 
         setAssignedMembers(res)
         console.log("assigned members: ", res)
@@ -31,13 +38,27 @@ function DepartmentAssignTask(props){
     }
 
     async function loadMembers(){
-        var res = await getDepartmentMembers(props.dept_id, 0, 100).then(data => data.data)
+        var res = await getDepartmentMembers(props.dept_id, 0, 100).then(data => data.data).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
         setMembers(res)
     }
 
     async function AssignUser(userid) {
     
-            var res = await assignUsers(userid, props.task_id).then(data => data.data.message)
+            var res = await assignUsers(userid, props.task_id).then(data => data.data.message).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
             if(res == "User successfully assigned.") {
                 Swal.fire({
                     title:"Success",
@@ -77,7 +98,14 @@ function DepartmentAssignTask(props){
 
     async function UnassignUser(userid) {
     
-            var res = await unAssignUsers(userid, props.task_id).then(data => data.data.message)
+            var res = await unAssignUsers(userid, props.task_id).then(data => data.data.message).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
             if(res == "Task successfully removed.") {
                 Swal.fire({
                     title:"Success",

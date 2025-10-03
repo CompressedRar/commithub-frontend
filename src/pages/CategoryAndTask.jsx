@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import "../assets/styles/CategoryAndTask.css"
-import SubmissionsChart from "../components/Barchart";
-import { getCategories, getCategory, archiveCategory, registerCategory } from "../services/categoryService";
+import { getCategories, registerCategory } from "../services/categoryService";
 import { objectToFormData } from "../components/api";
 import CategoryTasks from "../components/CategoryAndTaskComponents/CategoryTasks";
 
@@ -21,18 +20,17 @@ function CategoryAndTask(){
     
 
     async function loadCategories(){
-        var res = await getCategories().then(data => data.data)
+        var res = await getCategories().then(data => data.data).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
         setAllCategory(res)
         
         return res
-    }
-
-    async function loadTaskProfile(id){
-        var res = await getCategory(id).then(data => data.data)
-        console.log(res)
-        if(res.main_tasks.length != 0){
-            setCurrentTaskID(res.main_tasks[0].id)
-        }
     }
 
     function reloadAllCategories(){
@@ -51,7 +49,16 @@ function CategoryAndTask(){
     const handleSubmission = async () =>{
         var converted_data = objectToFormData(formData)
         setSubmission(true)
-        var res = await registerCategory(converted_data)
+
+        var res = await registerCategory(converted_data).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
+
         if(res.data.message == "Category created.") {
                     Swal.fire({
                         title:"Success",
@@ -67,8 +74,14 @@ function CategoryAndTask(){
                     })
                 }
         const modalEl = document.getElementById("add-category");
-        const modal = Modal.getInstance(modalEl) || new Modal(modalEl);
-        modal.hide();
+            const modal = Modal.getOrCreateInstance(modalEl);
+
+            modal.hide();
+
+            // Cleanup leftover backdrop if any
+            document.querySelectorAll(".modal-backdrop").forEach(el => el.remove());
+            document.body.classList.remove("modal-open");
+            document.body.style.overflow = ""; // reset scroll lock
         setSubmission(false)
         loadCategories()
     }

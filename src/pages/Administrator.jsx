@@ -4,8 +4,6 @@ import UsersPieChart from "../components/Piechart";
 import SubmissionsChart from "../components/Barchart";
 
 import { getCategoryCount, getTaskCount, getUserCount } from "../services/tableServices";
-import { Navigate } from "react-router-dom";
-import { test_tense } from "../services/tenseConverted";
 
 function Administrator(){
 
@@ -26,14 +24,35 @@ function Administrator(){
             setHMCount(data.data.message.hm)
             setOtherCount(data.data.message.other)
             setAllCount(data.data.message.all)
+        }).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: "An error occured while fetching count.",
+                icon: "error"
+            })
         })
 
         getTaskCount().then(data => {
             setTaskCount(data.data.message.count)
+        }).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: "An error occured while fetching count.",
+                icon: "error"
+            })
         })
 
         getCategoryCount().then(data => {
             setCategoryCount(data.data.message.count)
+        }).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: "An error occured while fetching count.",
+                icon: "error"
+            })
         })
         
     }, [])

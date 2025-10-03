@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { getDepartment, getDepartmentTasks } from "../../services/departmentService"
+import { getDepartment, getDepartmentTasks, getGeneralTasks } from "../../services/departmentService"
 import { jwtDecode } from "jwt-decode"
 import { createUserTasks, getAccountInfo, getAccountTasks, getAssignedAccountTasks } from "../../services/userService"
 import Swal from "sweetalert2"
@@ -23,7 +23,14 @@ function IPCRContainer({switchPage}) {
 
     async function loadUserTasks(user_id){
         setAllAssignedID([])
-        var res = await getAssignedAccountTasks(user_id).then(data => data)
+        var res = await getAssignedAccountTasks(user_id).then(data => data).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
         var ids = []
 
         var all_assigned_tasks = []
@@ -43,7 +50,14 @@ function IPCRContainer({switchPage}) {
             var token = localStorage.getItem("token")
             var payload = jwtDecode(token)
             
-            var res = await getAccountInfo(payload.id).then(data => data.data)
+            var res = await getAccountInfo(payload.id).then(data => data.data).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
 
             setuserInfo(res)
             setAllIPCR(res.ipcrs)
@@ -54,17 +68,31 @@ function IPCRContainer({switchPage}) {
     async function loadDepartmenInfo(id){
         setAllTasks([])
         
-        var res = await getDepartment(id).then(data => data.data)
+        var res = await getDepartment(id).then(data => data.data).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
         console.log(res)
         setDepartmentInfo(res)       
     }
 
-    async function loadDepartmentTasks(id){
+    async function loadAllTasks(id){
         setAllTasks([])
 
-        var res = await getDepartmentTasks(id).then(data => data.data)
-        console.log("assuigned id", allAssignedID)
+        var res = await getDepartmentTasks(id).then(data => data.data).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
         var available = []
+
         for(const task of res){
             
             if(allAssignedID.includes(task.id)) continue;
@@ -72,6 +100,22 @@ function IPCRContainer({switchPage}) {
             available.push(task)
             //setAllTasks([...allTasks, task])
         }
+
+        var all_general = await getGeneralTasks().then(data => data.data).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
+        for(const task of all_general){
+            
+            if(allAssignedID.includes(task.id)) continue;
+            available.push(task)
+        }
+
+
         setAllTasks(available)       
     }
 
@@ -95,7 +139,14 @@ function IPCRContainer({switchPage}) {
                 text:"You must have atleast one task for IPCR."
             })
         }
-        var res = await createUserTasks(userinfo.id, checkedArray).then(data => data.data.message)
+        var res = await createUserTasks(userinfo.id, checkedArray).then(data => data.data.message).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
 
         if(res == "IPCR successfully created"){
             Swal.fire({
@@ -113,7 +164,15 @@ function IPCRContainer({switchPage}) {
             })
         }
 
-        //
+        const modalEl = document.getElementById("create-ipcr");
+        const modal = Modal.getOrCreateInstance(modalEl);
+
+        modal.hide();
+
+            // Cleanup leftover backdrop if any
+        document.querySelectorAll(".modal-backdrop").forEach(el => el.remove());
+        document.body.classList.remove("modal-open");
+        document.body.style.overflow = ""; // reset scroll lock
     }
 
     useEffect(()=> {
@@ -122,7 +181,7 @@ function IPCRContainer({switchPage}) {
 
     useEffect(()=> {
         if(userinfo.department) {
-            loadDepartmentTasks(userinfo.department.id)
+            loadAllTasks(userinfo.department.id)
             loadDepartmenInfo(userinfo.department.id)
 
         }
@@ -144,7 +203,6 @@ function IPCRContainer({switchPage}) {
             loadUserInfo()
         })
 
-        return ()=> socket.off("ipcr_create")
     }, [])
 
     return(
@@ -166,6 +224,8 @@ function IPCRContainer({switchPage}) {
                                     <h4>Assigned Tasks</h4>
                                     
                                     <div className="assigned-tasks">
+                                    {accountTasks.length == 0 ?
+                                    <div className="empty">There is no tasks assigned for you.</div>:""}
                                     {accountTasks && accountTasks.map(task => (
                                         <div className="task-assigned">
                                             <div className="name">
@@ -185,6 +245,8 @@ function IPCRContainer({switchPage}) {
                                 <div className="assigned-task-container">
                                     <h4>Available Tasks</h4>
                                     <div className="assigned-tasks">
+                                        {allTasks.length == 0 ?
+                                    <div className="empty">There is no tasks available yet.</div>:""}
                                         {allTasks && allTasks.map(task => (
                                             <div className="available-task"> 
                                                 <input type="checkbox" className="choose" value={task.id} id = {task.id} name="chosen" onChange={()=>{getAllCheckedTasks()}} hidden/>
@@ -228,13 +290,13 @@ function IPCRContainer({switchPage}) {
                 </div>
                 <div className="all-ipcr-container">
                     {allIPCR && allIPCR.map(ipcr => (
-                        ipcr.status == 1?<IPCR ipcr={ipcr} onClick = {()=>{switchPage(ipcr.id)}}></IPCR>: ""
+                        ipcr.status == 1?<IPCR ipcr={ipcr} onClick = {()=>{switchPage(ipcr.id, userinfo.department.id)}}></IPCR>: ""
                     ))}
                     
                 </div>
 
             </div>
-            <div className="department-members">
+            <div className="department-members" style={{display:"none"}}>
                 <h3>Department Members</h3>
                 <div className="member-container">
                     {departmentInfo.users && departmentInfo.users.map(user => (

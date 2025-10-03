@@ -1,14 +1,17 @@
-import { useEffect, useState, useSyncExternalStore } from "react"
-import { assignMainIPCR, downloadIPCR, getIPCR, updateSubTask } from "../../services/pcrServices"
+import { useEffect, useState } from "react"
+import { approveIPCR, assignMainIPCR, downloadIPCR, getIPCR, updateSubTask } from "../../services/pcrServices"
 import { socket } from "../api"
 import { jwtDecode } from "jwt-decode"
 import { getAccountInfo } from "../../services/userService"
 import Swal from "sweetalert2"
 import ManageTask from "./ManageTask"
 import ManageSupportingDocuments from "./ManageSupportingDocuments"
+import { getDepartmentHead } from "../../services/departmentService"
 
 function EditIPCR(props) {
     const [userinfo, setuserInfo] = useState(null)
+    const [headInfo, setHeadinfo] = useState(null)
+
     const [ipcrInfo, setIPCRInfo] = useState({})
     const [arrangedSubTasks, setArrangedSubTasks] = useState({})
     const [quantityAvg, setQuantityAvg] = useState(0)
@@ -21,11 +24,32 @@ function EditIPCR(props) {
     const [value, setValue] = useState(0)
     const [subTaskID, setSubTaskID] = useState(0)
 
-    const [downloadURL, setDownloadURL] = useState(null)
     const [downloading, setDownloading] = useState(false)
+
+
+    async function loadHeadInfo() {
+        var res = await getDepartmentHead(props.dept_id).then(data => data.data).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
+        setHeadinfo(res)
+        console.log("departmend head: ", res)
+
+    }
     
     async function loadIPCR(){
-        var res = await getIPCR(props.ipcr_id).then(data => data.data)
+        var res = await getIPCR(props.ipcr_id).then(data => data.data).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
         setIPCRInfo(res)
 
         //rearrange my tasks here
@@ -59,9 +83,6 @@ function EditIPCR(props) {
         setTimelinessAvg(t/res.sub_tasks_count)
         setAllAvg(a/res.sub_tasks_count)
 
-        var keys = Object.keys(all_categories)
-        for(const cat of keys){
-        }
     }
 
     function handleDataChange(e){
@@ -70,60 +91,121 @@ function EditIPCR(props) {
     }
 
     async function loadUserInfo() {
-            if (Object.keys(localStorage).includes("token")){
-                var token = localStorage.getItem("token")
-                var payload = jwtDecode(token)
+        if (Object.keys(localStorage).includes("token")){
+            var token = localStorage.getItem("token")
+            var payload = jwtDecode(token)
                 
-                var res = await getAccountInfo(payload.id).then(data => data.data)
+            var res = await getAccountInfo(payload.id).then(data => data.data).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
     
-                setuserInfo(res)
-            }
+            setuserInfo(res)
         }
+    }
+
+    async function handleApproval(){
+        var res = await approveIPCR(ipcrInfo.id).then(data => data.data.message).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
+            
+        if (res == "This IPCR is successfully approved."){
+            Swal.fire({
+                title:"Success",
+                text: res,
+                icon:"success"
+            })
+        }
+    } 
+    
+    async function approvalIPCR(){
+        Swal.fire({
+            title:"Approve",
+            text:"Approving would mean that information in this IPCR aligned with the institutional goal?",
+            showDenyButton: true,
+            confirmButtonText:"Approve",
+            confirmButtonColor:"green",
+            denyButtonText:"No",
+            denyButtonColor:"grey",
+            icon:"question",
+            customClass: {
+                actions: 'my-actions',
+                confirmButton: 'order-2',
+                denyButton: 'order-1 right-gap',
+            },
+        }).then((result)=> {
+            if(result.isConfirmed){
+                handleApproval()
+            }
+        }) 
+    }
 
     async function handleAssign(){
-            var res = await assignMainIPCR(ipcrInfo.id, userinfo.id).then(data => data.data.message)
-            
-            if (res == "IPCR successfully assigned."){
-                Swal.fire({
-                    title:"Success",
-                    text: res,
-                    icon:"success"
-                })
-            }
-            else {
-                Swal.fire({
-                    title:"Error",
-                    text: "Submission of IPCR failed",
-                    icon:"error"
-                })
-            }
-        } 
-    
-        async function assignIPCR(){
+        var res = await assignMainIPCR(ipcrInfo.id, userinfo.id).then(data => data.data.message).catch(error => {
+            console.log(error.response.data.error)
             Swal.fire({
-                        title:"Assign",
-                        text:"Submitting this IPCR would make this your main IPCR?",
-                        showDenyButton: true,
-                        confirmButtonText:"Assign",
-                        denyButtonText:"No",
-                        denyButtonColor:"grey",
-                        icon:"question",
-                        customClass: {
-                            actions: 'my-actions',
-                            confirmButton: 'order-2',
-                            denyButton: 'order-1 right-gap',
-                        },
-                    }).then((result)=> {
-                        if(result.isConfirmed){
-                            handleAssign()
-                        }
-                    }) 
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
+            
+        if (res == "IPCR successfully assigned."){
+            Swal.fire({
+                title:"Success",
+                text: res,
+                icon:"success"
+            })
         }
+        else {
+            Swal.fire({
+                title:"Error",
+                text: "Submission of IPCR failed",
+                icon:"error"
+            })
+        }
+    } 
+    
+    async function assignIPCR(){
+        Swal.fire({
+            title:"Assign",
+            text:"Submitting this IPCR would make this your main IPCR?",
+            showDenyButton: true,
+            confirmButtonText:"Assign",
+            denyButtonText:"No",
+            denyButtonColor:"grey",
+            icon:"question",
+            customClass: {
+                actions: 'my-actions',
+                confirmButton: 'order-2',
+                denyButton: 'order-1 right-gap',
+            },
+        }).then((result)=> {
+            if(result.isConfirmed){
+                handleAssign()
+            }
+        }) 
+    }
 
     async function download() {
         setDownloading(true)
-        var res = await downloadIPCR(props.ipcr_id).then(data => data.data.link)
-        setDownloadURL(res)
+        var res = await downloadIPCR(props.ipcr_id).then(data => data.data.link).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
         window.open(res, "_blank", "noopener,noreferrer");
         setDownloading(false)
     }
@@ -151,6 +233,7 @@ function EditIPCR(props) {
     useEffect(()=> {
         loadIPCR()
         loadUserInfo()
+        loadHeadInfo()
 
         socket.on("ipcr", ()=>{
             loadIPCR()
@@ -181,7 +264,7 @@ function EditIPCR(props) {
             
             <ManageSupportingDocuments ipcr_id = {props.ipcr_id} batch_id = {ipcrInfo.batch_id}></ManageSupportingDocuments>
             {userinfo && <ManageTask key = {userinfo.id? userinfo.id: 0} ipcr_id = {props.ipcr_id} user_id = {userinfo.id? userinfo.id: 0} dept_id = {userinfo.department ? userinfo.department.id: 0}></ManageTask>}
-            <div className="back">
+            <div className="back-container">
                 <div className="back"  data-bs-dismiss="modal" data-bs-target={props.dept_mode? "#view-ipcr":""} onClick={()=> {
                     props.switchPage()
                 }}>
@@ -212,10 +295,18 @@ function EditIPCR(props) {
                         <span className="material-symbols-outlined">article_shortcut</span>
                         <span>{ipcrInfo.isMain? "Submitted": "Submit"}</span>
                     </button>:""}
+
+                    {props.dept_mode? <button className="btn btn-success" disabled = {ipcrInfo.form_status == "approved"} onClick={()=>{approvalIPCR()}}>
+                        <span className="material-symbols-outlined">article_shortcut</span>
+                        <span>{ipcrInfo.form_status == "approved"? "Approved": "Approve"}</span>
+                    </button>:""}
                 </div>
             </div>
             
             <div className="ipcr-form-container">
+                <span className="pcr-status-container">
+                    <span>{ipcrInfo.form_status && ipcrInfo.form_status.toUpperCase()}</span>
+                </span>
                 <div className="ipcr-header-container">
                     <div className="ipcr-logo" style={{backgroundImage: `url('${import.meta.env.BASE_URL}municipal.png')`}}>.</div>
                     <div className="school-info">
@@ -254,8 +345,8 @@ function EditIPCR(props) {
                         <div className="involved">
                             <div className="individual-container">
                                 <span className="type">Reviewed by:</span>
-                                <span className="name">Arman Bitancur</span>
-                                <span>Librarian II</span>
+                                <span className="name">{headInfo && headInfo.first_name.toUpperCase() + " " + headInfo.last_name.toUpperCase()}</span>
+                                <span>{headInfo &&  headInfo.position.name}</span>
                             </div>
                             <div className="date-viewed">
                                 <span>Date</span>
@@ -264,8 +355,8 @@ function EditIPCR(props) {
                         <div className="involved">
                             <div className="individual-container">
                                 <span className="type">Approved by:</span>
-                                <span className="name">Arman Bitancur</span>
-                                <span>Librarian II</span>
+                                <span className="name">MA. LIBERTY DG. PASCUAL</span>
+                                <span>College President</span>
                             </div>
                             <div className="date-viewed">
                                 <span className="type">Date</span>
@@ -378,11 +469,6 @@ function EditIPCR(props) {
                         
                         
 
-                        
-
-                        
-
-
                     </div>
                     
                     <div className="another-rating">
@@ -416,20 +502,16 @@ function EditIPCR(props) {
                             </div>  
                         </div>
                     </div>
-                    
-
-                    
-
-                    
-
+                
 
                 </div>
                 <div className="individuals-bottom-container" style={{marginTop: "10px"}}>
                     <div className="involved">
                         <div className="individual-container">
                             <span className="type">Discussed with:</span>
-                            <span className="name">Arman Bitancur</span>
-                            <span>Librarian II</span>
+                            
+                            <span className="name">{userinfo && userinfo.first_name.toUpperCase() + " " + userinfo.last_name.toUpperCase()}</span>
+                            <span>{userinfo && userinfo.position.name}</span>
                         </div>
                         <div className="date-viewed">
                             <span>Date</span>
@@ -438,8 +520,9 @@ function EditIPCR(props) {
                     <div className="involved">
                         <div className="individual-container">
                             <span className="type">Assessed by:</span>
-                            <span className="name">Arman Bitancur</span>
-                            <span>Librarian II</span>
+                            <span style={{textAlign:"left", fontWeight:"300", fontSize:"0.9rem", padding:"10px"}}>I certified that I discussed my assessment of the performance with the employee</span>
+                            <span className="name">{headInfo && headInfo.first_name.toUpperCase() + " " + headInfo.last_name.toUpperCase()}</span>
+                            <span>{headInfo && headInfo.position.name}</span>
                         </div>
                         <div className="date-viewed">
                             <span className="type">Date</span>
@@ -450,8 +533,8 @@ function EditIPCR(props) {
                     <div className="involved">
                         <div className="individual-container">
                             <span className="type">Final Rating by:</span>
-                            <span className="name">Arman Bitancur</span>
-                            <span>Librarian II</span>
+                            <span className="name">MA. LIBERTY DG. PASCUAL</span>
+                            <span>College President</span>
                         </div>
                         <div className="date-viewed">
                             <span className="type">Date</span>
@@ -468,8 +551,8 @@ function EditIPCR(props) {
                     <div className="involved" style={{borderLeftStyle:"solid",borderBottomStyle:"solid", borderWidth: "1px", marginTop: "0px"}}>
                         <div className="individual-container">
                             <span className="type">Confirmed by:</span>
-                            <span className="name">Arman Bitancur</span>
-                            <span>Librarian II</span>
+                            <span className="name">HON. MARIA ELENA L. GERMAR</span>
+                            <span>PMT Chairperson</span>
                         </div>
                         <div className="date-viewed">
                             <span className="type">Date</span>

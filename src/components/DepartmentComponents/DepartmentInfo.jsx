@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { updateDepartment, getDepartment, getDepartmentMembers, archiveDepartment } from "../../services/departmentService";
+import { updateDepartment, getDepartment, archiveDepartment } from "../../services/departmentService";
 import DepartmentMemberTable from "./DepartmentMemberTable";
 import { objectToFormData, socket } from "../api";
 import Swal from "sweetalert2";
@@ -22,7 +22,14 @@ function DepartmentInfo(props){
 
 
     async function loadDepartmentInfo(id){
-        var res = await getDepartment(id).then(data => data.data)
+        var res = await getDepartment(id).then(data => data.data).catch(error => {
+                    console.log(error.response.data.error)
+                    Swal.fire({
+                        title: "Error",
+                        text: error.response.data.error,
+                        icon: "error"
+                    })
+                })
         await setDeptinfo(res)
         setManagerInfo(null)
 
@@ -74,7 +81,14 @@ function DepartmentInfo(props){
 
 
         setSubmission(true)
-        var a = await updateDepartment(newFormData)
+        var a = await updateDepartment(newFormData).catch(error => {
+                    console.log(error.response.data.error)
+                    Swal.fire({
+                        title: "Error",
+                        text: error.response.data.error,
+                        icon: "error"
+                    })
+                })
             
         if(a.data.message == "Department successfully updated.") {
             Swal.fire({
@@ -103,7 +117,14 @@ function DepartmentInfo(props){
 
     const handleArchive = async () => {
         
-        var a = await archiveDepartment(props.id)
+        var a = await archiveDepartment(props.id).catch(error => {
+                    console.log(error.response.data.error)
+                    Swal.fire({
+                        title: "Error",
+                        text: error.response.data.error,
+                        icon: "error"
+                    })
+                })
         setArchiving(true)
         if(a.data.message == "Department successfully archived.") {
             Swal.fire({
@@ -271,7 +292,7 @@ function DepartmentInfo(props){
                                     <div className="member-options" onMouseLeave={()=>{setOpen(false)}}>
                                         <span className="option" data-bs-toggle="modal" data-bs-target="#assign-head">
                                             <span className="material-symbols-outlined">assignment_ind</span>
-                                        <span>Assign Head</span>
+                                            <span>Assign Head</span>
                                         </span>
                                         <span className="option" data-bs-toggle="modal" data-bs-target="#edit-department">
                                             <span className="material-symbols-outlined">edit</span>

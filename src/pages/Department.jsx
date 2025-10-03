@@ -16,7 +16,15 @@ function Department(){
     
 
     async function loadAllDepartments(){
-        var res = await getDepartments().then(data => data.data)
+        var res = await getDepartments().then(data => data.data).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
+
         setDepartments(res)
         return res
     }
@@ -25,6 +33,13 @@ function Department(){
         loadAllDepartments().then(res => {
             console.log("loading first")
             if (res.length > 0) setCurrentDepartment(res[0].id);
+        }).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
         });
     }
     
@@ -40,20 +55,20 @@ function Department(){
     const handleSubmission = async () => {
         const newFormData = objectToFormData(formData);
         setSubmission(true)
-        var a = await registerDepartment(newFormData)
+        var a = await registerDepartment(newFormData).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
         
         if(a.data.message == "Department successfully created.") {
             Swal.fire({
                 title:"Success",
                 text: a.data.message,
                 icon:"success"
-            })
-        }
-        else {
-            Swal.fire({
-                title:"Error",
-                text: a.data.message,
-                icon:"error"
             })
         }
         setSubmission(false)

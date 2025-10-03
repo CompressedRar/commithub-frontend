@@ -5,9 +5,11 @@ import Swal from "sweetalert2";
 import { Modal } from "bootstrap";
 import { archiveCategory, getCategory, updateCategory } from "../../services/categoryService";
 
+
 import { getDepartments } from "../../services/departmentService";
 import { createMainTask } from "../../services/taskService";
 import { convert_tense } from "../../services/tenseConverted";
+import CategoryTask from "./CategoryTask";
 
 function CategoryTasks(props){
 
@@ -33,7 +35,14 @@ function CategoryTasks(props){
     }
 
     async function loadCategoryTasks(id){
-        var res = await getCategory(id).then(data => data.data)
+        var res = await getCategory(id).then(data => data.data).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
         console.log(res.main_tasks)
         setCategoryInfo(res)
         await setCategoryTasks(res.main_tasks)
@@ -66,7 +75,14 @@ function CategoryTasks(props){
         }
         const debounce = setTimeout(async ()=>{
             setTranslating(true)
-            var converted_tense = await convert_tense(String(pastTense))
+            var converted_tense = await convert_tense(String(pastTense)).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: "There is an error while processing description.",
+                icon: "error"
+            })
+        })
             setFormData({...formData, ["past_task_desc"]: converted_tense})       
             console.log(converted_tense)
             setTranslating(false)
@@ -111,7 +127,14 @@ function CategoryTasks(props){
 
 
         setSubmission(true)
-        var a = await createMainTask(newFormData)
+        var a = await createMainTask(newFormData).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
             
         if(a.data.message == "Task successfully created.") {
             Swal.fire({
@@ -143,7 +166,14 @@ function CategoryTasks(props){
     }
 
     const handleArch = async () => {
-            var a = await archiveCategory(props.id)
+            var a = await archiveCategory(props.id).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
             console.log(a)
             if(a.data.message == "Category successfully archived.") {
                 Swal.fire({
@@ -185,7 +215,14 @@ function CategoryTasks(props){
         }
 
     const handleUpdate = async () => {
-            var a = await updateCategory(formData)
+            var a = await updateCategory(formData).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
             console.log(a)
             if(a.data.message == "Category updated.") {
                 Swal.fire({
@@ -328,40 +365,10 @@ function CategoryTasks(props){
                     
                     {Array.isArray(categoryTasks) && categoryTasks.map(category =>(
                         
-                        category.status == 1?<div className="task" key={category.id} onClick={()=>{props.changeTaskID(category.id)}}>
-                            <div className="department-name" style={category.department == "General"? {backgroundImage: "linear-gradient(to left, rgb(143, 143, 250), var(--lighter-primary-color), var(--primary-color))"}: {backgroundImage: "linear-gradient(to left,var(--secondary-color), rgb(255, 136, 0), rgb(255, 136, 0))"}}>
-                                {category.department}
-                            </div>
-                            <div className="task-title">
-                                <span className="material-symbols-outlined">highlight_mouse_cursor</span>
-                                <span>{category.name}</span>
-                            </div>
-                            
-                            <div className="task-description">
-                                <div className="title">Description</div>
-                                <div className="description">{category.target_accomplishment}</div>	
-                            </div>
-
-                            <div className="tasks-measurements">
-                                <div className="time-measurement">
-                                    <div className="title">Time Measurement</div>
-                                    <div className="description">{category.time_measurement.charAt(0).toUpperCase() + category.time_measurement.slice(1)}</div>
-                                </div>
-                                <div className="modification-measurement">
-                                    <div className="title">Modification</div>
-                                    <div className="description">{category.modifications.charAt(0).toUpperCase() + category.modifications.slice(1)}</div>
-                                </div>
-                            </div>
-
-                            <div className="assigned-users">
-                                <div className="title">Assigned Users</div>
-                                <div className="profile-icon-container">{
-                                    category.users.map(user => (
-                                        <div className="profile-icon" style={{backgroundImage: `url('${user.profile_picture_link}')`}}>.</div>
-                                    ))
-                                }</div>
-                            </div>
-                        </div>:""
+                        category.status == 1?
+                        <CategoryTask key = {category.id} category = {category} onClick = {()=>{
+                            props.changeTaskID(category.id)
+                        }}></CategoryTask>:""
                     ))}
                         
                         

@@ -12,19 +12,40 @@ function AddDepartmentTask(props) {
     const [archiving, setArchiving] = useState(false)
 
     async function loadAllCategories(){
-        var res = await getCategoriesWithTasks().then(data => data.data)
+        var res = await getCategoriesWithTasks().then(data => data.data).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
         setAllCategories(res)
         console.log(res)
     }
 
     async function loadDepartmentInfo(){
-        var res = await getDepartment(props.dept_id).then(data => data.data)
+        var res = await getDepartment(props.dept_id).then(data => data.data).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
         setDepartmentInfo(res)
         console.log(res)
     }
 
     const Remove = async (task_id) => {
-            var res = await removeTask(task_id).then(data => data.data.message)
+            var res = await removeTask(task_id).then(data => data.data.message).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
             if(res == "Task successfully removed.") {
                 Swal.fire({
                     title:"Success",
@@ -63,7 +84,14 @@ function AddDepartmentTask(props) {
         }
 
     const assignTask = async (task_id) => {
-            var res = await assignDepartment(task_id, props.dept_id).then(data => data.data.message)
+            var res = await assignDepartment(task_id, props.dept_id).then(data => data.data.message).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
             
             if(res == "Task successfully assigned.") {
                 Swal.fire({
