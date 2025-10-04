@@ -294,6 +294,11 @@ function IPCRContainer({switchPage}) {
                     ))}
                     
                 </div>
+                {allIPCR.length != 0?"":
+                    <div className="empty-symbols">
+                        <span className="material-symbols-outlined">file_copy_off</span>    
+                        <span className="desc">No IPCRs Found</span>
+                    </div>} 
 
             </div>
             <div className="department-members" style={{display:"none"}}>

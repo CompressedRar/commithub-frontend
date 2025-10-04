@@ -101,10 +101,12 @@ function Members({mems, switchMember}){
 
 
     return (
-        <tr key = {mems.id}>
-            <td>{mems.id}</td>                                    
-             <td>{mems.email}</td>
-            <td>{mems.first_name + " " + mems.last_name}</td>
+        <tr key = {mems.id}>                                
+            <td className="table-profile">
+                <div className="table-profile-picture" style={{backgroundImage:`url(${mems.profile_picture_link})`}}>.</div>
+                {mems.first_name + " " + mems.last_name}
+            </td>
+            <td>{mems.email}</td>
             <td>{mems.department.name}</td>
             <td>{mems.position.name}</td>
             <td>{mems.role[0].toUpperCase() + mems.role.slice(1)}</td>

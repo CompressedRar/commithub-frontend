@@ -21,6 +21,9 @@ function Login(){
                 console.log('faculty')
                 window.location.href = "/faculty/ipcr"
             }
+            else if(payload.role == "head"){
+                window.location.href = "/head/department"
+            }
             else if (payload.role == "administrator"){
                 window.location.href = "/admin/dashboard"
             }
@@ -62,6 +65,9 @@ function Login(){
             var payload = jwtDecode(a.data.token)
             if (payload.role == "faculty"){
                 window.location.href = "/faculty/ipcr"
+            }
+            else if(payload.role == "head"){
+                window.location.href = "/head/department"
             }
             else if (payload.role == "administrator"){
                 window.location.href = "/admin/dashboard"

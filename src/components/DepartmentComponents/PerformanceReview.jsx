@@ -104,6 +104,11 @@ function PerformanceReviews(props){
                     }}></OPCR>
                 ))}
             </div>
+            {allOPCR.length != 0?"":
+                    <div className="empty-symbols">
+                        <span className="material-symbols-outlined">file_copy_off</span>    
+                        <span className="desc">No OPCRs Found</span>
+                    </div>} 
 
             <h3>Individual Performance Review and Commitment Forms</h3>
             <div className="all-ipcr-container">
@@ -117,7 +122,14 @@ function PerformanceReviews(props){
                         setCurrentIPCRID(ipcr.id)
                     }} ipcr = {ipcr} dept_mode = {true}></IPCR>
                 ))}
+
+                
             </div>
+            {allIPCR.length != 0?"":
+                    <div className="empty-symbols">
+                        <span className="material-symbols-outlined">file_copy_off</span>    
+                        <span className="desc">No IPCRs Found</span>
+            </div>} 
         </div>
     )
 }

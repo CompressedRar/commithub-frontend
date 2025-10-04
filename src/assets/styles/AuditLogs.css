@@ -21,6 +21,10 @@
     box-sizing: border-box;
 }
 
+.audit-table-container .table-container tr {
+    padding: 10px;
+}
+
 .audit-table-container .table-headers {
     width: 100%;
     padding: 20px;
@@ -75,4 +79,7 @@
     border-style: solid;
     border-radius: 10px;
     width: 70px;
+}
+.table-container table td {
+    padding: 15px;
 }

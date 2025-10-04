@@ -1,7 +1,7 @@
 function Logs({log}){
     return (
         <tr>
-            <td>{log.user_agent}</td>
+            
             
             <td>User: {log.full_name}</td>
             <td>{log.department}</td>
@@ -9,6 +9,7 @@ function Logs({log}){
             <td>{log.target}</td>
             <td>{log.ip_address}</td>
             <td>{log.timestamp}</td>
+            <td>{log.user_agent}</td>
             
         </tr>
     )

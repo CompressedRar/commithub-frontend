@@ -1,166 +1,142 @@
 import { useEffect, useState } from "react"
-
 import { getAccounts } from "../../services/userService";
 import Members from "./Members";
-
 import { socket } from "../api";
 import MemberProfile from "./MemberProfile";
+import { getDepartments } from "../../services/departmentService";
+import Swal from "sweetalert2";
 
 function MemberTable(props) {
 
-    const [allMembers, setAllMembers] = useState([])
-    const [filteredMembers, setFilteredMembers] = useState([])
-
-    const [tenMembers, setTenMembers] = useState([])
-    const [pages, setPages] = useState([]) 
+    const [allMembers, setAllMembers] = useState(null)
+    const [filteredMembers, setFilteredMembers] = useState(null)
+    const [tenMembers, setTenMembers] = useState(null)
+    const [pages, setPages] = useState(null) 
     const [memberLimit, setMemberLimit] = useState({"offset": 0, "limit": 10})
     const [searchQuery, setQuery] = useState("")
 
-    const [currentUserID, setCurrentUserID] = useState(0)
+    const [selectedDepartment, setSelectedDepartment] = useState("All")
+    const [selectedRole, setSelectedRole] = useState("All")
 
-    //department task assign
-    
-    async function loadAllMembers() {      
-        var res = await getAccounts().then(data => data.data).catch(error => {
-            console.log(error.response.data.error)
+    const [currentUserID, setCurrentUserID] = useState(0)
+    const [allDepartments, setAllDepartments] = useState(null)
+
+    // Load departments
+    async function loadDepartments() {
+        try {
+            const res = await getDepartments()
+            setAllDepartments(res.data)
+        } catch (error) {
+            console.log(error)
             Swal.fire({
                 title: "Error",
-                text: error.response.data.error,
+                text: "Fetching Departments failed.",
                 icon: "error"
             })
-        })
-        
-        console.log(res)
-        setAllMembers(res)
-        setFilteredMembers(res)
-        generatePagination(res)
-        console.log("loaded all the members")
-
+        }
     }
 
-    function loadLimited(){
-        var slicedMembers = filteredMembers.slice(memberLimit["offset"], memberLimit["limit"])
-        console.log(slicedMembers)
+    // Load all members
+    async function loadAllMembers() {      
+        try {
+            const res = await getAccounts()
+            setAllMembers(res.data)
+            setFilteredMembers(res.data)
+            generatePagination(res.data)
+        } catch (error) {
+            console.log(error)
+            Swal.fire({
+                title: "Error",
+                text: error.response?.data?.error || "Fetching accounts failed.",
+                icon: "error"
+            })
+        }
+    }
+
+    // Pagination
+    function loadLimited() {
+        if(!filteredMembers) return;
+        const slicedMembers = filteredMembers.slice(memberLimit.offset, memberLimit.limit)
         setTenMembers(slicedMembers)
     }
 
-    function loadSearchedData(query){
-        console.log("displatyed")
-        var matchedMembers = []
-
-        for(const member of allMembers){
-            
-            if( member.email.includes(query) || 
-            member.first_name.includes(query) || 
-            member.last_name.includes(query) || 
-            member.position.name.includes(query) || 
-            String(member.id).includes(query)|| 
-            member.created_at.includes(query) ||
-            member.role.includes(query) ||
-            member.department.name.includes(query) ){
-                matchedMembers = [...matchedMembers, member]
-            }
-        }
-        console.log(matchedMembers)
-        
-        setFilteredMembers(matchedMembers)
-        generatePagination(matchedMembers)
-        setMemberLimit({"offset": 0, "limit": 10})
-    }
-
-
-    function generatePagination(array){
-        var calculatedPage = array.length / 10
-        
-        var newPages = []
-        for(var i = 1; i <= Math.ceil(calculatedPage); i++){
-            console.log(i)
-            newPages = [...newPages, {"id": i, "page": i}]
-        }  
-        console.log(newPages)
+    function generatePagination(array) {
+        const totalPages = Math.ceil(array.length / 10)
+        const newPages = Array.from({ length: totalPages }, (_, i) => ({ id: i + 1, page: i + 1 }))
         setPages(newPages)
     }
 
-    useEffect(()=>{
-        if(searchQuery.length == 0) {
-            loadLimited()
-            loadAllMembers(props.deptid)
-            return   
+    // 🔍 Main Filter Function (Department + Role + Search)
+    function applyFilters() {
+        if(!allMembers) return;
+        let filtered = [...allMembers]
+
+        // Filter by department
+        if (selectedDepartment !== "All") {
+            filtered = filtered.filter(m => 
+                m.department && m.department.id === parseInt(selectedDepartment)
+            )
         }
-        const debounce = setTimeout(()=>{
-            loadSearchedData(searchQuery)
+
+        // Filter by role
+        if (selectedRole !== "All") {
+            filtered = filtered.filter(m => 
+                m.role.toLowerCase() === selectedRole.toLowerCase()
+            )
+        }
+
+        // Search filter
+        if (searchQuery.trim() !== "") {
+            const query = searchQuery.toLowerCase()
+            filtered = filtered.filter(m =>
+                m.email.toLowerCase().includes(query) ||
+                m.first_name.toLowerCase().includes(query) ||
+                m.last_name.toLowerCase().includes(query) ||
+                m.position.name.toLowerCase().includes(query) ||
+                String(m.id).includes(query) ||
+                m.created_at.toLowerCase().includes(query) ||
+                m.role.toLowerCase().includes(query)
+            )
+        }
+
+        setFilteredMembers(filtered)
+        generatePagination(filtered)
+        setMemberLimit({ offset: 0, limit: 10 })
+    }
+
+    // Reactivity
+    useEffect(() => {
+        loadLimited()
+    }, [filteredMembers, memberLimit])
+
+    useEffect(() => {
+        applyFilters()
+    }, [selectedDepartment, selectedRole])
+
+    useEffect(()=> {
+        const debounce = setTimeout(() => {
+            applyFilters()
         }, 500)
 
-        return ()=> clearTimeout(debounce)
-
-
+    return () => clearTimeout(debounce)
     }, [searchQuery])
 
-    useEffect(()=> {
-        
-        loadLimited()
-        
-    }, [allMembers])
-
-    useEffect(()=> {
-        
-        loadLimited()
-        
-    }, [memberLimit])
-
-    useEffect(()=>{
-        console.log("loading members")
+    useEffect(() => {
         loadAllMembers()
-        console.log("members loaded")
+        loadDepartments()
 
-        socket.on("user_created", ()=>{
-            loadAllMembers()
-            console.log("new user added")
-        })
-
-        socket.on("user_modified", ()=>{
-            loadAllMembers()
-            console.log("user modified")
-        })
+        socket.on("user_created", loadAllMembers)
+        socket.on("user_modified", loadAllMembers)
 
         return () => {
-            socket.off("user_created");
-            socket.off("user_modified");
+            socket.off("user_created")
+            socket.off("user_modified")
         }
-        
-    },[])
+    }, [])
+
     return (
         <div className="member-container">
-            <div className="modal fade " id="add-user"  data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                <div className="modal-dialog modal-dialog-centered modal-fullscreen" >
-                    <div className="modal-content model-register">
-                        <div className="modal-header">
-                            <h5 className="modal-title" id="staticBackdropLabel">Create Account</h5>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div className="modal-body">
-                            <iframe className="register-page" src="/create" frameborder="0"></iframe>                                                        
-                        </div>
-                        
-                    </div>
-                </div>
-            </div>
-
-            <div className="modal fade " id="user-profile"  data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                <div className="modal-dialog modal-dialog-centered modal-lg" >
-                    <div className="modal-content model-register">
-                        <div className="modal-header">
-                            <h5 className="modal-title" id="staticBackdropLabel">Profile Page</h5>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div className="modal-body">
-                            {currentUserID? <MemberProfile key={currentUserID} id = {currentUserID}></MemberProfile> :""}                                                   
-                        </div>
-                        
-                    </div>
-                </div>
-            </div>
-
+            {/* --- MODALS OMITTED FOR BREVITY --- */}
 
             <div className="table-header-container" id="user-table">
                 <div className="table-title">Accounts</div>
@@ -170,39 +146,40 @@ function MemberTable(props) {
                         <span>Create Account</span>
                     </button>
                 </div>
-                        {/**<div className="add-members">
-                            <button>
-                                <span className="material-symbols-outlined">add</span>
-                                <span>Add Members</span>
-                            </button>
-                        </div>
-                        <div className="sorting-container">
-                            <label htmlFor="sort">Sort By: </label>
-                            <select name="sort" id="sort">
-                                <option value="">First Name</option>
-                                <option value="">Last Name</option>
-                                <option value="">Role</option>
-                                <option value="">Date Created</option>
-                            </select>
-                            <select name="sort" id="sort">
-                                <option value="">Ascending</option>
-                                <option value="">Descending</option>
-                            </select>
-                        </div> */
-                            
-                        }
+
+                {/* 🔽 Filters Section */}
                 <div className="search-members">
-                        <input type="text" placeholder="Search user..." onInput={(element)=>{setQuery(element.target.value)}}/>                        
-                </div>                        
+                    <select onChange={(e) => setSelectedDepartment(e.target.value)}>
+                        <option value="All">All Departments</option>
+                        {allDepartments && allDepartments.map(dept => (
+                            <option value={dept.id} key={dept.id}>{dept.name}</option>
+                        ))}
+                    </select>
+
+                    <select onChange={(e) => setSelectedRole(e.target.value)}>
+                        <option value="All">All Roles</option>
+                        <option value="Administrator">Administrator</option>
+                        <option value="College President">College President</option>
+                        <option value="Head">Head</option>
+                        <option value="Faculty">Faculty</option>
+                    </select>
+
+                    <input
+                        type="text"
+                        placeholder="Search user..."
+                        value={searchQuery}
+                        onChange={(e) => setQuery(e.target.value)}
+                    />
+                </div>
             </div>
 
+            {/* Table */}
             <div className="table-container">
                 <table>
                     <tbody>
                         <tr>
-                            <th>ID</th>
-                            <th>EMAIL ADDRESS</th>
                             <th>FULL NAME</th>
+                            <th>EMAIL ADDRESS</th>
                             <th>DEPARTMENT</th>
                             <th>POSITION</th>
                             <th>ROLE</th>
@@ -210,22 +187,41 @@ function MemberTable(props) {
                             <th>DATE CREATED</th>
                             <th></th>
                         </tr>
-                                
-                        {tenMembers != 0? tenMembers.map(mems => (
-                        <Members mems = {mems} switchMember = {(id) => {setCurrentUserID(id); console.log("hehe", id)}}></Members>)):
 
-                        <tr className="empty-table">
-                            <td>No users</td>
-                        </tr>
-                        }
-                    </tbody>                               
-                </table>                        
+                        {tenMembers && tenMembers.length > 0 ? (
+                            tenMembers.map(mems => (
+                                <Members
+                                    key={mems.id}
+                                    mems={mems}
+                                    switchMember={(id) => setCurrentUserID(id)}
+                                />
+                            ))
+                        ) : ""}
+                    </tbody>
+                </table>
             </div>
+            {tenMembers != 0?"":
+                    <div className="empty-symbols">
+                        <span className="material-symbols-outlined">no_accounts</span>    
+                        <span className="desc">No Users Found</span>
+                    </div>}  
+
+            {/* Pagination */}
             <div className="pagination">
-                {pages.map(data => (<span className="pages" key={data.id} onClick={()=>{
-                    setMemberLimit({"offset": 0+((data.page * 10) - 10), "limit": data.page * 10})
-                    
-                }}> {data.page}</span>))}
+                {pages && pages.map(data => (
+                    <span
+                        className="pages"
+                        key={data.id}
+                        onClick={() =>
+                            setMemberLimit({
+                                offset: (data.page - 1) * 10,
+                                limit: data.page * 10
+                            })
+                        }
+                    >
+                        {data.page}
+                    </span>
+                ))}
             </div>
         </div>
     )

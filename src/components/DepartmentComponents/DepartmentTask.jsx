@@ -74,9 +74,8 @@ function DepartmentTask({mems, switchMember}){
 
 
     return (
-        <tr key = {mems.id}>
-            <td>{mems.id}</td>                                    
-             <td>{mems.name}</td>
+        <tr key = {mems.id}>                              
+            <td>{mems.name}</td>
             <td>{mems.target_accomplishment}</td>
             <td>{mems.actual_accomplishment}</td>
             <td>{mems.category.name}</td>

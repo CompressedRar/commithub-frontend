@@ -150,10 +150,8 @@ function DepartmentMemberTable(props) {
                 <table>
                     <tbody>
                         <tr>
-                            <th>ID</th>
-                            <th>EMAIL ADDRESS</th>
                             <th>FULL NAME</th>
-                            
+                            <th>EMAIL ADDRESS</th>                            
                             <th>POSITION</th>
                             <th>NO. OF TASKS</th>
                             <th>STATUS</th>
@@ -161,15 +159,17 @@ function DepartmentMemberTable(props) {
                         </tr>
                                 
                         {tenMembers != 0? tenMembers.map(mems => (
-                        <DepartmentMembers mems = {mems}></DepartmentMembers>)):
-
-                        <tr className="empty-table">
-                            <td>No users</td>
-                        </tr>
+                        <DepartmentMembers mems = {mems}></DepartmentMembers>)):""
                         }
                     </tbody>                               
-                </table>                        
+                </table>      
+                                  
             </div>
+            {tenMembers != 0?"":
+                    <div className="empty-symbols">
+                        <span className="material-symbols-outlined">no_accounts</span>    
+                        <span className="desc">No Users Found</span>
+                    </div>}  
             <div className="pagination">
                 {pages.map(data => (<span className="pages" key={data.id} onClick={()=>{
                     setMemberLimit({"offset": 0+((data.page * 10) - 10), "limit": data.page * 10})

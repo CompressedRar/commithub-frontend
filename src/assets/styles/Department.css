@@ -348,7 +348,15 @@
     flex-direction: row;
     justify-content: flex-end;
     width: 100%;
+    gap: 10px;
+}
 
+.table-header-container .search-members select {
+    border-radius: 100px;
+    padding: 10px 20px;
+    background-color: white;
+    color: var(--primary-font-color);
+    border-style: solid;
 }
 
 .table-header-container .search-members input {
@@ -937,4 +945,19 @@
     flex-direction: row;
     align-items: center;
     gap:10px;
+}
+
+.table-profile {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+}
+
+.table-profile-picture {
+    height: 40px;
+    width:  40px;
+    background-position: center;
+    background-size: cover;
+    border-radius: 50%;
 }

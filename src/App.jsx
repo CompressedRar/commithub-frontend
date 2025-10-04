@@ -18,6 +18,7 @@ import FacultyLayout from './layout/FacultyLayout'
 import Unauthorized from './pages/Unauthorized'
 import Faculty from './pages/Faculty'
 import EditIPCR from './components/Faculty/EditIPCR'
+import HeadLayout from './layout/HeadLayout'
 
 
 function App() {
@@ -38,6 +39,12 @@ function App() {
           <Route path = "/admin/users" element={<UserManagement></UserManagement>}></Route>
           <Route path = "/admin/tasks" element={<CategoryAndTask></CategoryAndTask>}></Route>
           <Route path = "/admin/logs" element={<AuditLogs></AuditLogs>}></Route>
+        </Route>
+
+        <Route element = {<HeadLayout></HeadLayout>}>
+          <Route path = "/head/department" element={<Department></Department>}></Route>
+          <Route path = "/head/tasks" element={<CategoryAndTask></CategoryAndTask>}></Route>
+          <Route path = "/head/ipcr" element={<Faculty></Faculty>}></Route>
         </Route>
 
         <Route element = {<FacultyLayout></FacultyLayout>}>

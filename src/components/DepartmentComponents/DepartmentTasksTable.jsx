@@ -52,14 +52,11 @@ function DepartmentTasksTable(props) {
 
         for(const member of allMembers){
             
-            if( member.email.includes(query) || 
-            member.first_name.includes(query) || 
-            member.last_name.includes(query) || 
-            member.position.name.includes(query) || 
-            String(member.id).includes(query)|| 
-            member.created_at.includes(query) ||
-            member.role.includes(query) ||
-            member.department.name.includes(query) ){
+            if(  member.name.toLowerCase().includes(query.toLowerCase()) ||
+                member.actual_accomplishment.toLowerCase().includes(query.toLowerCase()) ||
+            member.target_accomplishment.toLowerCase().includes(query.toLowerCase()) || 
+            member.category.name.toLowerCase().includes(query.toLowerCase()) 
+            ){
                 matchedMembers = [...matchedMembers, member]
             }
         }
@@ -196,7 +193,7 @@ function DepartmentTasksTable(props) {
                     </button>
                 </div>
                 <div className="search-members">
-                        <input type="text" placeholder="Search user..." onInput={(element)=>{setQuery(element.target.value)}}/>                        
+                        <input type="text" placeholder="Search task..." onInput={(element)=>{setQuery(element.target.value)}}/>                        
                 </div>                        
             </div>
 
@@ -204,7 +201,6 @@ function DepartmentTasksTable(props) {
                 <table>
                     <tbody>
                         <tr>
-                            <th>ID</th>
                             <th>TASK NAME</th>
                             <th>TARGET</th>
                             <th>ACTUAL</th>
@@ -216,13 +212,18 @@ function DepartmentTasksTable(props) {
                         {tenMembers != 0? tenMembers.map(mems => (
                         <DepartmentTask mems = {mems} switchMember = {(id) => {setCurrentUserID(id); console.log("hehe", id)}}></DepartmentTask>)):
 
-                        <tr className="empty-table">
-                            <td>No Tasks</td>
-                        </tr>
+                        ""
                         }
-                    </tbody>                               
-                </table>                        
+                    </tbody>        
+                                         
+                </table>    
+                                    
             </div>
+            {tenMembers != 0?"":
+                    <div className="empty-symbols">
+                        <span className="material-symbols-outlined">file_copy_off</span>    
+                        <span className="desc">No Tasks Found</span>
+                    </div>}  
             <div className="pagination">
                 {pages.map(data => (<span className="pages" key={data.id} onClick={()=>{
                     setMemberLimit({"offset": 0+((data.page * 10) - 10), "limit": data.page * 10})

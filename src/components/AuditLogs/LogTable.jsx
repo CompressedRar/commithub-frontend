@@ -1,187 +1,226 @@
-import { useEffect, useState } from "react"
-
+import { useEffect, useState } from "react";
 import { getLogs } from "../../services/logService";
 import Logs from "./Logs";
 import Swal from "sweetalert2";
+import { getDepartments } from "../../services/departmentService";
 
 function LogTable() {
+    const [allMembers, setAllMembers] = useState(null);
+    const [filteredMembers, setFilteredMembers] = useState(null);
+    const [tenMembers, setTenMembers] = useState(null);
+    const [pages, setPages] = useState(null);
+    const [memberLimit, setMemberLimit] = useState({ offset: 0, limit: 10 });
+    const [searchQuery, setQuery] = useState("");
 
-    const [allMembers, setAllMembers] = useState([])
-    const [filteredMembers, setFilteredMembers] = useState([])
+    const [selectedDepartment, setSelectedDepartment] = useState("All");
+    const [selectedAction, setSelectedAction] = useState("All");
+    const [selectedTarget, setSelectedTarget] = useState("All");
 
-    const [tenMembers, setTenMembers] = useState([])
-    const [pages, setPages] = useState([]) 
-    const [currentPage, setCurrentPage] = useState(1)
-    const [memberLimit, setMemberLimit] = useState({"offset": 0, "limit": 10})
-    const [searchQuery, setQuery] = useState("")
-    const [submitting, setSubmitting] = useState(false)
+    const [allDepartments, setAllDepartments] = useState([]);
 
-    const [currentUserID, setCurrentUserID] = useState(0)
-    
-    async function loadAllMembers() {      
-        var res = await getLogs().then(data => data.data).catch(error => {
-            console.log(error.response.data.error)
+    async function loadDepartments() {
+        try {
+            const res = await getDepartments();
+            setAllDepartments(res.data);
+        } catch (error) {
+            console.log(error);
             Swal.fire({
                 title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-        console.log(res)
-        setAllMembers(res)
-        setFilteredMembers(res)
-        generatePagination(res)
-        console.log("loaded all the logs")
-
-    }
-
-    //assign task bukas
-    //account settings
-    //department tasks at user settings non
-    //remove user sa department
-    //update yung dashboard
-    //reset password
-    //change email user
- 
-    function loadLimited(){
-        var slicedMembers = filteredMembers.slice(memberLimit["offset"], memberLimit["limit"])
-        console.log(slicedMembers)
-        setTenMembers(slicedMembers)
-    }
-
-    function loadSearchedData(query){
-        console.log("displatyed")
-        var matchedMembers = []
-
-        for(const member of allMembers){
-            
-            if( member.full_name.includes(query) ||
-            member.action.includes(query) || 
-            String(member.id).includes(query)|| 
-            member.timestamp.includes(query) ||
-            
-            member.ip_address.includes(query) ||
-            member.user_agent.includes(query) ||
-            member.department.includes(query) ){
-                matchedMembers = [...matchedMembers, member]
-            }
+                text: "Fetching Departments failed.",
+                icon: "error",
+            });
         }
-        console.log(matchedMembers)
-        
-        setFilteredMembers(matchedMembers)
-        generatePagination(matchedMembers)
-        setMemberLimit({"offset": 0, "limit": 10})
     }
 
-
-    function generatePagination(array){
-        var calculatedPage = array.length / 10
-        
-        var newPages = []
-        for(var i = 1; i <= Math.ceil(calculatedPage); i++){
-            console.log(i)
-            newPages = [...newPages, {"id": i, "page": i}]
-        }  
-        console.log(newPages)
-        setPages(newPages)
-    }
-
-    useEffect(()=>{
-        if(searchQuery.length == 0) {
-            loadLimited()
-            loadAllMembers()
-            return   
+    async function loadAllMembers() {
+        try {
+            const res = await getLogs();
+            const data = res.data;
+            setAllMembers(data);
+            setFilteredMembers(data);
+            generatePagination(data);
+            console.log("Loaded all logs");
+        } catch (error) {
+            console.log(error);
+            Swal.fire({
+                title: "Error",
+                text: "Fetching Logs failed.",
+                icon: "error",
+            });
         }
-        const debounce = setTimeout(()=>{
-            loadSearchedData(searchQuery)
-        }, 500)
+    }
 
-        return ()=> clearTimeout(debounce)
+    function loadLimited() {
+        if (!filteredMembers) return
+        const sliced = filteredMembers.slice(memberLimit.offset, memberLimit.limit);
+        setTenMembers(sliced);
+    }
 
+    function generatePagination(array) {
+        const totalPages = Math.ceil(array.length / 10);
+        const newPages = Array.from({ length: totalPages }, (_, i) => ({
+            id: i + 1,
+            page: i + 1,
+        }));
+        setPages(newPages);
+    }
 
-    }, [searchQuery])
+    // ✅ Combined filtering logic for search + selects
+    function applyFilters() {
+        if (!allMembers) return
+        let results = [...allMembers];
 
-    useEffect(()=> {
+        // Department filter
+        console.log(selectedDepartment, selectedAction, selectedTarget)
+        if (selectedDepartment !== "All") {
+            results = results.filter(
+                (member) =>
+                    member.department === selectedDepartment ||
+                    member.department_name === selectedDepartment
+            );
+        }
+
+        // Action filter
+        if (selectedAction !== "All") {
+            results = results.filter((member) => member.action === selectedAction);
+        }
+
+        // Target filter
+        if (selectedTarget !== "All") {
+            results = results.filter((member) => member.target_type === selectedTarget);
+        }
+
+        // Search filter
+        if (searchQuery.trim() !== "") {
+            const q = searchQuery.toLowerCase();
+            results = results.filter(
+                (m) =>
+                    m.full_name?.toLowerCase().includes(q) ||
+                    m.action?.toLowerCase().includes(q) ||
+                    String(m.id).includes(q) ||
+                    m.timestamp?.toLowerCase().includes(q) ||
+                    m.ip_address?.toLowerCase().includes(q) ||
+                    m.user_agent?.toLowerCase().includes(q) ||
+                    m.department?.toLowerCase().includes(q)
+            );
+        }
+
+        setFilteredMembers(results);
+        generatePagination(results);
+        setMemberLimit({ offset: 0, limit: 10 });
+    }
+
+    // ✅ Initial load
+    useEffect(() => {
+        loadDepartments();
+        loadAllMembers();
         
-        loadLimited()
-        
-    }, [allMembers])
+    }, []);
 
-    useEffect(()=> {
-        
-        loadLimited()
-        
-    }, [memberLimit])
+    // ✅ Update limited members whenever pagination or data changes
+    useEffect(() => {
+        loadLimited();
+    }, [filteredMembers, memberLimit]);
 
-    useEffect(()=>{
-        console.log("loading members")
-        loadAllMembers()
-        console.log("members loaded")
+    // ✅ Search debounce
+    useEffect(() => {
+        const delay = setTimeout(() => {
+            applyFilters();
+        }, 400);
+        return () => clearTimeout(delay);
+    }, [searchQuery]);
 
-        
-    },[])
+    // ✅ Apply filters instantly when select elements change
+    useEffect(() => {
+        applyFilters();
+    }, [selectedDepartment, selectedAction, selectedTarget]);
+
     return (
         <div className="member-container">
             <div className="table-header-container" id="user-table">
                 <div className="table-title">Logs</div>
-                        {/**<div className="add-members">
-                            <button>
-                                <span className="material-symbols-outlined">add</span>
-                                <span>Add Members</span>
-                            </button>
-                        </div>
-                        <div className="sorting-container">
-                            <label htmlFor="sort">Sort By: </label>
-                            <select name="sort" id="sort">
-                                <option value="">First Name</option>
-                                <option value="">Last Name</option>
-                                <option value="">Role</option>
-                                <option value="">Date Created</option>
-                            </select>
-                            <select name="sort" id="sort">
-                                <option value="">Ascending</option>
-                                <option value="">Descending</option>
-                            </select>
-                        </div> */
-                            
-                        }
                 <div className="search-members">
-                        <input type="text" placeholder="Search logs..." onInput={(element)=>{setQuery(element.target.value)}}/>                        
-                </div>                        
+                    {/* Department Filter */}
+                    <select onChange={(e) => setSelectedDepartment(e.target.value)}>
+                        <option value="All">All Departments</option>
+                        {allDepartments.map((dept) => (
+                            <option value={dept.name} key={dept.id}>
+                                {dept.name}
+                            </option>
+                        ))}
+                        <option value="UNKNOWN">UNKNOWN</option>
+                    </select>
+
+                    <select onChange={(e) => setSelectedAction(e.target.value)}>
+                        <option value="All">All Actions</option>
+                        <option value="CREATE">CREATE</option>
+                        <option value="UPDATE">UPDATE</option>
+                        <option value="ARCHIVE">ARCHIVE</option>
+                        <option value="LOGIN">LOGIN</option>
+                    </select>
+
+                    <select onChange={(e) => setSelectedTarget(e.target.value)}>
+                        <option value="All">All Targets</option>
+                        <option value="DEPARTMENT">Department</option>
+                        <option value="CATEGORY">Category</option>
+                        <option value="TASK">Task</option>
+                        <option value="USER">User</option>
+                    </select>
+
+                    <input
+                        type="text"
+                        placeholder="Search logs..."
+                        onInput={(e) => setQuery(e.target.value)}
+                    />
+                </div>
             </div>
 
             <div className="table-container">
                 <table>
-                    <tbody>
+                    <thead>
                         <tr>
-                            <th>USER AGENT</th>                            
+                            
                             <th>USER</th>
                             <th>DEPARTMENT</th>
                             <th>ACTION</th>
                             <th>TARGET</th>
                             <th>IP ADDRESS</th>
                             <th>TIMESTAMP</th>
+                            <th>USER AGENT</th>
                         </tr>
-                                
-                        {tenMembers != 0? tenMembers.map(log => (
-                            <Logs log = {log}></Logs>
-                        )):
-
-                        <tr className="empty-table">
-                            <td>No logs</td>
-                        </tr>
-                        }
-                    </tbody>                               
-                </table>                        
+                    </thead>
+                    <tbody>
+                        {tenMembers && tenMembers.length > 0 ? (
+                            tenMembers.map((log) => (
+                                <Logs log={log} key={log.id} />
+                            ))
+                        ) : (
+                            <tr className="empty-table">
+                                <td colSpan="7">No logs found</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
             </div>
+
             <div className="pagination">
-                {pages.map(data => (<span className="pages" key={data.id} onClick={()=>{
-                    setMemberLimit({"offset": 0+((data.page * 10) - 10), "limit": data.page * 10})
-                    
-                }}> {data.page}</span>))}
+                {pages && pages.map((data) => (
+                    <span
+                        className="pages"
+                        key={data.id}
+                        onClick={() =>
+                            setMemberLimit({
+                                offset: (data.page - 1) * 10,
+                                limit: data.page * 10,
+                            })
+                        }
+                    >
+                        {data.page}
+                    </span>
+                ))}
             </div>
         </div>
-    )
+    );
 }
 
-export default LogTable
+export default LogTable;

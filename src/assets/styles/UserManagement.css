@@ -347,13 +347,15 @@
 }
 
 .active {
-    color: rgb(0, 167, 0);
-    padding:7px;
-    border-radius: 5px;
+    background-color: rgb(0, 167, 0);
+    padding:7px 15px;
+    color: white;
+    border-radius: 50px;
 }
 
 .deactivated {
-    color: rgb(190, 0, 0);
-    padding:7px;
-    border-radius: 5px;
+    background-color: rgb(190, 0, 0);
+    border-radius: 100px;
+    color: white;
+    padding:7px 15px;
 }

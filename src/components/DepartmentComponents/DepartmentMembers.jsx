@@ -60,10 +60,13 @@ function DepartmentMembers({mems}){
     }, [])
 
     return (
-        <tr key = {mems.id}>
-            <td>{mems.id}</td>                                    
-             <td>{mems.email}</td>
-            <td>{mems.first_name + " " + mems.last_name}</td>
+        <tr key = {mems.id}>     
+            <td className="table-profile">
+                <div className="table-profile-picture" style={{backgroundImage:`url(${mems.profile_picture_link})`}}>.</div>
+                {mems.first_name + " " + mems.last_name}
+            </td>                           
+            <td>{mems.email}</td>
+            
             <td>{mems.position.name}</td>
             <td>{mems.main_tasks_count}</td>
             <td>{mems.account_status == 0? 
