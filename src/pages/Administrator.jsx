@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import "../assets/styles/dashboard.css"
-import UsersPieChart from "../components/Piechart";
-import SubmissionsChart from "../components/Barchart";
 
 import { getCategoryCount, getTaskCount, getUserCount } from "../services/tableServices";
+import PopulationPerDepartment from "../components/Charts/PopulationPerDepartment";
+import PerformancePerDepartment from "../components/Charts/PerformancePerDepartment";
+import PerformanceSummaryPerDepartment from "../components/Charts/PerformanceSummaryPerDepartment";
+import ActivityTrendChart from "../components/Charts/ActivityTrendChart";
+import ActivityScatter from "../components/Charts/ActivityScatter";
 
 function Administrator(){
 
@@ -110,9 +113,7 @@ function Administrator(){
                     </div>
                 </div>  
             </div>
-
-            <div className="system-overview">
-                <div className="shortcuts">
+            <div className="shortcuts" >
                     <a className="manage" href = "/admin/users">
                         <span className="material-symbols-outlined">manage_accounts</span>
                         <span>Manage Users</span>
@@ -126,17 +127,14 @@ function Administrator(){
                         <span>Manage Tasks</span>
                     </a>
                 </div>
+            <div className="system-overview">
+                
 
                 <div className="graph-container">
-                    <div className="submissions-per-department">
-                        Submissions by Department
-                        <SubmissionsChart></SubmissionsChart>
-                    </div>
-                    <div className="performance-submissions">
-                        IPCR vs OPCR
-                        <UsersPieChart></UsersPieChart>
-                    </div>
-                    
+                    <ActivityTrendChart></ActivityTrendChart>
+                    <PopulationPerDepartment></PopulationPerDepartment>
+                    <PerformancePerDepartment></PerformancePerDepartment>
+                    <PerformanceSummaryPerDepartment></PerformanceSummaryPerDepartment>
                 </div>
             </div>
 

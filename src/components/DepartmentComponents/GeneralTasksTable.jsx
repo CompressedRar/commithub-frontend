@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react"
-import { getDepartmentTasks } from "../../services/departmentService";
+import { getGeneralDeptTasks } from "../../services/departmentService";
 
 import { socket } from "../api";
-import DepartmentTask from "./DepartmentTask";
-import DepartmentAssignTask from "./DepartmentAssignTask";
 import AddDepartmentTask from "./AddDepartmentTask";
+import GeneralTask from "./GeneralTask";
+import GeneralAssignTask from "./GeneralAssignTask";
 
-function DepartmentTasksTable(props) {
+function GeneralTasksTable(props) {
 
     const [allMembers, setAllMembers] = useState([])
     const [filteredMembers, setFilteredMembers] = useState([])
@@ -21,7 +21,7 @@ function DepartmentTasksTable(props) {
     //department task assign
     
     async function loadAllMembers() {      
-        var res = await getDepartmentTasks(props.id).then(data => data.data).catch(error => {
+        var res = await getGeneralDeptTasks().then(data => data.data).catch(error => {
             console.log(error.response.data.error)
             Swal.fire({
                 title: "Error",
@@ -30,6 +30,7 @@ function DepartmentTasksTable(props) {
             })
         })
         console.log(res)
+
         setAllMembers(res)
         setFilteredMembers(res)
         generatePagination(res)
@@ -164,7 +165,7 @@ function DepartmentTasksTable(props) {
                 </div>
             </div>
 
-            <div className="modal fade" id="user-profile"  data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div className="modal fade" id="general-user-profile"  data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                 <div className="modal-dialog modal-dialog-centered modal-lg" >
                     <div className="modal-content model-register " style={{backgroundColor: "rgb(233, 233, 233)"}}>
                         <div className="modal-header">
@@ -173,7 +174,7 @@ function DepartmentTasksTable(props) {
                         </div>
                         <div className="modal-body">
                             {/**currentUserID? <DepartmentTaskInfo key={currentUserID} id = {currentUserID}></DepartmentTaskInfo> :""*/}    
-                            {currentUserID? <DepartmentAssignTask key={currentUserID} task_id = {currentUserID} dept_id = {props.id}></DepartmentAssignTask> :""}                                              
+                            {currentUserID? <GeneralAssignTask key ={currentUserID} task_id = {currentUserID} dept_id = {props.id}></GeneralAssignTask> :""}                                              
                         </div>
                         
                     </div>
@@ -182,12 +183,9 @@ function DepartmentTasksTable(props) {
 
 
             <div className="table-header-container" id="user-table">
-                <div className="table-title" style={{width:"auto", textWrap:"nowrap"}}>Department Tasks</div>
+                <div className="table-title" style={{width:"auto", textWrap:"nowrap"}}>General Tasks</div>
                 <div className="create-user-container">
-                    <button data-bs-toggle="modal" data-bs-target="#add-user" className="btn btn-primary">
-                        <span className="material-symbols-outlined">add</span>
-                        <span>Add Tasks</span>
-                    </button>
+                    
                 </div>
                 <div className="search-members">
                         <input type="text" placeholder="Search task..." onInput={(element)=>{setQuery(element.target.value)}}/>                        
@@ -207,7 +205,7 @@ function DepartmentTasksTable(props) {
                         </tr>
                                 
                         {tenMembers != 0? tenMembers.map(mems => (
-                        <DepartmentTask mems = {mems} switchMember = {(id) => {setCurrentUserID(id); console.log("hehe", id)}}></DepartmentTask>)):
+                        <GeneralTask mems = {mems} switchMember = {(id) => {setCurrentUserID(id); console.log("hehe", id)}}></GeneralTask>)):
 
                         ""
                         }
@@ -219,7 +217,7 @@ function DepartmentTasksTable(props) {
             {tenMembers != 0?"":
                     <div className="empty-symbols">
                         <span className="material-symbols-outlined">file_copy_off</span>    
-                        <span className="desc">No Department Tasks Found</span>
+                        <span className="desc">No General Tasks Found</span>
                     </div>}  
             <div className="pagination">
                 {pages.map(data => (<span className="pages" key={data.id} onClick={()=>{
@@ -231,4 +229,4 @@ function DepartmentTasksTable(props) {
     )
 }
 
-export default DepartmentTasksTable
+export default GeneralTasksTable

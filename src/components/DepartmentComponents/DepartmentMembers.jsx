@@ -64,7 +64,13 @@ function DepartmentMembers({mems}){
             <td className="table-profile">
                 <div className="table-profile-picture" style={{backgroundImage:`url(${mems.profile_picture_link})`}}>.</div>
                 {mems.first_name + " " + mems.last_name}
-            </td>                           
+            </td>
+            <td>{(mems.avg_performance == 5)? <span className="outstanding">OUTSTANDING</span>:
+                (mems.avg_performance < 4.99 && mems.avg_performance >= 4) ? <span className="very-satisfactory">VERY SATISFACTORY</span>:
+                (mems.avg_performance < 3.99 && mems.avg_performance >= 3) ? <span className="satisfactory">SATISFACTORY</span>:
+                (mems.avg_performance < 2.99 && mems.avg_performance >= 2) ? <span className="unsatisfactory">UNSATISFACTORY</span>:
+                (mems.avg_performance < 1.99 && mems.avg_performance >= 1) ? <span className="poor">POOR</span>:
+                (mems.avg_performance < 1) ? <span className="unrated">UNRATED</span>:""}</td>                           
             <td>{mems.email}</td>
             
             <td>{mems.position.name}</td>

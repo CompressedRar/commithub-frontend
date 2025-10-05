@@ -53,6 +53,11 @@ export async function getDepartmentTasks(id) {
     return api.get(`/api/v1/department/tasks/${id}`)
 }
 
+export async function getGeneralDeptTasks() {
+    console.log("fetching general tasks")
+    return api.get(`/api/v1/department/general/`)
+}
+
 export async function getDepartmentHead(dept_id) {
     console.log("fetching department head")
     return api.get(`/api/v1/department/head/${dept_id}`)
@@ -79,6 +84,11 @@ export async function getDepartmentOPCR(id) {
 export async function getAssignedUsers(dept_id, task_id) {
     console.log("fetching assigned users ")
     return api.get(`/api/v1/department/assigned/${dept_id}&${task_id}`)
+}
+
+export async function getGeneralAssignedUsers(task_id) {
+    console.log("fetching general task assigned users ")
+    return api.get(`/api/v1/department/assigned/general/${task_id}`)
 }
 
 export async function assignUsers(user_id, task_id) {

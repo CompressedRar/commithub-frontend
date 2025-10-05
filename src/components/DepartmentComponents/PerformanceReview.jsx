@@ -28,7 +28,7 @@ function PerformanceReviews(props){
             })
         })
         setAllIPCR(res)
-        console.log(res)
+        console.log("IPCRS: ",res)
     }
 
     async function loadOPCR() {
@@ -69,7 +69,7 @@ function PerformanceReviews(props){
         <div className="performance-reviews-container">
             {batchID && currentIPCRID? <ManageSupportingDocuments  dept_mode = {true} key={currentIPCRID} ipcr_id = {currentIPCRID} batch_id = {batchID}></ManageSupportingDocuments>:""}
             <div className="modal fade" id="view-ipcr" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                <div className="modal-dialog modal-dialog-centered modal-fullscreen" >
+                <div className="modal-dialog modal-dialog-scrollable modal-fullscreen" >
                     <div className="modal-content">
                         <div className="modal-header">
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -104,11 +104,11 @@ function PerformanceReviews(props){
                     }}></OPCR>
                 ))}
             </div>
-            {allOPCR.length != 0?"":
+            {allOPCR && allOPCR.length == 0?
                     <div className="empty-symbols">
                         <span className="material-symbols-outlined">file_copy_off</span>    
                         <span className="desc">No OPCRs Found</span>
-                    </div>} 
+                    </div>:""} 
 
             <h3>Individual Performance Review and Commitment Forms</h3>
             <div className="all-ipcr-container">
@@ -125,11 +125,11 @@ function PerformanceReviews(props){
 
                 
             </div>
-            {allIPCR.length != 0?"":
+            {allIPCR && allIPCR.length == 0?
                     <div className="empty-symbols">
                         <span className="material-symbols-outlined">file_copy_off</span>    
                         <span className="desc">No IPCRs Found</span>
-            </div>} 
+            </div>:""} 
         </div>
     )
 }

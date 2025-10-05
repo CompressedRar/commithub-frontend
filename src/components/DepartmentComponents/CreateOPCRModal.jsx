@@ -130,8 +130,8 @@ function CreateOPCRModal(props){
                     <div className="modal-body">
                         <span className="desc">Click the IPCR you want to include.</span>
                         <div className="select-ipcr-container">
-                            {allIPCR &&
-                            <div className="empty">There is no IPCR to choose from.</div>}
+                            {allIPCR && allIPCR.length == 0?
+                            <div className="empty">There is no IPCR to choose from.</div>:""}
                             {allIPCR && allIPCR.map(ipcr => (
                                 <div className="select-ipcr">
                                     <input type="radio" className="ipcrs" id = {ipcr.id} value = {ipcr.id} name = {ipcr.user.id} hidden/>

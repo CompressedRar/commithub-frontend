@@ -151,6 +151,7 @@ function DepartmentMemberTable(props) {
                     <tbody>
                         <tr>
                             <th>FULL NAME</th>
+                            <th>PERFORMANCE</th>
                             <th>EMAIL ADDRESS</th>                            
                             <th>POSITION</th>
                             <th>NO. OF TASKS</th>

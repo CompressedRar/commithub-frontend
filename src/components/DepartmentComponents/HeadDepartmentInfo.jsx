@@ -9,9 +9,8 @@ import DepartmentAssignHead from "./DepartmentAssignHead";
 import PerformanceReviews from "./PerformanceReview";
 import CreateOPCRModal from "./CreateOPCRModal";
 import GeneralTasksTable from "./GeneralTasksTable";
-import UserPerformanceInDepartment from "../Charts/UserPerformanceInDepartment";
 
-function DepartmentInfo(props){
+function HeadDepartmentInfo(props){
 
     const [deptInfo, setDeptinfo] = useState({})
     const [managerInfo, setManagerInfo] = useState(null)
@@ -281,7 +280,6 @@ function DepartmentInfo(props){
                     <div className="image-container">
                         <div className="image" style={{backgroundImage: `url('${import.meta.env.BASE_URL}nc-splash-new.jpg')`}}></div>
                     </div>
-                    
                     <div  className="department-stats">
                         <div className="profile-image-container">
                             
@@ -289,7 +287,7 @@ function DepartmentInfo(props){
 
                                 <div className="dept-name">
                                     {deptInfo? deptInfo.name: ""}
-                                    <span className="material-symbols-outlined settings" onClick={()=>{setOpen(!open)}}>settings</span>
+                                    <span style={{display:"none"}} className="material-symbols-outlined settings" onClick={()=>{setOpen(!open)}}>settings</span>
 
                                     {open && 
                                     <div className="member-options" onMouseLeave={()=>{setOpen(false)}}>
@@ -354,14 +352,8 @@ function DepartmentInfo(props){
                             </button>
                         </div>
 
-                        
-
                                                 
                     </div>
-                </div>
-
-                <div style={{backgroundColor:"white", padding:"10px"}}>
-                    <UserPerformanceInDepartment dept_id = {props.id}></UserPerformanceInDepartment>
                 </div>
                 <div className="pages-container">
                     <div className={currentPage == 0? "select": ""} onClick={()=>{setCurrentPage(0)}}>
@@ -379,4 +371,4 @@ function DepartmentInfo(props){
     )
 }
 
-export default DepartmentInfo
+export default HeadDepartmentInfo

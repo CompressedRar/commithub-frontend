@@ -25,6 +25,7 @@ function ManageTask(props){
 
     async function loadDepartmentTasks(batch_id){
             setAllTasks([])
+            console.log("HELLO")
             setTasksAndSubTaskExists(null)
     
             var res = await getDepartmentTasks(props.dept_id).then(data => data.data).catch(error => {
@@ -35,7 +36,7 @@ function ManageTask(props){
                     icon: "error"
                 })
             })
-            console.log(allAssignedID)
+            console.log(res)
             var available = []
             var taste = {}
             for(const task of res){
@@ -56,6 +57,7 @@ function ManageTask(props){
                 available.push(task)
                 
             }
+            console.log(batch_id)
             setTasksAndSubTaskExists(taste)
             setAllTasks(available)       
         }
@@ -245,6 +247,8 @@ function ManageTask(props){
                                         </div>
                                     </div>
                                 ))}
+
+                                {accountTasks && accountTasks.length == 0? <div className="empty">There is no specific task assigned to you.</div>:""}
                                         
 
                                 </div>

@@ -210,3 +210,48 @@
 .empty-symbols .material-symbols-outlined {
     font-size: 6vw;
 }
+
+
+.unrated {
+    border-radius: 50px;
+    border-style: solid;
+    border-width: 1px;
+    padding: 5px 15px;
+    color: var(--primary-font-color);
+
+}
+
+.poor {
+    padding: 5px 15px;
+    border-radius: 50px;
+    background-color: rgb(255, 53, 53);
+    color:white;
+}
+
+.unsatisfactory {
+    padding: 5px 15px;
+    border-radius: 50px;
+    background-color: rgb(255, 148, 25);
+    color:white;
+}
+
+.satisfactory {
+    padding: 5px 15px;
+    border-radius: 50px;
+    background-color: rgb(20, 170, 0);
+    color:white;
+}
+
+.very-satisfactory {
+    padding: 5px 15px;
+    border-radius: 50px;
+    background-image: linear-gradient(to left, rgb(57, 57, 252), var(--lighter-primary-color), var(--primary-color));
+    color:white;
+}
+
+.outstanding {
+    padding: 5px 15px;
+    border-radius: 50px;
+    background-image: linear-gradient(to left,rgb(255, 69, 69), rgb(255, 159, 49), rgb(255, 136, 0));
+    color:white;
+}
