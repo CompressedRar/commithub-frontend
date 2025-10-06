@@ -2,6 +2,8 @@ import { useEffect, useState } from "react"
 import { getDepartment} from "../../services/departmentService";
 import DepartmentMembers from "./DepartmentMembers";
 import { socket } from "../api";
+import Swal from "sweetalert2";
+
 function DepartmentMemberTable(props) {
 
     const [allMembers, setAllMembers] = useState([])

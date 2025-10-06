@@ -11,6 +11,7 @@ function EditOPCR(props) {
     const [assignedData, setAssignedData] = useState(null)
     const [headData, setHeadData] = useState(null)
 
+    const [formStatus, setFormStatus]  = useState(null)
 
     const [quantityAvg, setQuantity] = useState(0)
     const [efficiencyAvg, setEfficiency] = useState(0)
@@ -29,8 +30,9 @@ function EditOPCR(props) {
             })
         })
 
-        console.log(res)
+        console.log("OPCR INFRO",res)
         setOPCRInfo(res.ipcr_data)
+        setFormStatus(res.form_status.toUpperCase())
         setAssignedData(res.assigned)
         setHeadData(res.admin_data)
         //rearrange my tasks here
@@ -169,7 +171,11 @@ function EditOPCR(props) {
         return result;
     }
 
-
+    //do the final rating in president module
+    // opcr labas download
+    //ayusin ang notification at logs bukas
+    //yung account settings tagal na nun hahaha, di lumalabas sa deparmtent at account amnagement
+    // yung task info sa category gawin nalang modal
 
     useEffect(()=> {
         loadOPCR()
@@ -199,8 +205,6 @@ function EditOPCR(props) {
     return (
         <div className="edit-ipcr-container">
             
-            
-            
             <div className="back">
                 <div className="back"  data-bs-dismiss="modal" data-bs-target={props.dept_mode? "#view-ipcr":""} onClick={()=> {
                     
@@ -226,7 +230,7 @@ function EditOPCR(props) {
             
             <div className="ipcr-form-container">
                 <span className="pcr-status-container">
-                    <span>{opcrInfo.form_status && opcrInfo.form_status.toUpperCase()}</span>
+                    <span>{formStatus}</span>
                 </span>
                 <div className="ipcr-header-container">
                     <div className="ipcr-logo" style={{backgroundImage: `url('${import.meta.env.BASE_URL}municipal.png')`}}>.</div>
@@ -253,7 +257,7 @@ function EditOPCR(props) {
                     </div>
                     <div className="ratee-signature">
                         <span className="date">
-                            <input type="text"style={{color:"black", textAlign:"center", fontWeight:"bold"}} value={headData && headData.fullName}/>
+                            <input disabled type="text"style={{color:"black", textAlign:"center", fontWeight:"bold"}} value={headData && headData.fullName}/>
                             Ratee
                         </span>
                         <span className="date">
@@ -340,13 +344,13 @@ function EditOPCR(props) {
                                                 {task.title}
                                             </div>
                                             <div className="stats">
-                                                <input name = "target_acc" type="number" className="value" defaultValue={task.summary.target}/>
+                                                <input disabled name = "target_acc" type="number" className="value" defaultValue={task.summary.target}/>
                                                 <span className="desc">{task.description.target} in</span>
 
-                                                <input name = "target_time" type="number" className="value" defaultValue={task.working_days.target} />
+                                                <input disabled name = "target_time" type="number" className="value" defaultValue={task.working_days.target} />
                                                 <span className="desc">{task.description.time} with</span>
 
-                                                <input name = "target_mod" type="number" className="value" defaultValue={task.corrections.target}/>
+                                                <input disabled name = "target_mod" type="number" className="value" defaultValue={task.corrections.target}/>
                                                 <span className="desc">{task.description.alterations} </span>
 
                                             </div>
@@ -362,13 +366,13 @@ function EditOPCR(props) {
                                             </div>
 
                                             <div className="stats">
-                                                <input name = "actual_acc" type="number" className="value" defaultValue={task.summary.actual}/>
+                                                <input disabled name = "actual_acc" type="number" className="value" defaultValue={task.summary.actual}/>
                                                 <span className="desc"> {task.description.actual} in</span>
 
-                                                <input name = "actual_time" type="number" className="value"  defaultValue={task.working_days.actual}/>
+                                                <input disabled name = "actual_time" type="number" className="value"  defaultValue={task.working_days.actual}/>
                                                 <span className="desc">{task.description.time} with</span>
 
-                                                <input name = "actual_mod" type="number" className="value" defaultValue={task.corrections.actual} />
+                                                <input disabled name = "actual_mod" type="number" className="value" defaultValue={task.corrections.actual} />
                                                 <span className="desc">{task.description.alterations} </span>
                                             </div>
 

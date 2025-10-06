@@ -5,6 +5,9 @@ import Swal from "sweetalert2"
 
 import { archiveMainTask, getMainTask, updateMainTaskInfo } from "../../services/taskService"
 import { objectToFormData } from "../api"
+import TaskUserAverages from "../Charts/UserTaskAverage"
+import DepartmentChart from "../Charts/UserTaskRatio"
+import { MainTaskPerformanceCharts } from "../Charts/CategoryPerformance"
 
 function TaskInfo(props){
 
@@ -185,17 +188,8 @@ function TaskInfo(props){
                 </div>
 
                 <div className="task-stats">
-                    <div>
-                        <h1>Insights</h1>
-                    </div>
-                    <div className="graph-container">
-                        Average Rating per Assigned Member
-                        <SubmissionsChart></SubmissionsChart>
-                    </div>
-                    <div className="graph-container">
-                        Department Ratio of Assigned Member
-                        <UsersPieChart></UsersPieChart>
-                    </div>
+                    
+                    <MainTaskPerformanceCharts mainTaskID={props.id}></MainTaskPerformanceCharts>
                 </div>
 
             </div>

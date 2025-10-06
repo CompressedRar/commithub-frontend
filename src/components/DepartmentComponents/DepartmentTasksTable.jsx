@@ -182,7 +182,7 @@ function DepartmentTasksTable(props) {
 
 
             <div className="table-header-container" id="user-table">
-                <div className="table-title" style={{width:"auto", textWrap:"nowrap"}}>Department Tasks</div>
+                <div className="table-title" style={{width:"auto", textWrap:"nowrap"}}>Department-Specific Tasks</div>
                 <div className="create-user-container">
                     <button data-bs-toggle="modal" data-bs-target="#add-user" className="btn btn-primary">
                         <span className="material-symbols-outlined">add</span>

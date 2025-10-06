@@ -10,6 +10,8 @@ import { getDepartments } from "../../services/departmentService";
 import { createMainTask } from "../../services/taskService";
 import { convert_tense } from "../../services/tenseConverted";
 import CategoryTask from "./CategoryTask";
+import CategoryTaskAverages from "../Charts/CategoryTaskAverage";
+import CategoryPerformanceCharts from "../Charts/CategoryPerformance";
 
 function CategoryTasks(props){
 
@@ -346,8 +348,8 @@ function CategoryTasks(props){
                                 if (titleEditable) handleUpdate();
                                 }}>edit</span>
                     </div>
-                    <span className="graph-title">Average Rating per Task</span>
-                    <SubmissionsChart></SubmissionsChart>
+                    <CategoryTaskAverages cat_id = {props.id}></CategoryTaskAverages>
+                    <CategoryPerformanceCharts categoryId={props.id}></CategoryPerformanceCharts>
                 </div>
                 
                 <div className="all-tasks-container">

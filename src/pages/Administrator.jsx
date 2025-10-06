@@ -8,6 +8,11 @@ import PerformanceSummaryPerDepartment from "../components/Charts/PerformanceSum
 import ActivityTrendChart from "../components/Charts/ActivityTrendChart";
 import ActivityScatter from "../components/Charts/ActivityScatter";
 
+//gawin bukas yung graph sa category
+//yung generation ng ipcr, i check yung mga individuals kung tama
+//gawin yung presidnet module
+
+
 function Administrator(){
 
     const [csCount, setCSCount] = useState(0)
