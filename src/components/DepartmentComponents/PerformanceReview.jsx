@@ -13,7 +13,6 @@ import Swal from "sweetalert2"
 function PerformanceReviews(props){
     const [allIPCR, setAllIPCR] = useState(null)
     const [allOPCR, setAllOPCR] = useState(null)
-    const [currentPage, setCurrentPage] = useState(0)
     const [currentIPCRID, setCurrentIPCRID] = useState(null)
     const [currentOPCRID, setCurrentOPCRID] = useState(null)
     const [batchID, setBatchID] = useState(null)
@@ -51,6 +50,8 @@ function PerformanceReviews(props){
         socket.on("ipcr_create", ()=>{
             loadIPCR()
             loadOPCR()
+
+            console.log("SDOMERTHING CHANGED")
         })
 
         socket.on("opcr", ()=>{
@@ -65,6 +66,8 @@ function PerformanceReviews(props){
 
 
     }, [])
+
+    //gawin yung highest performing deparmtent
     return (
         <div className="performance-reviews-container">
             {batchID && currentIPCRID? <ManageSupportingDocuments  dept_mode = {true} key={currentIPCRID} ipcr_id = {currentIPCRID} batch_id = {batchID}></ManageSupportingDocuments>:""}
@@ -99,9 +102,9 @@ function PerformanceReviews(props){
             <div className="all-ipcr-container">
                 
                 {allOPCR && allOPCR.map(opcr => (
-                    <OPCR opcr = {opcr} onClick={()=>{
+                    opcr.status == 1 ?<OPCR opcr = {opcr} onClick={()=>{
                         setCurrentOPCRID(opcr.id)
-                    }}></OPCR>
+                    }}></OPCR> :""
                 ))}
             </div>
             {allOPCR && allOPCR.length == 0?
@@ -114,16 +117,16 @@ function PerformanceReviews(props){
             <div className="all-ipcr-container">
                 
                 {allIPCR && allIPCR.map(ipcr => (
-                    <IPCR onMouseOver = {()=>{
+                    ipcr.status == 1? <IPCR onMouseOver = {()=>{
                         setBatchID(ipcr.batch_id)
                         setCurrentIPCRID(ipcr.id)
                         console.log(ipcr.id)
                     }} onClick={()=>{
                         setCurrentIPCRID(ipcr.id)
-                    }} ipcr = {ipcr} dept_mode = {true}></IPCR>
+                    }} ipcr = {ipcr} dept_mode = {true}></IPCR> :""
                 ))}
 
-                
+                 
             </div>
             {allIPCR && allIPCR.length == 0?
                     <div className="empty-symbols">

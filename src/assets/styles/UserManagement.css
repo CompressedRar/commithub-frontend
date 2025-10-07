@@ -228,6 +228,7 @@
     align-items: center;
     justify-content: center;
     width: 100%;
+    gap: 10px;
     color: var(--primary-font-color);
 }
 
@@ -353,9 +354,24 @@
     border-radius: 50px;
 }
 
+.tab.selected {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
 .deactivated {
     background-color: rgb(190, 0, 0);
     border-radius: 100px;
     color: white;
     padding:7px 15px;
+}
+
+.user-ipcr {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    box-sizing: border-box;
+    border-radius: 10px;
 }

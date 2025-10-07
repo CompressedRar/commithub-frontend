@@ -9,14 +9,17 @@ const token = localStorage.getItem("token");
 
 
 export function objectToFormData(obj) {
-  const formData = new FormData();
-  for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      formData.append(key, obj[key]);
-    }
-  }
-  return formData;
+    const formData = new FormData();
+    Object.entries(obj).forEach(([key, value]) => {
+        if (value instanceof File) {
+            formData.append(key, value);
+        } else if (value !== null && value !== undefined) {
+            formData.append(key, value);
+        }
+    });
+    return formData;
 }
+
 
 export function checkRole(){
   if (token){

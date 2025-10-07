@@ -136,7 +136,35 @@ function MemberTable(props) {
 
     return (
         <div className="member-container">
-            {/* --- MODALS OMITTED FOR BREVITY --- */}
+           <div className="modal fade " id="add-user"  data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div className="modal-dialog modal-dialog-centered modal-fullscreen" >
+                    <div className="modal-content model-register">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="staticBackdropLabel">Create Account</h5>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div className="modal-body">
+                            <iframe className="register-page" src="/create" frameborder="0"></iframe>                                                        
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+
+            <div className="modal fade " id="user-profile"  data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div className="modal-dialog modal-dialog-centered modal-lg" >
+                    <div className="modal-content model-register">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="staticBackdropLabel">Profile Page</h5>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div className="modal-body">
+                            {currentUserID? <MemberProfile key={currentUserID} id = {currentUserID}></MemberProfile> :""}                                                   
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
 
             <div className="table-header-container" id="user-table">
                 <div className="table-title">Accounts</div>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import axios from "axios";
-import { getCategoryPerformance, getMainTaskPerformance } from "../../services/tableServices";
+import { getCategoryPerformance, getMainTaskPerformance, getTopPerformingDepartment } from "../../services/tableServices";
 import { socket } from "../api";
 
 // Colors for donut charts
@@ -103,7 +103,6 @@ export const MainTaskPerformanceCharts = ({ mainTaskID }) => {
       try {
         const response = await getMainTaskPerformance(mainTaskID)
         setPerformance(response.data);
-        console.log(categoryId)
       } catch (error) {
         console.error("Error fetching category performance:", error);
       }
@@ -129,3 +128,72 @@ export const MainTaskPerformanceCharts = ({ mainTaskID }) => {
 };
 
 export default CategoryPerformanceCharts;
+
+
+export const UserTaskPerformanceCharts = ({ userTaskID }) => {
+  const [performance, setPerformance] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getMainTaskPerformance(userTaskID)
+        setPerformance(response.data);
+      } catch (error) {
+        console.error("Error fetching category performance:", error);
+      }
+    };
+
+    fetchData();
+
+    socket.on("ipcr", ()=>{
+        fetchData()
+    })
+  }, [userTaskID]);
+
+  if (!performance) return <div>Loading...</div>;
+
+  return (
+    <div className="summary-performance" style={{margin:"30px", gridTemplateColumns:"1fr 1fr 1fr 1fr"}}>
+      <DonutChart title="Quantity" value={performance.quantity} />
+      <DonutChart title="Efficiency" value={performance.efficiency} />
+      <DonutChart title="Timeliness" value={performance.timeliness} />
+      <DonutChart title="Overall Average" value={performance.overall_average} />
+    </div>
+  );
+};
+
+export const TopDepartmentChats = () => {
+  const [performance, setPerformance] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getTopPerformingDepartment()
+        console.log("top performer",response)
+        setPerformance(response.data);
+      } catch (error) {
+        console.error("Error fetching category performance:", error);
+      }
+    };
+
+    fetchData();
+
+    socket.on("ipcr", ()=>{
+        fetchData()
+    })
+  }, []);
+
+  if (!performance) return <div>Loading...</div>;
+
+  return (
+    <div className="summary-performance" style={{margin:"30px", gridTemplateColumns:"1fr 1fr 1fr 1fr"}}>
+      <h5  style={{gridColumn:"span 4", margin:"-50px"}}>Top Performing Department</h5>
+      <h1 style={{gridColumn:"span 4"}}>{performance.department}</h1>
+      <DonutChart title="Quantity" value={parseFloat(performance.quantity)} />
+      <DonutChart title="Efficiency" value={parseFloat(performance.efficiency)} />
+      <DonutChart title="Timeliness" value={parseFloat(performance.timeliness)} />
+      <DonutChart title="Overall Average" value={parseFloat(performance.average)} />
+    </div>
+  );
+};
+

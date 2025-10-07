@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import SubmissionsChart from "../Barchart";
-import { objectToFormData } from "../api";
+import { objectToFormData, socket } from "../api";
 import Swal from "sweetalert2";
 import { Modal } from "bootstrap";
 import { archiveCategory, getCategory, updateCategory } from "../../services/categoryService";
@@ -65,6 +65,11 @@ function CategoryTasks(props){
     useEffect(()=>{
         loadCategoryTasks(props.id)
         loadDepartments()
+
+        socket.on("category", ()=> {
+            loadCategoryTasks(props.id)
+            loadDepartments()
+        })
     },[props.id])
 
     useEffect(()=>{
@@ -161,8 +166,14 @@ function CategoryTasks(props){
         await loadCategoryTasks(props.id)
 
         const modalEl = document.getElementById("add-task");
-        const modal = Modal.getInstance(modalEl) || new Modal(modalEl);
-        modal.hide();
+            const modal = Modal.getOrCreateInstance(modalEl);
+
+            modal.hide();
+
+            // Cleanup leftover backdrop if any
+            document.querySelectorAll(".modal-backdrop").forEach(el => el.remove());
+            document.body.classList.remove("modal-open");
+            document.body.style.overflow = ""; // reset scroll lock
 
         setSubmission(false)
     }

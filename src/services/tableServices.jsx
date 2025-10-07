@@ -76,3 +76,18 @@ export async function getMainTaskPerformance(main_task_id) {
     console.log("fetching maint tasl performance")
     return api.get(`/api/v1/chart/pie/main-task-performance/${main_task_id}`)
 }
+
+export async function getUserTaskPerformance(user_id) {
+    console.log("fetching user taszk performance")
+    return api.get(`/api/v1/chart/pie/user-task-performance/${user_id}`)
+}
+
+export async function getTopPerformingDepartment() {
+    console.log("fetching top department performance")
+    return api.get(`/api/v1/chart/top/department-performance/`)
+}
+
+export async function getAllTaskAverage() {
+    console.log("fetching all task summary")
+    return api.get(`/api/v1/chart/bar/task/all`)
+}

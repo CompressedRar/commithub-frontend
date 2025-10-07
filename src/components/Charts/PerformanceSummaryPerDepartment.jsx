@@ -25,7 +25,7 @@ export default function PerformanceSummaryPerDepartment() {
     }, [])
 
   return (
-    <div className="graph" style={{gridColumn:"span 2"}}>
+    <div className="graph" style={{gridColumn:"span 1.5"}}>
       <h4 className="text-xl font-semibold mb-4">
         Performance Summary Per Department
       </h4>

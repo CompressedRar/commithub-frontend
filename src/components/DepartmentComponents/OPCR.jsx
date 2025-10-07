@@ -93,7 +93,7 @@ function OPCR(props) {
             </div>}
             
 
-            <div className="ipcr" data-bs-toggle="modal" data-bs-target="#view-opcr" onMouseOver={props.dept_mode? props.onMouseOver:null}>
+            <div className="ipcr" >
                 
                 <div className="status-container">                             
                     <div style={{gap:"10px", display:"flex"}}> 
@@ -104,7 +104,7 @@ function OPCR(props) {
                 </div>
                 
                 
-                <div className="description"onClick={props.onClick}>
+                <div className="description"onClick={props.onClick} data-bs-toggle="modal" data-bs-target="#view-opcr" onMouseOver={props.dept_mode? props.onMouseOver:null}>
                         <span className="material-symbols-outlined">contract</span>
                         <span className="title">OPCR #{props.opcr.id}</span>
                         <span className="created">{props.opcr.created_at}</span>

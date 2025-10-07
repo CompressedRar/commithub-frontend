@@ -7,6 +7,8 @@ import PerformancePerDepartment from "../components/Charts/PerformancePerDepartm
 import PerformanceSummaryPerDepartment from "../components/Charts/PerformanceSummaryPerDepartment";
 import ActivityTrendChart from "../components/Charts/ActivityTrendChart";
 import ActivityScatter from "../components/Charts/ActivityScatter";
+import { TopDepartmentChats } from "../components/Charts/CategoryPerformance";
+import AllTaskAverages from "../components/Charts/AllTaskAverage";
 
 //gawin bukas yung graph sa category
 //yung generation ng ipcr, i check yung mga individuals kung tama
@@ -140,6 +142,8 @@ function Administrator(){
                     <PopulationPerDepartment></PopulationPerDepartment>
                     <PerformancePerDepartment></PerformancePerDepartment>
                     <PerformanceSummaryPerDepartment></PerformanceSummaryPerDepartment>
+                    <TopDepartmentChats></TopDepartmentChats>
+                    <AllTaskAverages></AllTaskAverages>
                 </div>
             </div>
 

@@ -3,21 +3,21 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from "recharts";
 import Swal from "sweetalert2";
-import { getCategoryTaskAverage } from "../../services/tableServices";
+import { getAllTaskAverage} from "../../services/tableServices";
 import { socket } from "../api";
 
 
-export default function CategoryTaskAverages(props) {
+export default function AllTaskAverages() {
   const [data, setData] = useState([]);
 
   async function loadData() {
     try {
-      const res = await getCategoryTaskAverage(props.cat_id); // your API call
+      const res = await getAllTaskAverage(); // your API call
       setData(res.data);
-      console.log("category-task-average", res.data)
+      console.log("all-task-average", res.data)
     } catch (err) {
       console.error(err);
-      Swal.fire("Error", "Failed to load category task averages", "error");
+      Swal.fire("Error", "Failed to load all task averages", "error");
     }
   }
 
@@ -30,8 +30,8 @@ export default function CategoryTaskAverages(props) {
   }, []);
 
   return (
-    <div className="graph" style={{ height: "450px" }}>
-      <h3 className="text-center mb-4 font-semibold">Task Rating Summary per Category</h3>
+    <div className="graph" style={{ height: "450px", gridColumn:"span 2" }}>
+      <h3 className="text-center mb-4 font-semibold">All Task Rating Summary </h3>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}

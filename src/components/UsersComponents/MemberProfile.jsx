@@ -1,14 +1,15 @@
 import { useState, useEffect, useRef } from "react"
-import SubmissionsChart from "../Barchart"
+
 
 
 import { getPositions } from "../../services/positionService"
 import {  getDepartments } from "../../services/departmentService"
-import { archiveAccount, getAccountInfo, updateMemberInfo, unarchiveAccount } from "../../services/userService"
+import { archiveAccount, getAccountInfo, updateMemberInfo, unarchiveAccount, resetAccountPasssword } from "../../services/userService"
 import { objectToFormData } from "../api"
 import Swal from "sweetalert2"
 import { Modal } from "bootstrap/js/dist/modal"
 import { socket } from "../api";
+import { UserTaskPerformanceCharts } from "../Charts/CategoryPerformance"
 
 
 function MemberProfile(props){
@@ -24,6 +25,11 @@ function MemberProfile(props){
     const[preview, setPreview] = useState(null)
     const fileInput = useRef(null)
 
+    const [updating, SetUpdating] = useState(false)
+    const [resetting, setResetting] = useState(false)
+
+    const [allIPCRs, setIPCRs] = useState(null)
+
     async function loadUserInformation(){
         var res = await getAccountInfo(props.id).then(data => data.data).catch(error => {
             console.log(error.response.data.error)
@@ -34,6 +40,10 @@ function MemberProfile(props){
             })
         })
         setMemberInformation(res)
+        console.log("MEMBER INFO", res)
+        setIPCRs(res.ipcrs)
+
+        
         
         var fname = document.getElementById("first_name")
         fname.value= res.first_name
@@ -56,6 +66,7 @@ function MemberProfile(props){
             "first_name": res.first_name,
             "midde_name": res.middle_name,
             "last_name": res.last_name,
+            "position": res.position
         })
 
         console.log("lock and loaded")
@@ -175,6 +186,61 @@ function MemberProfile(props){
     //gawin yung reset password
     //gawin yung deactivate user
 
+    const ResetPassword = async () => {
+        setResetting(true)
+        var res = await resetAccountPasssword(props.id).then(data => data.data.message).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
+        if(res == "Password successfully reset.") {
+            Swal.fire({
+                title:"Success",
+                text: res,
+                icon:"success"
+            })
+        }
+         else {
+            Swal.fire({
+                title:"Error",
+                text: res,
+                icon:"error"
+            })
+        }
+        setResetting(false)
+    }
+
+    const handleResetPassword = async () => {
+        
+       Swal.fire({
+            title: 'Reset Password?',
+            showDenyButton: true,
+            text:"Do you want to reset the password of this account",
+            confirmButtonText: 'Yes',
+            confirmButtonColor:"red",
+            icon:"warning",
+            denyButtonText: 'No',
+            denyButtonColor:"grey",
+            customClass: {
+                actions: 'my-actions',
+                cancelButton: 'order-1 right-gap',
+                confirmButton: 'order-2'
+                },
+                       }).then(async (result) => {
+                       if (result.isConfirmed) {
+                           ResetPassword()
+                       } else if (result.isDenied) {
+                           
+                       }
+                   })
+        
+
+        setArchiving(false)
+    }
+
     
 
     async function loadDepartments(){
@@ -192,6 +258,11 @@ function MemberProfile(props){
 
     async function handleUpdate() {
         var converted_data = objectToFormData(formData)
+        if (fileInput != null){
+            converted_data.set("profile_picture_link", fileInput.current.files[0])
+        }
+        console.log("FORM DATA", converted_data)
+        SetUpdating(true)
         var res = await updateMemberInfo(converted_data).then(data => data.data.message).catch(error => {
             console.log(error.response.data.error)
             Swal.fire({
@@ -215,6 +286,7 @@ function MemberProfile(props){
                 icon:"error"
             })
         }
+        SetUpdating(false)
 
         await loadUserInformation()
     }
@@ -226,8 +298,9 @@ function MemberProfile(props){
         var lname = document.getElementById("last_name")
         var dept = document.getElementById("department")
         var position = document.getElementById("position")
+        var role = document.getElementById("role")
 
-        var res =  ((fname.value == memberInformation.first_name) && (mname.value == memberInformation.middle_name) && (lname.value == memberInformation.last_name) && (dept.value == memberInformation.department.id) && (position.value == memberInformation.position.id))
+        var res =  ((role.value == memberInformation.role)&&(fname.value == memberInformation.first_name) && (mname.value == memberInformation.middle_name) && (lname.value == memberInformation.last_name) && (dept.value == memberInformation.department.id) && (position.value == memberInformation.position.id) && (preview == memberInformation.profile_picture_link))
         setDataChanged(res)
         
     }
@@ -257,16 +330,21 @@ function MemberProfile(props){
 
         const imageUrl = URL.createObjectURL(file);
         setPreview(imageUrl);
+
+        setFormData((prev) => ({
+            ...prev,
+            "profile_picture_link": file
+        }));
         
-        
+         
     };
     
     const handleDataChange = (e) => {
         setFormData({...formData, [e.target.name]: e.target.value})     
     }
     useEffect(()=> {
-        console.log(preview == memberInformation.profile_picture_link)
-        setDataChanged(preview == memberInformation.profile_picture_link)
+        console.log("is data changed", preview == memberInformation.profile_picture_link)
+        setDataChanged(false)
     }, [preview])
 
     useEffect(()=>{
@@ -289,7 +367,6 @@ function MemberProfile(props){
 
         socket.on("user_modified", ()=>{
             loadUserInformation()
-            console.log("user modified")
         })
     }, [])
 
@@ -320,10 +397,10 @@ function MemberProfile(props){
             </div>
             
             <div className="tabs-container">
-                <div className={!page? "tab active": "tab"} onClick={()=>{setPage(0)}}>
+                <div className={!page? "tab selected": "tab"} onClick={()=>{setPage(0)}}>
                     User Info
                 </div>
-                <div className={page? "tab active": "tab"}  onClick={()=>{setPage(1)}}>
+                <div className={page? "tab selected": "tab"}  onClick={()=>{setPage(1)}}>
                     Edit Info
                 </div>
             </div>
@@ -334,7 +411,7 @@ function MemberProfile(props){
                     <div className="profile-container"> 
                         <div className="profile">
                             <div className="profile-image-container">
-                                <div className="profile-picture" style={{backgroundImage:"url('dummy.jpg')"}}>.</div>
+                                <div className="profile-picture" style={{backgroundImage:`url('${memberInformation.profile_picture_link}')`}}>.</div>
                             </div>
                             <div className="profile-name-container">
                                 <div className="profile-name">{memberInformation.first_name + " " + memberInformation.last_name}</div>
@@ -344,8 +421,7 @@ function MemberProfile(props){
                     </div>
                     <div className="basic-info-container">
                     <div className="graph-container">
-                        <h6>IPCR Edit This Month</h6>
-                        <SubmissionsChart></SubmissionsChart>
+                        <UserTaskPerformanceCharts userTaskID={props.id}></UserTaskPerformanceCharts>
                     </div>
                     <div className="pair">
                         <span className="title">Joined at</span>
@@ -374,18 +450,24 @@ function MemberProfile(props){
                 </div>
                 <h2>IPCR Submitted</h2>
                 <div className="ipcr-submitted-container">
-                    <div className="ipcr-submitted">
+                    {allIPCRs && allIPCRs.map(ipcr => (
+                               <div className="ipcr-submitted">
                         <div className="ipcr-stat-container">
                             <div className="ipcr-stat">
-                                <span className="material-symbols-outlined">article_person</span>
-                                <span>IPCR #87126712</span>
-                            </div>
-                            <div className="ipcr-stat">
-                                <span className="title">Date Submitted</span>
-                                <span className="content">2025-09-05 22:18:51</span>
-                            </div>
+                                        <span className="material-symbols-outlined">article_person</span>
+                                        <span>IPCR #{ipcr.id}</span>
+                                    </div>
+                                    <div className="ipcr-stat">
+                                        <span className="content">{ipcr.created_at}</span>
+                                    </div>
+                            
+                            
+                            
+                            
                         </div>
-                    </div>
+                    </div> 
+                ))}
+                    
                 </div>
                 </div>: 
                 <div className="profile-edit-container">
@@ -411,7 +493,7 @@ function MemberProfile(props){
                     </div> 
 
                     <div className="pair">
-                        <label className="title" htmlFor="department">Department <span className="required">*</span></label>
+                        <label className="title" htmlFor="department">Department</label>
                         <select name="department" id="department" onChange={handleDataChange}>
                             {allDepartments.map(dept => (
                                 <option value = {dept.id} key={dept.name}>{dept.name}</option>
@@ -420,7 +502,7 @@ function MemberProfile(props){
                     </div>
 
                     <div className="pair">
-                        <label className="title" htmlFor="position">Position <span className="required">*</span></label>
+                        <label className="title" htmlFor="position">Position</label>
                         <select name="position" id="position" onChange={handleDataChange}>
                             {positions.map(pos => (
                                 <option value = {pos.id} key={pos.id}>{pos.name}</option>
@@ -429,9 +511,22 @@ function MemberProfile(props){
                         </select>
                     </div>
 
+                    <div className="pair">
+                        <label className="title" htmlFor="position">Role </label>
+                        <select name="role" id="role" onChange={handleDataChange}>
+                            <option value="faculty">Faculty</option>
+                            <option value="head">Head</option>
+                            <option value="president">President</option>
+                            <option value="administrator">Administrator</option>
+                            
+                        </select>
+                    </div>
+
+
+
                     <div className="changes-container">
                         <button className="btn btn-secondary" disabled = {dataChanged} onClick={()=>{loadUserInformation()}}>Cancel</button>
-                        <button className="btn btn-success" disabled = {dataChanged} onClick={()=>{handleUpdate()}}>Save Changes</button>
+                        <button className="btn btn-success" disabled = {dataChanged || updating} onClick={()=>{handleUpdate()}}>{updating ? <span className="material-symbols-outlined">refresh</span>: "Save Changes"}</button>
                     </div>
 
                     <h4>Account Information</h4>
@@ -439,10 +534,14 @@ function MemberProfile(props){
                         <label htmlFor="email" className="title">Email Address</label>
                         <input type="email" id = "email" name = "email" placeholder="John Doe"/>
                     </div> 
-                    <div className="reset-password">
-                        <button className="btn btn-warning">
-                            <span className="material-symbols-outlined">restart_alt</span>
-                            <span>Reset Password</span>
+                    <div className="reset-password" >
+                        <button className="btn btn-warning" disabled = {resetting} onClick={()=> {
+                            handleResetPassword()
+                        }}>
+                            {resetting?
+                            <span className="material-symbols-outlined">restart_alt</span> :
+                            <div style={{alignItems:"center", display:"flex", flexDirection:"row"}}><span className="material-symbols-outlined">restart_alt</span>
+                            <span>Reset Password</span></div>}
                         </button>
                         <button className={memberInformation.account_status == 0? "btn btn-success": "btn btn-danger"} onClick={()=>{
                             if(memberInformation.account_status) {

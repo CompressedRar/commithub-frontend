@@ -36,6 +36,11 @@ export async function updateMemberInfo(data){
     })
 }
 
+export async function resetAccountPasssword(id) {
+    console.log("resetting password")
+    return api.patch(`/api/v1/users/reset-password/${id}`)
+}
+
 export async function archiveAccount(id) {
     console.log("archiving")
     return api.delete(`/api/v1/users/${id}`)
