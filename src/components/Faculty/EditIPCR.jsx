@@ -130,7 +130,7 @@ function EditIPCR(props) {
     async function approvalIPCR(){
         Swal.fire({
             title:"Approve",
-            text:"By approving this IPCR, you acknowledge that you have reviewed and validated its contents. Do you wish to proceed?",
+            text:"By approving this IPCR, you acknowledge that this IPCR can be consolidated for the OPCR. Do you wish to proceed?",
             showDenyButton: true,
             confirmButtonText:"Approve",
             confirmButtonColor:"green",
@@ -389,23 +389,23 @@ function EditIPCR(props) {
                             <span className="material-symbols-outlined">{downloading? "refresh": "download"}</span>
                             {!downloading? <span>Download</span>:""}
                         </button>:""}
-                        {!props.dept_mode? userinfo && <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#manage-tasks">
+                        {!props.dept_mode? userinfo && <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#manage-tasks" disabled = {ipcrInfo? ipcrInfo.form_status == "reviewed" || ipcrInfo.form_status == "approved": false}>
                             <span className="material-symbols-outlined">assignment</span>
                             <span>Tasks</span>
                         </button>:""}
-                        {!props.dept_mode? <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#manage-docs">
+                        {!props.dept_mode? <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#manage-docs"  disabled = {ipcrInfo? ipcrInfo.form_status == "reviewed" || ipcrInfo.form_status == "approved": false}>
                             <span className="material-symbols-outlined">attach_file</span>
                             <span>Documents</span>
                         </button>:""}
                     </div>
                     
 
-                    {/**ipcrInfo && props.dept_mode? <button className="btn btn-success" disabled = {ipcrInfo.form_status == "approved"} onClick={()=>{approvalIPCR()}}>
+                    {(ipcrInfo && props.dept_mode) && ipcrInfo.form_status == "reviewed"? <button className="btn btn-success" disabled = {ipcrInfo.form_status == "approved"} onClick={()=>{approvalIPCR()}}>
                         <span className="material-symbols-outlined">article_shortcut</span>
                         <span>{ipcrInfo.form_status == "approved"? "Approved": "Approve"}</span>
-                    </button>:""*/}
+                    </button>:""}
 
-                    {ipcrInfo && props.dept_mode? <button className="btn btn-primary" disabled = {ipcrInfo.form_status == "reviewed"} onClick={()=>{reviewalIPCR()}}>
+                    {(ipcrInfo && props.dept_mode) && ipcrInfo.form_status == "pending"? <button className="btn btn-primary" disabled = {ipcrInfo.form_status == "reviewed"} onClick={()=>{reviewalIPCR()}}>
                         <span className="material-symbols-outlined">article_shortcut</span>
                         <span>{ipcrInfo.form_status == "reviewed"? "Reviewed": "Mark as Reviewed"}</span>
                     </button>:""}
@@ -532,15 +532,15 @@ function EditIPCR(props) {
                                         </div>
                                         <div className="stats">
                                             <input name = "target_acc" type="number" className="value"  defaultValue={task.target_acc}
-                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)}/>
+                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo? ipcrInfo.form_status == "approved": false}/>
 
                                             <span className="desc">{task.main_task.target_acc} in</span>
                                             <input name = "target_time" type="number" className="value" defaultValue={task.target_time}
-                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)}/>
+                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo? ipcrInfo.form_status == "approved": false}/>
 
                                             <span className="desc">{task.main_task.time} with</span>
                                             <input name = "target_mod" type="number" className="value" defaultValue={task.target_mod}
-                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)}/>
+                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo? ipcrInfo.form_status == "approved": false}/>
 
                                             <span className="desc">{task.main_task.modification}</span>
 
@@ -548,15 +548,15 @@ function EditIPCR(props) {
 
                                         <div className="stats">
                                             <input name = "actual_acc" type="number" className="value" defaultValue={task.actual_acc}
-                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)}/>
+                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo? ipcrInfo.form_status == "approved": false}/>
 
                                             <span className="desc">{task.main_task.actual_acc} in</span>
                                             <input name = "actual_time" type="number" className="value" defaultValue={task.actual_time}
-                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)}/>
+                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo? ipcrInfo.form_status == "approved": false}/>
 
                                             <span className="desc">{task.main_task.time} with</span>
                                             <input name = "actual_mod" type="number" className="value" defaultValue={task.actual_mod}
-                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)}/>
+                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo? ipcrInfo.form_status == "approved": false}/>
 
                                             <span className="desc">{task.main_task.modification}</span>
                                         </div>

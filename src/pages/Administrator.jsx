@@ -9,6 +9,7 @@ import ActivityTrendChart from "../components/Charts/ActivityTrendChart";
 import ActivityScatter from "../components/Charts/ActivityScatter";
 import { TopDepartmentChats } from "../components/Charts/CategoryPerformance";
 import AllTaskAverages from "../components/Charts/AllTaskAverage";
+import { downloadMasterOPCR } from "../services/pcrServices";
 
 //gawin bukas yung graph sa category
 //yung generation ng ipcr, i check yung mga individuals kung tama
@@ -25,6 +26,21 @@ function Administrator(){
 
     const [taskCount, setTaskCount] = useState(0)
     const [categoryCount, setCategoryCount] = useState(0)
+    const [downloading, setDownloading] = useState(false)
+
+    async function download() {
+        setDownloading(true)
+        var res = await downloadMasterOPCR().then(data => data.data.link).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
+        window.open(res, "_blank", "noopener,noreferrer");
+        setDownloading(false)
+    }
 
     useEffect(()=> {
         getUserCount().then(data => {
@@ -69,6 +85,12 @@ function Administrator(){
     
     return (
         <div className="admin-dashboard-container">
+            <div>
+                <button style={{display:"flex", flexDirection:"row", alignItems:"center", gap:"10px"}} className="btn btn-primary" onClick={()=>{download()}}>
+                            <span className="material-symbols-outlined">{downloading? "refresh": "download"}</span>
+                            {!downloading? <span>Download Master OPCR</span>:""}
+                        </button>
+            </div>
             <div className="quick-stats-container"> 
 
                 <div className="total-users-container">

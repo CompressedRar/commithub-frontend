@@ -10,6 +10,9 @@ import PerformanceReviews from "./PerformanceReview";
 import CreateOPCRModal from "./CreateOPCRModal";
 import GeneralTasksTable from "./GeneralTasksTable";
 import UserPerformanceInDepartment from "../Charts/UserPerformanceInDepartment";
+import PendingReviews from "./PendingReviews";
+import PendingApprovals from "./PendingApprovals";
+import OfficePerformanceReview from "./OfficePerformanceReview";
 
 function DepartmentInfo(props){
 
@@ -347,12 +350,7 @@ function DepartmentInfo(props){
                                 <span className="type">Tasks</span>
                             </div>                            
                         </div>
-                        <div>
-                            <button className="btn btn-primary" style={{display:"flex", flexDirection:"row", gap:"10px", alignItems:"center"}} data-bs-toggle="modal" data-bs-target="#create-opcr">
-                                <span className="material-symbols-outlined">assignment_globe</span>
-                                <span>Create OPCR</span>
-                            </button>
-                        </div>
+                        
 
                         
 
@@ -360,21 +358,31 @@ function DepartmentInfo(props){
                     </div>
                 </div>
 
-                <div style={{backgroundColor:"white", padding:"10px"}}>
-                    <UserPerformanceInDepartment dept_id = {props.id}></UserPerformanceInDepartment>
-                </div>
+                
                 <div className="pages-container">
                     <div className={currentPage == 0? "select": ""} onClick={()=>{setCurrentPage(0)}}>
                         Members and Tasks
                     </div>
                     <div className={currentPage == 1? "select": ""} onClick={()=>{setCurrentPage(1)}}>
-                        Performance Review Forms
+                        Pending Reviews
+                    </div>
+                    <div className={currentPage == 2? "select": ""} onClick={()=>{setCurrentPage(2)}}>
+                        Pending Approvals
+                    </div>
+                    <div className={currentPage == 3? "select": ""} onClick={()=>{setCurrentPage(3)}}>
+                        OPCR
                     </div>
                 </div>
+                {currentPage == 0? <div style={{backgroundColor:"white", padding:"10px"}}>
+                    <UserPerformanceInDepartment dept_id = {props.id}></UserPerformanceInDepartment>
+                </div>: ""}
                                        
-                {currentPage == 0? <DepartmentMemberTable deptid ={props.id} ></DepartmentMemberTable>: <PerformanceReviews deptid ={props.id} ></PerformanceReviews>}
+                {currentPage == 0? <DepartmentMemberTable deptid ={props.id} ></DepartmentMemberTable>: ""}
                 {currentPage == 0? <DepartmentTasksTable id = {props.id}></DepartmentTasksTable>: ""}
                 {currentPage == 0? <GeneralTasksTable id = {props.id}></GeneralTasksTable>: ""}
+                {currentPage == 1 ? <PendingReviews deptid ={props.id} ></PendingReviews>:""}
+                {currentPage == 2 ? <PendingApprovals deptid ={props.id} ></PendingApprovals>:""}
+                {currentPage == 3 ? <OfficePerformanceReview deptid ={props.id} ></OfficePerformanceReview>:""}
             </div>
     )
 }

@@ -3,6 +3,7 @@ import { getDepartmentIPCR } from "../../services/departmentService"
 import Swal from "sweetalert2"
 import { createOPCR } from "../../services/pcrServices"
 import { Modal } from "bootstrap"
+import { socket } from "../api"
 
 function CreateOPCRModal(props){
     const [allIPCR, setAllIPCR] = useState(null)
@@ -16,7 +17,16 @@ function CreateOPCRModal(props){
                 icon: "error"
             })
         })
-        setAllIPCR(res)
+
+        var filtered = []
+
+        for(const ipcr of res){
+            if(ipcr.status == 1 && ipcr.form_status == "approved"){
+                filtered.push(ipcr)
+            }
+        }
+
+        setAllIPCR(filtered)
         console.log(res)
     }
 
@@ -117,6 +127,14 @@ function CreateOPCRModal(props){
 
     useEffect(()=> {
         loadIPCR()
+
+        socket.on("opcr", ()=>{
+            loadIPCR()
+        })
+        
+        socket.on("ipcr", ()=>{
+            loadIPCR()
+        })
     }, [])
 
     return (
@@ -131,7 +149,7 @@ function CreateOPCRModal(props){
                         <span className="desc">Click the IPCR you want to include.</span>
                         <div className="select-ipcr-container">
                             {allIPCR && allIPCR.length == 0?
-                            <div className="empty">There is no IPCR to choose from.</div>:""}
+                            <div className="empty">There is no Approved IPCR to choose from.</div>:""}
                             {allIPCR && allIPCR.map(ipcr => (
                                 <div className="select-ipcr">
                                     <input type="radio" className="ipcrs" id = {ipcr.id} value = {ipcr.id} name = {ipcr.user.id} hidden/>

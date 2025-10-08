@@ -284,10 +284,7 @@ function CategoryTasks(props){
                             <div className="textboxes">
                                 <label htmlFor="task_desc" className="editables">
                                     <span>Task Description</span>
-                                    <div class="form-check form-switch custom-switch">
-                                        <input class="form-check-input" type="checkbox" id="accomplishment_editable" name ="accomplishment_editable" onChange={handleSwitchChange} />
-                                        <label class="form-check-label" htmlFor="accomplishment_editable">Editable</label>
-                                    </div>
+                                    
                                 </label>
                                 <textarea type="task_desc" id="task_desc" name="task_desc" placeholder="Describe the task." rows={5} onInput={(e)=> {
                                     handleDataChange(e)
@@ -299,10 +296,7 @@ function CategoryTasks(props){
                                     <div className="textboxes">
                                         <label htmlFor="time_measurement" className="editables">
                                             <span>Time Measurement</span>
-                                            <div class="form-check form-switch custom-switch">
-                                                <input class="form-check-input" type="checkbox" id="time_editable" name ="time_editable" onChange={handleSwitchChange} />
-                                                <label class="form-check-label" htmlFor="time_editable">Editable</label>
-                                            </div>
+                                            
                                         </label>
                                         <select name="time_measurement" id="time_measurement" onChange={handleDataChange}>
                                             <option value="minute">Minute</option>
@@ -318,10 +312,7 @@ function CategoryTasks(props){
                                     <div className="textboxes">
                                         <label htmlFor="modification" className="editables">
                                             <span>Modifications</span>
-                                            <div class="form-check form-switch custom-switch">
-                                                <input class="form-check-input" type="checkbox" id="modification_editable" name ="modification_editable" onChange={handleSwitchChange} />
-                                                <label class="form-check-label" htmlFor="modification_editable">Editable</label>
-                                            </div>
+                                            
                                         </label>
                                         <select name="modification" id="modification" onChange={handleDataChange}>
                                             <option value="correction">Correction</option>

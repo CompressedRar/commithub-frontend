@@ -40,6 +40,7 @@ function App() {
           <Route path = "/admin/users" element={<UserManagement></UserManagement>}></Route>
           <Route path = "/admin/tasks" element={<CategoryAndTask></CategoryAndTask>}></Route>
           <Route path = "/admin/logs" element={<AuditLogs></AuditLogs>}></Route>
+          <Route path = "/admin/ipcr" element={<Faculty></Faculty>}></Route>
         </Route>
 
         <Route element = {<HeadLayout></HeadLayout>}>

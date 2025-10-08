@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { addSubTaskInIprc, getIPCR, removeSubTaskInIprc } from "../../services/pcrServices"
 import { getAssignedAccountTasks } from "../../services/userService"
-import { getDepartmentTasks } from "../../services/departmentService"
+import { getDepartmentTasks, getGeneralDeptTasks } from "../../services/departmentService"
 import Swal from "sweetalert2"
 import { socket } from "../api"
 
@@ -36,9 +36,20 @@ function ManageTask(props){
                     icon: "error"
                 })
             })
+
+            var resGen = await getGeneralDeptTasks().then(data => data.data).catch(error => {
+                        console.log(error.response.data.error)
+                        Swal.fire({
+                            title: "Error",
+                            text: error.response.data.error,
+                            icon: "error"
+                        })
+                    })
+
             console.log(res)
             var available = []
             var taste = {}
+
             for(const task of res){
                 
                 if(allAssignedID.includes(task.id)) continue;
@@ -57,6 +68,27 @@ function ManageTask(props){
                 available.push(task)
                 
             }
+
+            for(const task of resGen){
+                
+                if(allAssignedID.includes(task.id)) continue;
+                
+                var doesSubTaskExists = false;
+                
+                for(const sub of task.sub_tasks){
+                    if(sub.batch_id == batch_id){
+                        doesSubTaskExists = true;
+                        break
+                    }
+                }
+                taste = {...taste, [task.id]: doesSubTaskExists}
+
+                
+                available.push(task)
+                
+            }
+
+
             console.log(batch_id)
             setTasksAndSubTaskExists(taste)
             setAllTasks(available)       

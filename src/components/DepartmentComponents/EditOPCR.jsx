@@ -229,7 +229,7 @@ function EditOPCR(props) {
             </div>
             
             <div className="ipcr-form-container">
-                <span className="pcr-status-container">
+                <span className="pcr-status-container" style={{display:"none"}}>
                     <span>{formStatus}</span>
                 </span>
                 <div className="ipcr-header-container">

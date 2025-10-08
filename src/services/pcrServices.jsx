@@ -23,6 +23,12 @@ export async function downloadOPCR(opcr_id) {
     return api.get(`/api/v1/pcr/opcr/download/${opcr_id}`)
 }
 
+export async function downloadMasterOPCR() {
+    console.log("fetching opcr")
+    return api.get(`/api/v1/pcr/master-opcr/download/`)
+}
+
+
 export async function approveIPCR(ipcr_id) {
     console.log("approving opcr")
     return api.post(`/api/v1/pcr/ipcr/approve/${ipcr_id}`)

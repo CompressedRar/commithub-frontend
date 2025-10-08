@@ -99,6 +99,11 @@ function AdminLayout(){
                     <span className="material-symbols-outlined">article_person</span>
                     <span>Audit Logs</span>
                 </a>
+
+                <a className="pages" href="/admin/ipcr" style={detectCurrentPage("ipcr")}>
+                    <span className="material-symbols-outlined">assignment_ind</span>
+                    <span>IPCR</span>
+                </a>
             </div>
             <header className="header-container">
                 <div className="current-location">

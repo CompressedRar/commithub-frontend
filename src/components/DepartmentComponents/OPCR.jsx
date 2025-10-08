@@ -97,7 +97,7 @@ function OPCR(props) {
                 
                 <div className="status-container">                             
                     <div style={{gap:"10px", display:"flex"}}> 
-                        <span className="form-status">{props.opcr.form_status.toUpperCase()}</span>
+                        
                         {props.opcr.isMain == 1? <span className="main-form">MAIN</span>: ""}      
                     </div>
                     <span className="material-symbols-outlined" style={{fontSize: "1.5rem", cursor:"pointer"}} onClick={()=> {setOpen(!optionsOpen)}}>more_vert</span>
