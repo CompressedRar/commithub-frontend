@@ -19,6 +19,12 @@ import Unauthorized from './pages/Unauthorized'
 import Faculty from './pages/Faculty'
 import HeadLayout from './layout/HeadLayout'
 import HeadDepartment from './pages/HeadDepartment'
+import PendingReviews from './components/DepartmentComponents/PendingReviews'
+import PendingApprovals from './components/DepartmentComponents/PendingApprovals'
+import PresPendingApprovals from './components/DepartmentComponents/PresPendingApprovals'
+import PresPendingReviews from './components/DepartmentComponents/PresPendingReviews'
+import HeadPendingReviews from './components/DepartmentComponents/HeadPendingReviews'
+import PresidentLayout from './layout/PresidentLayout'
 
 
 
@@ -41,11 +47,23 @@ function App() {
           <Route path = "/admin/tasks" element={<CategoryAndTask></CategoryAndTask>}></Route>
           <Route path = "/admin/logs" element={<AuditLogs></AuditLogs>}></Route>
           <Route path = "/admin/ipcr" element={<Faculty></Faculty>}></Route>
+          <Route path = "/admin/review" element={<PresPendingReviews></PresPendingReviews>}></Route>
+          <Route path = "/admin/approve" element={<PresPendingApprovals></PresPendingApprovals>}></Route>
+        </Route>
+
+        <Route element = {<PresidentLayout></PresidentLayout>}>
+          <Route path = "/president/dashboard" element={<Administrator></Administrator>}></Route>
+          <Route path = "/president/department" element={<Department></Department>}></Route>
+          <Route path = "/president/tasks" element={<CategoryAndTask></CategoryAndTask>}></Route>
+          <Route path = "/president/ipcr" element={<Faculty></Faculty>}></Route>
+          <Route path = "/president/review" element={<PresPendingReviews></PresPendingReviews>}></Route>
+          <Route path = "/president/approve" element={<PresPendingApprovals></PresPendingApprovals>}></Route>
         </Route>
 
         <Route element = {<HeadLayout></HeadLayout>}>
           <Route path = "/head/department" element={<HeadDepartment></HeadDepartment>}></Route>
           <Route path = "/head/tasks" element={<CategoryAndTask></CategoryAndTask>}></Route>
+          <Route path = "/head/review" element={<HeadPendingReviews></HeadPendingReviews>}></Route>
           <Route path = "/head/ipcr" element={<Faculty></Faculty>}></Route>
         </Route>
 

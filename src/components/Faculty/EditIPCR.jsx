@@ -6,11 +6,15 @@ import { getAccountInfo } from "../../services/userService"
 import Swal from "sweetalert2"
 import ManageTask from "./ManageTask"
 import ManageSupportingDocuments from "./ManageSupportingDocuments"
-import { getDepartmentHead } from "../../services/departmentService"
+
+
+//check bukas yung current user para alam sa department kung head yung nag eedit
+// para di din makapag approve si head
+// account settinmgs hahahah
+//yung master opcr, gawin katulad nung sa ipcr pero di na mamimili, kita nalanmg kung anong department walang opcr
 
 function EditIPCR(props) {
     const [userinfo, setuserInfo] = useState(null)
-    const [headInfo, setHeadinfo] = useState(null)
 
     const [ipcrInfo, setIPCRInfo] = useState(null)
     const [arrangedSubTasks, setArrangedSubTasks] = useState({})
@@ -26,20 +30,6 @@ function EditIPCR(props) {
 
     const [downloading, setDownloading] = useState(false)
 
-
-    async function loadHeadInfo() {
-        var res = await getDepartmentHead(props.dept_id).then(data => data.data).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-        setHeadinfo(res)
-        console.log("departmend head: ", res)
-
-    }
     
     async function loadIPCR(){
         var res = await getIPCR(props.ipcr_id).then(data => data.data).catch(error => {
@@ -50,6 +40,7 @@ function EditIPCR(props) {
                 icon: "error"
             })
         })
+        console.log("USER IPCR: ", res)
         setIPCRInfo(res)
 
         //rearrange my tasks here
@@ -88,6 +79,11 @@ function EditIPCR(props) {
     function handleDataChange(e){
         setField(e.target.name)
         setValue(e.target.value)
+    }
+
+    function handleSpanChange(e){
+        setField(e.target.className)
+        setValue(e.target.textContent)
     }
 
     async function loadUserInfo() {
@@ -323,6 +319,7 @@ function EditIPCR(props) {
         if(value == "") {
             return   
         }
+        
         const debounce = setTimeout(()=>{
             //loadSearchedData(searchQuery)
             updateSubTask(subTaskID, field, value)
@@ -341,7 +338,6 @@ function EditIPCR(props) {
     useEffect(()=> {
         loadIPCR()
         loadUserInfo()
-        loadHeadInfo()
 
         socket.on("ipcr", ()=>{
             loadIPCR()
@@ -369,7 +365,6 @@ function EditIPCR(props) {
 
     return (
         <div className="edit-ipcr-container">
-            
             {ipcrInfo && <ManageSupportingDocuments ipcr_id = {props.ipcr_id} batch_id = {ipcrInfo.batch_id}></ManageSupportingDocuments>}
             {userinfo && <ManageTask key = {userinfo.id? userinfo.id: 0} ipcr_id = {props.ipcr_id} user_id = {userinfo.id? userinfo.id: 0} dept_id = {userinfo.department ? userinfo.department.id: 0}></ManageTask>}
             <div className="back-container">
@@ -385,10 +380,10 @@ function EditIPCR(props) {
 
                 <div className="ipcr-options">
                     <div className="additional">
-                        {!props.dept_mode? <button className="btn btn-primary" onClick={()=>{download()}}>
+                        {<button className="btn btn-primary" onClick={()=>{download()}}>
                             <span className="material-symbols-outlined">{downloading? "refresh": "download"}</span>
                             {!downloading? <span>Download</span>:""}
-                        </button>:""}
+                        </button>}
                         {!props.dept_mode? userinfo && <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#manage-tasks" disabled = {ipcrInfo? ipcrInfo.form_status == "reviewed" || ipcrInfo.form_status == "approved": false}>
                             <span className="material-symbols-outlined">assignment</span>
                             <span>Tasks</span>
@@ -532,15 +527,15 @@ function EditIPCR(props) {
                                         </div>
                                         <div className="stats">
                                             <input name = "target_acc" type="number" className="value"  defaultValue={task.target_acc}
-                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo? ipcrInfo.form_status == "approved": false}/>
+                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo && props.dept_mode? props.dept_mode: ipcrInfo.form_status == "approved"}/>
 
                                             <span className="desc">{task.main_task.target_acc} in</span>
                                             <input name = "target_time" type="number" className="value" defaultValue={task.target_time}
-                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo? ipcrInfo.form_status == "approved": false}/>
+                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo && props.dept_mode? props.dept_mode: ipcrInfo.form_status == "approved"}/>
 
                                             <span className="desc">{task.main_task.time} with</span>
                                             <input name = "target_mod" type="number" className="value" defaultValue={task.target_mod}
-                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo? ipcrInfo.form_status == "approved": false}/>
+                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo && props.dept_mode? props.dept_mode: ipcrInfo.form_status == "approved"}/>
 
                                             <span className="desc">{task.main_task.modification}</span>
 
@@ -548,24 +543,24 @@ function EditIPCR(props) {
 
                                         <div className="stats">
                                             <input name = "actual_acc" type="number" className="value" defaultValue={task.actual_acc}
-                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo? ipcrInfo.form_status == "approved": false}/>
+                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo && props.dept_mode? props.dept_mode: ipcrInfo.form_status == "approved"}/>
 
                                             <span className="desc">{task.main_task.actual_acc} in</span>
                                             <input name = "actual_time" type="number" className="value" defaultValue={task.actual_time}
-                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo? ipcrInfo.form_status == "approved": false}/>
+                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo && props.dept_mode? props.dept_mode: ipcrInfo.form_status == "approved"}/>
 
                                             <span className="desc">{task.main_task.time} with</span>
                                             <input name = "actual_mod" type="number" className="value" defaultValue={task.actual_mod}
-                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo? ipcrInfo.form_status == "approved": false}/>
+                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo && props.dept_mode? props.dept_mode: ipcrInfo.form_status == "approved"}/>
 
                                             <span className="desc">{task.main_task.modification}</span>
                                         </div>
 
                                         <div className="sub-task-rating">
-                                            <span>{parseFloat(task.quantity).toFixed(0)}</span>
-                                            <span>{parseFloat(task.efficiency).toFixed(0)}</span>
-                                            <span>{parseFloat(task.timeliness).toFixed(0)}</span>
-                                            <span>{parseFloat(task.average).toFixed(2)}</span>
+                                            <span className = "quantity" onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleSpanChange(e)} contentEditable ={props.dept_mode}>{parseFloat(task.quantity).toFixed(0)}</span>
+                                            <span className = "efficiency" onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleSpanChange(e)} contentEditable ={props.dept_mode}>{parseFloat(task.efficiency).toFixed(0)}</span>
+                                            <span className = "timeliness" onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleSpanChange(e)} contentEditable ={props.dept_mode}>{parseFloat(task.timeliness).toFixed(0)}</span>
+                                            <span className = "average" >{parseFloat(task.average).toFixed(2)}</span>
                                         </div>
 
                                         <div className="remarks">

@@ -28,6 +28,15 @@ export async function downloadMasterOPCR() {
     return api.get(`/api/v1/pcr/master-opcr/download/`)
 }
 
+export async function approveOPCR(opcr_id) {
+    console.log("approving opcr")
+    return api.post(`/api/v1/pcr/opcr/approve/${opcr_id}`)
+}
+
+export async function reviewOPCR(opcr_id) {
+    console.log("reviewing opcr")
+    return api.post(`/api/v1/pcr/opcr/review/${opcr_id}`)
+}
 
 export async function approveIPCR(ipcr_id) {
     console.log("approving opcr")
@@ -85,4 +94,50 @@ export async function recordFileUploadInfo(data) {
 
 export async function createOPCR(dept_id, data) {
     return api.post(`/api/v1/pcr/opcr/${dept_id}`, data)
+}
+
+
+export async function getFacultyPending() {
+    console.log("fetching ipcr")
+    return api.get(`/api/v1/pcr/ipcr/faculty/pending`)
+}
+
+export async function getFacultyReviewed() {
+    console.log("fetching ipcr")
+    return api.get(`/api/v1/pcr/ipcr/faculty/reviewed`)
+}
+
+export async function getFacultyApproved() {
+    console.log("fetching ipcr")
+    return api.get(`/api/v1/pcr/ipcr/faculty/approved`)
+}
+
+export async function getHeadPending() {
+    console.log("fetching ipcr")
+    return api.get(`/api/v1/pcr/ipcr/head/pending`)
+}
+
+export async function getHeadReviewed() {
+    console.log("fetching ipcr")
+    return api.get(`/api/v1/pcr/ipcr/head/reviewed`)
+}
+
+export async function getHeadApproved() {
+    console.log("fetching ipcr")
+    return api.get(`/api/v1/pcr/ipcr/head/approved`)
+}
+
+export async function getOPCRPending() {
+    console.log("fetching ipcr")
+    return api.get(`/api/v1/pcr/opcr/pending`)
+}
+
+export async function getOPCRReviewed() {
+    console.log("fetching ipcr")
+    return api.get(`/api/v1/pcr/opcr/reviewed`)
+}
+
+export async function getOPCRApproved() {
+    console.log("fetching ipcr")
+    return api.get(`/api/v1/pcr/opcr/approved`)
 }

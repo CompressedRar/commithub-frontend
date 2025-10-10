@@ -512,7 +512,7 @@ function MemberProfile(props){
                     </div>
 
                     <div className="pair">
-                        <label className="title" htmlFor="position">Role </label>
+                        <label className="title" htmlFor="role">Role </label>
                         <select name="role" id="role" onChange={handleDataChange}>
                             <option value="faculty">Faculty</option>
                             <option value="head">Head</option>

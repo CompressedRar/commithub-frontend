@@ -255,3 +255,32 @@
     background-image: linear-gradient(to left,rgb(255, 69, 69), rgb(255, 159, 49), rgb(255, 136, 0));
     color:white;
 }
+
+.all-notification {
+    position: absolute;
+    top: 5%;
+    right: 0%;
+    background-color: white;
+    padding: 10px;
+    box-sizing: border-box;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgb(211, 211, 211);
+    font-weight: normal;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    height: 100vh;
+    overflow: scroll;
+    z-index: 100;
+}
+
+.all-notification .notif{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    box-sizing: border-box;
+    background-color: rgb(243, 246, 248);
+    font-weight: 300;
+}

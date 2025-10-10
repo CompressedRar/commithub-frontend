@@ -1,5 +1,5 @@
 import { useEffect, useState} from "react"
-import { downloadOPCR,getOPCR } from "../../services/pcrServices"
+import { approveOPCR, downloadOPCR,getOPCR, reviewOPCR } from "../../services/pcrServices"
 import { socket } from "../api"
 import Swal from "sweetalert2"
 
@@ -8,6 +8,8 @@ import Swal from "sweetalert2"
 function EditOPCR(props) {
     
     const [opcrInfo, setOPCRInfo] = useState(null)
+
+    
     const [assignedData, setAssignedData] = useState(null)
     const [headData, setHeadData] = useState(null)
 
@@ -84,6 +86,8 @@ function EditOPCR(props) {
         setEfficiency(eSum / eCount);
         setTimeliness(tSum / tCount);
         setAllAvg(allSum / qCount);
+
+        console.log("result:", opcrInfo.form_status)
     }, [opcrInfo]);
 
     
@@ -176,6 +180,87 @@ function EditOPCR(props) {
     //ayusin ang notification at logs bukas
     //yung account settings tagal na nun hahaha, di lumalabas sa deparmtent at account amnagement
     // yung task info sa category gawin nalang modal
+    async function handleApproval(){
+            var res = await approveOPCR(props.opcr_id).then(data => data.data.message).catch(error => {
+                console.log(error.response.data.error)
+                Swal.fire({
+                    title: "Error",
+                    text: error.response.data.error,
+                    icon: "error"
+                })
+            })
+                
+            if (res == "This OPCR is successfully approved."){
+                Swal.fire({
+                    title:"Success",
+                    text: res,
+                    icon:"success"
+                })
+            }
+        } 
+        
+        async function approvalOPCR(){
+            Swal.fire({
+                title:"Approve",
+                text:"By approving this OPCR, you acknowledge that this IPCR can be consolidated for the Master OPCR. Do you wish to proceed?",
+                showDenyButton: true,
+                confirmButtonText:"Approve",
+                confirmButtonColor:"green",
+                denyButtonText:"No",
+                denyButtonColor:"grey",
+                icon:"question",
+                customClass: {
+                    actions: 'my-actions',
+                    confirmButton: 'order-2',
+                    denyButton: 'order-1 right-gap',
+                },
+            }).then((result)=> {
+                if(result.isConfirmed){
+                    handleApproval()
+                }
+            }) 
+        }
+    
+        async function handleReview(){
+            var res = await reviewOPCR(props.opcr_id).then(data => data.data.message).catch(error => {
+                console.log(error.response.data.error)
+                Swal.fire({
+                    title: "Error",
+                    text: error.response.data.error,
+                    icon: "error"
+                })
+            })
+                
+            if (res == "This OPCR is successfully reviewed."){
+                Swal.fire({
+                    title:"Success",
+                    text: res,
+                    icon:"success"
+                })
+            }
+        } 
+        
+        async function reviewalOPCR(){
+            Swal.fire({
+                title:"Review",
+                text:"Please confirm that you have thoroughly reviewed this IPCR. Do you want to proceed with marking it as reviewed?",
+                showDenyButton: true,
+                confirmButtonText:"Yes",
+                confirmButtonColor:"blue",
+                denyButtonText:"No",
+                denyButtonColor:"grey",
+                icon:"question",
+                customClass: {
+                    actions: 'my-actions',
+                    confirmButton: 'order-2',
+                    denyButton: 'order-1 right-gap',
+                },
+            }).then((result)=> {
+                if(result.isConfirmed){
+                    handleReview()
+                }
+            }) 
+        }
 
     useEffect(()=> {
         loadOPCR()
@@ -221,15 +306,26 @@ function EditOPCR(props) {
                         {!props.dept_mode? <button className="btn btn-primary" onClick={()=>{download()}}>
                             <span className="material-symbols-outlined">{downloading? "refresh": "download"}</span>
                             {!downloading? <span>Download</span>:""}
-                        </button>:""}
-                        
+                        </button>:""}  
+                    
+
                     </div>
+                    {formStatus == "REVIEWED"? <button className="btn btn-success" disabled = {opcrInfo.form_status == "approved"} onClick={()=>{approvalOPCR()}}>
+                        <span className="material-symbols-outlined">article_shortcut</span>
+                        <span>{opcrInfo.form_status == "approved"? "Approved": "Approve"}</span>
+                    </button>:""}
+
+
+                    {formStatus == "PENDING"? <button className="btn btn-primary" disabled = {opcrInfo.form_status == "reviewed"} onClick={()=>{reviewalOPCR()}}>
+                        <span className="material-symbols-outlined">article_shortcut</span>
+                        <span>{opcrInfo.form_status == "reviewed"? "Reviewed": "Mark as Reviewed"}</span>
+                    </button>:""}
                     
                 </div>
             </div>
             
             <div className="ipcr-form-container">
-                <span className="pcr-status-container" style={{display:"none"}}>
+                <span className="pcr-status-container" style={{display:"flex"}}>
                     <span>{formStatus}</span>
                 </span>
                 <div className="ipcr-header-container">

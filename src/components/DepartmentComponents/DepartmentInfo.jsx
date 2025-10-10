@@ -364,13 +364,7 @@ function DepartmentInfo(props){
                         Members and Tasks
                     </div>
                     <div className={currentPage == 1? "select": ""} onClick={()=>{setCurrentPage(1)}}>
-                        Pending Reviews
-                    </div>
-                    <div className={currentPage == 2? "select": ""} onClick={()=>{setCurrentPage(2)}}>
-                        Pending Approvals
-                    </div>
-                    <div className={currentPage == 3? "select": ""} onClick={()=>{setCurrentPage(3)}}>
-                        OPCR
+                        Performance Review Forms
                     </div>
                 </div>
                 {currentPage == 0? <div style={{backgroundColor:"white", padding:"10px"}}>
@@ -380,9 +374,7 @@ function DepartmentInfo(props){
                 {currentPage == 0? <DepartmentMemberTable deptid ={props.id} ></DepartmentMemberTable>: ""}
                 {currentPage == 0? <DepartmentTasksTable id = {props.id}></DepartmentTasksTable>: ""}
                 {currentPage == 0? <GeneralTasksTable id = {props.id}></GeneralTasksTable>: ""}
-                {currentPage == 1 ? <PendingReviews deptid ={props.id} ></PendingReviews>:""}
-                {currentPage == 2 ? <PendingApprovals deptid ={props.id} ></PendingApprovals>:""}
-                {currentPage == 3 ? <OfficePerformanceReview deptid ={props.id} ></OfficePerformanceReview>:""}
+                {currentPage == 1 ? <PerformanceReviews deptid ={props.id} ></PerformanceReviews>:""}
             </div>
     )
 }

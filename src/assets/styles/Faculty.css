@@ -688,7 +688,7 @@
 .ipcr-wrapper .popup {
     background-color: white;
     z-index: 1000;
-    right: -50%;
+    right: -25%;
     top: 0;
     position: absolute;
     box-sizing: border-box;

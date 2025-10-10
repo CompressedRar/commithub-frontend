@@ -877,6 +877,8 @@
     box-sizing: border-box;
     border-radius: 10px;
     color: var(--primary-font-color);
+    height: 100%;
+    overflow: scroll;
 }
 
 #create-opcr {

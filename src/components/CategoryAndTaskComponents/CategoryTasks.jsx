@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import SubmissionsChart from "../Barchart";
 import { objectToFormData, socket } from "../api";
 import Swal from "sweetalert2";
 import { Modal } from "bootstrap";

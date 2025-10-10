@@ -2,64 +2,77 @@ import {Navigate, Outlet } from "react-router-dom";
 import "../assets/styles/Main.css"
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
+import { checkRole } from "../components/api";
 import Swal from "sweetalert2";
+import { getAccountNotification } from "../services/userService";
 
-function FacultyLayout(){
+function PresidentLayout(){
     const token = localStorage.getItem("token")
     const [profilePictureLink, setProfile] = useState("")
-
+    const [role, setRole] = useState(null)
     const [options, setOptions] = useState(false)
     const [userInfo, setUserInfo] = useState({})
-
     const [openNotif, setOpenNotif] = useState(false)
-    
-            const [notifications, setNotifications] = useState(null)
-    
-            async function loadNotification(user_id){
-                var res = await getAccountNotification(user_id).then(data => data.data)
-                setNotifications(res.toReversed())
-                console.log("notification", res)
-    
-            }
+
+    const [notifications, setNotifications] = useState(null)
+
+    async function loadNotification(user_id){
+        var res = await getAccountNotification(user_id).then(data => data.data)
+        setNotifications(res.toReversed())
+        console.log("notification", res)
+
+    }
+
     function readTokenInformation(){
         let payload = {}
         try {
             payload = jwtDecode(token)
             console.log("token: ",payload)
             setProfile(payload.profile_picture_link)
+            setRole(payload.role || null)
             setUserInfo(payload)
 
             loadNotification(payload.id)
+            
         }
         catch(err){
             console.log(err)
         }
     }
+
+    //gawin create ipcr bukas
+    
     
     if(!token){
         return <Navigate to="/" replace></Navigate>
     }
 
+    if(role && role !== "administrator"){
+        console.log(role)
+        window.location.href = "/unauthorized"
+    }
+    
+
     function Logout(){ 
-            Swal.fire({
-                title:"Logout",
-                text:"Do you want to logout?",
-                showDenyButton: true,
-                confirmButtonText:"Logout",
-                denyButtonText:"No",
-                icon:"warning",
-                customClass: {
-                    actions: 'my-actions',
-                    confirmButton: 'order-2',
-                    denyButton: 'order-1 right-gap',
-                },
-            }).then((result)=> {
-                if(result.isConfirmed){
-                    localStorage.removeItem("token")
-                    window.location.reload()
-                }
-            })  
-        }
+        Swal.fire({
+            title:"Logout",
+            text:"Do you want to logout?",
+            showDenyButton: true,
+            confirmButtonText:"Logout",
+            denyButtonText:"No",
+            icon:"warning",
+            customClass: {
+                actions: 'my-actions',
+                confirmButton: 'order-2',
+                denyButton: 'order-1 right-gap',
+            },
+        }).then((result)=> {
+            if(result.isConfirmed){
+                localStorage.removeItem("token")
+                window.location.reload()
+            }
+        })  
+    }
 
     function detectCurrentPage(detect){
         var current = window.location.pathname.replaceAll("/", "").toLocaleLowerCase()
@@ -67,36 +80,52 @@ function FacultyLayout(){
     }
     
     useEffect(()=>{
+        
         readTokenInformation()
         detectCurrentPage("dashboard")
     }, [])
 
     return (
-        <div className="main-layout-container" style={{gridTemplateColumns:"1fr"}}>
-            <div className="sidebar-container" style={{display:"none"}}>
+        <div className="main-layout-container">
+            <div className="sidebar-container">
                 <div className="logo-container">
                     <img src={`${import.meta.env.BASE_URL}CommitHub-Banner.png`} alt="" />
                 </div>
-                <a className="pages" href="/faculty/ipcr" style={detectCurrentPage("dashboard")}>
-                    <span className="material-symbols-outlined">article_person</span>
-                    <span>IPCR</span>
+                <a className="pages" href="/admin/dashboard" style={detectCurrentPage("dashboard")}>
+                    <span className="material-symbols-outlined">dashboard</span>
+                    <span>Dashboard</span>
+                </a>
+                <a className="pages" href="/admin/department" style={detectCurrentPage("department")}>
+                    <span className="material-symbols-outlined">apartment</span>
+                    <span>Department Management</span>
+                </a>
+                <a className="pages" href="/admin/tasks" style={detectCurrentPage("tasks")}>
+                    <span className="material-symbols-outlined">task</span>
+                    <span>Category and Task</span>
                 </a>                
-                <a className="pages" onClick={()=>{
-                    Logout()
-                }}>
-                    <span className="material-symbols-outlined" style={detectCurrentPage("")}>logout</span>
-                    <span>Logout</span>
+                <a className="pages" href="/admin/review" style={detectCurrentPage("ipcr")}>
+                    <span className="material-symbols-outlined">pageview</span>
+                    <span>Pending Review</span>
+                </a>
+
+                <a className="pages" href="/admin/approve" style={detectCurrentPage("ipcr")}>
+                    <span className="material-symbols-outlined">approval</span>
+                    <span>Pending Approval</span>
+                </a>
+
+                <a className="pages" href="/admin/ipcr" style={detectCurrentPage("ipcr")}>
+                    <span className="material-symbols-outlined">assignment_ind</span>
+                    <span>IPCR</span>
                 </a>
             </div>
             <header className="header-container">
                 <div className="current-location">
-                    
+                    <div className="menu-container">
+                        <span className="material-symbols-outlined">menu</span>
+                    </div>
                     <div className="current-page-container">                    
                         <span className="page">
-                            <img src={`${import.meta.env.BASE_URL}CommitHub-Banner.png`} alt="" style={{
-                                height:"100%",
-                                width:"20%"
-                            }}/>
+                            <span>{window.location.pathname.replaceAll("/", "")[0].toLocaleUpperCase() + window.location.pathname.substring(2)}</span>
                         </span>
                     </div>
                 </div>
@@ -105,7 +134,6 @@ function FacultyLayout(){
                     <div className="notification-container">
                         <span className="material-symbols-outlined" onClick={()=> {setOpenNotif(!openNotif)}}>notifications</span>
 
-                        
                         <div className="all-notification" style={openNotif? {display:"flex"}: {display:"none"}}  onMouseLeave={(e)=> {
                                 //setOpenNotif(false)
                             }}>
@@ -130,7 +158,6 @@ function FacultyLayout(){
                     </div>
                 </div>
             </header>
-
             {
                 options && <div className="header-options" onMouseLeave={()=>{setOptions(false)}}>
                     <div className="header-option">
@@ -156,4 +183,4 @@ function FacultyLayout(){
     )
 }
 
-export default FacultyLayout
+export default PresidentLayout

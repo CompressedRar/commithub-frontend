@@ -81,6 +81,7 @@ function OPCR(props) {
         }
     return (
         <div className="ipcr-wrapper"> 
+
             {optionsOpen && <div className="popup" onMouseLeave={()=>{setOpen(false)}}>
                 <div className="choices" onClick={()=> {download()}} style={{justifyContent:"center"}}>
                     <span className="material-symbols-outlined">{downloading ? "refresh": "download"}</span>
@@ -95,8 +96,10 @@ function OPCR(props) {
 
             <div className="ipcr" >
                 
+                
                 <div className="status-container">                             
                     <div style={{gap:"10px", display:"flex"}}> 
+                        <span className="form-status">{props.opcr.form_status.toUpperCase()}</span>
                         
                         {props.opcr.isMain == 1? <span className="main-form">MAIN</span>: ""}      
                     </div>
@@ -106,7 +109,7 @@ function OPCR(props) {
                 
                 <div className="description"onClick={props.onClick} data-bs-toggle="modal" data-bs-target="#view-opcr" onMouseOver={props.dept_mode? props.onMouseOver:null}>
                         <span className="material-symbols-outlined">contract</span>
-                        <span className="title">OPCR #{props.opcr.id}</span>
+                        <span className="title">{props.opcr.department.toUpperCase()}</span>
                         <span className="created">{props.opcr.created_at}</span>
                     </div>
             </div>

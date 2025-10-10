@@ -4,6 +4,7 @@ import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 import { checkRole } from "../components/api";
 import Swal from "sweetalert2";
+import { getAccountNotification } from "../services/userService";
 
 function AdminLayout(){
     const token = localStorage.getItem("token")
@@ -11,6 +12,16 @@ function AdminLayout(){
     const [role, setRole] = useState(null)
     const [options, setOptions] = useState(false)
     const [userInfo, setUserInfo] = useState({})
+    const [openNotif, setOpenNotif] = useState(false)
+
+    const [notifications, setNotifications] = useState(null)
+
+    async function loadNotification(user_id){
+        var res = await getAccountNotification(user_id).then(data => data.data)
+        setNotifications(res.toReversed())
+        console.log("notification", res)
+
+    }
 
     function readTokenInformation(){
         let payload = {}
@@ -20,6 +31,8 @@ function AdminLayout(){
             setProfile(payload.profile_picture_link)
             setRole(payload.role || null)
             setUserInfo(payload)
+
+            loadNotification(payload.id)
             
         }
         catch(err){
@@ -100,6 +113,16 @@ function AdminLayout(){
                     <span>Audit Logs</span>
                 </a>
 
+                <a className="pages" href="/admin/review" style={detectCurrentPage("ipcr")}>
+                    <span className="material-symbols-outlined">pageview</span>
+                    <span>Pending Review</span>
+                </a>
+
+                <a className="pages" href="/admin/approve" style={detectCurrentPage("ipcr")}>
+                    <span className="material-symbols-outlined">approval</span>
+                    <span>Pending Approval</span>
+                </a>
+
                 <a className="pages" href="/admin/ipcr" style={detectCurrentPage("ipcr")}>
                     <span className="material-symbols-outlined">assignment_ind</span>
                     <span>IPCR</span>
@@ -119,7 +142,19 @@ function AdminLayout(){
 
                 <div className="current-info">
                     <div className="notification-container">
-                        <span className="material-symbols-outlined">notifications</span>
+                        <span className="material-symbols-outlined" onClick={()=> {setOpenNotif(!openNotif)}}>notifications</span>
+
+                        <div className="all-notification" style={openNotif? {display:"flex"}: {display:"none"}}  onMouseLeave={(e)=> {
+                                //setOpenNotif(false)
+                            }}>
+                            <h3>Notifications</h3>
+                            {notifications && notifications.map(notif => (
+                                <div className="notif">
+                                    <span>{notif.name}</span>
+                                    <span>{notif.created_at}</span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                     <div className="account-informations">
                         <span>{userInfo.first_name + " " + userInfo.last_name}</span>
