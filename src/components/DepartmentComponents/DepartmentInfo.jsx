@@ -10,9 +10,6 @@ import PerformanceReviews from "./PerformanceReview";
 import CreateOPCRModal from "./CreateOPCRModal";
 import GeneralTasksTable from "./GeneralTasksTable";
 import UserPerformanceInDepartment from "../Charts/UserPerformanceInDepartment";
-import PendingReviews from "./PendingReviews";
-import PendingApprovals from "./PendingApprovals";
-import OfficePerformanceReview from "./OfficePerformanceReview";
 
 function DepartmentInfo(props){
 
@@ -371,10 +368,12 @@ function DepartmentInfo(props){
                     <UserPerformanceInDepartment dept_id = {props.id}></UserPerformanceInDepartment>
                 </div>: ""}
                                        
-                {currentPage == 0? <DepartmentMemberTable deptid ={props.id} ></DepartmentMemberTable>: ""}
-                {currentPage == 0? <DepartmentTasksTable id = {props.id}></DepartmentTasksTable>: ""}
-                {currentPage == 0? <GeneralTasksTable id = {props.id}></GeneralTasksTable>: ""}
-                {currentPage == 1 ? <PerformanceReviews deptid ={props.id} ></PerformanceReviews>:""}
+                <div style={{height:"500px"}}>
+                    {currentPage == 0? <DepartmentMemberTable deptid ={props.id} ></DepartmentMemberTable>: ""}
+                    {currentPage == 0? <DepartmentTasksTable id = {props.id}></DepartmentTasksTable>: ""}
+                    {currentPage == 0? <GeneralTasksTable id = {props.id}></GeneralTasksTable>: ""}
+                    {currentPage == 1 ? <PerformanceReviews deptid ={props.id} ></PerformanceReviews>:""}
+                </div>
             </div>
     )
 }

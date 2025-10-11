@@ -9,13 +9,14 @@ import ManageSupportingDocuments from "./ManageSupportingDocuments"
 
 
 //check bukas yung current user para alam sa department kung head yung nag eedit
-// para di din makapag approve si head
+// para di din makapag approve si head / 
 // account settinmgs hahahah
 //yung master opcr, gawin katulad nung sa ipcr pero di na mamimili, kita nalanmg kung anong department walang opcr
-
+//check bukas kung gumagana pa yung g4f
 function EditIPCR(props) {
-    const [userinfo, setuserInfo] = useState(null)
 
+    const token = localStorage.getItem("token")
+    const [userinfo, setuserInfo] = useState(null)
     const [ipcrInfo, setIPCRInfo] = useState(null)
     const [arrangedSubTasks, setArrangedSubTasks] = useState({})
     const [quantityAvg, setQuantityAvg] = useState(0)
@@ -27,8 +28,23 @@ function EditIPCR(props) {
     const [field, setField] = useState("")
     const [value, setValue] = useState(0)
     const [subTaskID, setSubTaskID] = useState(0)
-
     const [downloading, setDownloading] = useState(false)
+
+    const [currentUserInfo, setCurrentUserInfo] = useState(null)
+
+    function readTokenInformation(){
+        let payload = {}
+        try {
+            payload = jwtDecode(token)
+            console.log("token: ",payload)
+            setCurrentUserInfo(payload)
+            
+            
+        }
+        catch(err){
+            console.log(err)
+        }
+    }
 
     
     async function loadIPCR(){
@@ -338,6 +354,7 @@ function EditIPCR(props) {
     useEffect(()=> {
         loadIPCR()
         loadUserInfo()
+        readTokenInformation()
 
         socket.on("ipcr", ()=>{
             loadIPCR()
@@ -395,10 +412,12 @@ function EditIPCR(props) {
                     </div>
                     
 
-                    {(ipcrInfo && props.dept_mode) && ipcrInfo.form_status == "reviewed"? <button className="btn btn-success" disabled = {ipcrInfo.form_status == "approved"} onClick={()=>{approvalIPCR()}}>
+                    {(ipcrInfo && props.dept_mode) && ipcrInfo.form_status == "reviewed"? 
+                    currentUserInfo && currentUserInfo.role == "president" || currentUserInfo.role == "administrator"?<button className="btn btn-success" disabled = {ipcrInfo.form_status == "approved"} onClick={()=>{approvalIPCR()}}>
                         <span className="material-symbols-outlined">article_shortcut</span>
                         <span>{ipcrInfo.form_status == "approved"? "Approved": "Approve"}</span>
-                    </button>:""}
+                    </button>:""
+                    :""}
 
                     {(ipcrInfo && props.dept_mode) && ipcrInfo.form_status == "pending"? <button className="btn btn-primary" disabled = {ipcrInfo.form_status == "reviewed"} onClick={()=>{reviewalIPCR()}}>
                         <span className="material-symbols-outlined">article_shortcut</span>
