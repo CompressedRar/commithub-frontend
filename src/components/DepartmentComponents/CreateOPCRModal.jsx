@@ -21,13 +21,18 @@ function CreateOPCRModal(props){
         var filtered = []
 
         for(const ipcr of res){
-            if(ipcr.status == 1 && ipcr.form_status == "approved"){
+            
+            if(!ipcr.ipcr) continue
+            console.log("test opcr",ipcr.ipcr.status == 1 && ipcr.ipcr.form_status == "approved")
+            if(ipcr.ipcr.status == 1 && ipcr.ipcr.form_status == "approved"){
                 filtered.push(ipcr)
             }
         }
 
+        console.log("fultyera",filtered)
+
         setAllIPCR(filtered)
-        console.log(res)
+        
     }
 
     const submission = async () => {
@@ -152,16 +157,16 @@ function CreateOPCRModal(props){
                             <div className="empty">There is no Approved IPCR to choose from.</div>:""}
                             {allIPCR && allIPCR.map(ipcr => (
                                 <div className="select-ipcr">
-                                    <input type="radio" className="ipcrs" id = {ipcr.id} value = {ipcr.id} name = {ipcr.user.id} hidden/>
-                                    <label htmlFor={ipcr.id}>
+                                    <input type="radio" className="ipcrs" id = {ipcr.ipcr.id} value = {ipcr.ipcr.id} name = {ipcr.ipcr.user.id} hidden/>
+                                    <label htmlFor={ipcr.ipcr.id}>
                                         <div>
                                             <span className="material-symbols-outlined">assignment_ind</span>
                                             <span className="id">IPCR #{ipcr.id}</span>
-                                            {ipcr.isMain? <span className="is-main">MAIN</span>:""}
-                                            <span className="status">{ipcr.form_status.toUpperCase()}</span>
+                                            {ipcr.ipcr.isMain? <span className="is-main">MAIN</span>:""}
+                                            <span className="status">{ipcr.ipcr.form_status.toUpperCase()}</span>
                                         </div>
                                         
-                                        <span>{ipcr.user.first_name + " " + ipcr.user.last_name}</span>
+                                        <span>{ipcr.ipcr.user.first_name + " " + ipcr.ipcr.user.last_name}</span>
                                     </label>
                                 </div>
                             ))}

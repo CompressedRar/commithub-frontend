@@ -9,6 +9,8 @@ import { socket } from "../api"
 import EditOPCR from "./EditOPCR"
 import Swal from "sweetalert2"
 import DeptIPCR from "./DeptIPCR"
+import DeptOPCR from "./DeptOPCR"
+import OPCRSupportingDocuments from "./OPCRSupportingDocuments"
 
 
 function PerformanceReviews(props){
@@ -20,7 +22,6 @@ function PerformanceReviews(props){
 
     async function loadIPCR() {
         var res = await getDepartmentIPCR(props.deptid).then(data => data.data).catch(error => {
-            console.log(error.response.data.error)
             Swal.fire({
                 title: "Error",
                 text: error.response.data.error,
@@ -29,12 +30,10 @@ function PerformanceReviews(props){
         })
 
         setAllIPCR(res)
-        console.log("IPCRS: ",res)
     }
 
     async function loadOPCR() {
         var res = await getDepartmentOPCR(props.deptid).then(data => data.data).catch(error => {
-            console.log(error.response.data.error)
             Swal.fire({
                 title: "Error",
                 text: error.response.data.error,
@@ -50,7 +49,6 @@ function PerformanceReviews(props){
             }
         }
         setAllOPCR(filter)
-        console.log("OPCRS: ", res)
     }
 
     useEffect(()=> {
@@ -61,7 +59,6 @@ function PerformanceReviews(props){
             loadIPCR()
             loadOPCR()
 
-            console.log("SDOMERTHING CHANGED")
         })
 
         socket.on("opcr", ()=>{
@@ -80,6 +77,7 @@ function PerformanceReviews(props){
     //gawin yung highest performing deparmtent
     return (
         <div className="performance-reviews-container"  style={{height:"auto"}}>
+            {currentOPCRID? <OPCRSupportingDocuments key = {currentOPCRID} opcr_id = {currentOPCRID}></OPCRSupportingDocuments>:""}
             {batchID && currentIPCRID? <ManageSupportingDocuments  dept_mode = {true} key={currentIPCRID} ipcr_id = {currentIPCRID} batch_id = {batchID}></ManageSupportingDocuments>:""}
             <div className="modal fade" id="view-ipcr" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                 <div className="modal-dialog modal-dialog-scrollable modal-fullscreen" >
@@ -109,12 +107,13 @@ function PerformanceReviews(props){
                 </div>
             </div>
             <h3>Office Performance Review and Commitment Form</h3>
-            <div className="all-ipcr-container">
+            <div className="all-ipcr-container" style={{display:"flex", flexDirection:"column", gap:"10px"}}>
                 
                 {allOPCR && allOPCR.map(opcr => (
-                    opcr.status == 1 ?<OPCR opcr = {opcr} onClick={()=>{
+                    <DeptOPCR opcr = {opcr} onClick={()=>{
                         setCurrentOPCRID(opcr.id)
-                    }}></OPCR> :""
+                        
+                    }} onMouseOver = {()=>{setCurrentOPCRID(opcr.id)}}></DeptOPCR>
                 ))}
             </div>
             {allOPCR && allOPCR.length == 0?
@@ -128,11 +127,10 @@ function PerformanceReviews(props){
                 
                 {allIPCR && allIPCR.map(ipcr => (
                     <DeptIPCR onMouseOver = {()=>{
-                        setBatchID(ipcr.batch_id)
-                        setCurrentIPCRID(ipcr.id)
-                        console.log(ipcr.id)
+                        setBatchID(ipcr.ipcr.batch_id)
+                        setCurrentIPCRID(ipcr.ipcr.id)
                     }} onClick={()=>{
-                        setCurrentIPCRID(ipcr.id)
+                        setCurrentIPCRID(ipcr.ipcr.id)
                     }} ipcr = {ipcr} dept_mode = {true}></DeptIPCR>
                 ))}
 

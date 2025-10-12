@@ -412,17 +412,6 @@ function EditIPCR(props) {
                     </div>
                     
 
-                    {(ipcrInfo && props.dept_mode) && ipcrInfo.form_status == "reviewed"? 
-                    currentUserInfo && currentUserInfo.role == "president" || currentUserInfo.role == "administrator"?<button className="btn btn-success" disabled = {ipcrInfo.form_status == "approved"} onClick={()=>{approvalIPCR()}}>
-                        <span className="material-symbols-outlined">article_shortcut</span>
-                        <span>{ipcrInfo.form_status == "approved"? "Approved": "Approve"}</span>
-                    </button>:""
-                    :""}
-
-                    {(ipcrInfo && props.dept_mode) && ipcrInfo.form_status == "pending"? <button className="btn btn-primary" disabled = {ipcrInfo.form_status == "reviewed"} onClick={()=>{reviewalIPCR()}}>
-                        <span className="material-symbols-outlined">article_shortcut</span>
-                        <span>{ipcrInfo.form_status == "reviewed"? "Reviewed": "Mark as Reviewed"}</span>
-                    </button>:""}
                 </div>
             </div>
             

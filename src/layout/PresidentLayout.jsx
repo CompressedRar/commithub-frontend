@@ -47,7 +47,7 @@ function PresidentLayout(){
         return <Navigate to="/" replace></Navigate>
     }
 
-    if(role && role !== "administrator"){
+    if(role && role !== "president"){
         console.log(role)
         window.location.href = "/unauthorized"
     }
@@ -91,29 +91,25 @@ function PresidentLayout(){
                 <div className="logo-container">
                     <img src={`${import.meta.env.BASE_URL}CommitHub-Banner.png`} alt="" />
                 </div>
-                <a className="pages" href="/admin/dashboard" style={detectCurrentPage("dashboard")}>
+                <a className="pages" href="/president/dashboard" style={detectCurrentPage("dashboard")}>
                     <span className="material-symbols-outlined">dashboard</span>
                     <span>Dashboard</span>
                 </a>
-                <a className="pages" href="/admin/department" style={detectCurrentPage("department")}>
+                <a className="pages" href="/president/department" style={detectCurrentPage("department")}>
                     <span className="material-symbols-outlined">apartment</span>
                     <span>Department Management</span>
                 </a>
-                <a className="pages" href="/admin/tasks" style={detectCurrentPage("tasks")}>
+                <a className="pages" href="/president/tasks" style={detectCurrentPage("tasks")}>
                     <span className="material-symbols-outlined">task</span>
                     <span>Category and Task</span>
-                </a>                
-                <a className="pages" href="/admin/review" style={detectCurrentPage("ipcr")}>
-                    <span className="material-symbols-outlined">pageview</span>
-                    <span>Pending Review</span>
-                </a>
+                </a>  
 
-                <a className="pages" href="/admin/approve" style={detectCurrentPage("ipcr")}>
+                <a className="pages" href="/president/approve" style={detectCurrentPage("ipcr")}>
                     <span className="material-symbols-outlined">approval</span>
                     <span>Pending Approval</span>
                 </a>
 
-                <a className="pages" href="/admin/ipcr" style={detectCurrentPage("ipcr")}>
+                <a className="pages" href="/president/ipcr" style={detectCurrentPage("ipcr")}>
                     <span className="material-symbols-outlined">assignment_ind</span>
                     <span>IPCR</span>
                 </a>

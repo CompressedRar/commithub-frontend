@@ -8,7 +8,7 @@ async function getG4F() {
 }
 
 export async function convert_tense(sentence) {
-  const { PollinationsAI } = await getG4F();
+  const { PollinationsAI } = await import('https://g4f.dev/dist/js/client.js');
   const client = new PollinationsAI({ apiKey: 'optional' });
 
   const result = await client.chat.completions.create({

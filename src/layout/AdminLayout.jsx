@@ -113,11 +113,6 @@ function AdminLayout(){
                     <span>Audit Logs</span>
                 </a>
 
-                <a className="pages" href="/admin/review" style={detectCurrentPage("ipcr")}>
-                    <span className="material-symbols-outlined">pageview</span>
-                    <span>Pending Review</span>
-                </a>
-
                 <a className="pages" href="/admin/approve" style={detectCurrentPage("ipcr")}>
                     <span className="material-symbols-outlined">approval</span>
                     <span>Pending Approval</span>

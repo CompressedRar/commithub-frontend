@@ -6,7 +6,6 @@ import PopulationPerDepartment from "../components/Charts/PopulationPerDepartmen
 import PerformancePerDepartment from "../components/Charts/PerformancePerDepartment";
 import PerformanceSummaryPerDepartment from "../components/Charts/PerformanceSummaryPerDepartment";
 import ActivityTrendChart from "../components/Charts/ActivityTrendChart";
-import ActivityScatter from "../components/Charts/ActivityScatter";
 import { TopDepartmentChats } from "../components/Charts/CategoryPerformance";
 import AllTaskAverages from "../components/Charts/AllTaskAverage";
 import { downloadMasterOPCR } from "../services/pcrServices";

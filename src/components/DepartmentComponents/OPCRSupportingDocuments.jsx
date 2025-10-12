@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
-import { archiveDocument, generatePreSignedURL, getSupportingDocuments, recordFileUploadInfo } from "../../services/pcrServices";
+import { archiveDocument, generatePreSignedURL, getOPCRSupportingDocuments, getSupportingDocuments, recordFileUploadInfo } from "../../services/pcrServices";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { socket } from "../api";
 
-function ManageSupportingDocuments(props) {
+function OPCRSupportingDocuments(props) {
     const [file, setFile] = useState(null);
     const [documents, setDocuments] = useState(null)
 
     async function loadDocuments(){
-        var res = await getSupportingDocuments(props.ipcr_id).then(data => data.data).catch(error => {
+        var res = await getOPCRSupportingDocuments(props.opcr_id).then(data => data.data).catch(error => {
             console.log(error.response.data.error)
             Swal.fire({
                 title: "Error",
@@ -149,6 +149,7 @@ function ManageSupportingDocuments(props) {
 
     useEffect(()=> {
         loadDocuments()
+        console.log("Hasdfgdas")
 
         socket.on("document", ()=> {
             loadDocuments()
@@ -158,7 +159,7 @@ function ManageSupportingDocuments(props) {
     }, [])
 
     return (
-        <div className="modal fade" id="manage-docs" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div className="modal fade" id="manage-opcr-docs" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                 <div className="modal-dialog modal-dialog-centered modal-xl" >
                     <div className="modal-content">
                         <div className="modal-header">
@@ -166,14 +167,14 @@ function ManageSupportingDocuments(props) {
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
-                            <div className="add-docu-header">
+                            {/**<div className="add-docu-header">
                                 <input type="file" name="support" id="support" onChange={handleFileChange}/>
                                 <button className="btn btn-primary" onClick={()=>{uploadFile()}}>
                                     <span className="material-symbols-outlined">upload</span>
                                     <span>Upload Document</span>
                                 </button>
                                 
-                            </div>
+                            </div> */}
 
                             <div className="uploaded-documents-container">
                                 <h4>Uploaded Files</h4>
@@ -194,10 +195,6 @@ function ManageSupportingDocuments(props) {
                                                     <span className="material-symbols-outlined">download</span>
                                                     <span>Download</span>
                                                 </button>
-                                                <button className="btn btn-danger" style={props.dept_mode? {display:"none"}:{}} onClick={()=>{removeDocument(document.id)}}>
-                                                    <span className="material-symbols-outlined">remove</span>
-                                                    <span>Remove</span>
-                                                </button>
                                             </div>  
                                             
                                         </div> : ""
@@ -212,4 +209,4 @@ function ManageSupportingDocuments(props) {
     )
 }
 
-export default ManageSupportingDocuments
+export default OPCRSupportingDocuments

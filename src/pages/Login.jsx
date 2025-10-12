@@ -72,6 +72,9 @@ function Login(){
             else if (payload.role == "administrator"){
                 window.location.href = "/admin/dashboard"
             }
+            else if (payload.role == "president"){
+                window.location.href = "/president/dashboard"
+            }
         }
         setLoggingIn(false)
 

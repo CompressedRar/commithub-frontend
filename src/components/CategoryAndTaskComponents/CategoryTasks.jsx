@@ -82,7 +82,6 @@ function CategoryTasks(props){
         const debounce = setTimeout(async ()=>{
             setTranslating(true)
             var converted_tense = await convert_tense(String(pastTense)).catch(error => {
-            console.log(error.response.data.error)
             Swal.fire({
                 title: "Error",
                 text: "There is an error while processing description.",

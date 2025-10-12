@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { archiveIprc, downloadIPCR } from "../../services/pcrServices";
+import { archiveIprc, downloadIPCR, reviewIPCR } from "../../services/pcrServices";
 import Swal from "sweetalert2";
 
 
-function DeptIPCR(props) {
+function PendingIPCR(props) {
 
     //gawin bukas yung supporting documents 
     //gawin yung head module
@@ -14,11 +14,52 @@ function DeptIPCR(props) {
     const [optionsOpen, setOpen] = useState(false)
     const [downloading, setDownloading] = useState(false)
     const [archiving, setArchiving] = useState(false)
+
+    async function handleReview(){
+            var res = await reviewIPCR(props.ipcr.id).then(data => data.data.message).catch(error => {
+                console.log(error.response.data.error)
+                Swal.fire({
+                    title: "Error",
+                    text: error.response.data.error,
+                    icon: "error"
+                })
+            })
+                
+            if (res == "This IPCR is successfully reviewed."){
+                Swal.fire({
+                    title:"Success",
+                    text: res,
+                    icon:"success"
+                })
+            }
+        } 
+        
+    async function reviewalIPCR(){
+            Swal.fire({
+                title:"Review",
+                text:"Please confirm that you have thoroughly reviewed this IPCR. Do you want to proceed with marking it as reviewed?",
+                showDenyButton: true,
+                confirmButtonText:"Yes",
+                confirmButtonColor:"blue",
+                denyButtonText:"No",
+                denyButtonColor:"grey",
+                icon:"question",
+                customClass: {
+                    actions: 'my-actions',
+                    confirmButton: 'order-2',
+                    denyButton: 'order-1 right-gap',
+                },
+            }).then((result)=> {
+                if(result.isConfirmed){
+                    handleReview()
+                }
+            }) 
+        }
     
 
     async function handleArchive(){
         setArchiving(true)
-        var res = await archiveIprc(props.ipcr.ipcr.id).then(data => data.data.message).catch(error => {
+        var res = await archiveIprc(props.ipcr.id).then(data => data.data.message).catch(error => {
             console.log(error.response.data.error)
             Swal.fire({
                 title: "Error",
@@ -61,7 +102,7 @@ function DeptIPCR(props) {
 
     async function download() {
         setDownloading(true)
-        var res = await downloadIPCR(props.ipcr.ipcr.id).then(data => data.data.link).catch(error => {
+        var res = await downloadIPCR(props.ipcr.id).then(data => data.data.link).catch(error => {
             console.log(error.response.data.error)
             Swal.fire({
                 title: "Error",
@@ -96,17 +137,17 @@ function DeptIPCR(props) {
             <div className="dept-ipcr"  onMouseOver={props.dept_mode? props.onMouseOver:null}>                                                
                 <div className="description">                        
                     <div className="ipcr-info">
-                        <div className="ipcr-profile" style={{backgroundImage:`url('${props.ipcr.member.profile_picture_link}')`}}></div>
-                        <span >{ props.ipcr.ipcr && "IPCR - "}</span>
-                        <span>{props.ipcr.member.first_name + " " + props.ipcr.member.last_name}</span>
+                        <div className="ipcr-profile" style={{backgroundImage:`url('${props.ipcr.user.profile_picture_link}')`}}></div>
+                        <span >{ props.ipcr && "IPCR - "}</span>
+                        <span>{props.ipcr.user.first_name + " " + props.ipcr.user.last_name}</span>
                     </div>
                     <div style={{gap:"10px", display:"flex"}}> 
-                        {props.ipcr.ipcr && <span className="form-status">{props.ipcr.ipcr && props.ipcr.ipcr.form_status.toUpperCase()}</span>}
+                        {props.ipcr&& <span className="form-status">{props.ipcr && props.ipcr.form_status.toUpperCase()}</span>}
                     </div>
                 </div> 
 
                 {
-                    props.ipcr.ipcr ?
+                    props.ipcr?
                     <div className="status-container">                                                 
                         <button className="choices btn btn-primary" onClick={()=> {download()}} style={{justifyContent:"center"}}>
                             <span className="material-symbols-outlined">{downloading ? "refresh": "download"}</span>
@@ -120,9 +161,11 @@ function DeptIPCR(props) {
                             <span className="material-symbols-outlined">view_list</span>
                             <span>View</span>
                         </button>
-                        <button className="choices btn btn-danger" onClick={()=>{archiveIPCR()}}>
-                            <span className="material-symbols-outlined">{!archiving? "archive":"refresh"}</span>
-                        </button>                        
+
+                        <button className="btn btn-primary" onClick={()=> {reviewalIPCR()}} style={{display:"flex", flexDirection:"row", alignItems:"center", padding:"10px", gap:"10px"}}>
+                            <span className="material-symbols-outlined">bubble</span>    
+                            <span>Submit for Approval</span>
+                        </button>                   
                     </div>:
                     <span style={{display:"flex", flexDirection:"row", justifyContent:"flex-end", fontStyle:"italic"}}>Awaiting Submission</span>
                 }
@@ -131,4 +174,4 @@ function DeptIPCR(props) {
     )
 }
 
-export default DeptIPCR
+export default PendingIPCR

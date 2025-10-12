@@ -88,6 +88,10 @@ export async function getSupportingDocuments(ipcr_id) {
     return api.get(`/api/v1/pcr/ipcr/documents/${ipcr_id}`)
 }
 
+export async function getOPCRSupportingDocuments(opcr_id) {
+    return api.get(`/api/v1/pcr/opcr/documents/${opcr_id}`)
+}
+
 export async function recordFileUploadInfo(data) {
     return api.post(`/api/v1/pcr/record`, data)
 }

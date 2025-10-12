@@ -3,6 +3,7 @@ import "../assets/styles/Main.css"
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
+import { getAccountNotification } from "../services/userService";
 
 function FacultyLayout(){
     const token = localStorage.getItem("token")

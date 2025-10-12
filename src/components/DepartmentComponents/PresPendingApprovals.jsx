@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react"
-import { getDepartmentIPCR, getDepartmentOPCR } from "../../services/departmentService"
-import IPCR from "../Faculty/IPCR"
 
 import EditIPCR from "../Faculty/EditIPCR"
 import ManageSupportingDocuments from "../Faculty/ManageSupportingDocuments"
 import { socket } from "../api"
 import EditOPCR from "./EditOPCR"
 import Swal from "sweetalert2"
-import { getFacultyPending, getHeadApproved, getHeadPending, getHeadReviewed, getOPCRPending, getOPCRReviewed } from "../../services/pcrServices"
-import OPCR from "./OPCR"
+import { getHeadReviewed, getOPCRPending, getOPCRReviewed } from "../../services/pcrServices"
+import ReviewedIPCR from "./ReviewedIPCR"
+import ReviewedOPCR from "./ReviewedOPCR"
 
 
 function PresPendingApproval(){
@@ -103,38 +102,13 @@ function PresPendingApproval(){
                     </div>
                 </div>
             </div>
-            
-            <h3>Individual Performance Review and Commitment Forms</h3>
-            <div className="all-ipcr-container">
-                
-                {allIPCR && allIPCR.map(ipcr => (
-                    ipcr.status == 1? <IPCR onMouseOver = {()=>{
-                        setBatchID(ipcr.batch_id)
-                        setCurrentIPCRID(ipcr.id)
-                        setCurrentDeptID(ipcr.user.department_id)
-                        console.log(ipcr.id)
-                    }} onClick={()=>{
-                        setCurrentIPCRID(ipcr.id)
-                    }} ipcr = {ipcr} dept_mode = {true}></IPCR> :""
-                ))}
-
-                 
-            </div>
-
-            
-            
-            {allIPCR && allIPCR.length == 0?
-                    <div className="empty-symbols">
-                        <span className="material-symbols-outlined">file_copy_off</span>    
-                        <span className="desc">No Reviewed Head IPCRs Found</span>
-            </div>:""} 
             <h3>Office Performance Review and Commitment Forms</h3>
-            <div className="all-ipcr-container">
+            <div className="all-ipcr-container"  style={{display:"flex", flexDirection:"column", gap:"10px"}}>
                 
                 {allOPCR && allOPCR.map(opcr => (
-                    <OPCR opcr = {opcr} onClick={()=>{
+                    <ReviewedOPCR opcr = {opcr} onClick={()=>{
                         setCurrentOPCRID(opcr.id)
-                    }}></OPCR>
+                    }}></ReviewedOPCR>
                 ))}
             </div>
             {allOPCR && allOPCR.length == 0?
@@ -142,6 +116,30 @@ function PresPendingApproval(){
                         <span className="material-symbols-outlined">file_copy_off</span>    
                         <span className="desc">No Reviewed OPCRs Found</span>
                     </div>:""} 
+            
+            <h3>Individual Performance Review and Commitment Forms</h3>
+            <div className="all-ipcr-container"  style={{display:"flex", flexDirection:"column", gap:"10px"}}>
+                
+                {allIPCR && allIPCR.map(ipcr => (
+                    ipcr.status == 1? <ReviewedIPCR onMouseOver = {()=>{
+                        setBatchID(ipcr.batch_id)
+                        setCurrentIPCRID(ipcr.id)
+                        setCurrentDeptID(ipcr.user.department_id)
+                        console.log(ipcr.id)
+                    }} onClick={()=>{
+                        setCurrentIPCRID(ipcr.id)
+                    }} ipcr = {ipcr} dept_mode = {true}></ReviewedIPCR> :""
+                ))}
+
+                 
+            </div>
+                        
+            {allIPCR && allIPCR.length == 0?
+                    <div className="empty-symbols">
+                        <span className="material-symbols-outlined">file_copy_off</span>    
+                        <span className="desc">No Reviewed Head IPCRs Found</span>
+            </div>:""} 
+            
         </div>
     )
 }

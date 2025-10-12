@@ -9,6 +9,8 @@ import EditOPCR from "./EditOPCR"
 import Swal from "sweetalert2"
 import { getFacultyPending, getHeadPending, getOPCRPending } from "../../services/pcrServices"
 import OPCR from "./OPCR"
+import PendingIPCR from "./PendingPCR"
+import PendingOPCR from "./PendingOPCR"
 
 
 function PresPendingReviews(){
@@ -101,19 +103,33 @@ function PresPendingReviews(){
                     </div>
                 </div>
             </div>
+            <h3>Office Performance Review and Commitment Forms</h3>
+            <div className="all-ipcr-container" style={{display:"flex", flexDirection:"column", gap:"10px"}}>
+                
+                {allOPCR && allOPCR.map(opcr => (
+                    <PendingOPCR opcr = {opcr} onClick={()=>{
+                        setCurrentOPCRID(opcr.id)
+                    }}></PendingOPCR>
+                ))}
+            </div>
+            {allOPCR && allOPCR.length == 0?
+                    <div className="empty-symbols">
+                        <span className="material-symbols-outlined">file_copy_off</span>    
+                        <span className="desc">No Pending OPCRs Found</span>
+                    </div>:""} 
             
             <h3>Individual Performance Review and Commitment Forms</h3>
-            <div className="all-ipcr-container">
+            <div className="all-ipcr-container" style={{display:"flex", flexDirection:"column", gap:"10px"}}>
                 
                 {allIPCR && allIPCR.map(ipcr => (
-                    ipcr.status == 1? <IPCR onMouseOver = {()=>{
+                    ipcr.status == 1? <PendingIPCR onMouseOver = {()=>{
                         setBatchID(ipcr.batch_id)
                         setCurrentIPCRID(ipcr.id)
                         setCurrentDeptID(ipcr.user.department_id)
                         console.log(ipcr.id)
                     }} onClick={()=>{
                         setCurrentIPCRID(ipcr.id)
-                    }} ipcr = {ipcr} dept_mode = {true}></IPCR> :""
+                    }} ipcr = {ipcr} dept_mode = {true}></PendingIPCR> :""
                 ))}
 
                  
@@ -124,20 +140,7 @@ function PresPendingReviews(){
                         <span className="material-symbols-outlined">file_copy_off</span>    
                         <span className="desc">No Pending Head IPCRs Found</span>
             </div>:""} 
-            <h3>Office Performance Review and Commitment Forms</h3>
-            <div className="all-ipcr-container">
-                
-                {allOPCR && allOPCR.map(opcr => (
-                    <OPCR opcr = {opcr} onClick={()=>{
-                        setCurrentOPCRID(opcr.id)
-                    }}></OPCR>
-                ))}
-            </div>
-            {allOPCR && allOPCR.length == 0?
-                    <div className="empty-symbols">
-                        <span className="material-symbols-outlined">file_copy_off</span>    
-                        <span className="desc">No Pending OPCRs Found</span>
-                    </div>:""} 
+            
         </div>
     )
 }
