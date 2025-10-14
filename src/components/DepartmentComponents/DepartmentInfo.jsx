@@ -347,6 +347,12 @@ function DepartmentInfo(props){
                                 <span className="type">Tasks</span>
                             </div>                            
                         </div>
+                        <div>
+                            <button className="btn btn-primary" style={{display:"flex", flexDirection:"row", gap:"10px", alignItems:"center"}} data-bs-toggle="modal" data-bs-target="#create-opcr">
+                                <span className="material-symbols-outlined">assignment_globe</span>
+                                <span>Create OPCR</span>
+                            </button>
+                        </div>
                         
 
                         
@@ -358,21 +364,26 @@ function DepartmentInfo(props){
                 
                 <div className="pages-container">
                     <div className={currentPage == 0? "select": ""} onClick={()=>{setCurrentPage(0)}}>
-                        Members and Tasks
+                        Tasks 
                     </div>
                     <div className={currentPage == 1? "select": ""} onClick={()=>{setCurrentPage(1)}}>
+                        Members 
+                    </div>
+
+                    <div className={currentPage == 2? "select": ""} onClick={()=>{setCurrentPage(2)}}>
                         Performance Review Forms
                     </div>
                 </div>
-                {currentPage == 0? <div style={{backgroundColor:"white", padding:"10px"}}>
+                {currentPage == 1? <div style={{backgroundColor:"white", padding:"10px"}}>
                     <UserPerformanceInDepartment dept_id = {props.id}></UserPerformanceInDepartment>
                 </div>: ""}
                                        
                 <div style={{height:"500px"}}>
-                    {currentPage == 0? <DepartmentMemberTable deptid ={props.id} ></DepartmentMemberTable>: ""}
                     {currentPage == 0? <DepartmentTasksTable id = {props.id}></DepartmentTasksTable>: ""}
                     {currentPage == 0? <GeneralTasksTable id = {props.id}></GeneralTasksTable>: ""}
-                    {currentPage == 1 ? <PerformanceReviews deptid ={props.id} ></PerformanceReviews>:""}
+                    {currentPage == 1? <DepartmentMemberTable deptid ={props.id} ></DepartmentMemberTable>: ""}
+                    {currentPage == 2? <PerformanceReviews deptid ={props.id} ></PerformanceReviews>:""}
+                    
                 </div>
             </div>
     )

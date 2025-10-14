@@ -103,6 +103,10 @@ function PresidentLayout(){
                     <span className="material-symbols-outlined">task</span>
                     <span>Category and Task</span>
                 </a>  
+                <a className="pages" href="/president/review" style={detectCurrentPage("ipcr")}>
+                    <span className="material-symbols-outlined">approval</span>
+                    <span>Pending Review</span>
+                </a>
 
                 <a className="pages" href="/president/approve" style={detectCurrentPage("ipcr")}>
                     <span className="material-symbols-outlined">approval</span>

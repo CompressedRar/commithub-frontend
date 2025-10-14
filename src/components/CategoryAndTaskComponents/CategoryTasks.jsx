@@ -3,14 +3,16 @@ import { objectToFormData, socket } from "../api";
 import Swal from "sweetalert2";
 import { Modal } from "bootstrap";
 import { archiveCategory, getCategory, updateCategory } from "../../services/categoryService";
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+
 
 
 import { getDepartments } from "../../services/departmentService";
-import { createMainTask } from "../../services/taskService";
 import { convert_tense } from "../../services/tenseConverted";
 import CategoryTask from "./CategoryTask";
 import CategoryTaskAverages from "../Charts/CategoryTaskAverage";
 import CategoryPerformanceCharts from "../Charts/CategoryPerformance";
+import { createMainTask } from "../../services/taskService";
 
 function CategoryTasks(props){
 
@@ -50,7 +52,7 @@ function CategoryTasks(props){
         setFormData({"task_name": "",                         
                     "department": "0",
                     "task_desc": "",
-                    "time_measurement": "day",   // default value
+                    "time_measurement": "minute",   // default value
                     "modification": "correction", // default value
                     "accomplishment_editable": 0,
                     "time_editable": 0,
@@ -128,6 +130,16 @@ function CategoryTasks(props){
             return
         }
 
+        if(formData["task_desc"] == ""){
+            Swal.fire({
+                title:"Error",
+                text: "Fill the task name field",
+                icon:"error"
+            })
+            setSubmission(false)
+            return
+        }
+
         console.log(newFormData)
 
 
@@ -161,19 +173,23 @@ function CategoryTasks(props){
         // update ng category at nung task
 
         
+        
         await loadCategoryTasks(props.id)
+        closeModal()
 
-        const modalEl = document.getElementById("add-task");
-            const modal = Modal.getOrCreateInstance(modalEl);
 
-            modal.hide();
+    }
 
-            // Cleanup leftover backdrop if any
-            document.querySelectorAll(".modal-backdrop").forEach(el => el.remove());
-            document.body.classList.remove("modal-open");
-            document.body.style.overflow = ""; // reset scroll lock
+    const openModal = () => {
+        const el = document.getElementById("add-task");
+        const modal = new Modal(el);
+        modal.show();
+  };
 
-        setSubmission(false)
+    function closeModal(){
+        const el = document.getElementById("add-task");
+        const modal = Modal.getInstance(el);
+        modal.hide();
     }
 
     const handleArch = async () => {
@@ -257,82 +273,161 @@ function CategoryTasks(props){
 
     return (
         <div className="category-main-container">
-            <div className="modal fade" id="add-task" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                <div className="modal-dialog modal-dialog-centered" style={{width: "", maxWidth: "60%"}}>
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title" id="staticBackdropLabel">Create Task</h5>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div
+                className="modal fade"
+                id="add-task"
+                data-bs-backdrop="static"
+                data-bs-keyboard="false"
+                tabIndex="-1"
+                aria-labelledby="createTaskLabel"
+                aria-hidden="true"
+                >
+                <div className="modal-dialog modal-dialog-centered modal-lg">
+                    <div className="modal-content shadow-lg border-0 rounded-3">
+                    
+                    {/* Header */}
+                    <div className="modal-header bg-primary text-white">
+                        <h5 className="modal-title fw-semibold" id="createTaskLabel">
+                        <span className="material-symbols-outlined me-2 align-middle">add_task</span>
+                        Create Task
+                        </h5>
+                        <button
+                        type="button"
+                        className="btn-close btn-close-white"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                        ></button>
+                    </div>
+
+                    {/* Body */}
+                    <div className="modal-body px-4 py-3">
+                        <form className="needs-validation" noValidate>
+                        {/* Task Name */}
+                        <div className="mb-3">
+                            <label htmlFor="task_name" className="form-label fw-semibold">
+                            Task Name <span className="text-danger">*</span>
+                            </label>
+                            <input
+                            type="text"
+                            id="task_name"
+                            name="task_name"
+                            className="form-control"
+                            placeholder="e.g., Board Trustees Meeting"
+                            onInput={handleDataChange}
+                            required
+                            />
                         </div>
-                        <div className="modal-body">
-                            <div className="textboxes">
-                                <label htmlFor="task_name">Task Name <span className="required">*</span></label>
-                                <input type="task_name" id="task_name" name="task_name" placeholder="Eg. Board Trustees Meeting" onInput={handleDataChange} required/>
-                            </div>
-                            <div className="textboxes">
-                                <label htmlFor="department">Department <span className="required">*</span></label>
-                                <select name="department" id="department" onChange={handleDataChange}>
-                                    <option value={0}>General</option>
-                                    {allDepartments.map(dept => (
-                                        <option value = {dept.id} key={dept.name}>{dept.name}</option>
-                                    ))}
-                                </select>
+
+                        {/* Department */}
+                        <div className="mb-3">
+                            <label htmlFor="department" className="form-label fw-semibold">
+                            Department <span className="text-danger">*</span>
+                            </label>
+                            <select
+                            id="department"
+                            name="department"
+                            className="form-select"
+                            onChange={handleDataChange}
+                            >
+                            <option value={0}>General</option>
+                            {allDepartments.map((dept) => (
+                                <option key={dept.id} value={dept.id}>
+                                {dept.name}
+                                </option>
+                            ))}
+                            </select>
+                        </div>
+
+                        {/* Description */}
+                        <div className="mb-3">
+                            <label htmlFor="task_desc" className="form-label fw-semibold">
+                            Task Description
+                            </label>
+                            <textarea
+                            id="task_desc"
+                            name="task_desc"
+                            className="form-control"
+                            placeholder="Describe the task..."
+                            rows={5}
+                            onInput={(e) => {
+                                handleDataChange(e);
+                                setPastTense(e.target.value);
+                            }}
+                            required
+                            ></textarea>
+                        </div>
+
+                        {/* Measurement Row */}
+                        <div className="row">
+                            <div className="col-md-6 mb-3">
+                            <label htmlFor="time_measurement" className="form-label fw-semibold">
+                                Time Measurement
+                            </label>
+                            <select
+                                id="time_measurement"
+                                name="time_measurement"
+                                className="form-select"
+                                onChange={handleDataChange}
+                            >
+                                <option value="minute">Minute</option>
+                                <option value="hour">Hour</option>
+                                <option value="day">Day</option>
+                                <option value="week">Week</option>
+                                <option value="month">Month</option>
+                                <option value="semester">Semester</option>
+                                <option value="year">Year</option>
+                            </select>
                             </div>
 
-                            <div className="textboxes">
-                                <label htmlFor="task_desc" className="editables">
-                                    <span>Task Description</span>
-                                    
-                                </label>
-                                <textarea type="task_desc" id="task_desc" name="task_desc" placeholder="Describe the task." rows={5} onInput={(e)=> {
-                                    handleDataChange(e)
-                                    setPastTense(e.target.value)
-                                }} required/>
+                            <div className="col-md-6 mb-3">
+                            <label htmlFor="modification" className="form-label fw-semibold">
+                                Modifications
+                            </label>
+                            <select
+                                id="modification"
+                                name="modification"
+                                className="form-select"
+                                onChange={handleDataChange}
+                            >
+                                <option value="correction">Correction</option>
+                                <option value="revision">Revision</option>
+                                <option value="error">Error</option>
+                            </select>
                             </div>
-                            
-                            <div className="task-measurement-container">
-                                    <div className="textboxes">
-                                        <label htmlFor="time_measurement" className="editables">
-                                            <span>Time Measurement</span>
-                                            
-                                        </label>
-                                        <select name="time_measurement" id="time_measurement" onChange={handleDataChange}>
-                                            <option value="minute">Minute</option>
-                                            <option value="hour">Hour</option>
-                                            <option value="day">Day</option>
-                                            <option value="week">Week</option>
-                                            <option value="month">Month</option>
-                                            <option value="semester">Semester</option>
-                                            <option value="year">Year</option>
-                                        </select>
-                                    </div>
+                        </div>
+                        </form>
+                    </div>
 
-                                    <div className="textboxes">
-                                        <label htmlFor="modification" className="editables">
-                                            <span>Modifications</span>
-                                            
-                                        </label>
-                                        <select name="modification" id="modification" onChange={handleDataChange}>
-                                            <option value="correction">Correction</option>
-                                            <option value="revision">Revision</option>
-                                            <option value="error">Error</option>
-                                        </select>
-                                    </div>
-                            </div>
-                            
-                            
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" className="btn btn-primary" onClick={handleSubmission} disabled = {translating}>
-                                 {submitting ?<span className="material-symbols-outlined loading">progress_activity</span> : <span>Create Task</span>}
-                            </button>
-                           
-                        </div>
+                    {/* Footer */}
+                    <div className="modal-footer d-flex justify-content-between">
+                        <button
+                        type="button"
+                        className="btn btn-outline-secondary"
+                        data-bs-dismiss="modal"
+                        >
+                        Close
+                        </button>
+
+                        <button
+                        type="button"
+                        className="btn btn-primary px-4"
+                        onClick={handleSubmission}
+                        disabled={translating}
+                        >
+                        {submitting || translating ? (
+                            <span className="material-symbols-outlined spin me-2 align-middle">
+                            progress_activity
+                            </span>
+                        ) : (
+                            <span className="me-2 align-middle material-symbols-outlined">add_circle</span>
+                        )}
+                        Create Task
+                        </button>
+                    </div>
                     </div>
                 </div>
-            
-            </div>
+                </div>
+
             <div style={{display: "flex", alignItems:"center", gap: "10px", justifyContent:"flex-end"}}>
                 <button className="btn btn-danger" style={{display: "flex", alignItems:"center", gap: "10px", justifyContent:"flex-end"}} onClick={handleArchive}>
                     <span className="material-symbols-outlined">archive</span>
@@ -356,7 +451,8 @@ function CategoryTasks(props){
                     <span className="all-tasks-title">   
                         <span>Tasks</span>
                         <div className="create-task-btn">
-                            <button className="btn btn-primary"  data-bs-toggle="modal" data-bs-target="#add-task">
+                            <button className="btn btn-primary"  onClick={()=> {openModal()}
+                        }>
                                 <span className="material-symbols-outlined">add</span>
                                 <span>Create Task</span>
                             </button>

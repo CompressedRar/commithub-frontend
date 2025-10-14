@@ -1,182 +1,195 @@
-import { useState, useEffect } from "react"
-import { getCategoriesWithTasks } from "../../services/categoryService"
-import { assignDepartment, getDepartment, removeTask } from "../../services/departmentService"
-import Swal from "sweetalert2"
-import { socket } from "../api"
-
-
+import { useState, useEffect } from "react";
+import { getCategoriesWithTasks } from "../../services/categoryService";
+import {
+  assignDepartment,
+  getDepartment,
+  removeTask,
+} from "../../services/departmentService";
+import Swal from "sweetalert2";
+import { socket } from "../api";
 
 function AddDepartmentTask(props) {
-    const [allCategories, setAllCategories] = useState([])
-    const [departmentInfo, setDepartmentInfo] = useState({})
-    const [archiving, setArchiving] = useState(false)
+  const [allCategories, setAllCategories] = useState([]);
+  const [departmentInfo, setDepartmentInfo] = useState({});
+  const [archiving, setArchiving] = useState(false);
 
-    async function loadAllCategories(){
-        var res = await getCategoriesWithTasks().then(data => data.data).catch(error => {
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-        setAllCategories(res)
-    }
-
-    async function loadDepartmentInfo(){
-        var res = await getDepartment(props.dept_id).then(data => data.data).catch(error => {
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-        setDepartmentInfo(res)
-    }
-
-    const Remove = async (task_id) => {
-            var res = await removeTask(task_id).then(data => data.data.message).catch(error => {
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-            if(res == "Task successfully removed.") {
-                Swal.fire({
-                    title:"Success",
-                    text: res,
-                    icon:"success"
-                })
-            }
-            else {
-                Swal.fire({
-                    title:"Error",
-                    text: res,
-                    icon:"error"
-                })
-            }
-        }
-        const handleRemove = async (task_id) => {
-            Swal.fire({
-                title: 'Do you want to remove this task?',
-                showDenyButton: true,
-                confirmButtonText: 'Yes',
-                denyButtonText: 'No',
-                customClass: {
-                    actions: 'my-actions',
-                    cancelButton: 'order-1 right-gap',
-                    confirmButton: 'order-2'
-                    },
-                            }).then(async (result) => {
-                            if (result.isConfirmed) {
-                                Remove(task_id)
-                            } else if (result.isDenied) {
-                                   
-                            }
-                        })
-        
-            setArchiving(false)
-        }
-
-    const assignTask = async (task_id) => {
-            var res = await assignDepartment(task_id, props.dept_id).then(data => data.data.message).catch(error => {
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-            
-            if(res == "Task successfully assigned.") {
-                Swal.fire({
-                    title:"Success",
-                    text: res,
-                    icon:"success"
-                })
-            }
-            else {
-                Swal.fire({
-                    title:"Error",
-                    text: res,
-                    icon:"error"
-                })
-            }
-        }
-    const handleAssign = async (task_id) => {
+  async function loadAllCategories() {
+    const res = await getCategoriesWithTasks()
+      .then((data) => data.data)
+      .catch((error) => {
         Swal.fire({
-            title: 'Do you want to assign this task to this department?',
-            showDenyButton: true,
-            confirmButtonText: 'Yes',
-            denyButtonText: 'No',
-            customClass: {
-                actions: 'my-actions',
-                cancelButton: 'order-1 right-gap',
-                confirmButton: 'order-2'
-                },
-                    }).then(async (result) => {
-                    if (result.isConfirmed) {
-                            assignTask(task_id)
-                        } else if (result.isDenied) {
-                                   
-                        }
-                    })
-        
-            setArchiving(false)
-        }
+          title: "Error",
+          text: error.response.data.error,
+          icon: "error",
+        });
+      });
+    setAllCategories(res);
+  }
 
-    useEffect(()=>{
-        loadAllCategories()
-        loadDepartmentInfo()
+  async function loadDepartmentInfo() {
+    const res = await getDepartment(props.dept_id)
+      .then((data) => data.data)
+      .catch((error) => {
+        Swal.fire({
+          title: "Error",
+          text: error.response.data.error,
+          icon: "error",
+        });
+      });
+    setDepartmentInfo(res);
+  }
 
-        socket.on("department_assigned", ()=>{
-            loadAllCategories()
-        })
+  const Remove = async (task_id) => {
+    const res = await removeTask(task_id)
+      .then((data) => data.data.message)
+      .catch((error) => {
+        Swal.fire({
+          title: "Error",
+          text: error.response.data.error,
+          icon: "error",
+        });
+      });
 
-        return () => {
-            socket.off("department_assigned");
-        }
-    }, [])
-    
-    return (
-        <div className="add-department-task-container">
-            
-            <div className="tasks-container">
-                {allCategories.map(category => (
-                    
-                    <div className="category">
-                        <div className="category-name">
-                            <span>{category.name}</span>                        
-                        </div>
-                        <div className="category-task-container">
-                            {category.main_tasks.map(tasks => (
-                                tasks.status?
-                                <div className="category-task" onClick={()=>{
-                                    
-                                }}>
-                                    <div className="task-name">
-                                        <span className="material-symbols-outlined">highlight_mouse_cursor</span>
-                                        <span>{tasks.name}</span>
-                                        <div className={tasks.department == "General"? "department-assigned general": "department-assigned"}>
-                                        {tasks.department}
-                                    </div>
-                                    </div>
-                                    
-                                    <div>
-                                        {
-                                            tasks.department != departmentInfo.name? <button className="btn btn-primary" onClick={()=>{handleAssign(tasks.id)}}>Add</button>:
-                                             <button className="btn btn-danger" onClick={()=>{handleRemove(tasks.id)}}>Remove</button>
-                                        }
-                                    </div>
-                                </div>
-                                :""
-                            ))}
-                            
-                        </div>
+    if (res === "Task successfully removed.") {
+      Swal.fire({ title: "Success", text: res, icon: "success" });
+      loadAllCategories();
+    } else {
+      Swal.fire({ title: "Error", text: res, icon: "error" });
+    }
+  };
+
+  const handleRemove = async (task_id) => {
+    Swal.fire({
+      title: "Do you want to remove this task?",
+      showDenyButton: true,
+      confirmButtonText: "Yes",
+      denyButtonText: "No",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        await Remove(task_id);
+      }
+    });
+    setArchiving(false);
+  };
+
+  const assignTask = async (task_id) => {
+    const res = await assignDepartment(task_id, props.dept_id)
+      .then((data) => data.data.message)
+      .catch((error) => {
+        Swal.fire({
+          title: "Error",
+          text: error.response.data.error,
+          icon: "error",
+        });
+      });
+
+    if (res === "Task successfully assigned.") {
+      Swal.fire({ title: "Success", text: res, icon: "success" });
+      loadAllCategories();
+    } else {
+      Swal.fire({ title: "Error", text: res, icon: "error" });
+    }
+  };
+
+  const handleAssign = async (task_id) => {
+    Swal.fire({
+      title: "Assign this task to this department?",
+      showDenyButton: true,
+      confirmButtonText: "Yes",
+      denyButtonText: "No",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        await assignTask(task_id);
+      }
+    });
+    setArchiving(false);
+  };
+
+  useEffect(() => {
+    loadAllCategories();
+    loadDepartmentInfo();
+
+    socket.on("department_assigned", () => {
+      loadAllCategories();
+    });
+
+    return () => {
+      socket.off("department_assigned");
+    };
+  }, []);
+
+  return (
+    <div
+      className="modal-body"
+      style={{
+        maxHeight: "70vh",
+        overflowY: "auto",
+      }}
+    >
+      {allCategories.map((category, cidx) => {
+        const activeTasks = category.main_tasks.filter((task) => task.status);
+
+        return (
+          <div key={cidx} className="mb-4">
+            <h6 className="fw-semibold text-secondary mb-3 border-bottom pb-2">
+              <i className="bi bi-folder2-open me-2 text-primary"></i>
+              {category.name}
+            </h6>
+
+            {activeTasks.length > 0 ? (
+              <div className="d-flex flex-column gap-2">
+                {activeTasks.map((task, tidx) => (
+                  <div
+                    key={tidx}
+                    className="border rounded p-3 bg-white shadow-sm d-flex justify-content-between align-items-center"
+                  >
+                    {/* Task Info */}
+                    <div className="d-flex align-items-center gap-2 flex-wrap">
+                      <i className="bi bi-check2-square text-primary"></i>
+                      <span className="fw-semibold">{task.name}</span>
+                      <span
+                        className={`badge rounded-pill ${
+                          task.department === "General"
+                            ? "bg-info text-dark"
+                            : "bg-light text-muted border"
+                        }`}
+                      >
+                        {task.department}
+                      </span>
                     </div>
+
+                    {/* Actions */}
+                    <div>
+                      {task.department !== departmentInfo.name ? (
+                        <button
+                          className="btn btn-sm btn-outline-primary px-3"
+                          onClick={() => handleAssign(task.id)}
+                        >
+                          <i className="bi bi-plus-lg me-1"></i> Add
+                        </button>
+                      ) : (
+                        <button
+                          className="btn btn-sm btn-outline-danger px-3"
+                          onClick={() => handleRemove(task.id)}
+                        >
+                          <i className="bi bi-trash me-1"></i> Remove
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 ))}
-            </div>
-        </div>
-    )
+              </div>
+            ) : (
+              <div className="text-center text-muted fst-italic py-3 bg-light rounded">
+                <i className="bi bi-info-circle me-2"></i>
+                No available tasks under this category.
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
-export default AddDepartmentTask
+export default AddDepartmentTask;

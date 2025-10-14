@@ -5,7 +5,7 @@ import ManageSupportingDocuments from "../Faculty/ManageSupportingDocuments"
 import { socket } from "../api"
 import EditOPCR from "./EditOPCR"
 import Swal from "sweetalert2"
-import { getHeadReviewed, getOPCRPending, getOPCRReviewed } from "../../services/pcrServices"
+import { getFacultyReviewed, getHeadReviewed, getOPCRReviewed } from "../../services/pcrServices"
 import ReviewedIPCR from "./ReviewedIPCR"
 import ReviewedOPCR from "./ReviewedOPCR"
 
@@ -20,7 +20,7 @@ function PresPendingApproval(){
     const [currentDeptID, setCurrentDeptID] = useState(null)
 
     async function loadIPCR() {
-        var res = await getHeadReviewed().then(data => data.data).catch(error => {
+        var res = await getFacultyReviewed().then(data => data.data).catch(error => {
             console.log(error.response.data.error)
             Swal.fire({
                 title: "Error",
@@ -89,6 +89,8 @@ function PresPendingApproval(){
                     </div>
                 </div>
             </div>
+
+            
 
             <div className="modal fade" id="view-opcr" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                 <div className="modal-dialog modal-dialog-centered modal-fullscreen" >

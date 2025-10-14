@@ -29,6 +29,8 @@ function EditIPCR(props) {
     const [value, setValue] = useState(0)
     const [subTaskID, setSubTaskID] = useState(0)
     const [downloading, setDownloading] = useState(false)
+    const [hasShownMainNotice, setHasShownMainNotice] = useState(false);
+
 
     const [currentUserInfo, setCurrentUserInfo] = useState(null)
 
@@ -330,20 +332,51 @@ function EditIPCR(props) {
         };
     }, []);
 
+    function allTargetsFilled(ipcr) {
+        if (!ipcr || !ipcr.sub_tasks) return false;
 
-    useEffect(()=> {
-        if(value == "") {
-            return   
-        }
-        
-        const debounce = setTimeout(()=>{
-            //loadSearchedData(searchQuery)
+        return ipcr.sub_tasks.every(task =>
+            task.target_acc && task.target_time && task.target_mod
+        );
+    }
+
+
+    useEffect(() => {
+        if (value === "") return;
+
+        const debounce = setTimeout(() => {
             updateSubTask(subTaskID, field, value)
-            if(ipcrInfo && userinfo) handleAssignMain();
-        }, 500)
+            .then(() => {
+                // After updating, reload latest IPCR to check completeness
+                getIPCR(props.ipcr_id).then((res) => {
+                const updatedIPCR = res.data;
+                setIPCRInfo(updatedIPCR);
 
-        return ()=> clearTimeout(debounce)
-    }, [value])
+                // ✅ Only assign main when all targets are filled
+                if (userinfo && allTargetsFilled(updatedIPCR)) {
+                    handleAssignMain();
+
+                    // ✅ Show message only once
+                    if (!hasShownMainNotice) {
+                    Swal.fire({
+                        title: "Main IPCR Assigned",
+                        text: "All target fields are filled. This IPCR has been automatically set as your main IPCR.",
+                        icon: "success",
+                        confirmButtonColor: "#198754"
+                    });
+                    setHasShownMainNotice(true);
+                    }
+                }
+                });
+            })
+            .catch((error) => {
+                console.log(error.response?.data?.error || error);
+            });
+        }, 500);
+
+        return () => clearTimeout(debounce);
+    }, [value]);
+
 
     useEffect(()=> {
         //if(ipcrInfo && userinfo) handleAssignMain();
@@ -401,11 +434,11 @@ function EditIPCR(props) {
                             <span className="material-symbols-outlined">{downloading? "refresh": "download"}</span>
                             {!downloading? <span>Download</span>:""}
                         </button>}
-                        {!props.dept_mode? userinfo && <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#manage-tasks" disabled = {ipcrInfo? ipcrInfo.form_status == "reviewed" || ipcrInfo.form_status == "approved": false}>
+                        {!props.dept_mode? userinfo && <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#manage-tasks">
                             <span className="material-symbols-outlined">assignment</span>
                             <span>Tasks</span>
                         </button>:""}
-                        {!props.dept_mode? <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#manage-docs"  disabled = {ipcrInfo? ipcrInfo.form_status == "reviewed" || ipcrInfo.form_status == "approved": false}>
+                        {!props.dept_mode? <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#manage-docs">
                             <span className="material-symbols-outlined">attach_file</span>
                             <span>Documents</span>
                         </button>:""}
@@ -416,6 +449,9 @@ function EditIPCR(props) {
             </div>
             
             <div className="ipcr-form-container">
+                <span className="pcr-status-container">
+                    <span>{ipcrInfo && ipcrInfo.isMain && "MAIN"}</span>
+                </span>
                 <span className="pcr-status-container">
                     <span>{ipcrInfo && ipcrInfo.form_status && ipcrInfo.form_status.toUpperCase()}</span>
                 </span>

@@ -9,6 +9,7 @@ import ActivityTrendChart from "../components/Charts/ActivityTrendChart";
 import { TopDepartmentChats } from "../components/Charts/CategoryPerformance";
 import AllTaskAverages from "../components/Charts/AllTaskAverage";
 import { downloadMasterOPCR } from "../services/pcrServices";
+import Swal from "sweetalert2";
 
 //gawin bukas yung graph sa category
 //yung generation ng ipcr, i check yung mga individuals kung tama
@@ -29,15 +30,15 @@ function Administrator(){
 
     async function download() {
         setDownloading(true)
-        var res = await downloadMasterOPCR().then(data => data.data.link).catch(error => {
-            console.log(error.response.data.error)
+        var res = await downloadMasterOPCR().then(data =>  window.open(data.data.link, "_blank", "noopener,noreferrer")).catch(error => {
+            console.log(error)
             Swal.fire({
                 title: "Error",
                 text: error.response.data.error,
                 icon: "error"
             })
         })
-        window.open(res, "_blank", "noopener,noreferrer");
+        
         setDownloading(false)
     }
 

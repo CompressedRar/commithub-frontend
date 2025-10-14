@@ -101,9 +101,9 @@ export async function createOPCR(dept_id, data) {
 }
 
 
-export async function getFacultyPending() {
+export async function getFacultyPending(dept_id) {
     console.log("fetching ipcr")
-    return api.get(`/api/v1/pcr/ipcr/faculty/pending`)
+    return api.get(`/api/v1/pcr/ipcr/faculty/pending/${dept_id}`)
 }
 
 export async function getFacultyReviewed() {

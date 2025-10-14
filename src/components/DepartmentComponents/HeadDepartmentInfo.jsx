@@ -9,6 +9,7 @@ import DepartmentAssignHead from "./DepartmentAssignHead";
 import PerformanceReviews from "./PerformanceReview";
 import CreateOPCRModal from "./CreateOPCRModal";
 import GeneralTasksTable from "./GeneralTasksTable";
+import UserPerformanceInDepartment from "../Charts/UserPerformanceInDepartment";
 
 function HeadDepartmentInfo(props){
 
@@ -280,6 +281,7 @@ function HeadDepartmentInfo(props){
                     <div className="image-container">
                         <div className="image" style={{backgroundImage: `url('${import.meta.env.BASE_URL}nc-splash-new.jpg')`}}></div>
                     </div>
+                    
                     <div  className="department-stats">
                         <div className="profile-image-container">
                             
@@ -287,7 +289,7 @@ function HeadDepartmentInfo(props){
 
                                 <div className="dept-name">
                                     {deptInfo? deptInfo.name: ""}
-                                    <span style={{display:"none"}} className="material-symbols-outlined settings" onClick={()=>{setOpen(!open)}}>settings</span>
+                                    <span className="material-symbols-outlined settings" onClick={()=>{setOpen(!open)}}>settings</span>
 
                                     {open && 
                                     <div className="member-options" onMouseLeave={()=>{setOpen(false)}}>
@@ -345,28 +347,44 @@ function HeadDepartmentInfo(props){
                                 <span className="type">Tasks</span>
                             </div>                            
                         </div>
-                        <div>
+                         <div>
                             <button className="btn btn-primary" style={{display:"flex", flexDirection:"row", gap:"10px", alignItems:"center"}} data-bs-toggle="modal" data-bs-target="#create-opcr">
                                 <span className="material-symbols-outlined">assignment_globe</span>
                                 <span>Create OPCR</span>
                             </button>
                         </div>
+                        
+
+                        
 
                                                 
                     </div>
                 </div>
+
+                
                 <div className="pages-container">
                     <div className={currentPage == 0? "select": ""} onClick={()=>{setCurrentPage(0)}}>
-                        Members and Tasks
+                        Tasks 
                     </div>
                     <div className={currentPage == 1? "select": ""} onClick={()=>{setCurrentPage(1)}}>
+                        Members 
+                    </div>
+
+                    <div className={currentPage == 2? "select": ""} onClick={()=>{setCurrentPage(2)}}>
                         Performance Review Forms
                     </div>
                 </div>
+                {currentPage == 1? <div style={{backgroundColor:"white", padding:"10px"}}>
+                    <UserPerformanceInDepartment dept_id = {props.id}></UserPerformanceInDepartment>
+                </div>: ""}
                                        
-                {currentPage == 0? <DepartmentMemberTable deptid ={props.id} ></DepartmentMemberTable>: <PerformanceReviews deptid ={props.id} ></PerformanceReviews>}
-                {currentPage == 0? <DepartmentTasksTable id = {props.id}></DepartmentTasksTable>: ""}
-                {currentPage == 0? <GeneralTasksTable id = {props.id}></GeneralTasksTable>: ""}
+                <div style={{height:"500px"}}>
+                    {currentPage == 0? <DepartmentTasksTable id = {props.id}></DepartmentTasksTable>: ""}
+                    {currentPage == 0? <GeneralTasksTable id = {props.id}></GeneralTasksTable>: ""}
+                    {currentPage == 1? <DepartmentMemberTable deptid ={props.id} ></DepartmentMemberTable>: ""}
+                    {currentPage == 2? <PerformanceReviews deptid ={props.id} ></PerformanceReviews>:""}
+                    
+                </div>
             </div>
     )
 }

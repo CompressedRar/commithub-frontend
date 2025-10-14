@@ -1,232 +1,235 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
+import Swal from "sweetalert2";
 import { getGeneralDeptTasks } from "../../services/departmentService";
-
 import { socket } from "../api";
 import AddDepartmentTask from "./AddDepartmentTask";
 import GeneralTask from "./GeneralTask";
 import GeneralAssignTask from "./GeneralAssignTask";
 
 function GeneralTasksTable(props) {
+  const [allMembers, setAllMembers] = useState([]);
+  const [filteredMembers, setFilteredMembers] = useState([]);
+  const [tenMembers, setTenMembers] = useState([]);
+  const [pages, setPages] = useState([]);
+  const [memberLimit, setMemberLimit] = useState({ offset: 0, limit: 10 });
+  const [searchQuery, setQuery] = useState("");
+  const [currentUserID, setCurrentUserID] = useState(0);
 
-    const [allMembers, setAllMembers] = useState([])
-    const [filteredMembers, setFilteredMembers] = useState([])
+  async function loadAllMembers() {
+    try {
+      const res = await getGeneralDeptTasks();
+      setAllMembers(res.data);
+      setFilteredMembers(res.data);
+      generatePagination(res.data);
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: error.response?.data?.error || "Failed to load tasks.",
+        icon: "error",
+      });
+    }
+  }
 
-    const [tenMembers, setTenMembers] = useState([])
-    const [pages, setPages] = useState([]) 
-    const [memberLimit, setMemberLimit] = useState({"offset": 0, "limit": 10})
-    const [searchQuery, setQuery] = useState("")
+  function loadLimited() {
+    const sliced = filteredMembers.slice(memberLimit.offset, memberLimit.limit);
+    setTenMembers(sliced);
+  }
 
-    const [currentUserID, setCurrentUserID] = useState(0)
+  function loadSearchedData(query) {
+    const matched = allMembers.filter(
+      (member) =>
+        member.name.toLowerCase().includes(query.toLowerCase()) ||
+        member.actual_accomplishment
+          .toLowerCase()
+          .includes(query.toLowerCase()) ||
+        member.target_accomplishment
+          .toLowerCase()
+          .includes(query.toLowerCase()) ||
+        member.category.name.toLowerCase().includes(query.toLowerCase())
+    );
+    setFilteredMembers(matched);
+    generatePagination(matched);
+    setMemberLimit({ offset: 0, limit: 10 });
+  }
 
-    //department task assign
+  function generatePagination(array) {
+    const totalPages = Math.ceil(array.length / 10);
+    const newPages = Array.from({ length: totalPages }, (_, i) => ({
+      id: i + 1,
+      page: i + 1,
+    }));
+    setPages(newPages);
+  }
+
+  useEffect(() => {
+    if (searchQuery.length === 0) {
+      loadLimited();
+      loadAllMembers();
+      return;
+    }
+    const debounce = setTimeout(() => {
+      loadSearchedData(searchQuery);
+    }, 500);
+    return () => clearTimeout(debounce);
+  }, [searchQuery]);
+
+  useEffect(() => loadLimited(), [allMembers, memberLimit]);
+
+  useEffect(() => {
+    loadAllMembers();
+    socket.on("user_created", loadAllMembers);
+    socket.on("user_assigned", loadAllMembers);
+    socket.on("user_unassigned", loadAllMembers);
+    socket.on("task_modified", loadAllMembers);
+    socket.on("department_assigned", loadAllMembers);
     
-    async function loadAllMembers() {      
-        var res = await getGeneralDeptTasks().then(data => data.data).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-        console.log(res)
 
-        setAllMembers(res)
-        setFilteredMembers(res)
-        generatePagination(res)
-        console.log("loaded all the members")
+    return () => {
+      socket.off("user_created");
+      socket.off("user_assigned");
+      socket.off("user_unassigned");
+      socket.off("task_modified");
+      socket.off("department_assigned");
+    };
+  }, []);
 
-    }
-
-    function loadLimited(){
-        var slicedMembers = filteredMembers.slice(memberLimit["offset"], memberLimit["limit"])
-        console.log("department tasks", slicedMembers)
-        setTenMembers(slicedMembers)
-    }
-
-    function loadSearchedData(query){
-        console.log("displatyed")
-        var matchedMembers = []
-
-        for(const member of allMembers){
-            
-            if(  member.name.toLowerCase().includes(query.toLowerCase()) ||
-                member.actual_accomplishment.toLowerCase().includes(query.toLowerCase()) ||
-            member.target_accomplishment.toLowerCase().includes(query.toLowerCase()) || 
-            member.category.name.toLowerCase().includes(query.toLowerCase()) 
-            ){
-                matchedMembers = [...matchedMembers, member]
-            }
-        }
-        console.log(matchedMembers)
-        
-        setFilteredMembers(matchedMembers)
-        generatePagination(matchedMembers)
-        setMemberLimit({"offset": 0, "limit": 10})
-    }
-
-
-    function generatePagination(array){
-        var calculatedPage = array.length / 10
-        
-        var newPages = []
-        for(var i = 1; i <= Math.ceil(calculatedPage); i++){
-            console.log(i)
-            newPages = [...newPages, {"id": i, "page": i}]
-        }  
-        console.log(newPages)
-        setPages(newPages)
-    }
-
-    useEffect(()=>{
-        if(searchQuery.length == 0) {
-            loadLimited()
-            loadAllMembers(props.deptid)
-            return   
-        }
-        const debounce = setTimeout(()=>{
-            loadSearchedData(searchQuery)
-        }, 500)
-
-        return ()=> clearTimeout(debounce)
-
-
-    }, [searchQuery])
-
-    useEffect(()=> {
-        
-        loadLimited()
-        
-    }, [allMembers])
-
-    useEffect(()=> {
-        
-        loadLimited()
-        
-    }, [memberLimit])
-
-    useEffect(()=>{
-        console.log("loading members")
-        loadAllMembers()
-        console.log("members loaded")
-
-        socket.on("user_created", ()=>{
-            loadAllMembers()
-            console.log("new user added")
-        })
-
-        socket.on("user_assigned", ()=>{
-            loadAllMembers()
-            console.log("new user added")
-        })
-
-        socket.on("task_modified", ()=>{
-            loadAllMembers()
-            console.log("task_modified")
-        })
-        socket.on("department_assigned", ()=>{
-            loadAllMembers()
-            console.log("department_asigned")
-        })
-
-        
-
-        return () => {
-            socket.off("department_assigned");
-            socket.off("user_created");
-            socket.off("task_modified");
-            socket.off("user_assigned")
-            socket.off("user_unassigned")
-        }
-        
-    },[])
-
-    //add tasks bukas
-    //simuklan na yung ipcr bukas
-    //view profile ng user sa department
-    return (
-        <div className="member-container">
-            <div className="modal fade " id="add-user"  data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                <div className="modal-dialog modal-dialog-centered modal-xl" >
-                    <div className="modal-content model-register">
-                        <div className="modal-header">
-                            <h5 className="modal-title" id="staticBackdropLabel">Add Tasks</h5>
-                            
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div className="modal-body">
-
-                            {/**Dito ilalagay add department task */}
-                            <AddDepartmentTask dept_id = {props.id}></AddDepartmentTask>
-
-                        </div>
-                        
-                    </div>
-                </div>
+  return (
+    <div className="container-fluid py-3 bg-white rounded-3 shadow-sm">
+      {/* === Add Task Modal === */}
+      <div
+        className="modal fade"
+        id="add-user"
+        data-bs-backdrop="static"
+        data-bs-keyboard="false"
+        tabIndex="-1"
+        aria-labelledby="addTaskModalLabel"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog modal-dialog-centered modal-xl">
+          <div className="modal-content">
+            <div className="modal-header bg-primary text-white">
+              <h5 className="modal-title" id="addTaskModalLabel">
+                <i className="bi bi-plus-circle me-2"></i> Add General Task
+              </h5>
+              <button
+                type="button"
+                className="btn-close btn-close-white"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
             </div>
-
-            <div className="modal fade" id="general-user-profile"  data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                <div className="modal-dialog modal-dialog-centered modal-lg" >
-                    <div className="modal-content model-register " style={{backgroundColor: "rgb(233, 233, 233)"}}>
-                        <div className="modal-header">
-                            <h2>Assign Members</h2>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div className="modal-body">
-                            {/**currentUserID? <DepartmentTaskInfo key={currentUserID} id = {currentUserID}></DepartmentTaskInfo> :""*/}    
-                            {currentUserID? <GeneralAssignTask key ={currentUserID} task_id = {currentUserID} dept_id = {props.id}></GeneralAssignTask> :""}                                              
-                        </div>
-                        
-                    </div>
-                </div>
+            <div className="modal-body bg-light">
+              <AddDepartmentTask dept_id={props.id} />
             </div>
-
-
-            <div className="table-header-container" id="user-table">
-                <div className="table-title" style={{width:"auto", textWrap:"nowrap"}}>General Tasks</div>
-                <div className="create-user-container">
-                    
-                </div>
-                <div className="search-members">
-                        <input type="text" placeholder="Search task..." onInput={(element)=>{setQuery(element.target.value)}}/>                        
-                </div>                        
-            </div>
-
-            <div className="table-container">
-                <table>
-                    <tbody>
-                        <tr>
-                            <th>TASK NAME</th>
-                            <th>TARGET</th>
-                            <th>ACTUAL</th>
-                            <th>CATEGORY</th>
-                            <th>INDIVIDUALS ASSIGNED</th>
-                            <th></th>
-                        </tr>
-                                
-                        {tenMembers != 0? tenMembers.map(mems => (
-                        <GeneralTask mems = {mems} switchMember = {(id) => {setCurrentUserID(id); console.log("hehe", id)}}></GeneralTask>)):
-
-                        ""
-                        }
-                    </tbody>        
-                                         
-                </table>    
-                                    
-            </div>
-            {tenMembers != 0?"":
-                    <div className="empty-symbols">
-                        <span className="material-symbols-outlined">file_copy_off</span>    
-                        <span className="desc">No General Tasks Found</span>
-                    </div>}  
-            <div className="pagination">
-                {pages.map(data => (<span className="pages" key={data.id} onClick={()=>{
-                    setMemberLimit({"offset": 0+((data.page * 10) - 10), "limit": data.page * 10})
-                    
-                }}> {data.page}</span>))}
-            </div>
+          </div>
         </div>
-    )
+      </div>
+
+      {/* === Assign Member Modal === */}
+      <div
+        className="modal fade"
+        id="general-user-profile"
+        data-bs-backdrop="static"
+        data-bs-keyboard="false"
+        tabIndex="-1"
+        aria-labelledby="assignModalLabel"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog modal-dialog-centered modal-lg">
+          <div className="modal-content">
+            <div className="modal-header bg-secondary text-white">
+              <h5 className="modal-title" id="assignModalLabel">
+                <i className="bi bi-person-plus me-2"></i> Assign Members
+              </h5>
+              <button
+                type="button"
+                className="btn-close btn-close-white"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div className="modal-body bg-light">
+              {currentUserID ? (
+                <GeneralAssignTask
+                  key={currentUserID}
+                  task_id={currentUserID}
+                  dept_id={props.id}
+                />
+              ) : (
+                <p className="text-center text-muted">
+                  Select a task to assign members.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* === Header Controls === */}
+      <div className="d-flex flex-wrap justify-content-between align-items-center mb-3">
+        <h4 className="fw-semibold text-dark mb-0">General Tasks</h4>
+        <div className="d-flex align-items-center gap-2">
+          
+
+          <div className="input-group" style={{ width: "250px", height: "38px" }}>
+            <span className="input-group-text bg-white">
+              <span className="material-symbols-outlined">search</span>
+            </span>
+            <input
+              type="text"
+              className="form-control shadow-none"
+              placeholder="Search task..."
+              onInput={(e) => setQuery(e.target.value)}
+              style={{ height: "38px" }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* === Tasks Table === */}
+      <div className="">
+        {tenMembers.length > 0 ? (
+          tenMembers.map((mems) => (
+            <GeneralTask
+              key={mems.id}
+              mems={mems}
+              switchMember={(id) => setCurrentUserID(id)}
+            />
+          ))
+        ) : (
+          <tr>
+            <td colSpan="6" className="text-center py-4 text-muted">
+              <i className="bi bi-file-earmark-x fs-4 d-block mb-2"></i>
+              No General Tasks Found
+            </td>
+          </tr>
+        )}
+      </div>
+
+      {/* === Pagination === */}
+      {pages.length > 1 && (
+        <nav className="mt-4">
+          <ul className="pagination justify-content-center mb-0">
+            {pages.map((data) => (
+              <li key={data.id} className="page-item">
+                <button
+                  className="page-link"
+                  onClick={() =>
+                    setMemberLimit({
+                      offset: (data.page - 1) * 10,
+                      limit: data.page * 10,
+                    })
+                  }
+                >
+                  {data.page}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
+    </div>
+  );
 }
 
-export default GeneralTasksTable
+export default GeneralTasksTable;

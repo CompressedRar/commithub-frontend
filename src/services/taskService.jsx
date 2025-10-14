@@ -36,4 +36,11 @@ export async function archiveMainTask(id) {
     return api.delete(`/api/v1/task/${id}`)
 }
 
+export async function convertTense(sentence) {
+    console.log("archiving task info")
+    return api.post("/api/v1/ai/tense-converter", {"sentence": sentence})
+
+}
+
+
 

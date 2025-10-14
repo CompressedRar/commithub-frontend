@@ -1,131 +1,160 @@
 import { useState } from "react";
 import { archiveIprc, downloadIPCR } from "../../services/pcrServices";
 import Swal from "sweetalert2";
+import ManageSupportingDocuments from "./ManageSupportingDocuments";
 
+function IPCR({ ipcr, dept_mode, onClick, onMouseOver }) {
+  const [downloading, setDownloading] = useState(false);
+  const [archiving, setArchiving] = useState(false);
 
-function IPCR(props) {
-
-    //gawin bukas yung supporting documents 
-    //gawin yung head module
-    //generate OPCR bukas
-    //review and approve opcr para sa admin at head
-    //account settings
-
-    const [optionsOpen, setOpen] = useState(false)
-    const [downloading, setDownloading] = useState(false)
-    const [archiving, setArchiving] = useState(false)
-    
-
-    async function handleArchive(){
-        setArchiving(true)
-        var res = await archiveIprc(props.ipcr.id).then(data => data.data.message).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-        console.log(res)
-        if (res == "IPCR was archived successfully."){
-            Swal.fire({
-                title:"Success",
-                text: res,
-                icon:"success"
-            })
-        }
-        setArchiving(false)
-    } 
-        
-    async function archiveIPCR(){
-        Swal.fire({
-            title:"Archive",
-            text:"Do you want to archive this IPCR?",
-            showDenyButton: true,
-            confirmButtonText:"Archive",
-            confirmButtonColor:"red",
-            denyButtonText:"No",
-            denyButtonColor:"grey",
-            icon:"warning",
-            customClass: {
-                actions: 'my-actions',
-                confirmButton: 'order-2',
-                denyButton: 'order-1 right-gap',
-            },
-        }).then((result)=> {
-            if(result.isConfirmed){
-                handleArchive()
-            }
-        }) 
+  async function handleArchive() {
+    setArchiving(true);
+    try {
+      const res = await archiveIprc(ipcr.id);
+      Swal.fire({
+        title: "Success",
+        text: res.data.message,
+        icon: "success",
+      });
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: error.response?.data?.error || "Something went wrong.",
+        icon: "error",
+      });
+    } finally {
+      setArchiving(false);
     }
+  }
 
-    async function download() {
-        setDownloading(true)
-        var res = await downloadIPCR(props.ipcr.id).then(data => data.data.link).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-            window.open(res, "_blank", "noopener,noreferrer");
-            setDownloading(false)
-        }
-    return (
-        <div className="ipcr-wrapper"> 
-            {optionsOpen && <div className="popup" onMouseLeave={()=>{setOpen(false)}}>
-                <div className="choices" onClick={()=> {download()}} style={{justifyContent:"center"}}>
-                    <span className="material-symbols-outlined">{downloading ? "refresh": "download"}</span>
-                    {!downloading && <span>Download</span>}
-                </div>
-                <div className="choices" onClick={()=>{archiveIPCR()}}>
-                    <span className="material-symbols-outlined">archive</span>
-                    {!archiving && <span>Archive</span>}
-                </div>
+  function confirmArchive() {
+    Swal.fire({
+      title: "Archive",
+      text: "Do you want to archive this IPCR?",
+      showDenyButton: true,
+      confirmButtonText: "Archive",
+      confirmButtonColor: "#dc3545",
+      denyButtonText: "No",
+      denyButtonColor: "grey",
+      icon: "warning",
+    }).then((result) => {
+      if (result.isConfirmed) handleArchive();
+    });
+  }
 
-                <div className="choices"  data-bs-toggle="modal" data-bs-target={props.dept_mode? "#manage-docs":""}>
-                    <span className="material-symbols-outlined">attach_file</span>
-                    <span>Documents</span>
-                </div>
+  async function download() {
+    setDownloading(true);
+    try {
+      const res = await downloadIPCR(ipcr.id);
+      window.open(res.data.link, "_blank", "noopener,noreferrer");
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: error.response?.data?.error || "Download failed.",
+        icon: "error",
+      });
+    } finally {
+      setDownloading(false);
+    }
+  }
 
-                
-            </div>}
-            
-
-            <div className="ipcr"  onMouseOver={props.dept_mode? props.onMouseOver:null}>
-                
-                <div className="status-container">                             
-                    <div style={{gap:"10px", display:"flex"}}> 
-                        <span className="form-status">{props.ipcr.form_status.toUpperCase()}</span>
-                        {props.ipcr.isMain == 1? <span className="main-form">MAIN</span>: ""}      
-                    </div>
-                    <span className="material-symbols-outlined" style={{fontSize: "1.5rem", cursor:"pointer"}} onClick={()=> {setOpen(!optionsOpen)}}>more_vert</span>
-                </div>
-                
-                
-                {
-                    !props.dept_mode?
-                    <div className="description"onClick={props.onClick}>
-                        <span className="material-symbols-outlined">contract</span>
-                        <span className="title">IPCR #{props.ipcr.id}</span>
-                        <span className="created">{props.ipcr.created_at}</span>
-                    </div>: 
-                    <div className="description"onClick={props.onClick} data-bs-toggle="modal" data-bs-target="#view-ipcr">
-                        
-                        <span className="material-symbols-outlined">contract</span>
-                        <div className="ipcr-info">
-                            <div className="ipcr-profile" style={{backgroundImage:`url('${props.ipcr.user.profile_picture_link}')`}}></div>
-                            <div className="ipcr-details">
-                                <span className="title">IPCR #{props.ipcr.id}</span>
-                                <span className="created">{props.ipcr.user.first_name + " " + props.ipcr.user.last_name}</span>
-                            </div>
-                        </div>
-                    </div> 
-                }
-            </div>
+  return (
+    <div
+      className="container p-3"
+      style={{
+        boxShadow:
+          "0 6px 15px rgba(0, 0, 0, 0.05), 0 3px 6px rgba(0, 0, 0, 0.1)",
+        borderRadius: "10px",
+      }}
+    >
+        <ManageSupportingDocuments ipcr_id = {ipcr.id} batch_id = {ipcr.batch_id}></ManageSupportingDocuments>
+      <div className="card-body" onMouseOver={dept_mode ? onMouseOver : null}>
+        {/* Header */}
+        <div className="d-flex justify-content-between align-items-center mb-2">
+          <div className="d-flex align-items-center gap-2">
+            <span className="badge bg-primary">
+              {ipcr.form_status.toUpperCase()}
+            </span>
+            {ipcr.isMain == 1 && 
+              <span className="badge bg-warning text-dark">MAIN</span>
+            }
+          </div>
         </div>
-    )
+
+        {/* IPCR Info */}
+        {!dept_mode ? (
+          <div
+            className="d-flex align-items-center gap-2 text-secondary"
+            onClick={onClick}
+            role="button"
+          >
+            <span className="material-symbols-outlined text-primary fs-4">contract</span>
+            <div>
+              <div className="fw-semibold">IPCR #{ipcr.id}</div>
+              <small className="text-muted">{ipcr.created_at}</small>
+            </div>
+          </div>
+        ) : (
+          <div
+            className="d-flex align-items-center gap-3"
+            onClick={onClick}
+            data-bs-toggle="modal"
+            data-bs-target="#view-ipcr"
+            role="button"
+          >
+            <div
+              className="rounded-circle bg-light border"
+              style={{
+                backgroundImage: `url('${ipcr.user.profile_picture_link}')`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                width: "45px",
+                height: "45px",
+              }}
+            ></div>
+            <div>
+              <div className="fw-semibold">IPCR #{ipcr.id}</div>
+              <small className="text-muted">
+                {ipcr.user.first_name + " " + ipcr.user.last_name}
+              </small>
+            </div>
+          </div>
+        )}
+
+        {/* Options */}
+        <div className="d-flex justify-content-end gap-2 mt-3 border-top pt-2">
+          <button
+            className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1"
+            onClick={download}
+            disabled={downloading}
+          >
+            <span className="material-symbols-outlined fs-5">
+              {downloading ? "refresh" : "download"}
+            </span>
+            {!downloading && "Download"}
+          </button>
+
+          <button
+            className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1"
+            onClick={confirmArchive}
+            disabled={archiving}
+          >
+            <span className="material-symbols-outlined fs-5">archive</span>
+            {!archiving && "Archive"}
+          </button>
+
+          <button
+            className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1"
+            data-bs-toggle="modal"
+            data-bs-target={"#manage-docs"}
+          >
+            <span className="material-symbols-outlined fs-5">attach_file</span>
+            Documents
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
-export default IPCR
+export default IPCR;

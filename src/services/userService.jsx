@@ -56,6 +56,12 @@ export async function getAccounts() {
     return api.get("/api/v1/users/")
 }
 
+export async function doesPresidentExists() {
+    console.log("registering")
+    return api.get("/api/v1/users/pres-exists")
+}
+
+
 export async function getAccountInfo(id) {
     return api.get(`/api/v1/users/${id}`)
 }

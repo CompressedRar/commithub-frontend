@@ -1,200 +1,169 @@
-import { useEffect, useState } from "react"
-import SubmissionsChart from "../Barchart"
-import UsersPieChart from "../Piechart"
-import Swal from "sweetalert2"
+import { useEffect, useState } from "react";
+import Swal from "sweetalert2";
+import {
+  archiveMainTask,
+  getMainTask,
+  updateMainTaskInfo,
+} from "../../services/taskService";
+import { objectToFormData } from "../api";
 
-import { archiveMainTask, getMainTask, updateMainTaskInfo } from "../../services/taskService"
-import { objectToFormData } from "../api"
-import TaskUserAverages from "../Charts/UserTaskAverage"
-import DepartmentChart from "../Charts/UserTaskRatio"
-import { MainTaskPerformanceCharts } from "../Charts/CategoryPerformance"
+function TaskInfo({ id, backAfterArchive }) {
+  const [taskInfo, setTaskInfo] = useState({});
+  const [formData, setFormData] = useState({});
+  const [isDirty, setIsDirty] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-function TaskInfo(props){
+  const handleChange = (e) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({ ...prev, [id]: value }));
 
-    const [taskInfo, setTaskInfo] = useState({})
+    // detect changes
+    if (taskInfo[id] !== value) setIsDirty(true);
+  };
 
-    const [taskEditable, setTaskEditable] = useState(false);
-    const [targetEditable, setTargetEditable] = useState(false);
-    const [actualEditable, setActualEditable] = useState(false);
-    const [timeEditable, setTimeEditable] = useState(false);
-    const [modEditable, setModEditable] = useState(false);
-    const [formData, setFormData] = useState({"id": props.id})
-
-    const handleDataChange = (e) => {
-        setFormData({...formData, [e.target.id]: e.target.textContent})        
+  const loadTaskInfo = async () => {
+    try {
+      const res = await getMainTask(id);
+      setTaskInfo(res.data);
+      setFormData(res.data);
+      setIsDirty(false);
+    } catch (error) {
+      console.error(error);
+      Swal.fire({
+        title: "Error",
+        text: error.response?.data?.error || "Failed to load task info.",
+        icon: "error",
+      });
     }
+  };
 
-    async function loadTaskInfo(){
-        var res = await getMainTask(props.id).then(data => data.data).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-        setTaskInfo(res)
-        console.log(res)
-        return res
+  const handleUpdate = async () => {
+    setLoading(true);
+    const newFormData = objectToFormData(formData);
+    try {
+      const res = await updateMainTaskInfo(newFormData);
+      Swal.fire({
+        title: "Success",
+        text: res.data.message || "Task successfully updated.",
+        icon: "success",
+      });
+      setIsDirty(false);
+      loadTaskInfo();
+    } catch (error) {
+      console.error(error);
+      Swal.fire({
+        title: "Error",
+        text: error.response?.data?.error || "Update failed.",
+        icon: "error",
+      });
+    } finally {
+      setLoading(false);
     }
-    const handleSubmission = async () => {
-        const newFormData = objectToFormData(formData);
-        var a = await updateMainTaskInfo(newFormData).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-        console.log(a)
-        if(a.data.message == "Task successfully updated.") {
-            Swal.fire({
-                title:"Success",
-                text: a.data.message,
-                icon:"success"
-            })
+  };
+
+  const handleArchive = () => {
+    Swal.fire({
+      title: "Do you want to archive this task?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, archive it",
+      cancelButtonText: "No",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const res = await archiveMainTask(id);
+          Swal.fire("Archived!", res.data.message, "success");
+          backAfterArchive();
+        } catch (error) {
+          Swal.fire("Error", error.response?.data?.error, "error");
         }
-        else {
-            Swal.fire({
-                title:"Error",
-                text: a.data.message,
-                icon:"error"
-            })
-        }
-    }
+      }
+    });
+  };
 
-    const handleArch = async () => {
-        var a = await archiveMainTask(props.id).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-        console.log(a)
-        if(a.data.message == "Task successfully archived.") {
-            Swal.fire({
-                title:"Success",
-                text: "Task successfully archived",
-                icon:"success"
-            })
-            
-            props.backAfterArchive()
-        }
-        else {
-            Swal.fire({
-                title:"Error",
-                text: a.data.message,
-                icon:"error"
-            })
-        }
-    }
+  useEffect(() => {
+    if (id) loadTaskInfo();
+  }, [id]);
 
-    const handleArchive = async ()=>{
-        
-        Swal.fire({
-            title: 'Do you want to archive the task?',
-            showDenyButton: true,
-            confirmButtonText: 'Yes',
-            denyButtonText: 'No',
-            customClass: {
-                actions: 'my-actions',
-                cancelButton: 'order-1 right-gap',
-                confirmButton: 'order-2'
-            },
-            }).then(async (result) => {
-            if (result.isConfirmed) {
-                handleArch()
-            } else if (result.isDenied) {
-                
-            }
-        })
-    }
-
-
-
-    useEffect(()=>{
-        if (props.id) loadTaskInfo();
-    },[props.id])
-
-    useEffect(()=>{
-        console.log(formData)
-    }, [formData])
-
-    return(
-        <div className="task-info-container">
-            
-            <div className="main-task-info">
-                
-                <div className="task-description">
-                    <div className="task-options">
-                        <span className="back" onClick={()=>{props.backToPage()}}>
-                            <span className="material-symbols-outlined">arrow_back</span>
-                            <span>Back to Tasks</span> 
-                        </span>
-                        <button className="btn btn-danger" style={{display: "flex", alignItems:"center", gap: "10px"}} onClick={handleArchive}>
-                            <span className="material-symbols-outlined">archive</span>
-                            <span>Archive Task</span>
-                        </button>  
-                    </div>                  
-                    <div className="description-container">
-                        <div className="task-title"  >
-                            <span id = "name" onInput={handleDataChange} contentEditable = {taskEditable}>{ taskInfo && taskInfo.name} </span>
-                            <span className="material-symbols-outlined edit-toggle" onClick={()=>{
-                                setTaskEditable(!taskEditable);
-                                if (taskEditable) handleSubmission();
-                                }}>edit</span>
-                        </div>
-                        <div className="description">
-                            <div className="title">Target Output <span className="material-symbols-outlined edit-toggle" onClick={()=>{
-                                setTargetEditable(!targetEditable);
-                                if (targetEditable) handleSubmission();
-                                }}>edit</span></div>
-                            <div className="content" id = "target_accomplishment" onInput={handleDataChange}  contentEditable = {targetEditable}>{taskInfo.target_accomplishment? taskInfo.target_accomplishment: "N/A"}</div>
-                        </div>
-                        <div className="description">
-                            <div className="title">Actual Output <span className="material-symbols-outlined edit-toggle" onClick={()=>{
-                                setActualEditable(!actualEditable);
-                                if (actualEditable) handleSubmission();
-                                }}>edit</span></div>
-                            <div className="content" id = "actual_accomplishment" onInput={handleDataChange} contentEditable = {actualEditable}>{taskInfo.actual_accomplishment? taskInfo.actual_accomplishment: "N/A"}</div>
-                        </div>
-                    </div>
-
-                    <div className="task-measurements">
-                        <div className="description">
-                            <div className="title">Time Measurement <span className="material-symbols-outlined edit-toggle" onClick={()=>{
-                                setTimeEditable(!timeEditable);
-                                if (timeEditable) handleSubmission();
-                                }}>edit</span></div>
-                            <div className="content" id = "time_description" onInput={handleDataChange} contentEditable = {timeEditable}>{taskInfo.time_measurement? taskInfo.time_measurement: "N/A"}</div>
-                        </div>
-                        <div className="description">
-                            <div className="title">Modification <span className="material-symbols-outlined edit-toggle" onClick={()=>{
-                                setModEditable(!modEditable);
-                                if (modEditable) handleSubmission();
-                                }}>edit</span></div>
-                            <div className="content" id = "modification" onInput={handleDataChange} contentEditable = {modEditable}>{taskInfo.modifications? taskInfo.modifications: "N/A"}</div>
-                        </div>
-                    </div>
-
-                    
-
-                    <div className="IPCRs">
-
-                    </div>
-                </div>
-
-                <div className="task-stats">
-                    
-                    <MainTaskPerformanceCharts mainTaskID={props.id}></MainTaskPerformanceCharts>
-                </div>
-
-            </div>
+  return (
+    <div className="card shadow-sm">
+        <div className="card-header d-flex justify-content-between align-items-center">
+          <h5 className="mb-0">Task Information</h5>
+          <button className="btn btn-danger btn-sm d-flex align-items-center gap-2" onClick={handleArchive}>
+            <span className="material-symbols-outlined">archive</span> Archive Task
+          </button>
         </div>
-    )
+
+        <div className="card-body">
+          <div className="mb-3">
+            <label className="form-label fw-bold">Task Name</label>
+            <input
+              id="name"
+              type="text"
+              className="form-control"
+              value={formData.name || ""}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="row">
+            <div className="col-md-6 mb-3">
+              <label className="form-label fw-bold">Target Output</label>
+              <textarea
+                id="target_accomplishment"
+                className="form-control"
+                rows="3"
+                value={formData.target_accomplishment || ""}
+                onChange={handleChange}
+              ></textarea>
+            </div>
+            <div className="col-md-6 mb-3">
+              <label className="form-label fw-bold">Actual Output</label>
+              <textarea
+                id="actual_accomplishment"
+                className="form-control"
+                rows="3"
+                value={formData.actual_accomplishment || ""}
+                onChange={handleChange}
+              ></textarea>
+            </div>
+          </div>
+
+          <div className="row">
+            <div className="col-md-6 mb-3">
+              <label className="form-label fw-bold">Time Measurement</label>
+              <input
+                id="time_measurement"
+                type="text"
+                className="form-control"
+                value={formData.time_measurement || ""}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="col-md-6 mb-3">
+              <label className="form-label fw-bold">Modification</label>
+              <input
+                id="modifications"
+                type="text"
+                className="form-control"
+                value={formData.modifications || ""}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+
+          <div className="d-flex justify-content-end">
+            <button
+              className="btn btn-primary"
+              disabled={!isDirty || loading}
+              onClick={handleUpdate}
+            >
+              {loading ? "Saving..." : "Save Changes"}
+            </button>
+          </div>
+        </div>
+      </div>
+  );
 }
 
-export default TaskInfo
+export default TaskInfo;

@@ -127,6 +127,21 @@ function CategoryAndTask(){
                 </div>
             </div>
 
+            <div className="modal fade" id="view-task-info" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div className="modal-dialog modal-dialog-centered modal-xl" >
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="staticBackdropLabel">Output Information</h5>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div className="modal-body">
+                            <TaskInfo id = {currentTaskID} key = {currentTaskID} backAfterArchive = {()=> {setFirst(firstCategoryID); setPageNumber(1)}} backToPage = {()=>{setPageNumber(1)}}></TaskInfo>                                                        
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+
             <div className="all-categories-container">
                 <div className="sidebar-title">
                     Categories
@@ -149,8 +164,7 @@ function CategoryAndTask(){
                 </div>  
             </div>
 
-            {pageNumber == 1? <CategoryTasks id = {firstCategoryID} key={firstCategoryID} changeTaskID = {(id)=>{setCurrentTaskID(id); setPageNumber(2)}} reloadAll = {()=>{reloadAllCategories()}} reloadCategory = {(id)=>{setFirst(id);}}></CategoryTasks>: 
-                            <TaskInfo id = {currentTaskID} backAfterArchive = {()=> {setFirst(firstCategoryID); setPageNumber(1)}} backToPage = {()=>{setPageNumber(1)}}></TaskInfo>}            
+            <CategoryTasks id = {firstCategoryID} key={firstCategoryID} changeTaskID = {(id)=>{setCurrentTaskID(id); setPageNumber(2)}} reloadAll = {()=>{reloadAllCategories()}} reloadCategory = {(id)=>{setFirst(id);}}></CategoryTasks>        
         </div>
     )
 }

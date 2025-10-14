@@ -1,23 +1,19 @@
-let g4fModule = null;
-
-async function getG4F() {
-  if (!g4fModule) {
-    g4fModule = await import('https://g4f.dev/dist/js/client.js');
-  }
-  return g4fModule;
-}
+import { Client, PollinationsAI, DeepInfra, Together, Puter, HuggingFace } from  './client';
 
 export async function convert_tense(sentence) {
-  const { PollinationsAI } = await import('https://g4f.dev/dist/js/client.js');
-  const client = new PollinationsAI({ apiKey: 'optional' });
-
-  const result = await client.chat.completions.create({
-    model: 'deepseek-v3',
-    messages: [
-      { role: 'system', content: 'You are a helpful assistant that converts sentences to past tense.' },
-      { role: 'user', content: sentence },
-    ],
+  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer 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"
+    },
+    body: JSON.stringify({
+      model: "llama-3.1-8b-instant",
+      messages: [{ role: "user", content: `convert this to paste tense no explanations: ${sentence}` }],
+    }),
   });
+  const data = await res.json();
+  console.log();
+  return String(data.choices[0].message.content)
 
-  return result.choices[0].message.content;
 }

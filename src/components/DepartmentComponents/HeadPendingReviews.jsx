@@ -7,6 +7,7 @@ import EditOPCR from "./EditOPCR"
 import Swal from "sweetalert2"
 import { getFacultyPending, getHeadPending, getOPCRPending, reviewIPCR } from "../../services/pcrServices"
 import PendingIPCR from "./PendingPCR"
+import { jwtDecode } from "jwt-decode"
 
 
 function HeadPendingReviews(){
@@ -17,18 +18,35 @@ function HeadPendingReviews(){
     const [batchID, setBatchID] = useState(null)
 
     const [currentDeptID, setCurrentDeptID] = useState(null)
+    const [userInfo, setUserInfo] = useState(null)
+    const token = localStorage.getItem("token")
+
+    function readTokenInformation(){
+            let payload = {}
+            try {
+                payload = jwtDecode(token)
+                console.log("token: ",payload)
+                setUserInfo(payload)
+                
+            }
+            catch(err){
+                console.log(err)
+            }
+        }
 
     async function loadIPCR() {
-        var res = await getFacultyPending().then(data => data.data).catch(error => {
-            console.log(error.response.data.error)
+        if (!userInfo) return;
+        
+        var res = await getFacultyPending(userInfo.department.id).then(data => data.data).catch(error => {
+          
             Swal.fire({
                 title: "Error",
                 text: error.response.data.error,
                 icon: "error"
             })
         })
+        console.log("IPCRS",res)
         setAllIPCR(res)
-        console.log("IPCRS: ",res)
     }
 
     async function loadOPCR() {
@@ -44,27 +62,26 @@ function HeadPendingReviews(){
         console.log("OPCRS: ", res)
     }
 
-    
+    useEffect(()=> {
+        loadIPCR()
+    }, [userInfo])
 
     useEffect(()=> {
         loadIPCR()
-        loadOPCR()
+        readTokenInformation()
 
         socket.on("ipcr_create", ()=>{
             loadIPCR()
-            loadOPCR()
 
             console.log("SDOMERTHING CHANGED")
         })
 
         socket.on("opcr", ()=>{
             loadIPCR()
-            loadOPCR()
         })
 
         socket.on("ipcr", ()=>{
             loadIPCR()
-            loadOPCR()
         })
 
 

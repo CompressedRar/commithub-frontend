@@ -8,7 +8,7 @@ import { Modal } from "bootstrap/js/dist/modal"
 import { socket } from "../api";
 
 
-function MemberProfile(props){
+function AccountSettings(props){
     
     const [memberInformation, setMemberInformation] = useState({}) 
     const [positions, setPositions] = useState([])   
@@ -414,7 +414,7 @@ function MemberProfile(props){
         })
     }, [])
 
-
+    //tuloy ang account settings
 
 
 
@@ -518,6 +518,7 @@ function MemberProfile(props){
                 name="department"
                 className="form-select"
                 onChange={handleDataChange}
+                disabled
               >
                 {allDepartments.map((dept) => (
                   <option key={dept.id} value={dept.id}>{dept.name}</option>
@@ -525,13 +526,14 @@ function MemberProfile(props){
               </select>
             </div>
 
-            <div className="col-md-6">
+            <div className="col-md-6" >
               <label htmlFor="position" className="form-label">Position</label>
               <select
                 id="position"
                 name="position"
                 className="form-select"
                 onChange={handleDataChange}
+                disabled
               >
                 {positions.map((pos) => (
                   <option key={pos.id} value={pos.id}>{pos.name}</option>
@@ -539,15 +541,7 @@ function MemberProfile(props){
               </select>
             </div>
 
-            <div className="col-md-6">
-              <label htmlFor="role" className="form-label">Role</label>
-              <select id="role" name="role" className="form-select" onChange={handleDataChange}>
-                <option value="faculty">Faculty</option>
-                <option value="head">Head</option>
-                <option value="president">President</option>
-                <option value="administrator">Administrator</option>
-              </select>
-            </div>
+            
           </div>
 
           {/* Buttons */}
@@ -611,4 +605,4 @@ function MemberProfile(props){
     )
 }
 
-export default MemberProfile
+export default AccountSettings

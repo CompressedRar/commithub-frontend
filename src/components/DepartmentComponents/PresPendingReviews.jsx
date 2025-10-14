@@ -10,67 +10,85 @@ import Swal from "sweetalert2"
 import { getFacultyPending, getHeadPending, getOPCRPending } from "../../services/pcrServices"
 import OPCR from "./OPCR"
 import PendingIPCR from "./PendingPCR"
-import PendingOPCR from "./PendingOPCR"
+import { jwtDecode } from "jwt-decode"
 
 
 function PresPendingReviews(){
     const [allIPCR, setAllIPCR] = useState(null)
-    const [allOPCR, setAllOPCR] = useState(null)
-    const [currentIPCRID, setCurrentIPCRID] = useState(null)
-    const [currentOPCRID, setCurrentOPCRID] = useState(null)
-    const [batchID, setBatchID] = useState(null)
-
-    const [currentDeptID, setCurrentDeptID] = useState(null)
-
-    async function loadIPCR() {
-        var res = await getHeadPending().then(data => data.data).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
+        const [allOPCR, setAllOPCR] = useState(null)
+        const [currentIPCRID, setCurrentIPCRID] = useState(null)
+        const [currentOPCRID, setCurrentOPCRID] = useState(null)
+        const [batchID, setBatchID] = useState(null)
+    
+        const [currentDeptID, setCurrentDeptID] = useState(null)
+        const [userInfo, setUserInfo] = useState(null)
+        const token = localStorage.getItem("token")
+    
+        function readTokenInformation(){
+                let payload = {}
+                try {
+                    payload = jwtDecode(token)
+                    console.log("token: ",payload)
+                    setUserInfo(payload)
+                    
+                }
+                catch(err){
+                    console.log(err)
+                }
+            }
+    
+        async function loadIPCR() {
+            if (!userInfo) return;
+            
+            var res = await getFacultyPending(userInfo.department.id).then(data => data.data).catch(error => {
+              
+                Swal.fire({
+                    title: "Error",
+                    text: error.response.data.error,
+                    icon: "error"
+                })
             })
-        })
-        setAllIPCR(res)
-        console.log("IPCRS: ",res)
-    }
-
-    async function loadOPCR() {
-        var res = await getOPCRPending().then(data => data.data).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
+            console.log("IPCRS",res)
+            setAllIPCR(res)
+        }
+    
+        async function loadOPCR() {
+            var res = await getOPCRPending().then(data => data.data).catch(error => {
+                console.log(error.response.data.error)
+                Swal.fire({
+                    title: "Error",
+                    text: error.response.data.error,
+                    icon: "error"
+                })
             })
-        })
-        setAllOPCR(res)
-        console.log("OPCRS: ", res)
-    }
-
-    useEffect(()=> {
-        loadIPCR()
-        loadOPCR()
-
-        socket.on("ipcr_create", ()=>{
+            setAllOPCR(res)
+            console.log("OPCRS: ", res)
+        }
+    
+        useEffect(()=> {
             loadIPCR()
-            loadOPCR()
-
-            console.log("SDOMERTHING CHANGED")
-        })
-
-        socket.on("opcr", ()=>{
+        }, [userInfo])
+    
+        useEffect(()=> {
             loadIPCR()
-            loadOPCR()
-        })
+            readTokenInformation()
+    
+            socket.on("ipcr_create", ()=>{
+                loadIPCR()
+    
+                console.log("SDOMERTHING CHANGED")
+            })
 
-        socket.on("ipcr", ()=>{
-            loadIPCR()
-            loadOPCR()
-        })
-
-
-    }, [])
+            socket.on("opcr", ()=>{
+                loadIPCR()
+            })
+    
+            socket.on("ipcr", ()=>{
+                loadIPCR()
+            })
+    
+    
+        }, [])
 
     //gawin yung highest performing deparmtent
     return (
@@ -103,20 +121,6 @@ function PresPendingReviews(){
                     </div>
                 </div>
             </div>
-            <h3>Office Performance Review and Commitment Forms</h3>
-            <div className="all-ipcr-container" style={{display:"flex", flexDirection:"column", gap:"10px"}}>
-                
-                {allOPCR && allOPCR.map(opcr => (
-                    <PendingOPCR opcr = {opcr} onClick={()=>{
-                        setCurrentOPCRID(opcr.id)
-                    }}></PendingOPCR>
-                ))}
-            </div>
-            {allOPCR && allOPCR.length == 0?
-                    <div className="empty-symbols">
-                        <span className="material-symbols-outlined">file_copy_off</span>    
-                        <span className="desc">No Pending OPCRs Found</span>
-                    </div>:""} 
             
             <h3>Individual Performance Review and Commitment Forms</h3>
             <div className="all-ipcr-container" style={{display:"flex", flexDirection:"column", gap:"10px"}}>
@@ -138,7 +142,7 @@ function PresPendingReviews(){
             {allIPCR && allIPCR.length == 0?
                     <div className="empty-symbols">
                         <span className="material-symbols-outlined">file_copy_off</span>    
-                        <span className="desc">No Pending Head IPCRs Found</span>
+                        <span className="desc">No Pending IPCRs Found</span>
             </div>:""} 
             
         </div>
