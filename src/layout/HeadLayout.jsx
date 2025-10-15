@@ -4,6 +4,7 @@ import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { getAccountNotification } from "../services/userService";
+import AccountSettings from "../components/UsersComponents/AccountSettings";
 
 function HeadLayout(){
     const token = localStorage.getItem("token")
@@ -86,6 +87,18 @@ function HeadLayout(){
 
     return (
         <div className="main-layout-container">
+            <div className="modal fade" id="account-setting" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div className="modal-dialog modal-dialog-centered modal-lg" >
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div className="modal-body">
+                            {userInfo && <AccountSettings id = {userInfo.id}></AccountSettings>}
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div className="sidebar-container">
                 <div className="logo-container">
                     <img src={`${import.meta.env.BASE_URL}CommitHub-Banner.png`} alt="" />
@@ -147,7 +160,7 @@ function HeadLayout(){
             </header>
             {
                 options && <div className="header-options" onMouseLeave={()=>{setOptions(false)}}>
-                    <div className="header-option">
+                    <div className="header-option" data-bs-toggle="modal" data-bs-target="#account-setting">
                         <span className="material-symbols-outlined" style={detectCurrentPage("")}>manage_accounts</span>
                         <span>Account Setting</span>
                     </div>

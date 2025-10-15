@@ -5,13 +5,14 @@ import { useEffect, useState } from "react";
 import { checkRole } from "../components/api";
 import Swal from "sweetalert2";
 import { getAccountNotification } from "../services/userService";
+import AccountSettings from "../components/UsersComponents/AccountSettings";
 
 function PresidentLayout(){
     const token = localStorage.getItem("token")
     const [profilePictureLink, setProfile] = useState("")
     const [role, setRole] = useState(null)
     const [options, setOptions] = useState(false)
-    const [userInfo, setUserInfo] = useState({})
+    const [userInfo, setUserInfo] = useState(null)
     const [openNotif, setOpenNotif] = useState(false)
 
     const [notifications, setNotifications] = useState(null)
@@ -87,6 +88,18 @@ function PresidentLayout(){
 
     return (
         <div className="main-layout-container">
+            <div className="modal fade" id="account-setting" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div className="modal-dialog modal-dialog-centered modal-lg" >
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div className="modal-body">
+                            {userInfo && <AccountSettings id = {userInfo.id}></AccountSettings>}
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div className="sidebar-container">
                 <div className="logo-container">
                     <img src={`${import.meta.env.BASE_URL}CommitHub-Banner.png`} alt="" />
@@ -147,8 +160,8 @@ function PresidentLayout(){
                         </div>
                     </div>
                     <div className="account-informations">
-                        <span>{userInfo.first_name + " " + userInfo.last_name}</span>
-                        <span className="current-department">{userInfo.department ? userInfo.department.name :""}</span>
+                        <span>{userInfo && userInfo.first_name + " " + userInfo.last_name}</span>
+                        <span className="current-department">{userInfo && userInfo.department ? userInfo.department.name :""}</span>
                     </div>
 
                     <div className="profile-containers" onClick={()=>{setOptions(!options)}}>                        
@@ -160,7 +173,7 @@ function PresidentLayout(){
             </header>
             {
                 options && <div className="header-options" onMouseLeave={()=>{setOptions(false)}}>
-                    <div className="header-option">
+                    <div className="header-option" data-bs-toggle="modal" data-bs-target="#account-setting">
                         <span className="material-symbols-outlined" style={detectCurrentPage("")}>manage_accounts</span>
                         <span>Account Setting</span>
                     </div>

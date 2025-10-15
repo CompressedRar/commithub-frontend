@@ -1,6 +1,6 @@
 import { Client, PollinationsAI, DeepInfra, Together, Puter, HuggingFace } from  './client';
 
-const groq_token = import.meta.env.KEY_GROQ;
+const groq_token = import.meta.env.VITE_KEY_GROQ;
 
 export async function convert_tense(sentence) {
   const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {

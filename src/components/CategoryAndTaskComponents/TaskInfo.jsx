@@ -86,7 +86,7 @@ function TaskInfo({ id, backAfterArchive }) {
   }, [id]);
 
   return (
-    <div className="card shadow-sm">
+    <div className="p-2">
         <div className="card-header d-flex justify-content-between align-items-center">
           <h5 className="mb-0">Task Information</h5>
           <button className="btn btn-danger btn-sm d-flex align-items-center gap-2" onClick={handleArchive}>

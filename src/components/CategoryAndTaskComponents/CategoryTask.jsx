@@ -103,7 +103,7 @@ function CategoryTask({ category, onClick, onEdit }) {
           onClick={(e) => {
             e.stopPropagation();
             onEdit?.(category);
-            props.onClick()
+            onClick()
           }}
           data-bs-toggle="modal"
           data-bs-target="#view-task-info"

@@ -59,6 +59,8 @@ function Login(){
             })
         })
 
+        console.log("LOGIN RESULT:", a.data.message)
+
         if(a.data.message == "Authenticated.") {
             localStorage.setItem("token", a.data.token)
 

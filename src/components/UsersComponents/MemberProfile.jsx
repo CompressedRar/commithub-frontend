@@ -459,20 +459,21 @@ function MemberProfile(props){
           <h5 className="fw-semibold mb-3 text-secondary">Account Information</h5>
           <div className="row g-3">
             <div className="col">
-              <label htmlFor="email" className="form-label">Email Address</label>
+              <label htmlFor="email" className="form-label d-flex flex-row align-items-center gap-2">Email Address 
+            <div>{emailQueryResult}</div></label>
               <input
                 type="email"
                 id="email"
                 name="email"
                 className="form-control"
                 placeholder="example@email.com"
+                defaultValue={memberInformation && memberInformation.email}
                 onInput={(e) => {
                     handleDataChange(e)
                     setEmailQuery(e.target.value);
                 }}
               />
             </div>
-            <div className="mt-1">{emailQueryResult}</div>
           </div>
           <div className="row g-1">
             <div className="">
@@ -483,6 +484,7 @@ function MemberProfile(props){
                 name="first_name"
                 className="form-control"
                 placeholder="John"
+                defaultValue={memberInformation && memberInformation.first_name}
                 onInput={handleDataChange}
               />
             </div>
@@ -494,6 +496,7 @@ function MemberProfile(props){
                 id="middle_name"
                 name="middle_name"
                 className="form-control"
+                defaultValue={memberInformation && memberInformation.middle_name}
                 placeholder="Doe"
                 onInput={handleDataChange}
               />
@@ -507,6 +510,7 @@ function MemberProfile(props){
                 name="last_name"
                 className="form-control"
                 placeholder="Doe"
+                defaultValue={memberInformation && memberInformation.last_name}
                 onInput={handleDataChange}
               />
             </div>
@@ -518,6 +522,7 @@ function MemberProfile(props){
                 name="department"
                 className="form-select"
                 onChange={handleDataChange}
+                defaultValue={memberInformation && memberInformation.department.id}
               >
                 {allDepartments.map((dept) => (
                   <option key={dept.id} value={dept.id}>{dept.name}</option>
@@ -532,6 +537,7 @@ function MemberProfile(props){
                 name="position"
                 className="form-select"
                 onChange={handleDataChange}
+                defaultValue={memberInformation && memberInformation.position.id}
               >
                 {positions.map((pos) => (
                   <option key={pos.id} value={pos.id}>{pos.name}</option>
@@ -555,7 +561,6 @@ function MemberProfile(props){
             <button
               className="btn btn-secondary"
               disabled={dataChanged}
-              onClick={() => window.location.reload()}
             >
               Cancel
             </button>

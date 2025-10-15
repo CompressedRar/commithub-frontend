@@ -1,608 +1,327 @@
 import { useState, useEffect, useRef } from "react"
 import { getPositions } from "../../services/positionService"
-import {  getDepartments } from "../../services/departmentService"
-import { archiveAccount, getAccountInfo, updateMemberInfo, unarchiveAccount, resetAccountPasssword, checkEmail } from "../../services/userService"
-import { objectToFormData } from "../api"
+import { getDepartments } from "../../services/departmentService"
+import { archiveAccount, getAccountInfo, updateMemberInfo, unarchiveAccount, resetAccountPasssword, checkEmail, authenticateAccount, updatePassword } from "../../services/userService"
+import { objectToFormData, socket } from "../api"
 import Swal from "sweetalert2"
 import { Modal } from "bootstrap/js/dist/modal"
-import { socket } from "../api";
 
+function AccountSettings(props) {
+  const [memberInformation, setMemberInformation] = useState({})
+  const [positions, setPositions] = useState([])
+  const [allDepartments, setAllDepartments] = useState([])
+  const [formData, setFormData] = useState({})
+  const [preview, setPreview] = useState(null)
+  const [updating, setUpdating] = useState(false)
+  const [resetting, setResetting] = useState(false)
+  const [dataChanged, setDataChanged] = useState(false)
+  const [emailQuery, setEmailQuery] = useState("")
+  const [emailQueryResult, setEmailQueryResult] = useState(null)
+  const [firstEmail, setFirstEmail] = useState(null)
+  const [isEmailValid, setEmailValid] = useState(true)
+  const fileInput = useRef(null)
 
-function AccountSettings(props){
-    
-    const [memberInformation, setMemberInformation] = useState({}) 
-    const [positions, setPositions] = useState([])   
-    const [allDepartments, setAllDepartments] = useState([])
-    const [formData, setFormData] = useState({"id": 0, "department": 0})
-    const [page, setPage] = useState(0)
-    const [dataChanged, setDataChanged] = useState(false)
-    const [archiving, setArchiving] = useState(false)
-    const[preview, setPreview] = useState(null)
-    const fileInput = useRef(null)
-    const [updating, SetUpdating] = useState(false)
-    const [resetting, setResetting] = useState(false)
-    const [allIPCRs, setIPCRs] = useState(null)
+  // For password change
+  const [showPasswordModal, setShowPasswordModal] = useState(false)
+  const [currentPassword, setCurrentPassword] = useState("")
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [isMatched, setIsMatched] = useState(false)
 
-    const [emailQuery, setEmailQuery] = useState("");
-    const [emailQueryResult, setEmailQueryResult] = useState(null);
+  const [passwordResultText, setPasswordResultText] = useState(null)
+  const [passwordResult, setPasswordResult] = useState(false)
 
-    const [firstEmail, setFirstEmail] = useState(null)
-    const [isEmailValid, setEmailValid] = useState(true)
+  async function loadUserInformation() {
+    const res = await getAccountInfo(props.id).then((data) => data.data).catch((error) => {
+      Swal.fire("Error", error.response.data.error, "error")
+    })
+    setMemberInformation(res)
+    setPreview(res.profile_picture_link)
+    setFirstEmail(res.email)
+    setFormData({
+      id: props.id,
+      department: res.department.id,
+      position: res.position.id,
+      first_name: res.first_name,
+      middle_name: res.middle_name,
+      last_name: res.last_name,
+      email: res.email
+    })
+  }
 
-    
-
-    async function loadUserInformation(){
-        var res = await getAccountInfo(props.id).then(data => data.data).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-        setMemberInformation(res)
-        console.log("MEMBER INFO", res)
-        setIPCRs(res.ipcrs)
-
-        
-        
-        var fname = document.getElementById("first_name")
-        fname.value= res.first_name
-        var mname = document.getElementById("middle_name")
-        mname.value= res.middle_name
-        var lname = document.getElementById("last_name")
-        lname.value= res.last_name
-        var dept = document.getElementById("department")
-        dept.value = res.department.id
-        var position = document.getElementById("position")
-        position.value = res.position.id
-        var email = document.getElementById("email")
-        email.value = res.email
-        console.log("HEHE",res)
-        setPreview(res.profile_picture_link)
-        setFirstEmail(res.email)
-        setFormData({
-            "id": props.id,
-            "department": res.department.id,
-            "position": res.position.id,
-            "first_name": res.first_name,
-            "midde_name": res.middle_name,
-            "last_name": res.last_name,
-            "position": res.position.id,
-            "email":res.email
-        })
-
-        console.log("lock and loaded")
-
+  async function handleUpdate() {
+    if (!isEmailValid) {
+      Swal.fire("Error", "Email was already taken.", "error")
+      return
     }
 
-    const Reactivate = async () => {
-        var res = await unarchiveAccount(props.id).then(data => data.data.message).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-        if(res == "User successfully reactivated") {
-            Swal.fire({
-                title:"Success",
-                text: res,
-                icon:"success"
-            })
-        }
-    }
-    const handleReactivate = async () => {
-        Swal.fire({
-            title: 'Do you want to reactivate this account?',
-            showDenyButton: true,
-            confirmButtonText: 'Yes',
-            denyButtonText: 'No',
-            customClass: {
-                actions: 'my-actions',
-                cancelButton: 'order-1 right-gap',
-                confirmButton: 'order-2'
-                },
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                Reactivate()
-            } else if (result.isDenied) {
-                                   
-            }
-        })
-                
-        
-        const modalEl = document.getElementById("user-profile");
-        const modal = Modal.getOrCreateInstance(modalEl);
+    const data = objectToFormData(formData)
+    if (fileInput.current?.files[0]) data.append("profile_picture_link", fileInput.current.files[0])
 
-        modal.hide();
+    setUpdating(true)
+    const res = await updateMemberInfo(data).then((data) => data.data.message).catch((error) => {
+      Swal.fire("Error", error.response.data.error, "error")
+    })
+    if (res === "User successfully updated") Swal.fire("Success", res, "success")
+    setUpdating(false)
+    await loadUserInformation()
+  }
 
-            // Cleanup leftover backdrop if any
-        document.querySelectorAll(".modal-backdrop").forEach(el => el.remove());
-        document.body.classList.remove("modal-open");
-        document.body.style.overflow = ""; // reset scroll lock
-        
-        setArchiving(false)
-    }
-
-    const handleArch = async () => {
-        var res = await archiveAccount(props.id).then(data => data.data.message).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-        if(res == "User successfully deactivated") {
-            Swal.fire({
-                title:"Success",
-                text: res,
-                icon:"success"
-            })
-        }
-         else {
-            Swal.fire({
-                title:"Error",
-                text: res,
-                icon:"error"
-            })
-        }
-    }
-
-    const handleArchive = async () => {
-        
-       Swal.fire({
-            title: 'Do you want to deactivate this account?',
-            showDenyButton: true,
-            confirmButtonText: 'Yes',
-            denyButtonText: 'No',
-            customClass: {
-                actions: 'my-actions',
-                cancelButton: 'order-1 right-gap',
-                confirmButton: 'order-2'
-                },
-                       }).then(async (result) => {
-                       if (result.isConfirmed) {
-                           handleArch()
-                       } else if (result.isDenied) {
-                           
-                       }
-                   })
-        
-
-        const modalEl = document.getElementById("user-profile");
-        const modal = Modal.getOrCreateInstance(modalEl);
-
-        modal.hide();
-
-            // Cleanup leftover backdrop if any
-        document.querySelectorAll(".modal-backdrop").forEach(el => el.remove());
-        document.body.classList.remove("modal-open");
-        document.body.style.overflow = ""; // reset scroll lock
-
-        setArchiving(false)
-        props.firstLoad();
-    }
-
-    //gawin yung reset password
-    //gawin yung deactivate user
-
-    const ResetPassword = async () => {
+  async function handleResetPassword() {
+    Swal.fire({
+      title: "Reset Password?",
+      text: "Password will be reset to default. Continue?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Reset",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
         setResetting(true)
-        var res = await resetAccountPasssword(props.id).then(data => data.data.message).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-        if(res == "Password successfully reset.") {
-            Swal.fire({
-                title:"Success",
-                text: res,
-                icon:"success"
-            })
-        }
-         else {
-            Swal.fire({
-                title:"Error",
-                text: res,
-                icon:"error"
-            })
-        }
+        const res = await resetAccountPasssword(props.id)
+          .then((d) => d.data.message)
+          .catch((e) => Swal.fire("Error", e.response.data.error, "error"))
+        Swal.fire("Result", res, "info")
         setResetting(false)
-    }
+      }
+    })
+  }
 
-    const handleResetPassword = async () => {
-        
-       Swal.fire({
-            title: 'Reset Password?',
-            showDenyButton: true,
-            text:"The password of this account will be reset to its default password. Do you want to continue?",
-            confirmButtonText: 'Yes',
-            confirmButtonColor:"red",
-            icon:"warning",
-            denyButtonText: 'No',
-            denyButtonColor:"grey",
-            customClass: {
-                actions: 'my-actions',
-                cancelButton: 'order-1 right-gap',
-                confirmButton: 'order-2'
-                },
-                       }).then(async (result) => {
-                       if (result.isConfirmed) {
-                           ResetPassword()
-                       } else if (result.isDenied) {
+  async function handleArchive() {
+    Swal.fire({
+      title: memberInformation.account_status ? "Deactivate Account?" : "Reactivate Account?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Confirm",
+    }).then(async (result) => {
+      if (!result.isConfirmed) return
+      const action = memberInformation.account_status ? archiveAccount : unarchiveAccount
+      const res = await action(props.id).then((d) => d.data.message)
+      Swal.fire("Result", res, "success")
+      await loadUserInformation()
+    })
+  }
+
+  function handleImageChange() {
+    const file = fileInput.current.files[0]
+    if (!file) return
+    if (!file.type.startsWith("image/")) return alert("Please select an image file.")
+    setPreview(URL.createObjectURL(file))
+    setFormData({ ...formData, profile_picture_link: file })
+  }
+
+  function detectPassword(){
+
+    
+    setIsMatched(newPassword !== confirmPassword)
+  }
+
+  async function authenticatePassword(){
+    var converted = objectToFormData({"email": firstEmail, "password":currentPassword}) 
+    
+    var a = await authenticateAccount(converted).then(data => data.data.message).catch(error => {
+
+    })
+    if (a == "Authenticated.") {
+      setPasswordResult(false)
+      setPasswordResultText("")
+    }
+    else {
+      
+      setPasswordResult(false)
+      setPasswordResultText(<span className="text-danger">Invalid Password</span>)
+    }
+  }
+
+  async function sendNewPass(){
+    var res = await updatePassword(props.id, {"password": newPassword}).then(data => {
+      
+      Swal.fire("Success", data.data.message, "success")
+        setShowPasswordModal(false)
+        setCurrentPassword("")
+        setNewPassword("")
+        setConfirmPassword("")
+    
+    }).catch(error => {
+      Swal.fire("Error", error, "error")
+    })
+
+    
+  }
+
+  // --- Change Password Feature ---
+  function handleChangePassword() {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      Swal.fire("Error", "Please fill in all password fields.", "error")
+      return
+    }
                            
-                       }
-                   })
-        
 
-        setArchiving(false)
-    }
+    Swal.fire({
+      title: "Change Password?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Change",
+    }).then(async (res) => {
+      if (res.isConfirmed) {
+        sendNewPass()
+      }
+    })
+  }
+  useEffect(()=> {
+    detectPassword()
+  }, [newPassword, confirmPassword])
 
+  useEffect(()=> {
+    
+    const debounce = setTimeout(() => {
+            authenticatePassword()
+        }, 500)
+
+    return () => clearTimeout(debounce)
     
 
-    async function loadDepartments(){
-        var res = await getDepartments().then(data => data.data).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-        setAllDepartments(res)
-        console.log(res)
-    }
+  }, [currentPassword])
 
-    async function handleUpdate() {
-        if (!isEmailValid) {
-            Swal.fire({
-                title: "Error",
-                text: "Email was already taken.",
-                icon: "error"
-            })
-            return
-        }
-        var converted_data = objectToFormData(formData)
-        if (fileInput != null){
-            converted_data.set("profile_picture_link", fileInput.current.files[0])
-        }
-        console.log("FORM DATA", converted_data)
-        SetUpdating(true)
-        var res = await updateMemberInfo(converted_data).then(data => data.data.message).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-        console.log(res)
-        if(res == "User successfully updated") {
-                Swal.fire({
-                    title:"Success",
-                    text: res,
-                    icon:"success"
-                })
-            }
-        else {
-            Swal.fire({
-                title:"Error",
-                text: res,
-                icon:"error"
-            })
-        }
-        SetUpdating(false)
+  useEffect(() => {
+    loadUserInformation()
+    getDepartments().then((r) => setAllDepartments(r.data))
+    getPositions().then((r) => setPositions(r.data))
+  }, [])
 
-        await loadUserInformation()
-    }
-    
-    function detectChange(){
-        if(page != 1) return;
-        var fname = document.getElementById("first_name")
-        var mname = document.getElementById("middle_name")
-        var lname = document.getElementById("last_name")
-        var dept = document.getElementById("department")
-        var position = document.getElementById("position")
-        var role = document.getElementById("role")
+  return (
+    <div className="profile-edit-container container-fluid">
+      <div className="">
+        <h4 className="mb-4 d-flex align-items-center text-primary">
+          <span className="material-symbols-outlined me-2">manage_accounts</span>
+          Account Settings
+        </h4>
 
-        var res =  ((role.value == memberInformation.role)&&(fname.value == memberInformation.first_name) && (mname.value == memberInformation.middle_name) && (lname.value == memberInformation.last_name) && (dept.value == memberInformation.department.id) && (position.value == memberInformation.position.id) && (preview == memberInformation.profile_picture_link))
-        setDataChanged(res)
-        
-    }
-
-    const loadPositions = async () => {
-        const result = await getPositions().then(data => {
-                return data.data    
-            }).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-            setPositions(result)
-        }
-
-    const handleImageChange = () => {
-        const file = fileInput.current.files[0];
-        if (!file) return;
-
-        if (!file.type.startsWith("image/")) {
-        alert("Please select an image file.");
-        return;
-        }
-
-        const imageUrl = URL.createObjectURL(file);
-        setPreview(imageUrl);
-
-        setFormData((prev) => ({
-            ...prev,
-            "profile_picture_link": file
-        }));
-        
-         
-    };
-    
-    const handleDataChange = (e) => {
-        setFormData({...formData, [e.target.name]: e.target.value})     
-    }
-    useEffect(()=> {
-        console.log("is data changed", preview == memberInformation.profile_picture_link)
-        setDataChanged(false)
-    }, [preview])
-
-    useEffect(()=>{
-        console.log(dataChanged)
-    }, [dataChanged])
-
-    useEffect(()=> {
-        loadUserInformation()
-    }, [page])
-
-    useEffect(()=>{
-        console.log(formData)
-        detectChange()
-    }, [formData])
-
-    useEffect(() => {
-    if (!emailQuery) return;
-
-    const timeout = setTimeout(async () => {
-        try {
-            setEmailValid(false)
-            if(emailQuery == firstEmail) {
-                setEmailValid(true)
-                return
-            }
-            const res = await checkEmail(emailQuery);
-            const msg = res.data.message;
-            if (msg === "Available") {
-                setEmailValid(true)
-                setEmailQueryResult(<span className="text-success">{msg}</span>);
-            } else if (msg === "Email was already taken.") {
-                setEmailValid(false)
-                setEmailQueryResult(<span className="text-danger">{msg}</span>);
-            } else {
-                setEmailQueryResult(
-                <span className="text-muted">Error checking email</span>
-            );
-            }
-        } catch {
-            setEmailValid(false)
-            setEmailQueryResult(
-            <span className="text-muted">Error checking email</span>
-            
-            );
-        }
-        }, 400);
-        return () => clearTimeout(timeout);
-    }, [emailQuery]);
-
-    useEffect(()=>{
-        loadDepartments()
-        loadPositions()
-        
-        socket.on("user_modified", ()=>{
-            loadUserInformation()
-        })
-    }, [])
-
-    //tuloy ang account settings
-
-
-
-    return(
-        <div className="profile-edit-container container-fluid">
-      <div className=" ">
-        <div className="card-body p-4">
-          <h4 className="mb-4 d-flex align-items-center gap-2 text-primary">
-            <span className="material-symbols-outlined">manage_accounts</span>
-            Edit Profile
-          </h4>
-
-          {/* Profile Image */}
-          <div className="d-flex align-items-center gap-4 mb-4">
-            <div
-              className="rounded-circle border border-2 border-primary"
-              style={{
-                width: "100px",
-                height: "100px",
-                backgroundImage: `url('${preview || "/default-avatar.png"}')`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }}
-            ></div>
-            <div>
-              <label htmlFor="profile-image" className="btn btn-outline-primary btn-sm">
-                <span className="material-symbols-outlined me-1">upload</span>
-                Change Photo
-              </label>
-              <input
-                type="file"
-                id="profile-image"
-                name="profile-image"
-                onChange={handleImageChange}
-                ref={fileInput}
-                accept="image/*"
-                hidden
-              />
-            </div>
-          </div>
-
-          <h5 className="fw-semibold mb-3 text-secondary">Account Information</h5>
-          <div className="row g-3">
-            <div className="col">
-              <label htmlFor="email" className="form-label">Email Address</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                className="form-control"
-                placeholder="example@email.com"
-                onInput={(e) => {
-                    handleDataChange(e)
-                    setEmailQuery(e.target.value);
-                }}
-              />
-            </div>
-            <div className="mt-1">{emailQueryResult}</div>
-          </div>
-          <div className="row g-1">
-            <div className="">
-              <label htmlFor="first_name" className="form-label">First Name</label>
-              <input
-                type="text"
-                id="first_name"
-                name="first_name"
-                className="form-control"
-                placeholder="John"
-                onInput={handleDataChange}
-              />
-            </div>
-
-            <div className="">
-              <label htmlFor="middle_name" className="form-label">Middle Name</label>
-              <input
-                type="text"
-                id="middle_name"
-                name="middle_name"
-                className="form-control"
-                placeholder="Doe"
-                onInput={handleDataChange}
-              />
-            </div>
-
-            <div className="">
-              <label htmlFor="last_name" className="form-label">Last Name</label>
-              <input
-                type="text"
-                id="last_name"
-                name="last_name"
-                className="form-control"
-                placeholder="Doe"
-                onInput={handleDataChange}
-              />
-            </div>
-
-            <div className="col-md-6">
-              <label htmlFor="department" className="form-label">Department</label>
-              <select
-                id="department"
-                name="department"
-                className="form-select"
-                onChange={handleDataChange}
-                disabled
-              >
-                {allDepartments.map((dept) => (
-                  <option key={dept.id} value={dept.id}>{dept.name}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="col-md-6" >
-              <label htmlFor="position" className="form-label">Position</label>
-              <select
-                id="position"
-                name="position"
-                className="form-select"
-                onChange={handleDataChange}
-                disabled
-              >
-                {positions.map((pos) => (
-                  <option key={pos.id} value={pos.id}>{pos.name}</option>
-                ))}
-              </select>
-            </div>
-
-            
-          </div>
-
-          {/* Buttons */}
-          <div className="d-flex justify-content-end gap-2 mt-4">
-            <button
-              className="btn btn-secondary"
-              disabled={dataChanged}
-              onClick={() => window.location.reload()}
-            >
-              Cancel
-            </button>
-            <button
-              className="btn btn-success"
-              disabled={dataChanged || updating}
-              onClick={() => handleUpdate()}
-            >
-              {updating ? (
-                <span className="material-symbols-outlined align-middle">refresh</span>
-              ) : (
-                <>
-                  <span className="material-symbols-outlined align-middle me-1">save</span>
-                  Save Changes
-                </>
-              )}
-            </button>
-          </div>
-
-          <hr className="my-4" />
-
-          {/* Account Section */}
-          
-
-          <div className="d-flex gap-3 mt-4 flex-wrap">
-            <button
-              className="btn btn-warning d-flex align-items-center gap-1"
-              disabled={resetting}
-              onClick={handleResetPassword}
-            >
-              <span className="material-symbols-outlined">restart_alt</span>
-              {resetting ? "Resetting..." : "Reset Password"}
-            </button>
-
-            <button
-              className={`btn d-flex align-items-center gap-1 ${
-                memberInformation.account_status === 0 ? "btn-success" : "btn-danger"
-              }`}
-              onClick={() => {
-                if (memberInformation.account_status) handleArchive();
-                else handleReactivate();
-              }}
-            >
-              <span className="material-symbols-outlined">
-                {memberInformation.account_status === 0 ? "account_circle" : "account_circle_off"}
-              </span>
-              {memberInformation.account_status === 0 ? "Reactivate" : "Deactivate"}
-            </button>
+        {/* Profile Picture */}
+        <div className="d-flex align-items-center gap-4 mb-4">
+          <div
+            className="rounded-circle border border-2 border-primary"
+            style={{
+              width: "100px",
+              height: "100px",
+              backgroundImage: `url('${preview || "/default-avatar.png"}')`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          ></div>
+          <div>
+            <label htmlFor="profile-image" className="btn btn-outline-primary btn-sm">
+              <span className="material-symbols-outlined me-1">upload</span> Change Photo
+            </label>
+            <input type="file" id="profile-image" ref={fileInput} onChange={handleImageChange} accept="image/*" hidden />
           </div>
         </div>
+
+        {/* Email */}
+        <div className="mb-3">
+          <label htmlFor="email" className="form-label">Email Address</label>
+          <input type="email" id="email" className="form-control" value={formData.email || ""} onChange={(e) => { setFormData({...formData, email: e.target.value}); setEmailQuery(e.target.value)}} />
+          {emailQueryResult && <div className="mt-1">{emailQueryResult}</div>}
+        </div>
+
+        {/* Name Fields */}
+        <div className="row g-3">
+          <div className="col-md-4">
+            <label htmlFor="first_name" className="form-label">First Name</label>
+            <input type="text" id="first_name" className="form-control" value={formData.first_name || ""} onChange={(e) => setFormData({...formData, first_name: e.target.value})} />
+          </div>
+          <div className="col-md-4">
+            <label htmlFor="middle_name" className="form-label">Middle Name</label>
+            <input type="text" id="middle_name" className="form-control" value={formData.middle_name || ""} onChange={(e) => setFormData({...formData, middle_name: e.target.value})} />
+          </div>
+          <div className="col-md-4">
+            <label htmlFor="last_name" className="form-label">Last Name</label>
+            <input type="text" id="last_name" className="form-control" value={formData.last_name || ""} onChange={(e) => setFormData({...formData, last_name: e.target.value})} />
+          </div>
+        </div>
+
+        {/* Department & Position */}
+        <div className="row g-3 mt-3">
+          <div className="col-md-6">
+            <label htmlFor="department" className="form-label">Department</label>
+            <select id="department" className="form-select" disabled>
+              {allDepartments.map((dept) => (
+                <option key={dept.id} value={dept.id}>{dept.name}</option>
+              ))}
+            </select>
+          </div>
+          <div className="col-md-6">
+            <label htmlFor="position" className="form-label">Position</label>
+            <select id="position" className="form-select" disabled>
+              {positions.map((pos) => (
+                <option key={pos.id} value={pos.id}>{pos.name}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="d-flex justify-content-end gap-2 mt-4">
+          <button className="btn btn-secondary" onClick={() => window.location.reload()}>
+            Cancel
+          </button>
+          <button className="btn btn-success" onClick={handleUpdate} disabled={updating}>
+            <span className="material-symbols-outlined me-1">save</span> {updating ? "Saving..." : "Save Changes"}
+          </button>
+        </div>
+
+        <hr className="my-4" />
+
+        {/* Password and Account Controls */}
+        <div className="d-flex flex-wrap gap-2">
+          <button className="btn btn-outline-primary d-flex align-items-center gap-1" onClick={() => setShowPasswordModal(true)}>
+            <span className="material-symbols-outlined">lock_reset</span> Change Password
+          </button>
+
+          <button className="btn btn-warning d-flex align-items-center gap-1" disabled = {resetting} onClick={handleResetPassword}>
+            <span className="material-symbols-outlined">{resetting? "refresh": "restart_alt"}</span> {resetting? "":"Reset Password"}
+          </button>
+
+          <button className={`btn d-flex align-items-center gap-1 ${memberInformation && memberInformation.account_status ? "btn-danger" : "btn-success"}`} onClick={handleArchive}>
+            <span className="material-symbols-outlined">{memberInformation.account_status ? "account_circle_off" : "account_circle"}</span>
+            {memberInformation.account_status ? "Deactivate" : "Reactivate"}
+          </button>
+        </div>
       </div>
+
+      {/* Change Password Modal */}
+      {showPasswordModal && (
+        <div className="modal fade show d-block" tabIndex="-1" role="dialog" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Change Password</h5>
+                <button type="button" className="btn-close" onClick={() => setShowPasswordModal(false)}></button>
+              </div>
+              <div className="modal-body">
+                <div className="mb-3">
+                  <label className="form-label">Current Password <div>{passwordResultText}</div></label>
+                  <input type="password" className={`form-control border ${!passwordResultText? "border-success": (currentPassword)? "border-danger":""}`} value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">New Password</label>
+                  <input type="password" className={`form-control border ${!isMatched? "border-success": (newPassword && confirmPassword)? "border-danger":""}`} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Confirm New Password</label>
+                  <input type="password" className={`form-control border ${!isMatched? "border-success": (newPassword && confirmPassword)? "border-danger":""}`} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+                </div>
+                
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-secondary" onClick={() => setShowPasswordModal(false)}>Cancel</button>
+                <button className="btn btn-primary" onClick={handleChangePassword} disabled = {isMatched || passwordResultText}>Update Password</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-    )
+  )
 }
 
 export default AccountSettings

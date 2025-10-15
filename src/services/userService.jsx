@@ -36,6 +36,10 @@ export async function updateMemberInfo(data){
     })
 }
 
+export async function updatePassword(user_id,data){
+    return api.patch(`/api/v1/users/change-password/${user_id}`, data)
+}
+
 export async function resetAccountPasssword(id) {
     console.log("resetting password")
     return api.patch(`/api/v1/users/reset-password/${id}`)
