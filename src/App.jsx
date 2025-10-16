@@ -19,6 +19,8 @@ import Unauthorized from './pages/Unauthorized'
 import Faculty from './pages/Faculty'
 import HeadLayout from './layout/HeadLayout'
 import HeadDepartment from './pages/HeadDepartment'
+import PendingReviews from './components/DepartmentComponents/PendingReviews'
+import PendingApprovals from './components/DepartmentComponents/PendingApprovals'
 import PresPendingApprovals from './components/DepartmentComponents/PresPendingApprovals'
 import PresPendingReviews from './components/DepartmentComponents/PresPendingReviews'
 import HeadPendingReviews from './components/DepartmentComponents/HeadPendingReviews'
@@ -34,7 +36,7 @@ function App() {
         <Route element = {<AuthLayout />}>
           <Route path='/' element = {<Login></Login>}></Route>
           <Route path='/register' element = {<Register></Register>}></Route>
-          <Route path='/create' element = {<Register admin = {true}></Register>}></Route>
+          <Route path='/create' element = {<Register ></Register>}></Route>
           <Route path='/logout' element = {<Logout></Logout>}></Route>  
         </Route>
       

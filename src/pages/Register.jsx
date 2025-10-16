@@ -8,6 +8,10 @@ import { registerAccount, checkEmail } from "../services/userService";
 import { objectToFormData } from "../components/api";
 
 function Register() {
+  console.log("MOUNT: Register.jsx");
+  console.log("REGISTER COMPONENT MOUNTED")
+
+
   const [formData, setFormData] = useState({ role: "faculty", middle_name:"" });
   const [positions, setPositions] = useState([]);
   const [departments, setDepartments] = useState([]);

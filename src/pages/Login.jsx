@@ -4,10 +4,12 @@ import { objectToFormData } from "../components/api";
 import Swal from "sweetalert2";
 import "../assets/styles/Login.css"
 import { jwtDecode } from "jwt-decode";
-
+import { useLocation } from "react-router-dom";
 
 function Login(){
+    console.log("MOUNT: Login.jsx");
 
+    const location = useLocation();
     const [loginFormData, setLoginFormData] = useState({"email": "", "password":""})
     const [showPassword, setShowPassword] = useState(false)
     const [loggingIn, setLoggingIn] = useState(false)
@@ -38,9 +40,11 @@ function Login(){
         //console.log(showPassword)
     }, [showPassword])
 
-    useEffect(()=>{
-        detectToken()
-    }, [])
+    useEffect(() => {
+        if (window.location.pathname === "/") {
+            detectToken();
+        }
+    }, []);
 
     const handleSubmission = async (e) => {
         e.preventDefault()
