@@ -68,7 +68,6 @@ function MemberProfile(props){
             "first_name": res.first_name,
             "midde_name": res.middle_name,
             "last_name": res.last_name,
-            "position": res.position.id,
             "email":res.email
         })
 
