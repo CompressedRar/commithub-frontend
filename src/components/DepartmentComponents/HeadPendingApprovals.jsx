@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react"
-import { getDepartmentIPCR, getDepartmentOPCR } from "../../services/departmentService"
 import IPCR from "../Faculty/IPCR"
 
 import EditIPCR from "../Faculty/EditIPCR"
@@ -7,7 +6,7 @@ import ManageSupportingDocuments from "../Faculty/ManageSupportingDocuments"
 import { socket } from "../api"
 import EditOPCR from "./EditOPCR"
 import Swal from "sweetalert2"
-import { getFacultyPending, getHeadApproved, getHeadPending, getHeadReviewed, getOPCRPending, getOPCRReviewed } from "../../services/pcrServices"
+import { getHeadReviewed, getOPCRReviewed } from "../../services/pcrServices"
 import OPCR from "./OPCR"
 
 

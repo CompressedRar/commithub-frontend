@@ -46,7 +46,7 @@ function DepartmentAssignHead(props){
             })
         })
         
-        if (res == "Department head successfully assigned."){
+        if (res == "Office head successfully assigned."){
             Swal.fire({
                 title:"Success",
                 text: res,
@@ -65,7 +65,7 @@ function DepartmentAssignHead(props){
     async function assignHead(user_id){
         Swal.fire({
                     title:"Assign",
-                    text:"Do you want to this member as department head?  \n(Note: Assigning this user override the current assigned head)",
+                    text:"Do you want to this member as Office head?  \n(Note: Assigning this user override the current assigned head)",
                     showDenyButton: true,
                     confirmButtonText:"Assign",
                     denyButtonText:"No",
@@ -92,7 +92,7 @@ function DepartmentAssignHead(props){
             })
         })
         
-        if (res == "Department head successfully removed."){
+        if (res == "Office head successfully removed."){
             Swal.fire({
                 title:"Success",
                 text: res,
@@ -102,7 +102,7 @@ function DepartmentAssignHead(props){
         else {
             Swal.fire({
                 title:"Error",
-                text: "Removal of Department Head failed",
+                text: "Removal of Office Head failed",
                 icon:"error"
             })
         }
@@ -111,7 +111,7 @@ function DepartmentAssignHead(props){
     async function removeHead(user_id){
         Swal.fire({
                     title:"Assign",
-                    text:"Do you want to remove this member as department head?",
+                    text:"Do you want to remove this member as office head?",
                     showDenyButton: true,
                     confirmButtonText:"Remove",
                     confirmButtonColor:"red",
@@ -149,7 +149,7 @@ function DepartmentAssignHead(props){
         <div className="department-assign-container">
             <div className="assigned-head-container">
                 <h4>
-                    Current Department Head
+                    Current Office Head
                 </h4>
                 {headInfo ?<div className="member assigned-head">
                     <div className="member-info">
@@ -169,7 +169,7 @@ function DepartmentAssignHead(props){
 
             <div className="other-member-container">
                 <h4>
-                    Department Members
+                    Office Members
                 </h4>
                 {departmentInfo.users && departmentUsers.map(user => (
                     user.account_status == 1? <div className="member">

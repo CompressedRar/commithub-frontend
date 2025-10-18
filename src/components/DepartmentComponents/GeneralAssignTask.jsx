@@ -69,7 +69,7 @@ function GeneralAssignTask(props) {
 
   async function handleAssign(userid) {
     Swal.fire({
-      title: "Do you want to assign this user?",
+      title: "Do you want to assign this member?",
       showDenyButton: true,
       confirmButtonText: "Yes",
       denyButtonText: "No",
@@ -104,8 +104,7 @@ function GeneralAssignTask(props) {
 
   async function handleUnassign(userid) {
     Swal.fire({
-      title: "Remove this task from user?",
-      text: "Note: This will delete the user's task data in all IPCRs.",
+      title: "Remove this output from user?",
       showDenyButton: true,
       confirmButtonText: "Yes",
       denyButtonText: "No",
@@ -139,7 +138,7 @@ function GeneralAssignTask(props) {
       {members.length === 0 ? (
         <div className="text-center text-muted py-5">
           <span className="material-symbols-outlined fs-1 mb-2">group_off</span>
-          <div>No members found in this department.</div>
+          <div>No members found in this office.</div>
         </div>
       ) : (
         <div className="d-flex flex-column gap-2">

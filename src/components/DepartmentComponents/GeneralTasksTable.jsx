@@ -24,7 +24,7 @@ function GeneralTasksTable(props) {
     } catch (error) {
       Swal.fire({
         title: "Error",
-        text: error.response?.data?.error || "Failed to load tasks.",
+        text: error.response?.data?.error || "Failed to load outputs.",
         icon: "error",
       });
     }
@@ -109,7 +109,7 @@ function GeneralTasksTable(props) {
           <div className="modal-content">
             <div className="modal-header bg-primary text-white">
               <h5 className="modal-title" id="addTaskModalLabel">
-                <i className="bi bi-plus-circle me-2"></i> Add General Task
+                <i className="bi bi-plus-circle me-2"></i> Add General Output
               </h5>
               <button
                 type="button"
@@ -157,7 +157,7 @@ function GeneralTasksTable(props) {
                 />
               ) : (
                 <p className="text-center text-muted">
-                  Select a task to assign members.
+                  Select an output to assign members.
                 </p>
               )}
             </div>
@@ -167,7 +167,7 @@ function GeneralTasksTable(props) {
 
       {/* === Header Controls === */}
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-3">
-        <h4 className="fw-semibold text-dark mb-0">General Tasks</h4>
+        <h4 className="fw-semibold text-dark mb-0">General Outputs</h4>
         <div className="d-flex align-items-center gap-2">
           
 

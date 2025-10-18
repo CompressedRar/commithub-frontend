@@ -466,6 +466,7 @@ function MemberProfile(props){
                 name="email"
                 className="form-control"
                 placeholder="example@email.com"
+                disabled
                 defaultValue={memberInformation && memberInformation.email}
                 onInput={(e) => {
                     handleDataChange(e)
@@ -515,7 +516,7 @@ function MemberProfile(props){
             </div>
 
             <div className="col-md-6">
-              <label htmlFor="department" className="form-label">Department</label>
+              <label htmlFor="department" className="form-label">Office</label>
               <select
                 id="department"
                 name="department"

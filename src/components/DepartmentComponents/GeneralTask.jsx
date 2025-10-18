@@ -24,7 +24,7 @@ function GeneralTask({ mems, switchMember }) {
 
   const handleRemove = async () => {
     Swal.fire({
-      title: "Do you want to remove this task?",
+      title: "Do you want to remove this output?",
       showDenyButton: true,
       confirmButtonText: "Yes",
       denyButtonText: "No",

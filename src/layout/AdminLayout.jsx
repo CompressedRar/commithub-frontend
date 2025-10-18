@@ -118,11 +118,11 @@ function AdminLayout(){
                 </a>
                 <a className="pages" href="/admin/department" style={detectCurrentPage("department")}>
                     <span className="material-symbols-outlined">apartment</span>
-                    <span>Department Management</span>
+                    <span>Offices</span>
                 </a>
                 <a className="pages" href="/admin/tasks" style={detectCurrentPage("tasks")}>
                     <span className="material-symbols-outlined">task</span>
-                    <span>Category and Task</span>
+                    <span>Key Result Areas</span>
                 </a>
                 <a className="pages" href = "/admin/users" style={detectCurrentPage("users")}>
                     <span className="material-symbols-outlined">group</span>

@@ -118,7 +118,7 @@ function DepartmentTasksTable({ id }) {
           <div className="modal-content">
             <div className="modal-header bg-primary text-white">
               <h5 className="modal-title" id="addTaskModalLabel">
-                <i className="bi bi-plus-circle me-2"></i> Add Department Task
+                <i className="bi bi-plus-circle me-2"></i> Add Office Output
               </h5>
               <button
                 type="button"
@@ -166,7 +166,7 @@ function DepartmentTasksTable({ id }) {
                 />
               ) : (
                 <p className="text-center text-muted">
-                  Select a task to assign members.
+                  Select an output to assign members.
                 </p>
               )}
             </div>
@@ -185,7 +185,7 @@ function DepartmentTasksTable({ id }) {
                 style={{ height: "38px" }}
             >
                 <span className="material-symbols-outlined">add</span>
-                Add Task
+                Add Output
             </button>
 
             <div className="input-group" style={{ width: "250px", height: "38px" }}>
@@ -217,7 +217,7 @@ function DepartmentTasksTable({ id }) {
               <tr>
                 <td colSpan="6" className="text-center py-4 text-muted">
                   <i className="bi bi-file-earmark-x fs-4 d-block mb-2"></i>
-                  No Department Tasks Found
+                  No Office Outputs Found
                 </td>
               </tr>
             )}

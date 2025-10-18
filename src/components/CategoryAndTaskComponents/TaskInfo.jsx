@@ -31,7 +31,7 @@ function TaskInfo({ id, backAfterArchive }) {
       console.error(error);
       Swal.fire({
         title: "Error",
-        text: error.response?.data?.error || "Failed to load task info.",
+        text: error.response?.data?.error || "Failed to load output info.",
         icon: "error",
       });
     }
@@ -44,7 +44,7 @@ function TaskInfo({ id, backAfterArchive }) {
       const res = await updateMainTaskInfo(newFormData);
       Swal.fire({
         title: "Success",
-        text: res.data.message || "Task successfully updated.",
+        text: res.data.message || "Output successfully updated.",
         icon: "success",
       });
       setIsDirty(false);
@@ -63,7 +63,7 @@ function TaskInfo({ id, backAfterArchive }) {
 
   const handleArchive = () => {
     Swal.fire({
-      title: "Do you want to archive this task?",
+      title: "Do you want to archive this output?",
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Yes, archive it",
@@ -88,15 +88,15 @@ function TaskInfo({ id, backAfterArchive }) {
   return (
     <div className="p-2">
         <div className="card-header d-flex justify-content-between align-items-center">
-          <h5 className="mb-0">Task Information</h5>
+          <h1></h1>
           <button className="btn btn-danger btn-sm d-flex align-items-center gap-2" onClick={handleArchive}>
-            <span className="material-symbols-outlined">archive</span> Archive Task
+            <span className="material-symbols-outlined">archive</span> Archive Output
           </button>
         </div>
 
         <div className="card-body">
           <div className="mb-3">
-            <label className="form-label fw-bold">Task Name</label>
+            <label className="form-label fw-bold">Output Title</label>
             <input
               id="name"
               type="text"

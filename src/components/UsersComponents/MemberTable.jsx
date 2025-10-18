@@ -208,7 +208,7 @@ function MemberTable(props) {
                         <tr>
                             <th>FULL NAME</th>
                             <th>EMAIL ADDRESS</th>
-                            <th>DEPARTMENT</th>
+                            <th>OFFICE</th>
                             <th>POSITION</th>
                             <th>ROLE</th>
                             <th style={{textAlign: "center"}}>STATUS</th>

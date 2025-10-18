@@ -96,7 +96,7 @@ function CategoryTasks(props){
         }, 500)
         
         return ()=> clearTimeout(debounce)
-    }, [pastTense])
+    }, [archiving])
 
 
     const handleDataChange = (e) => {
@@ -115,15 +115,26 @@ function CategoryTasks(props){
     
     const handleSubmission = async () => {
         setSubmission(true)
+
+        var converted_tense = await convert_tense(String(pastTense)).catch(error => {
+            Swal.fire({
+                title: "Error",
+                text: "There is an error while processing description.",
+                icon: "error"
+            })
+
+            setSubmission(false)
+        })
         
         
 
         const newFormData = objectToFormData(formData);
+        newFormData.append("past_task_desc", converted_tense)
 
         if(formData["task_name"] == ""){
             Swal.fire({
                 title:"Error",
-                text: "Fill the task name field",
+                text: "Fill the output title field",
                 icon:"error"
             })
             setSubmission(false)
@@ -133,7 +144,7 @@ function CategoryTasks(props){
         if(formData["task_desc"] == ""){
             Swal.fire({
                 title:"Error",
-                text: "Fill the task name field",
+                text: "Fill the output name field",
                 icon:"error"
             })
             setSubmission(false)
@@ -146,19 +157,22 @@ function CategoryTasks(props){
         setSubmission(true)
         var a = await createMainTask(newFormData).catch(error => {
             console.log(error.response.data.error)
+            
             Swal.fire({
                 title: "Error",
                 text: error.response.data.error,
                 icon: "error"
             })
+            setSubmission(false)
         })
             
-        if(a.data.message == "Task successfully created.") {
+        if(a.data.message == "Output successfully created.") {
             Swal.fire({
                 title:"Success",
                 text: a.data.message,
                 icon:"success"
             })
+            setSubmission(false)
         }
          else {
             Swal.fire({
@@ -166,6 +180,7 @@ function CategoryTasks(props){
                 text: a.data.message,
                 icon:"error"
             })
+            setSubmission(false)
         }
 
         // gawin bukas yung past tense ng description
@@ -202,7 +217,7 @@ function CategoryTasks(props){
             })
         })
             console.log(a)
-            if(a.data.message == "Category successfully archived.") {
+            if(a.data.message == "Key Result Area successfully archived.") {
                 Swal.fire({
                     title:"Success",
                     text: a.data.message,
@@ -223,7 +238,7 @@ function CategoryTasks(props){
     const handleArchive = async ()=>{
             
             Swal.fire({
-                title: 'Do you want to archive the category?',
+                title: 'Do you want to archive the Key Result Area?',
                 showDenyButton: true,
                 confirmButtonText: 'Yes',
                 denyButtonText: 'No',
@@ -251,7 +266,7 @@ function CategoryTasks(props){
             })
         })
             console.log(a)
-            if(a.data.message == "Category updated.") {
+            if(a.data.message == "Key Result Area updated.") {
                 Swal.fire({
                     title:"Success",
                     text: a.data.message,
@@ -289,7 +304,7 @@ function CategoryTasks(props){
                     <div className="modal-header bg-primary text-white">
                         <h5 className="modal-title fw-semibold" id="createTaskLabel">
                         <span className="material-symbols-outlined me-2 align-middle">add_task</span>
-                        Create Task
+                        Create Output
                         </h5>
                         <button
                         type="button"
@@ -305,7 +320,7 @@ function CategoryTasks(props){
                         {/* Task Name */}
                         <div className="mb-3">
                             <label htmlFor="task_name" className="form-label fw-semibold">
-                            Task Name <span className="text-danger">*</span>
+                            Output Title <span className="text-danger">*</span>
                             </label>
                             <input
                             type="text"
@@ -321,7 +336,7 @@ function CategoryTasks(props){
                         {/* Department */}
                         <div className="mb-3">
                             <label htmlFor="department" className="form-label fw-semibold">
-                            Department <span className="text-danger">*</span>
+                            Office <span className="text-danger">*</span>
                             </label>
                             <select
                             id="department"
@@ -341,7 +356,7 @@ function CategoryTasks(props){
                         {/* Description */}
                         <div className="mb-3">
                             <label htmlFor="task_desc" className="form-label fw-semibold">
-                            Task Description
+                            Output Description
                             </label>
                             <textarea
                             id="task_desc"
@@ -412,7 +427,7 @@ function CategoryTasks(props){
                         type="button"
                         className="btn btn-primary px-4"
                         onClick={handleSubmission}
-                        disabled={translating}
+                        disabled={submitting}
                         >
                         {submitting || translating ? (
                             <span className="material-symbols-outlined spin me-2 align-middle">
@@ -421,7 +436,7 @@ function CategoryTasks(props){
                         ) : (
                             <span className="me-2 align-middle material-symbols-outlined">add_circle</span>
                         )}
-                        Create Task
+                        {submitting? "":"Create Output"}
                         </button>
                     </div>
                     </div>
@@ -431,7 +446,7 @@ function CategoryTasks(props){
             <div style={{display: "flex", alignItems:"center", gap: "10px", justifyContent:"flex-end"}}>
                 <button className="btn btn-danger" style={{display: "flex", alignItems:"center", gap: "10px", justifyContent:"flex-end"}} onClick={handleArchive}>
                     <span className="material-symbols-outlined">archive</span>
-                    <span>Archive Category</span>
+                    <span>Archive</span>
                 </button>  
             </div>
                 <div className="tasks-average-rating">
@@ -449,16 +464,16 @@ function CategoryTasks(props){
                 
                 <div className="all-tasks-container">
                     <span className="all-tasks-title">   
-                        <span>Tasks</span>
+                        <span>Outputs</span>
                         <div className="create-task-btn">
                             <button className="btn btn-primary"  onClick={()=> {openModal()}
                         }>
                                 <span className="material-symbols-outlined">add</span>
-                                <span>Create Task</span>
+                                <span>Create Output</span>
                             </button>
                         </div>
                     </span>
-                    {categoryTasks.length == 0? <div className="empty-tasks">There is no existing tasks.</div>:""}
+                    {categoryTasks.length == 0? <div className="empty-tasks">There is no existing outputs.</div>:""}
                     <div className="all-tasks">
                     
                     {Array.isArray(categoryTasks) && categoryTasks.map(category =>(

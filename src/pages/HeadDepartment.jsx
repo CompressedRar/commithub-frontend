@@ -65,7 +65,7 @@ function HeadDepartment(){
             })
         })
         
-        if(a.data.message == "Department successfully created.") {
+        if(a.data.message == "Office successfully created.") {
             Swal.fire({
                 title:"Success",
                 text: a.data.message,
@@ -96,12 +96,12 @@ function HeadDepartment(){
                 <div className="modal-dialog modal-dialog-centered" >
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title" id="staticBackdropLabel">Create Department</h5>
+                            <h5 className="modal-title" id="staticBackdropLabel">Create Office</h5>
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
                             <div className="textboxes">
-                                <label htmlFor="last_name">Department Name <span className="required">*</span></label>
+                                <label htmlFor="last_name">Office Name <span className="required">*</span></label>
                                 <input type="department_name" id="department_name" name="department_name" onInput={handleDataChange} placeholder="Eg. Computing Studies"  required/>
                             </div>
                             <div className="textboxes" style={{display:"none"}}>
@@ -164,7 +164,7 @@ function HeadDepartment(){
                         <div className="modal-footer">
                             <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             <button type="button" className="btn btn-primary" onClick={handleSubmission}>
-                                 {submitting ?<span className="material-symbols-outlined loading">progress_activity</span> : <span>Create Department</span>}
+                                 {submitting ?<span className="material-symbols-outlined loading">progress_activity</span> : <span>Create Office</span>}
                             </button>
                            
                         </div>
@@ -174,12 +174,12 @@ function HeadDepartment(){
 
             <div className="all-departments-container" style={{display:"none"}}>
                 <div className="sidebar-title" >
-                    Departments
+                    Offices
                 </div>
                 <div className="add-container">
                     <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-department">
                         <span className="material-symbols-outlined">add</span>
-                        <span>Create Department</span>
+                        <span>Create Office</span>
                     </button>
                 </div>
                 <div className = "all-departments">

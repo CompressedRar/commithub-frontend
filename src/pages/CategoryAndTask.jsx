@@ -59,7 +59,7 @@ function CategoryAndTask(){
             })
         })
 
-        if(res.data.message == "Category created.") {
+        if(res.data.message == "Key Area Result created.") {
                     Swal.fire({
                         title:"Success",
                         text: res.data.message,
@@ -105,12 +105,12 @@ function CategoryAndTask(){
                 <div className="modal-dialog modal-dialog-centered" >
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title" id="staticBackdropLabel">Create Category</h5>
+                            <h5 className="modal-title" id="staticBackdropLabel">Create Key Result Area</h5>
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
                             <div className="textboxes">
-                                <label htmlFor="category_name">Category Name <span className="required">*</span></label>
+                                <label htmlFor="category_name">Key Result Area <span className="required">*</span></label>
                                 <input type="category_name" id="category_name" name="category_name" placeholder="Eg. Research Services" onInput={handleDataChange} required/>
                             </div>
                             
@@ -119,7 +119,7 @@ function CategoryAndTask(){
                         <div className="modal-footer">
                             <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             <button type="button" className="btn btn-primary" onClick={handleSubmission}>
-                                 {submitting ?<span className="material-symbols-outlined loading">progress_activity</span> : <span>Create Category</span>}
+                                 {submitting ?<span className="material-symbols-outlined loading">progress_activity</span> : <span>Create Key Result Area</span>}
                             </button>
                            
                         </div>
@@ -144,12 +144,12 @@ function CategoryAndTask(){
 
             <div className="all-categories-container">
                 <div className="sidebar-title">
-                    Categories
+                    Key Result Areas
                 </div>
                 <div className="add-category-container">
                     <button className="add-category btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-category">
                         <span className="material-symbols-outlined">add</span>
-                        <span>Add Category</span>
+                        <span>Create Key Result Area</span>
                     </button>
                 </div>
                 <div className = "all-categories">

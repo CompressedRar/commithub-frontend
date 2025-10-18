@@ -35,7 +35,7 @@ function DepartmentMembers({mems}){
     }
     const handleRemoval = async () => {
         Swal.fire({
-            title: 'Do you want to remove this user from department?',
+            title: 'Do you want to remove this member from this office?',
             showDenyButton: true,
             confirmButtonText: 'Yes',
             denyButtonText: 'No',
@@ -79,24 +79,11 @@ function DepartmentMembers({mems}){
             <span className="deactivated">Deactivated</span>: <span className="active" >Active</span>}</td>
             
             <td className="more-options">
-                <span  className="material-symbols-outlined open" onClick={()=>{setOpen(true)}}>more_vert</span>
-
-                {open && 
-                <div className="member-options" onMouseLeave={()=>{setOpen(false)}}>
-                    <span className="option">
-                        <span className="material-symbols-outlined">download</span>
-                        <span>Download IPCR</span>
-                    </span>
-                    <span className="option">
-                        <span className="material-symbols-outlined">account_circle</span>
-                        <span>View Profile</span>
-                    </span>
-                    
-                    <span className="option" onClick={()=>{handleRemoval()}}>
+                <btn className="btn btn-danger d-flex gap-2" onClick={()=>{handleRemoval()}}>
                         <span className="material-symbols-outlined">group_remove</span>
                         <span>Remove</span>
-                    </span>
-                </div>}
+                    </btn>
+                
 
                 {/**
                     * view profile

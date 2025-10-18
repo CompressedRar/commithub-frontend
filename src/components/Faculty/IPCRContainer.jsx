@@ -114,7 +114,7 @@ function IPCRContainer({ switchPage }) {
 
   async function createTasks() {
     if (checkedArray.length === 0) {
-      Swal.fire("Empty Task", "You must have at least one task for IPCR.");
+      Swal.fire("Empty Task", "You must have at least one output for IPCR.");
       return;
     }
 
@@ -191,8 +191,8 @@ function IPCRContainer({ switchPage }) {
                   Create IPCR
                 </h4>
                 <small className="text-muted">
-                  Choose tasks available to your department.{" "}
-                  <strong>Assigned tasks</strong> can only be removed by your
+                  Choose outputs available to your department.{" "}
+                  <strong>Assigned outputs</strong> can only be removed by your
                   department head.
                 </small>
               </div>
@@ -210,12 +210,12 @@ function IPCRContainer({ switchPage }) {
                 <div className="col-md-6">
                   <h5 className="fw-semibold mb-3">
                     <i className="bi bi-check-circle-fill text-success me-2"></i>
-                    Assigned Tasks
+                    Assigned Outputs
                   </h5>
 
                   {Object.keys(groupedAssigned).length === 0 ? (
                     <div className="alert alert-secondary small">
-                      No assigned tasks yet.
+                      No assigned outputs yet.
                     </div>
                   ) : (
                     Object.entries(groupedAssigned).map(([category, tasks]) => (
@@ -246,12 +246,12 @@ function IPCRContainer({ switchPage }) {
                 <div className="col-md-6">
                   <h5 className="fw-semibold mb-3">
                     <i className="bi bi-plus-circle-fill text-primary me-2"></i>
-                    Available Tasks
+                    Available Outputs
                   </h5>
 
                   {Object.keys(groupedAvailable).length === 0 ? (
                     <div className="alert alert-secondary small">
-                      No available tasks yet.
+                      No available Outputs yet.
                     </div>
                   ) : (
                     Object.entries(groupedAvailable).map(([category, tasks]) => (
@@ -318,7 +318,7 @@ function IPCRContainer({ switchPage }) {
               Individual Performance Commitment Forms
             </h5>
             <small className="text-muted">
-              Create your IPCR by selecting available tasks.
+              Create your IPCR by selecting available outputs.
             </small>
           </div>
           <button

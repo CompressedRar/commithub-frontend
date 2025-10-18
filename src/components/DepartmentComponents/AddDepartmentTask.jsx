@@ -50,7 +50,7 @@ function AddDepartmentTask(props) {
         });
       });
 
-    if (res === "Task successfully removed.") {
+    if (res === "Office successfully removed.") {
       Swal.fire({ title: "Success", text: res, icon: "success" });
       loadAllCategories();
     } else {
@@ -60,7 +60,7 @@ function AddDepartmentTask(props) {
 
   const handleRemove = async (task_id) => {
     Swal.fire({
-      title: "Do you want to remove this task?",
+      title: "Do you want to remove this Output?",
       showDenyButton: true,
       confirmButtonText: "Yes",
       denyButtonText: "No",
@@ -83,7 +83,7 @@ function AddDepartmentTask(props) {
         });
       });
 
-    if (res === "Task successfully assigned.") {
+    if (res === "Output successfully assigned.") {
       Swal.fire({ title: "Success", text: res, icon: "success" });
       loadAllCategories();
     } else {
@@ -93,7 +93,7 @@ function AddDepartmentTask(props) {
 
   const handleAssign = async (task_id) => {
     Swal.fire({
-      title: "Assign this task to this department?",
+      title: "Assign this Output to this department?",
       showDenyButton: true,
       confirmButtonText: "Yes",
       denyButtonText: "No",
@@ -182,7 +182,7 @@ function AddDepartmentTask(props) {
             ) : (
               <div className="text-center text-muted fst-italic py-3 bg-light rounded">
                 <i className="bi bi-info-circle me-2"></i>
-                No available tasks under this category.
+                No available Outputs under this category.
               </div>
             )}
           </div>

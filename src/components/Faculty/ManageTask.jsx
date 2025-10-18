@@ -259,13 +259,13 @@ function ManageTask(props){
             <div className="modal-dialog modal-dialog-centered modal-xl" >
                 <div className="modal-content">
                     <div className="modal-header">
-                        <h5 className="modal-title" id="staticBackdropLabel">Manage IPCR Task</h5>
+                        <h5 className="modal-title" id="staticBackdropLabel">Manage IPCR Output</h5>
                         <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div className="modal-body">
                         <div className="choose-task-container">
                             <div className="assigned-task-container">
-                                <h4>Assigned Tasks</h4>
+                                <h4>Assigned Outputs</h4>
                                     
                                 <div className="assigned-tasks">
                                 {accountTasks && accountTasks.map(task => (
@@ -280,7 +280,7 @@ function ManageTask(props){
                                     </div>
                                 ))}
 
-                                {accountTasks && accountTasks.length == 0? <div className="empty">There is no specific task assigned to you.</div>:""}
+                                {accountTasks && accountTasks.length == 0? <div className="empty">There is no specific output assigned to you.</div>:""}
                                         
 
                                 </div>

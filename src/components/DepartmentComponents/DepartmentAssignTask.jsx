@@ -64,7 +64,7 @@ function DepartmentAssignTask(props) {
 
   async function handleAssign(userid) {
     Swal.fire({
-      title: "Assign this task to the user?",
+      title: "Assign this output to the user?",
       icon: "question",
       showDenyButton: true,
       confirmButtonText: "Yes",
@@ -98,8 +98,8 @@ function DepartmentAssignTask(props) {
 
   async function handleUnassign(userid) {
     Swal.fire({
-      title: "Remove task from this user?",
-      text: "Note: Removing this task will erase this user's corresponding data from all IPCRs.",
+      title: "Remove output from this user?",
+      text: "Note: Removing this output will erase this user's corresponding data from all IPCRs.",
       icon: "warning",
       showDenyButton: true,
       confirmButtonText: "Yes, remove it",
@@ -134,7 +134,7 @@ function DepartmentAssignTask(props) {
   {members.length === 0 ? (
     <div className="text-center text-muted py-5">
       <span className="material-symbols-outlined fs-1 mb-2">group_off</span>
-      <div>No members found in this department.</div>
+      <div>No members found in this office.</div>
     </div>
   ) : (
     <div className="d-flex flex-column gap-2">

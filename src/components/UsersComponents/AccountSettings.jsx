@@ -219,7 +219,7 @@ function AccountSettings(props) {
         {/* Email */}
         <div className="mb-3">
           <label htmlFor="email" className="form-label">Email Address</label>
-          <input type="email" id="email" className="form-control" value={formData.email || ""} onChange={(e) => { setFormData({...formData, email: e.target.value}); setEmailQuery(e.target.value)}} />
+          <input disabled type="email" id="email" className="form-control" value={formData.email || ""} onChange={(e) => { setFormData({...formData, email: e.target.value}); setEmailQuery(e.target.value)}} />
           {emailQueryResult && <div className="mt-1">{emailQueryResult}</div>}
         </div>
 
@@ -242,7 +242,7 @@ function AccountSettings(props) {
         {/* Department & Position */}
         <div className="row g-3 mt-3">
           <div className="col-md-6">
-            <label htmlFor="department" className="form-label">Department</label>
+            <label htmlFor="department" className="form-label">Office</label>
             <select id="department" className="form-select" disabled>
               {allDepartments.map((dept) => (
                 <option key={dept.id} value={dept.id}>{dept.name}</option>

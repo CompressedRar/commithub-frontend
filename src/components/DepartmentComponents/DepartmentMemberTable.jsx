@@ -121,7 +121,7 @@ function DepartmentMemberTable(props) {
     return (
         <div className="member-container">
             <div className="table-header-container">
-                <div className="table-title">Department Members</div>
+                <div className="table-title">Office Members</div>
                         {/**<div className="add-members">
                             <button>
                                 <span className="material-symbols-outlined">add</span>
@@ -171,7 +171,7 @@ function DepartmentMemberTable(props) {
             {tenMembers != 0?"":
                     <div className="empty-symbols">
                         <span className="material-symbols-outlined">no_accounts</span>    
-                        <span className="desc">No Users Found</span>
+                        <span className="desc">No Members Found</span>
                     </div>}  
             <div className="pagination">
                 {pages.map(data => (<span className="pages" key={data.id} onClick={()=>{

@@ -76,7 +76,7 @@ function HeadDepartmentInfo(props){
         if(formData["department_name"] == ""){
             Swal.fire({
                 title:"Error",
-                text: "Fill the department name field",
+                text: "Fill the office name field",
                 icon:"error"
             })
         }
@@ -92,7 +92,7 @@ function HeadDepartmentInfo(props){
                     })
                 })
             
-        if(a.data.message == "Department successfully updated.") {
+        if(a.data.message == "Office successfully updated.") {
             Swal.fire({
                 title:"Success",
                 text: a.data.message,
@@ -128,7 +128,7 @@ function HeadDepartmentInfo(props){
                     })
                 })
         setArchiving(true)
-        if(a.data.message == "Department successfully archived.") {
+        if(a.data.message == "Office successfully archived.") {
             Swal.fire({
                 title:"Success",
                 text: a.data.message,
@@ -161,16 +161,16 @@ function HeadDepartmentInfo(props){
                 <div className="modal-dialog modal-dialog-centered" >
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title" id="staticBackdropLabel">Archive Department</h5>
+                            <h5 className="modal-title" id="staticBackdropLabel">Archive Office</h5>
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">                            
-                            Do you want to archive this department?
+                            Do you want to archive this office?
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             <button type="button" className="btn btn-danger" onClick={handleArchive}>
-                                {archiving ? <span className="material-symbols-outlined loading">progress_activity</span> : <span>Archive Department</span>}
+                                {archiving ? <span className="material-symbols-outlined loading">progress_activity</span> : <span>Archive Office</span>}
                             </button>
                            
                         </div>
@@ -182,7 +182,7 @@ function HeadDepartmentInfo(props){
                 <div className="modal-dialog modal-dialog-centered modal-lg" >
                     <div className="modal-content " >
                         <div className="modal-header">
-                            <h5 className="modal-title" id="staticBackdropLabel">Assign Department Head</h5>
+                            <h5 className="modal-title" id="staticBackdropLabel">Assign Office Head</h5>
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">                            
@@ -200,12 +200,12 @@ function HeadDepartmentInfo(props){
                 <div className="modal-dialog modal-dialog-centered" >
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title" id="staticBackdropLabel">Create Department</h5>
+                            <h5 className="modal-title" id="staticBackdropLabel">Create Office</h5>
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
                             <div className="textboxes">
-                                <label htmlFor="last_name">Department Name <span className="required">*</span></label>
+                                <label htmlFor="last_name">Office Name <span className="required">*</span></label>
                                 <input type="text" id="department_name" name="department_name" onInput={handleDataChange}  placeholder={deptInfo.name}  required/>
                             </div>
                             <div className="textboxes" style={{display:"none"}}>
@@ -268,7 +268,7 @@ function HeadDepartmentInfo(props){
                         <div className="modal-footer">
                             <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             <button type="button" className="btn btn-primary" onClick={handleSubmission}>
-                                 {submitting ?<span className="material-symbols-outlined loading">progress_activity</span> : <span>Update Department</span>}
+                                 {submitting ?<span className="material-symbols-outlined loading">progress_activity</span> : <span>Update Office</span>}
                             </button>
                            
                         </div>
@@ -308,7 +308,7 @@ function HeadDepartmentInfo(props){
                                     </div>}
                                 </div>
                                 <span className="dept-head-container">
-                                    <div style={{fontWeight:"light"}}>Department Head: </div>
+                                    <div style={{fontWeight:"light"}}>Office Head: </div>
                                     {managerInfo? <div className="dept-head">
                                         <div className="img-container">
                                             <img src={managerInfo.profile_picture_link} alt="" />
@@ -344,7 +344,7 @@ function HeadDepartmentInfo(props){
                             <div className="stats">
                                 <span className="material-symbols-outlined">task</span>
                                 <span className="count">{deptInfo? deptInfo.main_tasks_count: ""}</span>
-                                <span className="type">Tasks</span>
+                                <span className="type">Outputs</span>
                             </div>                            
                         </div>
                          <div>
@@ -364,7 +364,7 @@ function HeadDepartmentInfo(props){
                 
                 <div className="pages-container">
                     <div className={currentPage == 0? "select": ""} onClick={()=>{setCurrentPage(0)}}>
-                        Tasks 
+                        Outputs 
                     </div>
                     <div className={currentPage == 1? "select": ""} onClick={()=>{setCurrentPage(1)}}>
                         Members 

@@ -45,7 +45,7 @@ function DepartmentTaskInfo(props){
             })
         })
         console.log(a)
-        if(a.data.message == "Task successfully updated.") {
+        if(a.data.message == "Output successfully updated.") {
             Swal.fire({
                 title:"Success",
                 text: a.data.message,
@@ -71,10 +71,10 @@ function DepartmentTaskInfo(props){
             })
         })
         console.log(a)
-        if(a.data.message == "Task successfully archived.") {
+        if(a.data.message == "Output successfully archived.") {
             Swal.fire({
                 title:"Success",
-                text: "Task successfully archived",
+                text: "Output successfully archived",
                 icon:"success"
             })
             
@@ -92,7 +92,7 @@ function DepartmentTaskInfo(props){
     const handleArchive = async ()=>{
         
         Swal.fire({
-            title: 'Do you want to archive the task?',
+            title: 'Do you want to archive the output?',
             showDenyButton: true,
             confirmButtonText: 'Yes',
             denyButtonText: 'No',
@@ -129,7 +129,7 @@ function DepartmentTaskInfo(props){
                     <div className="task-options">                    
                         <button className="btn btn-danger" style={{display: "flex", alignItems:"center", gap: "10px"}} onClick={handleArchive}>
                             <span className="material-symbols-outlined">archive</span>
-                            <span>Archive Task</span>
+                            <span>Archive Output</span>
                         </button>  
                     </div>                  
                     <div className="description-container">
@@ -174,7 +174,7 @@ function DepartmentTaskInfo(props){
                     </div>
 
                     <div className="users-assigned">
-                        <div className="title">Users Assigned</div>
+                        <div className="title">Members Assigned</div>
                         <div className="user-container">
                             <div className="user">
                                 <div className="user-profile">
@@ -187,7 +187,7 @@ function DepartmentTaskInfo(props){
                                 <div className="option">
                                     <button className="btn btn-danger">
                                         <span className="material-symbols-outlined">remove</span>
-                                        <span>Remove User</span>
+                                        <span>Remove Member</span>
                                     </button>
                                 </div>
                             </div>
@@ -208,7 +208,7 @@ function DepartmentTaskInfo(props){
                         <SubmissionsChart></SubmissionsChart>
                     </div>
                     <div className="graph-container">
-                        Department Ratio of Assigned Member
+                        Office Ratio of Assigned Member
                         <UsersPieChart></UsersPieChart>
                     </div>
                 </div>

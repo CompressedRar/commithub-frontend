@@ -105,7 +105,7 @@ function HeadLayout(){
                 </div>
                 <a className="pages" href="/head/department" style={detectCurrentPage("department")}>
                     <span className="material-symbols-outlined">apartment</span>
-                    <span>Department</span>
+                    <span>Office</span>
                 </a>
                 <a className="pages" href="/head/review" style={detectCurrentPage("ipcr")}>
                     <span className="material-symbols-outlined">pageview</span>
