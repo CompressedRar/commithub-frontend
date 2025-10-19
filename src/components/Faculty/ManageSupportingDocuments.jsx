@@ -4,212 +4,254 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { socket } from "../api";
 
-function ManageSupportingDocuments(props) {
-    const [file, setFile] = useState(null);
-    const [documents, setDocuments] = useState(null)
+function ManageSupportingDocuments({ ipcr_id, batch_id, dept_mode }) {
+  const [file, setFile] = useState(null);
+  const [documents, setDocuments] = useState([]);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
 
-    async function loadDocuments(){
-        var res = await getSupportingDocuments(props.ipcr_id).then(data => data.data).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-        setDocuments(res)
-        console.log("documents dito", res)
+  async function loadDocuments() {
+    try {
+      const res = await getSupportingDocuments(ipcr_id);
+      setDocuments(res.data);
+      console.log("Loaded documents:", res.data);
+    } catch (error) {
+      console.error(error);
+      Swal.fire({
+        title: "Error",
+        text: error.response?.data?.error || "Failed to load documents.",
+        icon: "error",
+      });
+    }
+  }
+
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile && selectedFile.size > MAX_FILE_SIZE) {
+      Swal.fire({
+        title: "File too large",
+        text: "Maximum upload size is 50 MB.",
+        icon: "warning",
+      });
+      e.target.value = null;
+      return;
+    }
+    setFile(selectedFile);
+  };
+
+  const uploadFile = async () => {
+    if (!file) {
+      return Swal.fire({
+        title: "Empty File",
+        text: "You must add a file to upload.",
+        icon: "error",
+      });
     }
 
-    const handleFileChange = (e) => {
-        setFile(e.target.files[0]);
-    };
+    try {
+      // Step 1: Request pre-signed URL
+      const res = await generatePreSignedURL({ fileName: file.name, fileType: file.type });
+      const uploadUrl = res.data.link;
 
-    const uploadFile = async () => {
-        if (!file) return Swal.fire({
-            title:"Empty File", 
-            text:"You must add a file to upload.",
-            icon:"error"
-        });
+      // Step 2: Upload file to S3
+      await axios.put(uploadUrl, file, {
+        headers: { "Content-Type": file.type },
+        onUploadProgress: (e) => {
+          const percent = Math.round((e.loaded * 100) / e.total);
+          setUploadProgress(percent);
+        },
+      });
 
-        try {
-        // Step 1: Request pre-signed URL from Flask
-            const res = await generatePreSignedURL({fileName: file.name,
-                fileType: file.type}).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
+      // Step 3: Record upload info in database
+      const uploadRes = await recordFileUploadInfo({
+        fileName: file.name,
+        fileType: file.type,
+        ipcrID: ipcr_id,
+        batchID: batch_id,
+      });
 
-            const  uploadUrl  = res.data.link;
-            console.log(uploadUrl)
+      Swal.fire({
+        title: "Success",
+        text: uploadRes.data.message,
+        icon: "success",
+      });
 
-            // Step 2: Upload directly to S3 with axios
-            await axios.put(uploadUrl, file, {
-                headers: { "Content-Type": file.type },
-                onUploadProgress: (progressEvent) => {
-                let percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                console.log(`Upload progress: ${percent}%`);
-                },
-            }).catch(error => {
-                console.log(error.response.data.error)
-                Swal.fire({
-                    title: "Error",
-                    text: error.response.data.error,
-                    icon: "error"
-                })
-            });
+      // Reset
+      setFile(null);
+      setUploadProgress(0);
+      document.getElementById("support").value = null;
+      loadDocuments();
+      socket.emit("document");
+
+    } catch (error) {
+      console.error("Upload error:", error);
+      Swal.fire({
+        title: "Error",
+        text: error.response?.data?.error || "File upload failed.",
+        icon: "error",
+      });
+    }
+  };
+
+  const download = (link) => {
+    window.open(link, "_blank", "noopener,noreferrer");
+  };
+
+  const handleRemove = async (document_id) => {
+    try {
+      const res = await archiveDocument(document_id);
+      Swal.fire({
+        title: "Success",
+        text: res.data.message,
+        icon: "success",
+      });
+      loadDocuments();
+      socket.emit("document");
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: error.response?.data?.error || "Failed to remove document.",
+        icon: "error",
+      });
+    }
+  };
+
+  const removeDocument = (document_id) => {
+    Swal.fire({
+      title: "Remove Document",
+      text: "Do you want to remove this document?",
+      showCancelButton: true,
+      confirmButtonText: "Remove",
+      confirmButtonColor: "#d33",
+      cancelButtonText: "Cancel",
+      icon: "warning",
+    }).then((result) => {
+      if (result.isConfirmed) handleRemove(document_id);
+    });
+  };
+
+  useEffect(() => {
+    loadDocuments();
+    socket.on("document", loadDocuments);
+    return () => socket.off("document", loadDocuments);
+  }, []);
+
+  return (
+    <div
+      className="modal fade"
+      id="manage-docs"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
+      tabIndex="-1"
+      aria-labelledby="manageDocsLabel"
+      aria-hidden="true"
+    >
+      <div className="modal-dialog modal-dialog-centered modal-xl">
+        <div className="modal-content shadow-lg border-0">
+          <div className="modal-header bg-primary text-white">
+            <h5 className="modal-title fw-semibold" id="manageDocsLabel">
+              Manage Supporting Documents
+              
+            </h5>
             
-            var uploadRes = await recordFileUploadInfo({
-                fileName: file.name,
-                fileType: file.type,
-                ipcrID: props.ipcr_id,
-                batchID: props.batch_id
-            }).then(data => data.data.message).catch(error => {
-                console.log(error.response.data.error)
-                Swal.fire({
-                    title: "Error",
-                    text: error.response.data.error,
-                    icon: "error"
-                })
-            })
+            <button type="button" className="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
 
-            if (uploadRes == "File successfully uploaded."){
-                Swal.fire({
-                    title:"Success",
-                    text:uploadRes,
-                    icon: "success"
-                })
-
-                document.getElementById("support").value = null
-                setFile(null)
-            }
+          <div className="modal-body p-4">
+            {/* Upload Section */}
             
-        } catch (err) {
-            console.error("Upload error:", err);
-            alert("Upload failed.");
-        }
-    };
-
-    async function download(link) {
-        window.open(link, "_blank", "noopener,noreferrer");
-    
-    }
-
-    async function handleRemove(document_id){
-        var res = await archiveDocument(document_id).then(data => data.data.message).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-                
-        if (res == "Document successfully archived."){
-            Swal.fire({
-                title:"Success",
-                text: res,
-                icon:"success"
-            })
-        }
-        else {
-            Swal.fire({
-                title:"Error",
-                text: "Submission of IPCR failed",
-                icon:"error"
-            })
-        }
-    } 
-        
-    async function removeDocument(document_id){
-        Swal.fire({
-            title:"Remove",
-            text:"Do you want to remove this document?",
-            showDenyButton: true,
-            confirmButtonText:"Remove",
-            confirmButtonColor:"red",
-            denyButtonText:"No",
-            denyButtonColor:"grey",
-            icon:"warning",
-            customClass: {
-                actions: 'my-actions',
-                confirmButton: 'order-2',
-                denyButton: 'order-1 right-gap',
-            },
-        }).then((result)=> {
-            if(result.isConfirmed){
-                handleRemove(document_id)
-            }
-        }) 
-    }
-
-    useEffect(()=> {
-        loadDocuments()
-
-        socket.on("document", ()=> {
-            loadDocuments()
-        })
-
-
-    }, [])
-
-    return (
-        <div className="modal fade" id="manage-docs" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                <div className="modal-dialog modal-dialog-centered modal-xl" >
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title" id="staticBackdropLabel">Manage Document</h5>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div className="modal-body">
-                            <div className="add-docu-header">
-                                <input type="file" name="support" id="support" onChange={handleFileChange}/>
-                                <button className="btn btn-primary" onClick={()=>{uploadFile()}}>
-                                    <span className="material-symbols-outlined">upload</span>
-                                    <span>Upload Document</span>
-                                </button>
-                                
-                            </div>
-
-                            <div className="uploaded-documents-container">
-                                <h4>Uploaded Files</h4>
-                                <div  className="uploaded-documents">
-                                    {documents && documents.map(document => (
-                                        document.status == 1?<div className="document">
-                                        
-                                            <div className="document-info">
-                                                <span className="material-symbols-outlined">description</span>
-                                                <span style={{display:"flex", flexDirection:"column"}}>
-                                                    <span>{document.file_name}</span>                                                    
-                                                    <span className="file-type">{document.file_type}</span>
-                                                </span>
-                                                
-                                            </div>
-                                            <div className="document-options">
-                                                <button className="btn btn-primary" onClick={()=> {download(document.download_url)}}>
-                                                    <span className="material-symbols-outlined">download</span>
-                                                    <span>Download</span>
-                                                </button>
-                                                <button className="btn btn-danger" style={props.dept_mode? {display:"none"}:{}} onClick={()=>{removeDocument(document.id)}}>
-                                                    <span className="material-symbols-outlined">remove</span>
-                                                    <span>Remove</span>
-                                                </button>
-                                            </div>  
-                                            
-                                        </div> : ""
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                        
-                    </div>
-                </div>
+            <div className="d-flex flex-column flex-md-row align-items-md-center gap-3">
+              <input
+                type="file"
+                className="form-control w-100 w-md-auto"
+                id="support"
+                onChange={handleFileChange}
+              />
+              
+              <button className="btn btn-success d-flex align-items-center gap-2" onClick={uploadFile}>
+                <span className="material-symbols-outlined">upload</span>
+                Upload Document
+              </button>
+              
             </div>
-    )
+            <small className="text-muted">
+                Please upload documents that support your accomplishments or tasks — e.g., attendance sheets, screenshots, certificates, or reports. Limit: 50 MB per file.
+            </small>
+            
+
+            {/* Upload Progress */}
+            {uploadProgress > 0 && (
+              <div className="mb-3">
+                <div className="progress" style={{ height: "20px" }}>
+                  <div
+                    className="progress-bar progress-bar-striped progress-bar-animated bg-success"
+                    role="progressbar"
+                    style={{ width: `${uploadProgress}%` }}
+                    aria-valuenow={uploadProgress}
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                  >
+                    {uploadProgress}%
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Uploaded Files */}
+            <div className="uploaded-documents-container">
+              <h5 className="fw-semibold mb-3">Uploaded Files</h5>
+              <div className="list-group">
+                {documents && documents.length > 0 ? (
+                  documents
+                    .filter((doc) => doc.status === 1)
+                    .map((doc) => (
+                      <div key={doc.id} className="list-group-item d-flex justify-content-between align-items-center">
+                        <div className="d-flex align-items-center gap-3">
+                          <span className="material-symbols-outlined text-primary">description</span>
+                          <div>
+                            <div className="fw-semibold">{doc.file_name}</div>
+                            <small className="text-muted">{doc.file_type}</small>
+                          </div>
+                        </div>
+
+                        <div className="d-flex gap-2">
+                          <button
+                            className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1"
+                            onClick={() => download(doc.download_url)}
+                          >
+                            <span className="material-symbols-outlined">download</span>
+                            Download
+                          </button>
+                          {!dept_mode && (
+                            <button
+                              className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1"
+                              onClick={() => removeDocument(doc.id)}
+                            >
+                              <span className="material-symbols-outlined">delete</span>
+                              Remove
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                ) : (
+                  <div className="text-muted fst-italic text-center py-3">
+                    No uploaded documents yet.
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="modal-footer">
+            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
-export default ManageSupportingDocuments
+export default ManageSupportingDocuments;

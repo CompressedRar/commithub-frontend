@@ -76,7 +76,7 @@ function IPCR({ ipcr, dept_mode, onClick, onMouseOver }) {
               {ipcr.form_status.toUpperCase()}
             </span>
             {ipcr.isMain == 1 && 
-              <span className="badge bg-warning text-dark">MAIN</span>
+              <span className="badge bg-warning text-dark">LATEST</span>
             }
           </div>
         </div>

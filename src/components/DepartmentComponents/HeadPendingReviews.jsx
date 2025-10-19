@@ -72,15 +72,14 @@ function HeadPendingReviews(){
 
         socket.on("ipcr_create", ()=>{
             loadIPCR()
-
-            console.log("SDOMERTHING CHANGED")
-        })
-
-        socket.on("opcr", ()=>{
-            loadIPCR()
         })
 
         socket.on("ipcr", ()=>{
+            loadIPCR()
+        })
+
+        socket.on("reject", ()=>{
+            console.log("You rejected an IPCR")
             loadIPCR()
         })
 
@@ -112,7 +111,7 @@ function HeadPendingReviews(){
                         <div className="modal-header">
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div className="modal-body">
+                        <div className="modal-body">    
                             {currentOPCRID && <EditOPCR opcr_id = {currentOPCRID}></EditOPCR>}
                         </div>
                     </div>
@@ -123,14 +122,15 @@ function HeadPendingReviews(){
             <div className="all-ipcr-container" style={{display:"flex", flexDirection:"column", gap:"10px"}}>
                 
                 {allIPCR && allIPCR.map(ipcr => (
-                    ipcr.status == 1? <PendingIPCR onMouseOver = {()=>{
+                    ipcr.status == 1? <PendingIPCR  onMouseOver = {()=>{
                         setBatchID(ipcr.batch_id)
                         setCurrentIPCRID(ipcr.id)
                         setCurrentDeptID(ipcr.user.department_id)
                         console.log(ipcr.id)
+                        
                     }} onClick={()=>{
                         setCurrentIPCRID(ipcr.id)
-                    }} ipcr = {ipcr} dept_mode = {true}></PendingIPCR> :""
+                    }} ipcr = {ipcr} key = {ipcr.id} dept_mode = {true}></PendingIPCR> :""
                 ))}
 
                  

@@ -48,6 +48,11 @@ export async function reviewIPCR(ipcr_id) {
     return api.post(`/api/v1/pcr/ipcr/review/${ipcr_id}`)
 }
 
+export async function rejectIPCR(ipcr_id) {
+    console.log("reviewing ipcr")
+    return api.post(`/api/v1/pcr/ipcr/reject/${ipcr_id}`)
+}
+
 export async function updateSubTask(sub_task_id, field, value) {
     console.log("updating sub task")
     return api.patch(`/api/v1/task/sub_task/${sub_task_id}?field=${field}&value=${value}`)

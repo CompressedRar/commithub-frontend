@@ -1,212 +1,352 @@
-import {Navigate, Outlet } from "react-router-dom";
-import "../assets/styles/Main.css"
+import { Navigate, Outlet, NavLink } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
-import { checkRole, socket } from "../components/api";
+import { socket } from "../components/api";
 import Swal from "sweetalert2";
-import { getAccountNotification } from "../services/userService";
+import { getAccountNotification, readNotification } from "../services/userService";
 import AccountSettings from "../components/UsersComponents/AccountSettings";
+import "../assets/styles/Main.css";
+import "bootstrap/dist/css/bootstrap.min.css";
 
-function AdminLayout(){
-    const token = localStorage.getItem("token")
-    const [profilePictureLink, setProfile] = useState("")
-    const [role, setRole] = useState(null)
-    const [options, setOptions] = useState(false)
-    const [userInfo, setUserInfo] = useState(null)
-    const [openNotif, setOpenNotif] = useState(false)
+function AdminLayout() {
+  const token = localStorage.getItem("token");
+  const [role, setRole] = useState(null);
+  const [userInfo, setUserInfo] = useState(null);
+  const [profilePictureLink, setProfilePictureLink] = useState("");
+  const [notifications, setNotifications] = useState([]);
+  const [options, setOptions] = useState(false);
+  const [openNotif, setOpenNotif] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-    const [notifications, setNotifications] = useState(null)
+  // 🔹 Handle responsive resize
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
-    async function loadNotification(user_id){
-        var res = await getAccountNotification(user_id).then(data => data.data)
-        setNotifications(res.toReversed())
-        console.log("notification", res)
-
+  // 🔹 Fetch notifications
+  async function loadNotification(user_id) {
+    try {
+      const res = await getAccountNotification(user_id);
+      setNotifications(res.data.toReversed());
+    } catch (error) {
+      console.error(error);
     }
+  }
 
-    function readTokenInformation(){
-        let payload = {}
-        try {
-            payload = jwtDecode(token)
-            console.log("token: ",payload)
-            setProfile(payload.profile_picture_link)
-            setRole(payload.role || null)
-            setUserInfo(payload)
-
-            loadNotification(payload.id)
-            
-        }
-        catch(err){
-            console.log(err)
-        }
+  // 🔹 Decode token
+  function readTokenInformation() {
+    try {
+      const payload = jwtDecode(token);
+      setUserInfo(payload);
+      setRole(payload.role || null);
+      setProfilePictureLink(payload.profile_picture_link);
+      loadNotification(payload.id);
+    } catch (err) {
+      console.error(err);
     }
+  }
 
-    //gawin create ipcr bukas
-    
-    
-    if(!token){
-        return <Navigate to="/" replace></Navigate>
-    }
+  // 🔹 Logout
+  function Logout() {
+    Swal.fire({
+      title: "Logout",
+      text: "Do you want to logout?",
+      showDenyButton: true,
+      confirmButtonText: "Logout",
+      denyButtonText: "Cancel",
+      icon: "warning",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        localStorage.removeItem("token");
+        window.location.reload();
+      }
+    });
+  }
 
-    if(role && role !== "administrator"){
-        console.log(role)
-        window.location.href = "/unauthorized"
-    }
-    
+  // 🔹 Init socket + token decoding
+  useEffect(() => {
+    if (!token) return;
+    readTokenInformation();
+    socket.on("user_modified", readTokenInformation);
+    socket.on("user_updated", readTokenInformation);
+    socket.on("notification_sent", () => readTokenInformation());
 
-    function Logout(){ 
-        Swal.fire({
-            title:"Logout",
-            text:"Do you want to logout?",
-            showDenyButton: true,
-            confirmButtonText:"Logout",
-            denyButtonText:"No",
-            icon:"warning",
-            customClass: {
-                actions: 'my-actions',
-                confirmButton: 'order-2',
-                denyButton: 'order-1 right-gap',
-            },
-        }).then((result)=> {
-            if(result.isConfirmed){
-                localStorage.removeItem("token")
-                window.location.reload()
-            }
-        })  
-    }
+    return () => {
+      socket.off("user_modified", readTokenInformation);
+      socket.off("user_updated", readTokenInformation);
+      socket.off("notification_sent");
+    };
+  }, []);
 
-    function detectCurrentPage(detect){
-        var current = window.location.pathname.replaceAll("/", "").toLocaleLowerCase()
-        return String(detect).includes(current)? {backgroundColor: "rgba(85, 130, 255, 0.2)", color:"var(--primary-color)"}: {}
-    }
-    
-    useEffect(()=>{
-        
-        readTokenInformation()
-        detectCurrentPage("dashboard")
+  if (!token) return <Navigate to="/" replace />;
+  if (role && role !== "administrator") return <Navigate to="/unauthorized" replace />;
 
-        socket.on("user_modified", ()=> {
-            readTokenInformation()
-        })
-        socket.on("user_updated", ()=> {
-            readTokenInformation()
-        })
+  return (
+    <div className="d-flex flex-column flex-md-row vh-100 overflow-hidden bg-light">
+      {/* 🔹 Sidebar */}
+      <nav
+        className={`sidebar bg-white border-end shadow-sm d-flex flex-column justify-content-between position-fixed ${
+          isMobile
+            ? sidebarCollapsed
+              ? "translate-x-full"
+              : "translate-x-0"
+            : ""
+        }`}
+        style={{
+          width: sidebarCollapsed && !isMobile ? "70px" : "250px",
+          left: isMobile && sidebarCollapsed ? "-250px" : "0",
+          top: "0",
+          bottom: "0",
+          transition: "all 0.3s ease",
+          zIndex: 1050,
+        }}
+      >
+        <div>
+          <div className="text-center my-3">
+            <img
+              src={`${import.meta.env.BASE_URL}CommitHub.png`}
+              alt="CommitHub"
+              className="img-fluid"
+              style={{
+                maxWidth: sidebarCollapsed && !isMobile ? "40px" : "180px",
+                transition: "all 0.3s ease",
+              }}
+            />
+          </div>
 
-    }, [])
-
-    return (
-        <div className="main-layout-container">
-            <div className="modal fade" id="account-setting" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                <div className="modal-dialog modal-dialog-centered modal-lg" >
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div className="modal-body">
-                            {userInfo && <AccountSettings id = {userInfo.id}></AccountSettings>}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div className="sidebar-container">
-                <div className="logo-container">
-                    <img src={`${import.meta.env.BASE_URL}CommitHub-Banner.png`} alt="" />
-                </div>
-                <a className="pages" href="/admin/dashboard" style={detectCurrentPage("dashboard")}>
-                    <span className="material-symbols-outlined">dashboard</span>
-                    <span>Dashboard</span>
-                </a>
-                <a className="pages" href="/admin/department" style={detectCurrentPage("department")}>
-                    <span className="material-symbols-outlined">apartment</span>
-                    <span>Offices</span>
-                </a>
-                <a className="pages" href="/admin/tasks" style={detectCurrentPage("tasks")}>
-                    <span className="material-symbols-outlined">task</span>
-                    <span>Key Result Areas</span>
-                </a>
-                <a className="pages" href = "/admin/users" style={detectCurrentPage("users")}>
-                    <span className="material-symbols-outlined">group</span>
-                    <span>User Management</span>
-                </a>
-                
-                <a className="pages" href = "/admin/logs" style={detectCurrentPage("logs")}>
-                    <span className="material-symbols-outlined">article_person</span>
-                    <span>Audit Logs</span>
-                </a>
-
-                <a className="pages" href="/admin/approve" style={detectCurrentPage("ipcr")}>
-                    <span className="material-symbols-outlined">approval</span>
-                    <span>Pending Approval</span>
-                </a>
-
-                <a className="pages" href="/admin/ipcr" style={detectCurrentPage("ipcr")}>
-                    <span className="material-symbols-outlined">assignment_ind</span>
-                    <span>IPCR</span>
-                </a>
-            </div>
-            <header className="header-container">
-                <div className="current-location">
-                    <div className="menu-container">
-                        <span className="material-symbols-outlined">menu</span>
-                    </div>
-                    <div className="current-page-container">                    
-                        <span className="page">
-                            <span>{window.location.pathname.replaceAll("/", "")[0].toLocaleUpperCase() + window.location.pathname.substring(2)}</span>
-                        </span>
-                    </div>
-                </div>
-
-                <div className="current-info">
-                    <div className="notification-container">
-                        <span className="material-symbols-outlined" onClick={()=> {setOpenNotif(!openNotif)}}>notifications</span>
-
-                        <div className="all-notification" style={openNotif? {display:"flex"}: {display:"none"}}  onMouseLeave={(e)=> {
-                                //setOpenNotif(false)
-                            }}>
-                            <h3>Notifications</h3>
-                            {notifications && notifications.map(notif => (
-                                <div className="notif">
-                                    <span>{notif.name}</span>
-                                    <span>{notif.created_at}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                    <div className="account-informations">
-                        <span>{userInfo && userInfo.first_name + " " + userInfo.last_name}</span>
-                        <span className="current-department">{userInfo && userInfo.department ? userInfo.department.name :""}</span>
-                    </div>
-
-                    <div className="profile-containers" onClick={()=>{setOptions(!options)}}>                        
-                        <div className="profile-image-container">
-                            <img src={profilePictureLink} alt="" />
-                        </div>
-                    </div>
-                </div>
-            </header>
-            {
-                options && <div className="header-options" onMouseLeave={()=>{setOptions(false)}}>
-                    <div className="header-option" data-bs-toggle="modal" data-bs-target="#account-setting">
-                        <span className="material-symbols-outlined"  style={detectCurrentPage("")}>manage_accounts</span>
-                        <span>Account Setting</span>
-                    </div>
-                    <div className="header-option" onClick={()=>{
-                        Logout()
-                    }}>
-                        <span className="material-symbols-outlined">logout</span>
-                        <span>Logout</span>
-                    </div>
-                </div>
-            }
-
-            
-
-            <main className="main-content-container">
-                <Outlet />
-            </main>
-            
+          <ul className="nav flex-column gap-2 sidebar-nav">
+            {[
+              { href: "/admin/dashboard", icon: "dashboard", text: "Dashboard" },
+              { href: "/admin/department", icon: "apartment", text: "Offices" },
+              { href: "/admin/tasks", icon: "task", text: "Key Result Areas" },
+              { href: "/admin/users", icon: "group", text: "User Management" },
+              { href: "/admin/logs", icon: "article", text: "Audit Logs" },
+              { href: "/admin/approve", icon: "approval", text: "Pending Approval" },
+              { href: "/admin/ipcr", icon: "assignment_ind", text: "IPCR" },
+            ].map((item, idx) => (
+              <li key={idx}>
+                <NavLink
+                  to={item.href}
+                  end
+                  className={({ isActive }) =>
+                    `nav-link d-flex align-items-center gap-2 px-3 py-2 ${
+                      isActive ? "active-nav" : ""
+                    }`
+                  }
+                >
+                  <span className="material-symbols-outlined">{item.icon}</span>
+                  {!sidebarCollapsed && <span>{item.text}</span>}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
         </div>
-    )
+        {!sidebarCollapsed && !isMobile && (
+          <div className="text-center small text-muted mt-3">CommitHub Admin © 2025</div>
+        )}
+      </nav>
+
+      {/* 🔹 Overlay for mobile */}
+      {isMobile && !sidebarCollapsed && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 bg-white bg-opacity-25"
+          style={{ zIndex: 1040 }}
+          onClick={() => setSidebarCollapsed(true)}
+        ></div>
+      )}
+
+      {/* 🔹 Main Content */}
+      <div
+        className="flex-grow-1 d-flex flex-column"
+        style={{
+          marginLeft: !isMobile ? (sidebarCollapsed ? "70px" : "250px") : "0",
+          transition: "margin 0.3s ease",
+        }}
+      >
+        <header className="d-flex justify-content-between align-items-center px-4 py-2 bg-white border-bottom shadow-sm">
+          <div className="d-flex align-items-center gap-3">
+            <button
+              className="btn btn-outline-primary btn-sm"
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            >
+              <span className="material-symbols-outlined">menu</span>
+            </button>
+          </div>
+
+          <div className="d-flex align-items-center gap-3">
+            {/* 🔔 Notifications */}
+            <div className="position-relative">
+              <span
+                className="material-symbols-outlined fs-4 cursor-pointer position-relative"
+                onClick={() => {
+                  const newState = !openNotif;
+                  setOpenNotif(newState);
+
+                  // Mark unread notifications as read
+                  if (newState && notifications.length > 0) {
+                    const unreadIds = notifications
+                      .filter((n) => !n.read)
+                      .map((n) => n.id);
+
+                    if (unreadIds.length > 0) {
+                      readNotification(unreadIds)
+                        .then(() => {
+                          setNotifications((prev) =>
+                            prev.map((n) => ({
+                              ...n,
+                              read: unreadIds.includes(n.id) ? true : n.read,
+                            }))
+                          );
+                        })
+                        .catch((err) =>
+                          console.error("Failed to read notifications:", err)
+                        );
+                    }
+                  }
+                }}
+              >
+                notifications
+                {notifications.some((n) => !n.read) && (
+                  <span
+                    className="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"
+                    style={{ width: "10px", height: "10px" }}
+                  ></span>
+                )}
+              </span>
+
+              {openNotif && (
+                <div
+                  className="position-absolute end-0 mt-2 bg-white border rounded shadow-sm p-3"
+                  style={{ width: "300px", zIndex: "1000" }}
+                >
+                  <h6 className="fw-semibold mb-2">Notifications</h6>
+                  <div
+                    className="d-flex flex-column gap-2"
+                    style={{ maxHeight: "300px", overflowY: "auto" }}
+                  >
+                    {notifications.length > 0 ? (
+                      notifications.map((notif, index) => (
+                        <div
+                          key={index}
+                          className={`p-2 border rounded ${
+                            notif.read
+                              ? "bg-light"
+                              : "bg-primary bg-opacity-10"
+                          }`}
+                        >
+                          <div className="d-flex justify-content-between align-items-center">
+                            <strong>{notif.name}</strong>
+                            {!notif.read && (
+                              <span className="badge bg-danger rounded-circle p-2"></span>
+                            )}
+                          </div>
+                          <small className="text-muted">
+                            {notif.created_at}
+                          </small>
+                        </div>
+                      ))
+                    ) : (
+                      <small className="text-muted">No notifications</small>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 👤 User Menu */}
+            <div
+              className="d-flex align-items-center gap-2 cursor-pointer"
+              onClick={() => setOptions(!options)}
+            >
+              <div
+                className="rounded-circle overflow-hidden border"
+                style={{ width: "40px", height: "40px" }}
+              >
+                <img
+                  src={profilePictureLink}
+                  alt="Profile"
+                  className="w-100 h-100 object-fit-cover"
+                />
+              </div>
+              {!isMobile && (
+                <div className="d-flex flex-column">
+                  <span className="fw-semibold">
+                    {userInfo?.first_name} {userInfo?.last_name}
+                  </span>
+                  <small className="text-muted">
+                    {userInfo?.department?.name || ""}
+                  </small>
+                </div>
+              )}
+            </div>
+
+            {/* ⚙️ Dropdown */}
+            {options && (
+              <div
+                className="position-absolute bg-white border rounded shadow-sm p-2"
+                style={{ top: "60px", right: "20px", width: "180px", zIndex: "1000" }}
+                onMouseLeave={() => setOptions(false)}
+              >
+                <button
+                  className="btn btn-light w-100 text-start d-flex align-items-center gap-2"
+                  data-bs-toggle="modal"
+                  data-bs-target="#account-setting"
+                >
+                  <span className="material-symbols-outlined">manage_accounts</span>{" "}
+                  Account Settings
+                </button>
+                <button
+                  className="btn btn-light w-100 text-start d-flex align-items-center gap-2 text-danger"
+                  onClick={Logout}
+                >
+                  <span className="material-symbols-outlined">logout</span> Logout
+                </button>
+              </div>
+            )}
+          </div>
+        </header>
+
+        {/* 🔹 Content */}
+        <main
+          className="flex-grow-1 overflow-auto p-2"
+          style={{ backgroundColor: "#f1f1f1ff" }}
+        >
+          <Outlet />
+        </main>
+      </div>
+
+      {/* ⚙️ Account Settings Modal */}
+      <div
+        className="modal fade"
+        id="account-setting"
+        data-bs-backdrop="static"
+        data-bs-keyboard="false"
+        tabIndex="-1"
+        aria-labelledby="staticBackdropLabel"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog modal-dialog-centered modal-lg">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Account Settings</h5>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div className="modal-body">
+              {userInfo && <AccountSettings id={userInfo.id} />}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
-export default AdminLayout
+export default AdminLayout;

@@ -11,382 +11,272 @@ import CreateOPCRModal from "./CreateOPCRModal";
 import GeneralTasksTable from "./GeneralTasksTable";
 import UserPerformanceInDepartment from "../Charts/UserPerformanceInDepartment";
 
-function HeadDepartmentInfo(props){
+function HeadDepartmentInfo({ id, firstLoad }) {
+  const [deptInfo, setDeptinfo] = useState({});
+  const [managerInfo, setManagerInfo] = useState(null);
+  const [open, setOpen] = useState(false);
+  const [formData, setFormData] = useState({ department_name: "", icon: "" });
+  const [submitting, setSubmitting] = useState(false);
+  const [archiving, setArchiving] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
 
-    const [deptInfo, setDeptinfo] = useState({})
-    const [managerInfo, setManagerInfo] = useState(null)
-    const [open, setOpen] = useState(false)
-    const [formData, setFormData] = useState({"department_name": "", "icon": ""})
-    const [submitting, setSubmission] = useState(false)
-    const [archiving, setArchiving] = useState(false)
-
-    const [currentPage, setCurrentPage] = useState(0)
-
-
-    async function loadDepartmentInfo(id){
-        var res = await getDepartment(id).then(data => data.data).catch(error => {
-                    console.log(error.response.data.error)
-                    Swal.fire({
-                        title: "Error",
-                        text: error.response.data.error,
-                        icon: "error"
-                    })
-                })
-        await setDeptinfo(res)
-        setManagerInfo(null)
-
-        for(const user of res.users){
-            
-            if(user.role == "head"){
-                setManagerInfo(user)
-                console.log(user)
-            }
-        }
-
-        
-        setFormData({"id":id, "department_name": res.name, "icon": res.icon })
-        
+  // === Load Department ===
+  async function loadDepartmentInfo(deptId) {
+    try {
+      const res = await getDepartment(deptId).then((d) => d.data);
+      setDeptinfo(res);
+      setManagerInfo(res.users.find((u) => u.role === "head") || null);
+      setFormData({ id: deptId, department_name: res.name, icon: res.icon });
+    } catch (err) {
+      Swal.fire("Error", err.response?.data?.error || "Failed to load office info", "error");
     }
-    
-    useEffect(()=>{
-        loadDepartmentInfo(props.id)
-    },[props.id])
+  }
 
-    useEffect(()=>{
-        socket.on("department", ()=>{
-            loadDepartmentInfo(props.id)
-        })
+  useEffect(() => {
+    loadDepartmentInfo(id);
+  }, [id]);
 
-        return ()=> socket.off("department")
-    }, [])
+  useEffect(() => {
+    socket.on("department", () => loadDepartmentInfo(id));
+    return () => socket.off("department");
+  }, [id]);
 
-    useEffect(()=>{
-        console.log(formData)
-    }, [formData])
+  const handleDataChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-    
-
-    const handleDataChange = (e) => {
-            setFormData({...formData, [e.target.name]: e.target.value})        
-        }
-    
-    const handleSubmission = async () => {
-        const newFormData = objectToFormData(formData);
-
-        if(formData["department_name"] == ""){
-            Swal.fire({
-                title:"Error",
-                text: "Fill the office name field",
-                icon:"error"
-            })
-        }
-
-
-        setSubmission(true)
-        var a = await updateDepartment(newFormData).catch(error => {
-                    console.log(error.response.data.error)
-                    Swal.fire({
-                        title: "Error",
-                        text: error.response.data.error,
-                        icon: "error"
-                    })
-                })
-            
-        if(a.data.message == "Office successfully updated.") {
-            Swal.fire({
-                title:"Success",
-                text: a.data.message,
-                icon:"success"
-            })
-        }
-         else {
-            Swal.fire({
-                title:"Error",
-                text: a.data.message,
-                icon:"error"
-            })
-        }
-        
-        await loadDepartmentInfo(props.id)
-
-        const modalEl = document.getElementById("edit-department");
-        const modal = Modal.getInstance(modalEl) || new Modal(modalEl);
-        modal.hide();
-
-        setSubmission(false)
-        props.loadDepts();
+  const handleSubmission = async () => {
+    if (!formData.department_name) {
+      Swal.fire("Error", "Office name is required", "error");
+      return;
     }
-
-    const handleArchive = async () => {
-        
-        var a = await archiveDepartment(props.id).catch(error => {
-                    console.log(error.response.data.error)
-                    Swal.fire({
-                        title: "Error",
-                        text: error.response.data.error,
-                        icon: "error"
-                    })
-                })
-        setArchiving(true)
-        if(a.data.message == "Office successfully archived.") {
-            Swal.fire({
-                title:"Success",
-                text: a.data.message,
-                icon:"success"
-            })
-        }
-         else {
-            Swal.fire({
-                title:"Error",
-                text: a.data.message,
-                icon:"error"
-            })
-        }
-        
-
-        const modalEl = document.getElementById("archive-department");
-        const modal = Modal.getInstance(modalEl) || new Modal(modalEl);
-        modal.hide();
-
-        setArchiving(false)
-        props.firstLoad();
+    setSubmitting(true);
+    try {
+      const res = await updateDepartment(objectToFormData(formData));
+      Swal.fire(
+        res.data.message.includes("successfully") ? "Success" : "Error",
+        res.data.message,
+        res.data.message.includes("successfully") ? "success" : "error"
+      );
+      loadDepartmentInfo(id);
+      Modal.getInstance(document.getElementById("edit-department"))?.hide();
+    } catch (err) {
+      Swal.fire("Error", err.response?.data?.error || "Failed to update office", "error");
     }
+    setSubmitting(false);
+  };
 
-    
+  const handleArchive = async () => {
+    setArchiving(true);
+    try {
+      const res = await archiveDepartment(id);
+      Swal.fire(
+        res.data.message.includes("successfully") ? "Success" : "Error",
+        res.data.message,
+        res.data.message.includes("successfully") ? "success" : "error"
+      );
+      firstLoad();
+      Modal.getInstance(document.getElementById("archive-department"))?.hide();
+    } catch (err) {
+      Swal.fire("Error", err.response?.data?.error || "Failed to archive office", "error");
+    }
+    setArchiving(false);
+  };
 
-    return (
-        <div className="department-info-container">
-            <CreateOPCRModal deptid ={props.id}></CreateOPCRModal>
-            <div className="modal fade" id="archive-department" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                <div className="modal-dialog modal-dialog-centered" >
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title" id="staticBackdropLabel">Archive Office</h5>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div className="modal-body">                            
-                            Do you want to archive this office?
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" className="btn btn-danger" onClick={handleArchive}>
-                                {archiving ? <span className="material-symbols-outlined loading">progress_activity</span> : <span>Archive Office</span>}
-                            </button>
-                           
-                        </div>
-                    </div>
-                </div>
+  // === Layout ===
+  return (
+    <div className="container-fluid py-3 overflow-auto" style={{ maxHeight: "calc(100vh - 110px)" }}>
+      <CreateOPCRModal deptid={id} />
+
+      {/* ─── Modals ──────────────────────────────── */}
+      {/* Archive Modal */}
+      <div className="modal fade" id="archive-department" tabIndex="-1" aria-hidden="true">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Archive Office</h5>
+              <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
             </div>
-
-            <div className="modal fade" id="assign-head" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                <div className="modal-dialog modal-dialog-centered modal-lg" >
-                    <div className="modal-content " >
-                        <div className="modal-header">
-                            <h5 className="modal-title" id="staticBackdropLabel">Assign Office Head</h5>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div className="modal-body">                            
-                            <DepartmentAssignHead dept_id = {props.id}></DepartmentAssignHead>
-                        </div>
-                        <div className="modal-footer">
-                            
-                           
-                        </div>
-                    </div>
-                </div>
+            <div className="modal-body">Are you sure you want to archive this office?</div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button className="btn btn-danger" onClick={handleArchive}>
+                {archiving ? <span className="spinner-border spinner-border-sm"></span> : "Archive Office"}
+              </button>
             </div>
-            
-            <div className="modal fade" id="edit-department" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                <div className="modal-dialog modal-dialog-centered" >
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title" id="staticBackdropLabel">Create Office</h5>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div className="modal-body">
-                            <div className="textboxes">
-                                <label htmlFor="last_name">Office Name <span className="required">*</span></label>
-                                <input type="text" id="department_name" name="department_name" onInput={handleDataChange}  placeholder={deptInfo.name}  required/>
-                            </div>
-                            <div className="textboxes" style={{display:"none"}}>
-                                <label htmlFor="department_icon">Choose Icon <span className="required">*</span></label>
-                                <div className="icons-container">
-                                    <input type="radio" name = "icon" id = "a" hidden onChange={handleDataChange} value = "computer"/>
-                                    <label htmlFor="a" className="icon">
-                                        <span className="material-symbols-outlined">computer</span>
-                                    </label>
+          </div>
+        </div>
+      </div>
 
-                                    <input type="radio" name = "icon" id = "b" hidden onChange={handleDataChange} value = "auto_stories"/>
-                                    <label htmlFor="b" className="icon">
-                                        <span className="material-symbols-outlined">auto_stories</span>
-                                    </label>
-
-                                    <input type="radio" name = "icon" id = "c" hidden onChange={handleDataChange} value = "flights_and_hotels"/>
-                                    <label htmlFor="c" className="icon">
-                                        <span className="material-symbols-outlined">flights_and_hotels</span>
-                                    </label>
-
-                                    <input type="radio" name = "icon" id = "d" hidden onChange={handleDataChange} value = "checkbook"/>
-                                     <label htmlFor="d" className="icon">
-                                        <span className="material-symbols-outlined">checkbook</span>
-                                    </label>
-                                    
-                                    <input type="radio" name = "icon" id = "e" hidden onChange={handleDataChange} value = "account_balance"/>
-                                    <label htmlFor="e" className="icon">
-                                        <span className="material-symbols-outlined">account_balance</span>
-                                    </label>
-                                    
-                                    <input type="radio" name = "icon" id = "f" hidden onChange={handleDataChange} value = "local_library"/>
-                                    <label htmlFor="f" className="icon">
-                                        <span className="material-symbols-outlined">local_library</span>
-                                    </label>
-
-                                    <input type="radio" name = "icon" id = "g" hidden onChange={handleDataChange} value = "school"/>
-                                    <label htmlFor="g" className="icon">
-                                        <span className="material-symbols-outlined">school</span>
-                                    </label>
-
-                                    <input type="radio" name = "icon" id = "h" hidden onChange={handleDataChange} value = "psychology"/>
-                                    <label htmlFor="h" className="icon">
-                                        <span className="material-symbols-outlined">psychology</span>
-                                    </label>
-
-                                    <input type="radio" name = "icon" id = "i" hidden onChange={handleDataChange} value = "supervisor_account"/>
-                                    <label htmlFor="i" className="icon">
-                                        <span className="material-symbols-outlined">supervisor_account</span>
-                                    </label>
-
-                                    <input type="radio" name = "icon" id = "j" hidden onChange={handleDataChange} value = "domain"/>
-                                    <label htmlFor="j" className="icon">
-                                        <span className="material-symbols-outlined">domain</span>
-                                    </label>
-                                    
-                                </div>
-                            </div>
-                            
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" className="btn btn-primary" onClick={handleSubmission}>
-                                 {submitting ?<span className="material-symbols-outlined loading">progress_activity</span> : <span>Update Office</span>}
-                            </button>
-                           
-                        </div>
-                    </div>
-                </div>
+      {/* Assign Head Modal */}
+      <div className="modal fade" id="assign-head" tabIndex="-1" aria-hidden="true">
+        <div className="modal-dialog modal-lg modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Assign Office Head</h5>
+              <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
             </div>
-
-                <div className="department-overview">
-                    
-                    <div className="image-container">
-                        <div className="image" style={{backgroundImage: `url('${import.meta.env.BASE_URL}nc-splash-new.jpg')`}}></div>
-                    </div>
-                    
-                    <div  className="department-stats">
-                        <div className="profile-image-container">
-                            
-                            <span className="profile-title">
-
-                                <div className="dept-name">
-                                    {deptInfo? deptInfo.name: ""}
-                                    <span className="material-symbols-outlined settings" onClick={()=>{setOpen(!open)}}>settings</span>
-
-                                    {open && 
-                                    <div className="member-options" onMouseLeave={()=>{setOpen(false)}}>
-                                        <span className="option" data-bs-toggle="modal" data-bs-target="#assign-head">
-                                            <span className="material-symbols-outlined">assignment_ind</span>
-                                            <span>Assign Head</span>
-                                        </span>
-                                        <span className="option" data-bs-toggle="modal" data-bs-target="#edit-department">
-                                            <span className="material-symbols-outlined">edit</span>
-                                            <span>Edit Info</span>
-                                        </span>
-                                        <span className="option" data-bs-toggle="modal" data-bs-target="#archive-department">
-                                            <span className="material-symbols-outlined">remove</span>
-                                            <span>Archive</span>
-                                        </span>
-                                    </div>}
-                                </div>
-                                <span className="dept-head-container">
-                                    <div style={{fontWeight:"light"}}>Office Head: </div>
-                                    {managerInfo? <div className="dept-head">
-                                        <div className="img-container">
-                                            <img src={managerInfo.profile_picture_link} alt="" />
-                                        </div>
-                                        <div className="dept-head-name">
-                                            {managerInfo.first_name + " " + managerInfo.last_name}
-                                        </div>
-                                    </div>: <span>None</span> }
-                                </span>
-                                
-                            </span>
-                           
-                        </div>
-                        
-                        <div className="main-stats">
-                            <div className="stats">
-                                <span className="material-symbols-outlined">assignment_globe</span>
-                                <span className="count">{deptInfo? deptInfo.opcr_count: ""}</span>
-                                <span className="type">OPCR</span>
-                            </div>
-                            <div className="stats">
-                                <span className="material-symbols-outlined">article_person</span>
-                                <span className="count">{deptInfo? deptInfo.ipcr_count: ""}</span>
-                                <span className="type">IPCR</span>
-                            </div>
-
-                            <div className="stats">
-                                <span className="material-symbols-outlined">group</span>
-                                <span className="count">{deptInfo? deptInfo.user_count: ""}</span>
-                                <span className="type">Members</span>
-                            </div>
-
-                            <div className="stats">
-                                <span className="material-symbols-outlined">task</span>
-                                <span className="count">{deptInfo? deptInfo.main_tasks_count: ""}</span>
-                                <span className="type">Outputs</span>
-                            </div>                            
-                        </div>
-                         <div>
-                            <button className="btn btn-primary" style={{display:"flex", flexDirection:"row", gap:"10px", alignItems:"center"}} data-bs-toggle="modal" data-bs-target="#create-opcr">
-                                <span className="material-symbols-outlined">assignment_globe</span>
-                                <span>Create OPCR</span>
-                            </button>
-                        </div>
-                        
-
-                        
-
-                                                
-                    </div>
-                </div>
-
-                
-                <div className="pages-container">
-                    <div className={currentPage == 0? "select": ""} onClick={()=>{setCurrentPage(0)}}>
-                        Outputs 
-                    </div>
-                    <div className={currentPage == 1? "select": ""} onClick={()=>{setCurrentPage(1)}}>
-                        Members 
-                    </div>
-
-                    <div className={currentPage == 2? "select": ""} onClick={()=>{setCurrentPage(2)}}>
-                        Performance Review Forms
-                    </div>
-                </div>
-                {currentPage == 1? <div style={{backgroundColor:"white", padding:"10px"}}>
-                    <UserPerformanceInDepartment dept_id = {props.id}></UserPerformanceInDepartment>
-                </div>: ""}
-                                       
-                <div style={{height:"500px"}}>
-                    {currentPage == 0? <DepartmentTasksTable id = {props.id}></DepartmentTasksTable>: ""}
-                    {currentPage == 0? <GeneralTasksTable id = {props.id}></GeneralTasksTable>: ""}
-                    {currentPage == 1? <DepartmentMemberTable deptid ={props.id} ></DepartmentMemberTable>: ""}
-                    {currentPage == 2? <PerformanceReviews deptid ={props.id} ></PerformanceReviews>:""}
-                    
-                </div>
+            <div className="modal-body">
+              <DepartmentAssignHead dept_id={id} />
             </div>
-    )
+          </div>
+        </div>
+      </div>
+
+      {/* Edit Modal */}
+      <div className="modal fade" id="edit-department" tabIndex="-1" aria-hidden="true">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Edit Office Info</h5>
+              <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div className="modal-body">
+              <div className="mb-3">
+                <label className="form-label">Office Name</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  name="department_name"
+                  value={formData.department_name}
+                  onChange={handleDataChange}
+                  required
+                />
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button className="btn btn-primary" onClick={handleSubmission}>
+                {submitting ? <span className="spinner-border spinner-border-sm"></span> : "Update Office"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ─── Header / Banner ──────────────────────────────── */}
+      <div
+  className="rounded-4 shadow-sm mb-4 position-relative overflow-hidden"
+  style={{
+    backgroundImage: `url('${import.meta.env.BASE_URL}nc-splash-new.jpg')`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    height: "240px",
+  }}
+>
+  {/* Dark overlay for contrast */}
+  <div className="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-50"></div>
+
+  {/* Foreground content */}
+  <div className="position-relative text-white p-4 h-100 d-flex flex-column justify-content-between">
+    <div>
+      <h3 className="fw-bold mb-1 text-shadow-sm">{deptInfo.name || "Loading..."}</h3>
+      <p className="mb-0">
+        Office Head:{" "}
+        {managerInfo ? (
+          <span className="fw-semibold text-info">
+            {managerInfo.first_name + " " + managerInfo.last_name}
+          </span>
+        ) : (
+          <span className="text-warning">None</span>
+        )}
+      </p>
+    </div>
+
+    {/* Noticeable action buttons */}
+    <div className="d-flex gap-2 justify-content-end flex-wrap">
+      <button
+        className="btn btn-light text-dark fw-semibold d-flex align-items-center gap-1 shadow-sm border-0 px-3 py-2 rounded-pill"
+        data-bs-toggle="modal"
+        data-bs-target="#assign-head"
+      >
+        <span className="material-symbols-outlined ">person_add</span>
+        Assign Head
+      </button>
+
+      <button
+        className="btn btn-primary fw-semibold d-flex align-items-center gap-1 shadow-sm px-3 py-2 rounded-pill"
+        data-bs-toggle="modal"
+        data-bs-target="#edit-department"
+      >
+        <span className="material-symbols-outlined">edit</span>
+        Edit
+      </button>
+
+      <button
+        className="btn btn-danger fw-semibold d-flex align-items-center gap-1 shadow-sm px-3 py-2 rounded-pill"
+        data-bs-toggle="modal"
+        data-bs-target="#archive-department"
+      >
+        <span className="material-symbols-outlined">archive</span>
+        Archive
+      </button>
+    </div>
+  </div>
+</div>
+
+
+      {/* ─── Stats Cards ──────────────────────────────── */}
+      <div className="row g-3 mb-4">
+        {[
+          { icon: "assignment_globe", label: "OPCR", value: deptInfo.opcr_count },
+          { icon: "article_person", label: "IPCR", value: deptInfo.ipcr_count },
+          { icon: "group", label: "Members", value: deptInfo.user_count },
+          { icon: "task", label: "Outputs", value: deptInfo.main_tasks_count },
+        ].map((stat, i) => (
+          <div className="col-6 col-md-3" key={i}>
+            <div className="card text-center h-100 border-0 shadow-sm">
+              <div className="card-body">
+                <span className="material-symbols-outlined text-primary fs-2">{stat.icon}</span>
+                <h4 className="fw-bold mt-2">{stat.value || 0}</h4>
+                <small className="text-muted">{stat.label}</small>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ─── Tabs ──────────────────────────────── */}
+      <ul className="nav nav-tabs mb-3 border-bottom">
+        {["Outputs", "Members", "Performance Reviews"].map((label, index) => (
+            <li className="nav-item" key={index}>
+            <button
+                onClick={() => setCurrentPage(index)}
+                className="nav-link border-0"
+                style={{
+                borderBottom: currentPage === index ? "3px solid #0d6efd" : "3px solid transparent",
+                color: currentPage === index ? "#0d6efd" : "#6c757d",
+                fontWeight: currentPage === index ? "600" : "400",
+                backgroundColor: "transparent",
+                transition: "all 0.2s ease-in-out",
+                }}
+            >
+                {label}
+            </button>
+            </li>
+        ))}
+    </ul>
+
+      {/* ─── Content ──────────────────────────────── */}
+      <div className="overflow-auto" style={{ maxHeight: "calc(100vh - 420px)" }}>
+        {currentPage === 0 && (
+          <>
+            <DepartmentTasksTable id={id} />
+            <GeneralTasksTable id={id} />
+          </>
+        )}
+        {currentPage === 1 && (
+          <>
+            <div className="bg-white p-3 mb-3 rounded shadow-sm">
+              <UserPerformanceInDepartment dept_id={id} />
+            </div>
+            <DepartmentMemberTable deptid={id} />
+          </>
+        )}
+        {currentPage === 2 && <PerformanceReviews deptid={id} />}
+      </div>
+    </div>
+  );
 }
 
-export default HeadDepartmentInfo
+export default HeadDepartmentInfo;

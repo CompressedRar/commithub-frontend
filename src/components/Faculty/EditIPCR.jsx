@@ -359,8 +359,8 @@ function EditIPCR(props) {
                     // ✅ Show message only once
                     if (!hasShownMainNotice) {
                     Swal.fire({
-                        title: "Main IPCR Assigned",
-                        text: "All target fields are filled. This IPCR has been automatically set as your main IPCR.",
+                        title: "IPCR Submitted",
+                        text: "All target fields are filled. This IPCR has been automatically submitted.",
                         icon: "success",
                         confirmButtonColor: "#198754"
                     });
@@ -415,8 +415,6 @@ function EditIPCR(props) {
 
     return (
         <div className="edit-ipcr-container">
-            {ipcrInfo && <ManageSupportingDocuments ipcr_id = {props.ipcr_id} batch_id = {ipcrInfo.batch_id}></ManageSupportingDocuments>}
-            {userinfo && <ManageTask key = {userinfo.id? userinfo.id: 0} ipcr_id = {props.ipcr_id} user_id = {userinfo.id? userinfo.id: 0} dept_id = {userinfo.department ? userinfo.department.id: 0}></ManageTask>}
             <div className="back-container">
                 <div className="back"  data-bs-dismiss="modal" data-bs-target={props.dept_mode? "#view-ipcr":""} onClick={()=> {
                     props.switchPage()
@@ -425,36 +423,13 @@ function EditIPCR(props) {
                     Back to IPCRs 
                 </div>
             </div>
-            <div className="option-header">
-                
-
-                <div className="ipcr-options">
-                    <div className="additional">
-                        {<button className="btn btn-primary" onClick={()=>{download()}}>
-                            <span className="material-symbols-outlined">{downloading? "refresh": "download"}</span>
-                            {!downloading? <span>Download</span>:""}
-                        </button>}
-                        {!props.dept_mode? userinfo && <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#manage-tasks">
-                            <span className="material-symbols-outlined">assignment</span>
-                            <span>Tasks</span>
-                        </button>:""}
-                        {!props.dept_mode? <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#manage-docs">
-                            <span className="material-symbols-outlined">attach_file</span>
-                            <span>Documents</span>
-                        </button>:""}
-                    </div>
-                    
-
-                </div>
-            </div>
+            
             
             <div className="ipcr-form-container">
-                <span className="pcr-status-container">
-                    <span>{ipcrInfo && ipcrInfo.isMain && "MAIN"}</span>
-                </span>
-                <span className="pcr-status-container">
-                    <span>{ipcrInfo && ipcrInfo.form_status && ipcrInfo.form_status.toUpperCase()}</span>
-                </span>
+                <div className="alert alert-info d-flex align-items-center gap-2" role="alert">
+                    <span className="material-symbols-outlined">info</span>
+                    <span>Only fill out the fields highlighted with a <span className="fw-semibold text-success">green background</span>.</span>
+                </div>
                 <div className="ipcr-header-container">
                     <div className="ipcr-logo" style={{backgroundImage: `url('${import.meta.env.BASE_URL}municipal.png')`}}>.</div>
                     <div className="school-info">
@@ -570,15 +545,15 @@ function EditIPCR(props) {
                                             {task.title}
                                         </div>
                                         <div className="stats">
-                                            <input name = "target_acc" type="number" className="value"  defaultValue={task.target_acc}
+                                            <input name = "target_acc" type="number" className={props.dept_mode? "value": "value editable-field"}  defaultValue={task.target_acc}
                                             onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo && props.dept_mode? props.dept_mode: ipcrInfo.form_status == "approved"}/>
 
                                             <span className="desc">{task.main_task.target_acc} in</span>
-                                            <input name = "target_time" type="number" className="value" defaultValue={task.target_time}
+                                            <input name = "target_time" type="number" className={props.dept_mode? "value": "value editable-field"} defaultValue={task.target_time}
                                             onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo && props.dept_mode? props.dept_mode: ipcrInfo.form_status == "approved"}/>
 
                                             <span className="desc">{task.main_task.time} with</span>
-                                            <input name = "target_mod" type="number" className="value" defaultValue={task.target_mod}
+                                            <input name = "target_mod" type="number" className={props.dept_mode? "value": "value editable-field"} defaultValue={task.target_mod}
                                             onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo && props.dept_mode? props.dept_mode: ipcrInfo.form_status == "approved"}/>
 
                                             <span className="desc">{task.main_task.modification}</span>
@@ -586,15 +561,15 @@ function EditIPCR(props) {
                                         </div>
 
                                         <div className="stats">
-                                            <input name = "actual_acc" type="number" className="value" defaultValue={task.actual_acc}
+                                            <input name = "actual_acc" type="number" className={props.dept_mode? "value": "value editable-field"} defaultValue={task.actual_acc}
                                             onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo && props.dept_mode? props.dept_mode: ipcrInfo.form_status == "approved"}/>
 
                                             <span className="desc">{task.main_task.actual_acc} in</span>
-                                            <input name = "actual_time" type="number" className="value" defaultValue={task.actual_time}
+                                            <input name = "actual_time" type="number" className={props.dept_mode? "value": "value editable-field"} defaultValue={task.actual_time}
                                             onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo && props.dept_mode? props.dept_mode: ipcrInfo.form_status == "approved"}/>
 
                                             <span className="desc">{task.main_task.time} with</span>
-                                            <input name = "actual_mod" type="number" className="value" defaultValue={task.actual_mod}
+                                            <input name = "actual_mod" type="number" className={props.dept_mode? "value": "value editable-field"} defaultValue={task.actual_mod}
                                             onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo && props.dept_mode? props.dept_mode: ipcrInfo.form_status == "approved"}/>
 
                                             <span className="desc">{task.main_task.modification}</span>

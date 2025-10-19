@@ -23,6 +23,7 @@ function IPCRContainer({ switchPage }) {
   const [allAssignedID, setAllAssignedID] = useState([]);
   const [checkedArray, setChecked] = useState([]);
   const [allIPCR, setAllIPCR] = useState([]);
+  const [creating, setCreating] = useState(false)
 
   
 
@@ -113,35 +114,47 @@ function IPCRContainer({ switchPage }) {
 
 
   async function createTasks() {
-    if (checkedArray.length === 0) {
-      Swal.fire("Empty Task", "You must have at least one output for IPCR.");
+    setCreating(true)
+    if (allAssignedID.length === 0) {
+      Swal.fire("Empty Output", "You must have at least one assigned output for IPCR.");
+      setCreating(false)
       return;
+      
     }
 
-    const res = await createUserTasks(userinfo.id, checkedArray)
+
+
+    const res = await createUserTasks(userinfo.id, allAssignedID)
       .then((data) => data.data.message)
-      .catch((error) => Swal.fire("Error", error.response.data.error, "error"));
+      .catch((error) => {
+        Swal.fire("Error", error.response.data.error, "error")
+        setCreating(false)
+      });
 
     if (res === "IPCR successfully created") {
       Swal.fire("Success", res, "success");
+      setCreating(false)
     } else {
       Swal.fire("Error", "There was an error while creating IPCR", "error");
+      setCreating(false)
     }
 
     const modalEl = document.getElementById("create-ipcr");
     const modal = Modal.getOrCreateInstance(modalEl);
     modal.hide();
+    
     document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
     document.body.classList.remove("modal-open");
     document.body.style.overflow = "";
+    setCreating(false)
   }
 
   useEffect(() => {}, [accountTasks]);
 
   useEffect(() => {
     if (userinfo.department) {
-      loadAllTasks(userinfo.department.id);
-      loadDepartmentInfo(userinfo.department.id);
+      //loadAllTasks(userinfo.department.id);
+      //loadDepartmentInfo(userinfo.department.id);
     }
   }, [allAssignedID]);
 
@@ -191,9 +204,7 @@ function IPCRContainer({ switchPage }) {
                   Create IPCR
                 </h4>
                 <small className="text-muted">
-                  Choose outputs available to your department.{" "}
-                  <strong>Assigned outputs</strong> can only be removed by your
-                  department head.
+                  These are the Outputs assigned to you by the Office Head.
                 </small>
               </div>
               <button
@@ -207,11 +218,8 @@ function IPCRContainer({ switchPage }) {
             <div className="modal-body">
               <div className="row">
                 {/* Assigned Tasks */}
-                <div className="col-md-6">
-                  <h5 className="fw-semibold mb-3">
-                    <i className="bi bi-check-circle-fill text-success me-2"></i>
-                    Assigned Outputs
-                  </h5>
+                <div className="col-md-12">
+                  
 
                   {Object.keys(groupedAssigned).length === 0 ? (
                     <div className="alert alert-secondary small">
@@ -243,7 +251,7 @@ function IPCRContainer({ switchPage }) {
                 </div>
 
                 {/* Available Tasks */}
-                <div className="col-md-6">
+                <div className="col-md-6" style={{display:"none"}}>
                   <h5 className="fw-semibold mb-3">
                     <i className="bi bi-plus-circle-fill text-primary me-2"></i>
                     Available Outputs
@@ -298,11 +306,12 @@ function IPCRContainer({ switchPage }) {
                 className="btn btn-secondary"
                 data-bs-dismiss="modal"
                 type="button"
+                disabled = {creating}
               >
                 Cancel
               </button>
-              <button className="btn btn-primary" onClick={createTasks}>
-                <i className="bi bi-check2 me-1"></i> Create IPCR
+              <button className="btn btn-primary d-flex gap-2" onClick={createTasks} disabled = {creating}>
+                {creating? <span className="material-symbols-outlined spin">refresh</span>:"Create IPCR"}
               </button>
             </div>
           </div>
@@ -322,11 +331,13 @@ function IPCRContainer({ switchPage }) {
             </small>
           </div>
           <button
-            className="btn btn-primary"
+            className="btn btn-primary d-flex gap-2"
             data-bs-toggle="modal"
             data-bs-target="#create-ipcr"
+            disabled = {creating}
           >
-            <i className="bi bi-file-earmark-plus me-2"></i>Create IPCR
+            {creating ?<span className="material-symbols-outlined">refresh</span>: <span className="material-symbols-outlined">add</span>}
+            {creating? "":"Create IPCR"}
           </button>
         </div>
 

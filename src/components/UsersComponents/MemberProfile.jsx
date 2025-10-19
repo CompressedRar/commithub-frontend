@@ -10,9 +10,9 @@ import { socket } from "../api";
 
 function MemberProfile(props){
     
-    const [memberInformation, setMemberInformation] = useState({}) 
-    const [positions, setPositions] = useState([])   
-    const [allDepartments, setAllDepartments] = useState([])
+    const [memberInformation, setMemberInformation] = useState(null) 
+    const [positions, setPositions] = useState(null)   
+    const [allDepartments, setAllDepartments] = useState(null)
     const [formData, setFormData] = useState({"id": 0, "department": 0})
     const [page, setPage] = useState(0)
     const [dataChanged, setDataChanged] = useState(false)
@@ -32,6 +32,8 @@ function MemberProfile(props){
     
 
     async function loadUserInformation(){
+      await loadDepartments()
+        await loadPositions()
         var res = await getAccountInfo(props.id).then(data => data.data).catch(error => {
             console.log(error.response.data.error)
             Swal.fire({
@@ -43,6 +45,7 @@ function MemberProfile(props){
         setMemberInformation(res)
         console.log("MEMBER INFO", res)
         setIPCRs(res.ipcrs)
+        
 
         
         
@@ -353,7 +356,6 @@ function MemberProfile(props){
         setFormData({...formData, [e.target.name]: e.target.value})     
     }
     useEffect(()=> {
-        console.log("is data changed", preview == memberInformation.profile_picture_link)
         setDataChanged(false)
     }, [preview])
 
@@ -404,13 +406,13 @@ function MemberProfile(props){
         return () => clearTimeout(timeout);
     }, [emailQuery]);
 
-    useEffect(()=>{
-        loadDepartments()
-        loadPositions()
+    useEffect(async ()=>{
+        
         
         socket.on("user_modified", ()=>{
             loadUserInformation()
         })
+
     }, [])
 
 
@@ -419,7 +421,8 @@ function MemberProfile(props){
 
     return(
         <div className="profile-edit-container container-fluid">
-      <div className=" ">
+
+      {memberInformation && positions && allDepartments? <div className=" ">
         <div className="card-body p-4">
           <h4 className="mb-4 d-flex align-items-center gap-2 text-primary">
             <span className="material-symbols-outlined">manage_accounts</span>
@@ -501,7 +504,6 @@ function MemberProfile(props){
                 onInput={handleDataChange}
               />
             </div>
-
             <div className="">
               <label htmlFor="last_name" className="form-label">Last Name</label>
               <input
@@ -522,7 +524,7 @@ function MemberProfile(props){
                 name="department"
                 className="form-select"
                 onChange={handleDataChange}
-                defaultValue={memberInformation && memberInformation.department.id}
+                defaultValue={memberInformation.department && memberInformation.department.id}
               >
                 {allDepartments.map((dept) => (
                   <option key={dept.id} value={dept.id}>{dept.name}</option>
@@ -537,7 +539,6 @@ function MemberProfile(props){
                 name="position"
                 className="form-select"
                 onChange={handleDataChange}
-                defaultValue={memberInformation && memberInformation.position.id}
               >
                 {positions.map((pos) => (
                   <option key={pos.id} value={pos.id}>{pos.name}</option>
@@ -611,7 +612,10 @@ function MemberProfile(props){
             </button>
           </div>
         </div>
-      </div>
+      </div>: 
+      <div className="d-flex flex-column align-items-center" style={{fontSize:"5rem"}}>
+        <span className="material-symbols-outlined loading">refresh</span>  
+      </div>}
     </div>
     )
 }

@@ -82,6 +82,11 @@ export async function getAccountNotification(id) {
     return api.get(`/api/v1/users/notification/${id}`)
 }
 
+export async function readNotification(id_array) {
+    return api.patch(`/api/v1/users/notifications/`, {"id": id_array})
+}
+
+
 
 export async function createUserTasks(user_id, id_array){
     console.log("creawting user tasks")

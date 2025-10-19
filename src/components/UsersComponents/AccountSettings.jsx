@@ -186,7 +186,7 @@ function AccountSettings(props) {
     loadUserInformation()
     getDepartments().then((r) => setAllDepartments(r.data))
     getPositions().then((r) => setPositions(r.data))
-  }, [])
+  }, [props.id])
 
   return (
     <div className="profile-edit-container container-fluid">
@@ -282,7 +282,7 @@ function AccountSettings(props) {
           </button>
 
           <button className={`btn d-flex align-items-center gap-1 ${memberInformation && memberInformation.account_status ? "btn-danger" : "btn-success"}`} onClick={handleArchive}>
-            <span className="material-symbols-outlined">{memberInformation.account_status ? "account_circle_off" : "account_circle"}</span>
+            <span className="material-symbols-outlined">{memberInformation && memberInformation.account_status ? "account_circle_off" : "account_circle"}</span>
             {memberInformation.account_status ? "Deactivate" : "Reactivate"}
           </button>
         </div>

@@ -340,3 +340,42 @@
     justify-content: space-between;
 
 }
+
+.editable-field {
+    background-color: #d4edda !important; /* soft green */
+  border-color: #198754 !important; /* Bootstrap success green */
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+    
+}
+
+.loading {
+    animation: spin 2s infinite ease-in-out;
+}
+
+/* Highlight active sidebar link only */
+.sidebar-nav .active-nav {
+  background-color: rgba(85, 130, 255, 0.15);
+  color: var(--primary-color) !important;
+  font-weight: 600;
+  border-left: 4px solid var(--primary-color);
+}
+
+/* Icon color change for active link */
+.sidebar-nav .active-nav .material-symbols-outlined {
+  color: var(--primary-color);
+}
+
+/* Hover state for better feel */
+.sidebar-nav .nav-link:hover {
+  background-color: rgba(85, 130, 255, 0.08);
+  color: var(--primary-color);
+  transition: all 0.2s ease-in-out;
+}
