@@ -581,6 +581,12 @@
     border-color: #007bff;
 }
 
+.icons-container input[type="checkbox"]:checked + .icon {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
 .modal-footer .material-symbols-outlined.loading {
     animation: loading 2s infinite;
 }

@@ -1,185 +1,165 @@
-import { useEffect, useState } from "react"
-import { getDepartmentIPCR } from "../../services/departmentService"
-import Swal from "sweetalert2"
-import { createOPCR } from "../../services/pcrServices"
-import { Modal } from "bootstrap"
-import { socket } from "../api"
+import { useEffect, useState } from "react";
+import { getDepartmentIPCR } from "../../services/departmentService";
+import { createOPCR } from "../../services/pcrServices";
+import Swal from "sweetalert2";
+import { Modal } from "bootstrap";
+import { socket } from "../api";
 
-function CreateOPCRModal(props){
-    const [allIPCR, setAllIPCR] = useState(null)
-    
-    async function loadIPCR() {
-        var res = await getDepartmentIPCR(props.deptid).then(data => data.data).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
+function CreateOPCRModal({ deptid }) {
+  const [allIPCR, setAllIPCR] = useState([]);
 
-        var filtered = []
+  async function loadIPCR() {
+    try {
+      const res = await getDepartmentIPCR(deptid);
+      const data = res.data || [];
 
-        for(const ipcr of res){
-            
-            if(!ipcr.ipcr) continue
-            console.log("test opcr",ipcr.ipcr.status == 1 && ipcr.ipcr.form_status == "approved")
-            if(ipcr.ipcr.status == 1 && ipcr.ipcr.form_status == "approved"){
-                filtered.push(ipcr)
-            }
-        }
-
-        console.log("fultyera",filtered)
-
-        setAllIPCR(filtered)
-        
+      const filtered = data.filter(
+        (item) => item.ipcr && item.ipcr.status === 1 && item.ipcr.form_status === "approved"
+      );
+      setAllIPCR(filtered);
+    } catch (error) {
+      Swal.fire("Error", error.response?.data?.error || "Failed to load IPCRs", "error");
     }
+  }
 
-    const submission = async () => {
-            var allIPCRs = document.getElementsByClassName("ipcrs")
-            var allChecked = []
+  async function submission(selectedIds) {
+    try {
+      const res = await createOPCR(deptid, { ipcr_ids: selectedIds });
+      const msg = res.data.message;
 
-            for(const ipcr of allIPCRs) {
-                if(ipcr.checked){
-                    allChecked.push(ipcr.id)
-                }
-            }
-            var a = await createOPCR(props.deptid, {"ipcr_ids": allChecked}).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-            console.log(a)
-            if(a.data.message == "OPCR successfully created.") {
-                Swal.fire({
-                    title:"Success",
-                    text: "OPCR successfully created.",
-                    icon:"success"
-                })
-                
-            }
-            else {
-                Swal.fire({
-                    title:"Error",
-                    text: a.data.message,
-                    icon:"error"
-                })
-            }
+      Swal.fire({
+        title: msg.includes("successfully") ? "Success" : "Error",
+        text: msg,
+        icon: msg.includes("successfully") ? "success" : "error",
+      });
 
-            const modalEl = document.getElementById("create-opcr");
-            const modal = Modal.getOrCreateInstance(modalEl);
+      const modalEl = document.getElementById("create-opcr");
+      const modal = Modal.getOrCreateInstance(modalEl);
+      modal.hide();
 
-            modal.hide();
+      document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
+      document.body.classList.remove("modal-open");
+      document.body.style.overflow = "";
+    } catch (error) {
+      Swal.fire("Error", error.response?.data?.error || "Failed to create OPCR", "error");
+    }
+  }
 
-            // Cleanup leftover backdrop if any
-            document.querySelectorAll(".modal-backdrop").forEach(el => el.remove());
-            document.body.classList.remove("modal-open");
-            document.body.style.overflow = ""; // reset scroll lock
+  const handleSubmission = () => {
+    const selected = Array.from(document.querySelectorAll(".ipcr-checkbox:checked")).map(
+      (el) => el.id
+    );
 
-        }
-    
-        const handleSubmission = async ()=>{
-            
-            var allIPCRs = document.getElementsByClassName("ipcrs")
-            var allChecked = []
+    if (selected.length === 0)
+      return Swal.fire("Error", "Select at least one IPCR.", "error");
 
-            for(const ipcr of allIPCRs) {
-                if(ipcr.checked){
-                    allChecked.push(ipcr.id)
-                }
-            }
+    Swal.fire({
+      title: "Create OPCR",
+      text: "Do you want to create OPCR with the selected IPCR(s)?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes",
+      cancelButtonText: "No",
+    }).then((res) => {
+      if (res.isConfirmed) submission(selected);
+    });
+  };
 
-            if (allChecked.length == 0){
-                console.log(allChecked)
-                Swal.fire({
-                    title:"Error",
-                    text: "Select at least one ipcr.",
-                    icon:"error"
-                })
-            }
-            else {
-                console.log(allChecked)
-                Swal.fire({
-                    title: 'Create OPCR',
-                    text:"Do you want to create OPCR with the selected IPCR?",
-                    showDenyButton: true,
-                    confirmButtonText: 'Yes',
-                    denyButtonText: 'No',
-                    customClass: {
-                        actions: 'my-actions',
-                        cancelButton: 'order-1 right-gap',
-                        confirmButton: 'order-2'
-                    },
-                    }).then(async (result) => {
-                    if (result.isConfirmed) {
-                        submission()
-                    } else if (result.isDenied) {
-                        
-                    }
-                })
-            }
+  useEffect(() => {
+    loadIPCR();
+    socket.on("ipcr", loadIPCR);
+    socket.on("opcr", loadIPCR);
+    return () => {
+      socket.off("ipcr", loadIPCR);
+      socket.off("opcr", loadIPCR);
+    };
+  }, []);
 
+  return (
+    <div
+      className="modal fade"
+      id="create-opcr"
+      tabIndex="-1"
+      aria-labelledby="createOPCRLabel"
+      aria-hidden="true"
+    >
+      <div className="modal-dialog modal-dialog-centered modal-xl">
+        <div className="modal-content border-0 shadow-lg outlined-4">
+          <div className="modal-header bg-primary text-white outlined-top-4 py-3 px-4">
+            <h5 className="modal-title fw-bold d-flex align-items-center gap-2" id="createOPCRLabel">
+              <span className="material-symbols-outlined fs-4">assignment</span>
+              Create OPCR
+            </h5>
+            <button type="button" className="btn-close btn-close-white" data-bs-dismiss="modal" />
+          </div>
 
-            console.log(allChecked.length == 0)
-            
-            
-        }
+          <div className="modal-body px-4 py-4">
+            <p className="text-muted mb-4">
+              <span className="material-symbols-outlined me-1 align-middle text-primary">
+                info
+              </span>
+              Select approved IPCRs to include in the OPCR.
+            </p>
 
-    
-
-    useEffect(()=> {
-        loadIPCR()
-
-        socket.on("opcr", ()=>{
-            loadIPCR()
-        })
-        
-        socket.on("ipcr", ()=>{
-            loadIPCR()
-        })
-    }, [])
-
-    return (
-        <div className="modal fade" id="create-opcr" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-            <div className="modal-dialog modal-dialog-centered modal-xl">
-                <div className="modal-content">
-                    <div className="modal-header">
-                        <h5 className="modal-title" id="staticBackdropLabel">Create OPCR</h5>
-                        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div className="modal-body">
-                        <span className="desc">Click the IPCR you want to include.</span>
-                        <div className="select-ipcr-container">
-                            {allIPCR && allIPCR.length == 0?
-                            <div className="empty">There is no Approved IPCR to choose from.</div>:""}
-                            {allIPCR && allIPCR.map(ipcr => (
-                                <div className="select-ipcr">
-                                    <input type="radio" className="ipcrs" id = {ipcr.ipcr.id} value = {ipcr.ipcr.id} name = {ipcr.ipcr.user.id} hidden/>
-                                    <label htmlFor={ipcr.ipcr.id}>
-                                        <div>
-                                            <span className="material-symbols-outlined">assignment_ind</span>
-                                            <span className="id">IPCR #{ipcr.id}</span>
-                                            {ipcr.ipcr.isMain? <span className="is-main">MAIN</span>:""}
-                                            <span className="status">{ipcr.ipcr.form_status.toUpperCase()}</span>
-                                        </div>
-                                        
-                                        <span>{ipcr.ipcr.user.first_name + " " + ipcr.ipcr.user.last_name}</span>
-                                    </label>
-                                </div>
-                            ))}
+            {allIPCR.length === 0 ? (
+              <div className="text-center text-secondary py-5 fs-6 fw-semibold">
+                No approved IPCRs found.
+              </div>
+            ) : (
+              <div className="row g-3">
+                {allIPCR.map((item) => (
+                  <div className="col-sm-6 col-md-4" key={item.ipcr.id}>
+                    <div className="ipcr-card position-relative">
+                      <input
+                        type="checkbox"
+                        className="ipcr-checkbox position-absolute"
+                        id={item.ipcr.id}
+                      />
+                      <label
+                        htmlFor={item.ipcr.id}
+                        className="ipcr-label card shadow border-1 outlined-3 p-3 h-100"
+                      >
+                        <div className="d-flex justify-content-between align-items-center mb-2">
+                          <div className="d-flex align-items-center gap-2">
+                            <span className="material-symbols-outlined text-primary">
+                              assignment_ind
+                            </span>
+                            <span className="fw-semibold">IPCR #{item.id}</span>
+                          </div>
+                          {item.ipcr.isMain && (
+                            <span className="badge bg-success px-2 py-1">MAIN</span>
+                          )}
                         </div>
+
+                        <div className="text-muted small mb-1">
+                          Status:{" "}
+                          <span className="fw-semibold text-success">
+                            {item.ipcr.form_status.toUpperCase()}
+                          </span>
+                        </div>
+                        <div className="fw-semibold fs-6">
+                          {item.ipcr.user.first_name} {item.ipcr.user.last_name}
+                        </div>
+                      </label>
                     </div>
-                    <div className="modal-footer">
-                        <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" className="btn btn-primary" onClick={handleSubmission}>Create</button>
-                    </div>
-                </div>
-            </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="modal-footer border-0 px-4 pb-4">
+            <button type="button" className="btn btn-light px-4" data-bs-dismiss="modal">
+              Close
+            </button>
+            <button type="button" className="btn btn-primary px-4" onClick={handleSubmission}>
+              Create OPCR
+            </button>
+          </div>
         </div>
-    )
+      </div>
+    </div>
+  );
 }
 
-export default CreateOPCRModal
+export default CreateOPCRModal;

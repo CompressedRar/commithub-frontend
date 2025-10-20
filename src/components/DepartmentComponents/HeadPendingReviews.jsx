@@ -14,7 +14,6 @@ function HeadPendingReviews(){
     const [allIPCR, setAllIPCR] = useState(null)
     const [allOPCR, setAllOPCR] = useState(null)
     const [currentIPCRID, setCurrentIPCRID] = useState(null)
-    const [currentOPCRID, setCurrentOPCRID] = useState(null)
     const [batchID, setBatchID] = useState(null)
 
     const [currentDeptID, setCurrentDeptID] = useState(null)
@@ -36,6 +35,7 @@ function HeadPendingReviews(){
 
     async function loadIPCR() {
         if (!userInfo) return;
+        setAllIPCR(null)
         
         var res = await getFacultyPending(userInfo.department.id).then(data => data.data).catch(error => {
           
@@ -49,18 +49,6 @@ function HeadPendingReviews(){
         setAllIPCR(res)
     }
 
-    async function loadOPCR() {
-        var res = await getOPCRPending().then(data => data.data).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-        setAllOPCR(res)
-        console.log("OPCRS: ", res)
-    }
 
     useEffect(()=> {
         loadIPCR()
@@ -83,6 +71,10 @@ function HeadPendingReviews(){
             loadIPCR()
         })
 
+        socket.on("assign", ()=>{
+            loadIPCR()
+        })
+
 
     }, [])
 
@@ -97,7 +89,7 @@ function HeadPendingReviews(){
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
-                            {currentIPCRID && currentDeptID && <EditIPCR mode = {"HEHEH"} dept_id = {currentDeptID} key={currentIPCRID} ipcr_id = {currentIPCRID} dept_mode = {true} switchPage={()=>{
+                            {currentIPCRID && currentDeptID && <EditIPCR mode = {"check"} dept_id = {currentDeptID} key={currentIPCRID} ipcr_id = {currentIPCRID} switchPage={()=>{
 
                             }}></EditIPCR>}
                         </div>
@@ -105,18 +97,6 @@ function HeadPendingReviews(){
                 </div>
             </div>
 
-            <div className="modal fade" id="view-opcr" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                <div className="modal-dialog modal-dialog-centered modal-fullscreen" >
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div className="modal-body">    
-                            {currentOPCRID && <EditOPCR opcr_id = {currentOPCRID}></EditOPCR>}
-                        </div>
-                    </div>
-                </div>
-            </div>
             
             <h3>Individual Performance Review and Commitment Forms</h3>
             <div className="all-ipcr-container" style={{display:"flex", flexDirection:"column", gap:"10px"}}>
@@ -139,7 +119,7 @@ function HeadPendingReviews(){
             {allIPCR && allIPCR.length == 0?
                     <div className="empty-symbols" >
                         <span className="material-symbols-outlined">file_copy_off</span>    
-                        <span className="desc">No Pending Head IPCRs Found</span>
+                        <span className="desc">No Pending Member IPCRs Found</span>
             </div>:""} 
             
         </div>

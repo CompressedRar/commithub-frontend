@@ -183,35 +183,6 @@ function HeadDepartmentInfo({ id, firstLoad }) {
       </p>
     </div>
 
-    {/* Noticeable action buttons */}
-    <div className="d-flex gap-2 justify-content-end flex-wrap">
-      <button
-        className="btn btn-light text-dark fw-semibold d-flex align-items-center gap-1 shadow-sm border-0 px-3 py-2 rounded-pill"
-        data-bs-toggle="modal"
-        data-bs-target="#assign-head"
-      >
-        <span className="material-symbols-outlined ">person_add</span>
-        Assign Head
-      </button>
-
-      <button
-        className="btn btn-primary fw-semibold d-flex align-items-center gap-1 shadow-sm px-3 py-2 rounded-pill"
-        data-bs-toggle="modal"
-        data-bs-target="#edit-department"
-      >
-        <span className="material-symbols-outlined">edit</span>
-        Edit
-      </button>
-
-      <button
-        className="btn btn-danger fw-semibold d-flex align-items-center gap-1 shadow-sm px-3 py-2 rounded-pill"
-        data-bs-toggle="modal"
-        data-bs-target="#archive-department"
-      >
-        <span className="material-symbols-outlined">archive</span>
-        Archive
-      </button>
-    </div>
   </div>
 </div>
 
@@ -258,7 +229,7 @@ function HeadDepartmentInfo({ id, firstLoad }) {
     </ul>
 
       {/* ─── Content ──────────────────────────────── */}
-      <div className="overflow-auto" style={{ maxHeight: "calc(100vh - 420px)" }}>
+      <div >
         {currentPage === 0 && (
           <>
             <DepartmentTasksTable id={id} />
@@ -270,7 +241,7 @@ function HeadDepartmentInfo({ id, firstLoad }) {
             <div className="bg-white p-3 mb-3 rounded shadow-sm">
               <UserPerformanceInDepartment dept_id={id} />
             </div>
-            <DepartmentMemberTable deptid={id} />
+            <DepartmentMemberTable deptid={id} admin_mode = {false}/>
           </>
         )}
         {currentPage === 2 && <PerformanceReviews deptid={id} />}

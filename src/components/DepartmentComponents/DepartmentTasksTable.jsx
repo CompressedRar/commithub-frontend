@@ -6,7 +6,7 @@ import DepartmentTask from "./DepartmentTask";
 import DepartmentAssignTask from "./DepartmentAssignTask";
 import AddDepartmentTask from "./AddDepartmentTask";
 
-function DepartmentTasksTable({ id }) {
+function DepartmentTasksTable({ id, admin_mode }) {
   const [allMembers, setAllMembers] = useState([]);
   const [filteredMembers, setFilteredMembers] = useState([]);
   const [tenMembers, setTenMembers] = useState([]);
@@ -178,15 +178,16 @@ function DepartmentTasksTable({ id }) {
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-3">
         <h4 className="fw-semibold text-dark mb-0">Department-Specific Tasks</h4>
         <div className="d-flex align-items-center gap-2">
-            <button
+            {admin_mode? <button
                 className="btn btn-primary d-flex align-items-center px-3 py-2"
                 data-bs-toggle="modal"
                 data-bs-target="#add-user"
                 style={{ height: "38px" }}
+                
             >
                 <span className="material-symbols-outlined">add</span>
                 Add Output
-            </button>
+            </button>: ""}
 
             <div className="input-group" style={{ width: "250px", height: "38px" }}>
                 <span className="input-group-text bg-white">

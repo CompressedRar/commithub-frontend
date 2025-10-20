@@ -28,7 +28,7 @@ function PendingIPCR(props) {
             if (res == "This IPCR is successfully reviewed."){
                 Swal.fire({
                     title:"Success",
-                    text: res,
+                    text: "This IPCR is successfully submitted for approval.",
                     icon:"success"
                 })
             }
@@ -37,7 +37,7 @@ function PendingIPCR(props) {
     async function reviewalIPCR(){
             Swal.fire({
                 title:"Review",
-                text:"Please confirm that you have thoroughly reviewed this IPCR. Do you want to proceed with marking it as reviewed?",
+                text:"Please confirm that you have thoroughly reviewed this IPCR. Do you want to submit this IPCR for approval?",
                 showDenyButton: true,
                 confirmButtonText:"Yes",
                 confirmButtonColor:"blue",

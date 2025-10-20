@@ -1,5 +1,5 @@
 import { useEffect, useState} from "react"
-import { approveOPCR, downloadOPCR,getOPCR, reviewOPCR } from "../../services/pcrServices"
+import { approveOPCR, assignMainOPCR, downloadOPCR,getOPCR, reviewOPCR } from "../../services/pcrServices"
 import { socket } from "../api"
 import Swal from "sweetalert2"
 
@@ -21,6 +21,7 @@ function EditOPCR(props) {
     const [allAvg, setAllAvg] = useState(0)
 
     const [downloading, setDownloading] = useState(false)
+    const [ submitting, setSubmitting] = useState(false)
     
     async function loadOPCR(){
         var res = await getOPCR(props.opcr_id).then(data => data.data).catch(error => {
@@ -87,7 +88,7 @@ function EditOPCR(props) {
         setTimeliness(tSum / tCount);
         setAllAvg(allSum / qCount);
 
-        console.log("result:", opcrInfo.form_status)
+        console.log("result:", opcrInfo)
     }, [opcrInfo]);
 
     
@@ -262,6 +263,50 @@ function EditOPCR(props) {
             }) 
         }
 
+        async function handleAssign(){
+            setSubmitting(true)
+            var res = await assignMainOPCR(props.opcr_id, props.dept_id).then(data => data.data.message).catch(error => {
+                console.log(error.response.data.error)
+                Swal.fire({
+                    title: "Error",
+                    text: error.response.data.error,
+                    icon: "error"
+                })
+                setSubmitting(false)
+            })
+                
+            if (res == "OPCR successfully assigned."){
+                Swal.fire({
+                    title:"Success",
+                    text: "This OPCR is successfully submitted.",
+                    icon:"success"
+                })
+                setSubmitting(false)
+            }
+        } 
+        
+        async function assignmentOPCR(){
+            Swal.fire({
+                title:"Submit",
+                text:"Please confirm that you have thoroughly reviewed this OPCR. Do you want to submit this for approval?",
+                showDenyButton: true,
+                confirmButtonText:"Yes",
+                confirmButtonColor:"blue",
+                denyButtonText:"No",
+                denyButtonColor:"grey",
+                icon:"question",
+                customClass: {
+                    actions: 'my-actions',
+                    confirmButton: 'order-2',
+                    denyButton: 'order-1 right-gap',
+                },
+            }).then((result)=> {
+                if(result.isConfirmed){
+                    handleAssign()
+                }
+            }) 
+        }
+
     useEffect(()=> {
         loadOPCR()
         
@@ -281,6 +326,11 @@ function EditOPCR(props) {
             console.log("REMOVE LISTENED")
         })
 
+        socket.on("assign", ()=>{
+            loadOPCR()
+            console.log("assigned")
+        })
+
         return () => {
             socket.off("ipcr")
             socket.off("document")
@@ -290,36 +340,35 @@ function EditOPCR(props) {
     return (
         <div className="edit-ipcr-container">
             
-            <div className="back">
-                <div className="back"  data-bs-dismiss="modal" data-bs-target={props.dept_mode? "#view-ipcr":""} onClick={()=> {
-                    
+           <div className="back-container d-flex justify-content-between">
+                <div className="back"  data-bs-dismiss="modal" data-bs-target={props.mode != "dept"? "#view-ipcr":""} onClick={()=> {
+                    props.switchPage()
                 }}>
                     <span className="material-symbols-outlined">undo</span>
                     Back to PCRs 
                 </div>
+
+                {
+                    opcrInfo ? formStatus == "REJECTED" || formStatus == "DRAFT"? <button className="btn btn-primary d-flex align-items-center gap-2" disabled = {submitting} onClick={()=> {assignmentOPCR()}}>
+                        {submitting?<span className="spinner-border spinner-border-sm me-2"></span> :<span className="material-symbols-outlined">article_shortcut</span>}
+                        {submitting? "": <span>Submit</span>}
+                    </button>: "":
+                    ""
+                }
             </div>
             <div className="option-header">
                 
 
                 <div className="ipcr-options">
                     <div className="additional">
-                        {!props.dept_mode? <button className="btn btn-primary" onClick={()=>{download()}}>
-                            <span className="material-symbols-outlined">{downloading? "refresh": "download"}</span>
-                            {!downloading? <span>Download</span>:""}
-                        </button>:""}  
                     
 
                     </div>
-                    {formStatus == "REVIEWED"? <button className="btn btn-success" disabled = {opcrInfo.form_status == "approved"} onClick={()=>{approvalOPCR()}}>
+                    {props.mode == "check"? formStatus == "PENDING"? <button className="btn btn-success" disabled = {opcrInfo.form_status == "approved"} onClick={()=>{approvalOPCR()}}>
                         <span className="material-symbols-outlined">article_shortcut</span>
                         <span>{opcrInfo.form_status == "approved"? "Approved": "Approve"}</span>
-                    </button>:""}
+                    </button>:"":""}
 
-
-                    {formStatus == "PENDING"? <button className="btn btn-primary" disabled = {opcrInfo.form_status == "reviewed"} onClick={()=>{reviewalOPCR()}}>
-                        <span className="material-symbols-outlined">article_shortcut</span>
-                        <span>{opcrInfo.form_status == "reviewed"? "Reviewed": "Mark as Reviewed"}</span>
-                    </button>:""}
                     
                 </div>
             </div>

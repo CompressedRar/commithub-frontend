@@ -379,3 +379,26 @@
   color: var(--primary-color);
   transition: all 0.2s ease-in-out;
 }
+
+.ipcr-card input[type="checkbox"] {
+  opacity: 0;
+  position: absolute;
+  pointer-events: none;
+}
+
+.ipcr-label {
+  transition: all 0.25s ease-in-out;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.ipcr-label:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.ipcr-checkbox:checked + .ipcr-label {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+  background-color: #f8faff;
+}

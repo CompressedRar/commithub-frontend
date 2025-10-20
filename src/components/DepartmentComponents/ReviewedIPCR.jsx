@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { approveIPCR, archiveIprc, downloadIPCR, reviewIPCR } from "../../services/pcrServices";
+import { approveIPCR, archiveIprc, downloadIPCR, rejectIPCR, reviewIPCR } from "../../services/pcrServices";
 import Swal from "sweetalert2";
 
 
@@ -141,6 +141,49 @@ function ReviewedIPCR(props) {
         }) 
     }
 
+    async function handleReject(){
+            setArchiving(true)
+            var res = await rejectIPCR(props.ipcr.id).then(data => data.data.message).catch(error => {
+                console.log(error.response.data)
+                Swal.fire({
+                    title: "Error",
+                    text: error.response.data.error,
+                    icon: "error"
+                })
+            })
+            console.log(res)
+            if (res == "This IPCR is successfully rejected."){
+                Swal.fire({
+                    title:"Success",
+                    text: res,
+                    icon:"success"
+                })
+            }
+            setArchiving(false)
+        } 
+            
+        async function rejectsIPCR(){
+            Swal.fire({
+                title:"Reject",
+                text:"Do you want to reject this IPCR?",
+                showDenyButton: true,
+                confirmButtonText:"Reject",
+                confirmButtonColor:"red",
+                denyButtonText:"No",
+                denyButtonColor:"grey",
+                icon:"warning",
+                customClass: {
+                    actions: 'my-actions',
+                    confirmButton: 'order-2',
+                    denyButton: 'order-1 right-gap',
+                },
+            }).then((result)=> {
+                if(result.isConfirmed){
+                    handleReject()
+                }
+            }) 
+        }
+
     async function download() {
         setDownloading(true)
         var res = await downloadIPCR(props.ipcr.id).then(data => data.data.link).catch(error => {
@@ -206,7 +249,11 @@ function ReviewedIPCR(props) {
                         <button className="btn btn-primary" onClick={()=> {approvalIPCR()}} style={{display:"flex", flexDirection:"row", alignItems:"center", padding:"10px", gap:"10px"}}>
                             <span className="material-symbols-outlined">approval_delegation</span>    
                             <span>Approve</span>
-                        </button>                   
+                        </button>     
+                        <button className="btn btn-danger" onClick={()=> {rejectsIPCR()}} style={{display:"flex", flexDirection:"row", alignItems:"center", padding:"10px", gap:"10px"}}>
+                            <span className="material-symbols-outlined">cancel_presentation</span>    
+                            <span>Reject</span>
+                        </button>               
                     </div>:
                     <span style={{display:"flex", flexDirection:"row", justifyContent:"flex-end", fontStyle:"italic"}}>Awaiting Submission</span>
                 }

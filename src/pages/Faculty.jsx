@@ -16,7 +16,7 @@ function Faculty(){
                 console.log("switching dept id: ", dept_id)
             }}></IPCRContainer>: 
             <EditIPCR 
-                dept_id = {departmentID} ipcr_id = {currentIPCRID} 
+                dept_id = {departmentID} mode = {"faculty"} ipcr_id = {currentIPCRID} 
                 switchPage = {()=> {
                 setCurrentPage(0)
                 setCurrentIPCRID(null)

@@ -2,150 +2,167 @@ import { useEffect, useState } from "react";
 import { authenticateAccount } from "../services/userService";
 import { objectToFormData } from "../components/api";
 import Swal from "sweetalert2";
-import "../assets/styles/Login.css"
 import { jwtDecode } from "jwt-decode";
 import { useLocation } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "../assets/styles/Login.css";
 
-function Login(){
-    console.log("MOUNT: Login.jsx");
+function Login() {
+  const location = useLocation();
+  const [loginFormData, setLoginFormData] = useState({ email: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
+  const [loggingIn, setLoggingIn] = useState(false);
 
-    const location = useLocation();
-    const [loginFormData, setLoginFormData] = useState({"email": "", "password":""})
-    const [showPassword, setShowPassword] = useState(false)
-    const [loggingIn, setLoggingIn] = useState(false)
-
-    function detectToken(){
-        if (Object.keys(localStorage).includes("token")){
-            var token = localStorage.getItem("token")
-            console.log("hey")
-            var payload = jwtDecode(token)
-            if (payload.role == "faculty"){
-                console.log('faculty')
-                window.location.href = "/faculty/ipcr"
-            }
-            else if(payload.role == "head"){
-                window.location.href = "/head/department"
-            }
-            else if (payload.role == "administrator"){
-                window.location.href = "/admin/dashboard"
-            }
-        }
+  // Detect existing token and redirect based on role
+  function detectToken() {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const payload = jwtDecode(token);
+      if (payload.role === "faculty") window.location.href = "/faculty/ipcr";
+      else if (payload.role === "head") window.location.href = "/head/department";
+      else if (payload.role === "administrator") window.location.href = "/admin/dashboard";
+      else if (payload.role === "president") window.location.href = "/president/dashboard";
     }
+  }
 
-    useEffect(()=> {
-        console.log(loginFormData)
-    }, [loginFormData])
+  useEffect(() => {
+    if (window.location.pathname === "/") detectToken();
+  }, []);
 
-    useEffect(()=> {
-        //console.log(showPassword)
-    }, [showPassword])
+  // Handle login form submission
+  const handleSubmission = async (e) => {
+    e.preventDefault();
+    setLoggingIn(true);
 
-    useEffect(() => {
-        if (window.location.pathname === "/") {
-            detectToken();
-        }
-    }, []);
+    try {
+      const convertedData = objectToFormData(loginFormData);
+      const res = await authenticateAccount(convertedData);
 
-    const handleSubmission = async (e) => {
-        e.preventDefault()
-        setLoggingIn(true)
+      if (res.data.message === "Authenticated.") {
+        localStorage.setItem("token", res.data.token);
+        const payload = jwtDecode(res.data.token);
+        detectToken(payload);
+      }
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: error.response?.data?.error || "Login failed",
+        icon: "error",
+      });
+    } finally {
+      setLoggingIn(false);
+    }
+  };
 
+  // Handle input change
+  const handleDataChange = (e) => {
+    setLoginFormData({ ...loginFormData, [e.target.name]: e.target.value });
+  };
+
+  return (
+    <div className="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-light">
         
-        var convertedData = objectToFormData(loginFormData)
-        console.log(convertedData)
-        var a = await authenticateAccount(convertedData).catch(error => {
-            console.log(error.response.data.error)
-            setLoggingIn(false)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-
-        console.log("LOGIN RESULT:", a.data.message)
-
-        if(a.data.message == "Authenticated.") {
-            localStorage.setItem("token", a.data.token)
-
-            var payload = jwtDecode(a.data.token)
-            if (payload.role == "faculty"){
-                window.location.href = "/faculty/ipcr"
-            }
-            else if(payload.role == "head"){
-                window.location.href = "/head/department"
-            }
-            else if (payload.role == "administrator"){
-                window.location.href = "/admin/dashboard"
-            }
-            else if (payload.role == "president"){
-                window.location.href = "/president/dashboard"
-            }
-        }
-        setLoggingIn(false)
-
-    }
-
-    const handleDataChange = (e) => {
-        setLoginFormData({...loginFormData, [e.target.name]: e.target.value})
-    }
-
-
-
-    return (
-        <div className="login-container">
-            
-            
-            <div className="splash-container">
-                <img src="nc-splash-new.jpg" alt="" />
-                
-            </div>
-            <div className="login-form-container">
-                <span className="logo-slogan">
-                    <img src="CommitHub.png" alt="" />
-                    
-                </span>
-                <div className="slogan-container">                    
-                    <span style={{fontSize: "2rem"}}>Login to</span>
-                    <span>CommitHub</span>
-                </div>
-                <form action="/" onSubmit={handleSubmission} className="login-form" method="POST">
-                    <div className="textboxes">
-                        <label htmlFor="email">Email Address</label>
-                        <input type="email" id="email" name="email" placeholder="johndoe@gmail.com" required
-                        onInput={handleDataChange}/>
-                    </div>
-                    <div className="textboxes">
-                        <label htmlFor="password">Password</label>
-                        <input type={showPassword? "text": "password"} id="password" name="password" placeholder="Password" required
-                        onInput={handleDataChange}/>
-                        <span ></span>
-                    </div>
-                    <div className="tools">
-                        <span className="show-password" >
-                            <input type="checkbox" id = "showpass" onClick={()=>{setShowPassword(!showPassword)}}/>
-                            <label htmlFor="showpass" >Show Password</label>
-                        </span>
-                        <span className="forgot-password">
-                            <a htmlFor="forgotpass">Forgot Password</a>
-                        </span>
-                    </div>
-
-                    <button type="submit" className="btn btn-primary w-100 p-3">
-                        {loggingIn? <span className="material-symbols-outlined">refresh</span>: <span>Login</span>}
-                    </button>
-
-                </form>
-                    
-                <div className="register-container-link">
-                    <span>
-                        Don't have an account? <a href="/register">Click Here.</a>
-                    </span>
-                </div>
-            </div>
-
+      <div className="row w-100 shadow rounded-4 overflow-hidden" style={{ maxWidth: "850px", zIndex:"1000"}}>
+        {/* Left Side (Image) */}
+        <div className="col-md-6 d-none d-md-block p-0">
+          <img
+            src="nc-splash-new.jpg"
+            alt="Login Background"
+            className="img-fluid h-100 w-100 object-fit-cover"
+          />
         </div>
-    )
+
+        {/* Right Side (Form) */}
+        <div className="col-md-6 bg-white p-5 d-flex flex-column justify-content-center">
+          <div className="text-center mb-4">
+            <img src="CommitHub.png" alt="CommitHub Logo" height="60" className="mb-3" />
+            <h3 className="fw-bold">Welcome to CommitHub</h3>
+            <p className="text-muted small">Sign in to continue</p>
+          </div>
+
+          <form onSubmit={handleSubmission}>
+            {/* Email */}
+            <div className="mb-3">
+              <label htmlFor="email" className="form-label fw-semibold">
+                Email Address
+              </label>
+              <div className="input-group">
+                <span className="input-group-text bg-white">
+                  <span className="material-symbols-outlined">mail</span>
+                </span>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  className="form-control"
+                  placeholder="Enter your email"
+                  required
+                  onChange={handleDataChange}
+                />
+              </div>
+            </div>
+
+            {/* Password */}
+            <div className="mb-4">
+              <label htmlFor="password" className="form-label fw-semibold">
+                Password
+              </label>
+              <div className="input-group">
+                <span className="input-group-text bg-white">
+                  <span className="material-symbols-outlined">lock</span>
+                </span>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  name="password"
+                  className="form-control"
+                  placeholder="Enter your password"
+                  required
+                  onChange={handleDataChange}
+                />
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={() => setShowPassword(!showPassword)}
+                  tabIndex={-1}
+                >
+                  <span className="material-symbols-outlined">
+                    {showPassword ? "visibility_off" : "visibility"}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* Login Button */}
+            <button
+              type="submit"
+              className="btn btn-primary w-100 py-2 fw-semibold d-flex align-items-center justify-content-center"
+              disabled={loggingIn}
+            >
+              {loggingIn ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2"></span>
+                  Logging in...
+                </>
+              ) : (
+                <>
+                  <span className="material-symbols-outlined me-2">login</span>
+                  Login
+                </>
+              )}
+            </button>
+          </form>
+        </div>
+      </div>
+      <div style={{width:"100vw", height:"100vh", position:"fixed",zIndex:"1", opacity:"0.1"}}>
+            <img
+            src="nc-splash-new.jpg"
+            alt="Login Background"
+            className="img-fluid h-100 w-100 object-fit-cover"
+          />
+        </div>
+    </div>
+  );
 }
 
-export default Login
+export default Login;

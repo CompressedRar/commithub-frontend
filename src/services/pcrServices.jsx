@@ -63,6 +63,16 @@ export async function assignMainIPCR(ipcr_id, user_id) {
     return api.patch(`/api/v1/pcr/ipcr/${ipcr_id}&${user_id}`)
 }
 
+export async function assignPresIPCR(ipcr_id, user_id) {
+    console.log("assigning ipcr")
+    return api.patch(`/api/v1/pcr/ipcr-pres/${ipcr_id}&${user_id}`)
+}
+
+export async function assignMainOPCR(opcr_id, dept_id) {
+    console.log("assigning opcr")
+    return api.patch(`/api/v1/pcr/opcr/${opcr_id}&${dept_id}`)
+}
+
 export async function archiveIprc(ipcr_id) {
     console.log("archiving ipcr")
     return api.delete(`/api/v1/pcr/ipcr/${ipcr_id}`)

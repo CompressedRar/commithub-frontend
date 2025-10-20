@@ -5,7 +5,7 @@ import ManageSupportingDocuments from "../Faculty/ManageSupportingDocuments"
 import { socket } from "../api"
 import EditOPCR from "./EditOPCR"
 import Swal from "sweetalert2"
-import { getFacultyReviewed, getHeadReviewed, getOPCRReviewed } from "../../services/pcrServices"
+import { getFacultyReviewed, getHeadPending, getHeadReviewed, getOPCRPending, getOPCRReviewed } from "../../services/pcrServices"
 import ReviewedIPCR from "./ReviewedIPCR"
 import ReviewedOPCR from "./ReviewedOPCR"
 
@@ -20,7 +20,7 @@ function PresPendingApproval(){
     const [currentDeptID, setCurrentDeptID] = useState(null)
 
     async function loadIPCR() {
-        var res = await getFacultyReviewed().then(data => data.data).catch(error => {
+        var res = await getHeadPending().then(data => data.data).catch(error => {
             console.log(error.response.data.error)
             Swal.fire({
                 title: "Error",
@@ -33,7 +33,7 @@ function PresPendingApproval(){
     }
 
     async function loadOPCR() {
-        var res = await getOPCRReviewed().then(data => data.data).catch(error => {
+        var res = await getOPCRPending().then(data => data.data).catch(error => {
             console.log(error.response.data.error)
             Swal.fire({
                 title: "Error",
@@ -82,7 +82,7 @@ function PresPendingApproval(){
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
-                            {currentIPCRID && currentDeptID && <EditIPCR mode = {"HEHEH"} dept_id = {currentDeptID} key={currentIPCRID} ipcr_id = {currentIPCRID} dept_mode = {true} switchPage={()=>{
+                            {currentIPCRID && currentDeptID && <EditIPCR mode = {"check"} dept_id = {currentDeptID} key={currentIPCRID} ipcr_id = {currentIPCRID} switchPage={()=>{
 
                             }}></EditIPCR>}
                         </div>
@@ -116,7 +116,7 @@ function PresPendingApproval(){
             {allOPCR && allOPCR.length == 0?
                     <div className="empty-symbols">
                         <span className="material-symbols-outlined">file_copy_off</span>    
-                        <span className="desc">No Reviewed OPCRs Found</span>
+                        <span className="desc">No OPCRs Found</span>
                     </div>:""} 
             
             <h3>Individual Performance Review and Commitment Forms</h3>
@@ -139,7 +139,7 @@ function PresPendingApproval(){
             {allIPCR && allIPCR.length == 0?
                     <div className="empty-symbols">
                         <span className="material-symbols-outlined">file_copy_off</span>    
-                        <span className="desc">No Reviewed Head IPCRs Found</span>
+                        <span className="desc">No Head IPCRs Found</span>
             </div>:""} 
             
         </div>

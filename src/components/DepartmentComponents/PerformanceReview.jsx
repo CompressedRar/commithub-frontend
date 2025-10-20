@@ -72,12 +72,19 @@ function PerformanceReviews(props){
             loadOPCR()
         })
 
+        socket.on("assign", ()=>{
+            loadIPCR()
+            loadOPCR()
+        })
+
 
     }, [])
 
     //gawin yung highest performing deparmtent
     return (
-        <div className="performance-reviews-container"  style={{height:"auto"}}>
+        <div className="performance-reviews-container">
+
+
             {currentOPCRID? <OPCRSupportingDocuments key = {currentOPCRID} opcr_id = {currentOPCRID}></OPCRSupportingDocuments>:""}
             {batchID && currentIPCRID? <ManageSupportingDocuments  dept_mode = {true} key={currentIPCRID} ipcr_id = {currentIPCRID} batch_id = {batchID}></ManageSupportingDocuments>:""}
             <div className="modal fade" id="view-ipcr" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -87,7 +94,7 @@ function PerformanceReviews(props){
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
-                            {currentIPCRID && <EditIPCR dept_id = {props.deptid} key={currentIPCRID} ipcr_id = {currentIPCRID} dept_mode = {true} switchPage={()=>{
+                            {currentIPCRID && <EditIPCR dept_id = {props.deptid} key={currentIPCRID} ipcr_id = {currentIPCRID} mode = {"dept"} switchPage={()=>{
 
                             }}></EditIPCR>}
                         </div>
@@ -102,12 +109,19 @@ function PerformanceReviews(props){
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
-                            {currentOPCRID && <EditOPCR opcr_id = {currentOPCRID}></EditOPCR>}
+                            {currentOPCRID && <EditOPCR dept_id = {props.deptid} opcr_id = {currentOPCRID} mode = {"dept"}></EditOPCR>}
                         </div>
                     </div>
                 </div>
             </div>
-            <h3>Office Performance Review and Commitment Form</h3>
+
+            
+            <h3 className="d-flex align-items-center gap-3">
+                Office Performance Review and Commitment Form 
+                <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#create-opcr">
+                    Consolidate IPCRs
+                </button>
+            </h3>
             <div className="all-ipcr-container" style={{display:"flex", flexDirection:"column", gap:"10px"}}>
                 
                 {allOPCR && allOPCR.map(opcr => (

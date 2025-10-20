@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { approveIPCR, assignMainIPCR, downloadIPCR, getIPCR, reviewIPCR, updateSubTask } from "../../services/pcrServices"
+import { approveIPCR, assignMainIPCR, assignPresIPCR, downloadIPCR, getIPCR, reviewIPCR, updateSubTask } from "../../services/pcrServices"
 import { socket } from "../api"
 import { jwtDecode } from "jwt-decode"
 import { getAccountInfo } from "../../services/userService"
@@ -33,6 +33,8 @@ function EditIPCR(props) {
 
 
     const [currentUserInfo, setCurrentUserInfo] = useState(null)
+
+    const  [submitting, setSubmitting] = useState(false)
 
     function readTokenInformation(){
         let payload = {}
@@ -227,21 +229,24 @@ function EditIPCR(props) {
     }
 
     async function handleAssign(){
-        var res = await assignMainIPCR(ipcrInfo.id, userinfo.id).then(data => data.data.message).catch(error => {
+        setSubmitting(true)
+        var res = await assignMainIPCR(ipcrInfo.id, ipcrInfo.user).then(data => data.data.message).catch(error => {
             console.log(error.response.data.error)
             Swal.fire({
                 title: "Error",
                 text: error.response.data.error,
                 icon: "error"
             })
+            setSubmitting(false)
         })
             
         if (res == "IPCR successfully assigned."){
             Swal.fire({
                 title:"Success",
-                text: res,
+                text: "IPCR sucessfully submitted.",
                 icon:"success"
             })
+            setSubmitting(false)
         }
         else {
             Swal.fire({
@@ -249,6 +254,37 @@ function EditIPCR(props) {
                 text: "Submission of IPCR failed",
                 icon:"error"
             })
+            setSubmitting(false)
+        }
+    } 
+
+    async function handlePresAssign(){
+        setSubmitting(true)
+        var res = await assignPresIPCR(ipcrInfo.id, ipcrInfo.user).then(data => data.data.message).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+            setSubmitting(false)
+        })
+            
+        if (res == "IPCR successfully assigned."){
+            Swal.fire({
+                title:"Success",
+                text: "IPCR sucessfully submitted.",
+                icon:"success"
+            })
+            setSubmitting(false)
+        }
+        else {
+            Swal.fire({
+                title:"Error",
+                text: "Submission of IPCR failed",
+                icon:"error"
+            })
+            setSubmitting(false)
         }
     } 
 
@@ -267,7 +303,7 @@ function EditIPCR(props) {
     async function assignIPCR(){
         Swal.fire({
             title:"Assign",
-            text:"Submitting this IPCR would make this your main IPCR?",
+            text:"Submitting this IPCR would make this your latest IPCR?",
             showDenyButton: true,
             confirmButtonText:"Assign",
             denyButtonText:"No",
@@ -280,7 +316,13 @@ function EditIPCR(props) {
             },
         }).then((result)=> {
             if(result.isConfirmed){
-                handleAssign()
+                if(userinfo.role == "president"){
+                    handlePresAssign()
+                }
+                else {
+                    handleAssign()
+                }
+                
             }
         }) 
     }
@@ -298,12 +340,6 @@ function EditIPCR(props) {
         window.open(res, "_blank", "noopener,noreferrer");
         setDownloading(false)
     }
-
-    //ayusin yubng logo sa IPCR
-    //pati yung loading
-    //mag lagay ng supporting documents
-
-    //gawin yung head module at opcr generaton
     useEffect(() => {
         const modalBody = document.querySelector("#view-ipcr .modal-body"); // change selector to your modal
         console.log(modalBody)
@@ -347,27 +383,7 @@ function EditIPCR(props) {
         const debounce = setTimeout(() => {
             updateSubTask(subTaskID, field, value)
             .then(() => {
-                // After updating, reload latest IPCR to check completeness
-                getIPCR(props.ipcr_id).then((res) => {
-                const updatedIPCR = res.data;
-                setIPCRInfo(updatedIPCR);
-
-                // ✅ Only assign main when all targets are filled
-                if (userinfo && allTargetsFilled(updatedIPCR)) {
-                    handleAssignMain();
-
-                    // ✅ Show message only once
-                    if (!hasShownMainNotice) {
-                    Swal.fire({
-                        title: "IPCR Submitted",
-                        text: "All target fields are filled. This IPCR has been automatically submitted.",
-                        icon: "success",
-                        confirmButtonColor: "#198754"
-                    });
-                    setHasShownMainNotice(true);
-                    }
-                }
-                });
+                
             })
             .catch((error) => {
                 console.log(error.response?.data?.error || error);
@@ -407,6 +423,10 @@ function EditIPCR(props) {
             console.log("REMOVE LISTENED")
         })
 
+        socket.on("assign", ()=>{
+            loadIPCR()
+        })
+
         return () => {
             socket.off("ipcr")
             socket.off("document")
@@ -415,21 +435,31 @@ function EditIPCR(props) {
 
     return (
         <div className="edit-ipcr-container">
-            <div className="back-container">
-                <div className="back"  data-bs-dismiss="modal" data-bs-target={props.dept_mode? "#view-ipcr":""} onClick={()=> {
+            <div className="back-container d-flex justify-content-between">
+                <div className="back"  data-bs-dismiss="modal" data-bs-target={props.mode != "dept"? "#view-ipcr":""} onClick={()=> {
                     props.switchPage()
                 }}>
                     <span className="material-symbols-outlined">undo</span>
                     Back to IPCRs 
                 </div>
+
+                {
+                    ipcrInfo ? (ipcrInfo.form_status == "rejected" || ipcrInfo.form_status == "draft") && (props.mode != "dept" && props.mode != "check")? <button className="btn btn-primary d-flex align-items-center gap-2" disabled = {submitting} onClick={()=> {assignIPCR()}}>
+                        {submitting?<span className="spinner-border spinner-border-sm me-2"></span> :<span className="material-symbols-outlined">article_shortcut</span>}
+                        {submitting? "": <span>Submit</span>}
+                    </button>: "":
+                    ""
+                }
             </div>
             
             
             <div className="ipcr-form-container">
-                <div className="alert alert-info d-flex align-items-center gap-2" role="alert">
+                {
+                    props.mode != "dept"? <div className="alert alert-info d-flex align-items-center gap-2" role="alert">
                     <span className="material-symbols-outlined">info</span>
-                    <span>Only fill out the fields highlighted with a <span className="fw-semibold text-success">green background</span>.</span>
-                </div>
+                    <span>Only modify the fields highlighted with a <span className="fw-semibold text-success">green background</span>.</span>
+                </div> :""
+                }
                 <div className="ipcr-header-container">
                     <div className="ipcr-logo" style={{backgroundImage: `url('${import.meta.env.BASE_URL}municipal.png')`}}>.</div>
                     <div className="school-info">
@@ -545,40 +575,40 @@ function EditIPCR(props) {
                                             {task.title}
                                         </div>
                                         <div className="stats">
-                                            <input name = "target_acc" type="number" className={props.dept_mode? "value": "value editable-field"}  defaultValue={task.target_acc}
-                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo && props.dept_mode? props.dept_mode: ipcrInfo.form_status == "approved"}/>
+                                            <input name = "target_acc" type="number" className={props.mode == "faculty"? "value editable-field": "value"}  defaultValue={task.target_acc}
+                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo && props.mode != "faculty"? props.mode != "dept": ipcrInfo.form_status == "approved"}/>
 
                                             <span className="desc">{task.main_task.target_acc} in</span>
-                                            <input name = "target_time" type="number" className={props.dept_mode? "value": "value editable-field"} defaultValue={task.target_time}
-                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo && props.dept_mode? props.dept_mode: ipcrInfo.form_status == "approved"}/>
+                                            <input name = "target_time" type="number" className={props.mode == "faculty"? "value editable-field": "value"} defaultValue={task.target_time}
+                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo && props.mode != "faculty"? props.mode != "dept": ipcrInfo.form_status == "approved"}/>
 
                                             <span className="desc">{task.main_task.time} with</span>
-                                            <input name = "target_mod" type="number" className={props.dept_mode? "value": "value editable-field"} defaultValue={task.target_mod}
-                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo && props.dept_mode? props.dept_mode: ipcrInfo.form_status == "approved"}/>
+                                            <input name = "target_mod" type="number" className={props.mode == "faculty"? "value editable-field": "value"} defaultValue={task.target_mod}
+                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo && props.mode != "faculty"? props.mode != "dept": ipcrInfo.form_status == "approved"}/>
 
                                             <span className="desc">{task.main_task.modification}</span>
 
                                         </div>
 
                                         <div className="stats">
-                                            <input name = "actual_acc" type="number" className={props.dept_mode? "value": "value editable-field"} defaultValue={task.actual_acc}
-                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo && props.dept_mode? props.dept_mode: ipcrInfo.form_status == "approved"}/>
+                                            <input name = "actual_acc" type="number" className={props.mode == "faculty"? "value editable-field": "value"}  defaultValue={task.actual_acc}
+                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo && props.mode != "faculty"? props.mode != "dept": ipcrInfo.form_status == "approved"}/>
 
                                             <span className="desc">{task.main_task.actual_acc} in</span>
-                                            <input name = "actual_time" type="number" className={props.dept_mode? "value": "value editable-field"} defaultValue={task.actual_time}
-                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo && props.dept_mode? props.dept_mode: ipcrInfo.form_status == "approved"}/>
+                                            <input name = "actual_time" type="number" className={props.mode == "faculty"? "value editable-field": "value"}  defaultValue={task.actual_time}
+                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo && props.mode != "faculty"? props.mode != "dept": ipcrInfo.form_status == "approved"}/>
 
                                             <span className="desc">{task.main_task.time} with</span>
-                                            <input name = "actual_mod" type="number" className={props.dept_mode? "value": "value editable-field"} defaultValue={task.actual_mod}
-                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo && props.dept_mode? props.dept_mode: ipcrInfo.form_status == "approved"}/>
+                                            <input name = "actual_mod" type="number" className={props.mode == "faculty"? "value editable-field": "value"} defaultValue={task.actual_mod}
+                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo && props.mode != "faculty"? props.mode != "dept": ipcrInfo.form_status == "approved"}/>
 
                                             <span className="desc">{task.main_task.modification}</span>
                                         </div>
 
                                         <div className="sub-task-rating">
-                                            <span className = "quantity" onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleSpanChange(e)} contentEditable ={props.dept_mode}>{parseFloat(task.quantity).toFixed(0)}</span>
-                                            <span className = "efficiency" onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleSpanChange(e)} contentEditable ={props.dept_mode}>{parseFloat(task.efficiency).toFixed(0)}</span>
-                                            <span className = "timeliness" onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleSpanChange(e)} contentEditable ={props.dept_mode}>{parseFloat(task.timeliness).toFixed(0)}</span>
+                                            <span className = {props.mode == "check"? "quantity editable-field": "quantity"} onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleSpanChange(e)} contentEditable ={props.mode == "check"}>{parseFloat(task.quantity).toFixed(0)}</span>
+                                            <span className = {props.mode == "check"? "efficiency editable-field": "efficiency"} onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleSpanChange(e)} contentEditable ={props.mode == "check"}>{parseFloat(task.efficiency).toFixed(0)}</span>
+                                            <span className = {props.mode == "check"? "timeliness editable-field": "timeliness"} onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleSpanChange(e)} contentEditable ={props.mode == "check"}>{parseFloat(task.timeliness).toFixed(0)}</span>
                                             <span className = "average" >{parseFloat(task.average).toFixed(2)}</span>
                                         </div>
 
