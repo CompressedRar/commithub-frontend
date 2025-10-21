@@ -190,7 +190,9 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
               <span className="material-symbols-outlined">edit</span>
               Edit
             </button>
-            <button
+            {
+              deptInfo.name == "College of Computing Studies "  || deptInfo.name == "College of Education " || deptInfo.name == "College of Hospitality Management" || deptInfo.name == "President's Office" ? "" :
+              <button
               className="btn btn-danger fw-semibold d-flex align-items-center gap-1 shadow-sm px-3 py-2 rounded-pill"
               data-bs-toggle="modal"
               data-bs-target="#archive-department"
@@ -198,6 +200,7 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
               <span className="material-symbols-outlined">archive</span>
               Archive
             </button>
+            }
           </div>
         </div>
       </div>

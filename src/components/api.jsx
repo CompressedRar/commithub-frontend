@@ -32,7 +32,7 @@ export function checkRole(){
     }
   }
 }
-const backend_url = import.meta.env.VITE_LOCAL_BACKEND_URL;
+const backend_url = import.meta.env.VITE_BACKEND_URL;
 
 console.log("BACKEND: ", backend_url)
 export var socket = io(backend_url)
