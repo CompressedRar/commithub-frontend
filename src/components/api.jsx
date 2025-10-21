@@ -35,10 +35,10 @@ export function checkRole(){
 const backend_url = import.meta.env.VITE_BACKEND_URL;
 
 console.log("BACKEND: ", backend_url)
-export var socket = io(backend_url)
+export var socket = io("https://15.134.32.170")
 
 const api = axios.create({
-        baseURL: backend_url,
+        baseURL: "https://15.134.32.170",
         headers: {
           Authorization: `Bearer ${token}`
         }
