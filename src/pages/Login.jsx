@@ -46,7 +46,7 @@ function Login() {
     } catch (error) {
       Swal.fire({
         title: "Error",
-        text: error.response?.data?.error || "Login failed",
+        text: error.response?.data?.error,
         icon: "error",
       });
     } finally {
