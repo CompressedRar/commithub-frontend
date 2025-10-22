@@ -141,7 +141,7 @@ function PresidentLayout() {
               <li key={idx}>
                 <a
                   href={item.href}
-                  className={`nav-link d-flex align-items-center gap-2 px-3 py-2 ${
+                  className={`nav-link d-flex align-items-center gap-2 px-3 py-3 ${
                     window.location.pathname === item.href ? "active-nav" : ""
                   }`}
                 >

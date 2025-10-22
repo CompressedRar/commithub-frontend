@@ -244,6 +244,7 @@ function AccountSettings(props) {
           <div className="col-md-6">
             <label htmlFor="department" className="form-label">Office</label>
             <select id="department" className="form-select" disabled>
+              
               {allDepartments.map((dept) => (
                 <option key={dept.id} value={dept.id}>{dept.name}</option>
               ))}

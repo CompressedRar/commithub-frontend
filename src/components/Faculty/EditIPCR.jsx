@@ -316,10 +316,12 @@ function EditIPCR(props) {
             },
         }).then((result)=> {
             if(result.isConfirmed){
-                if(userinfo.role == "president"){
+                if(userinfo.role == "president" || userinfo.role == "administrator"){
+                    console.log("President submt")
                     handlePresAssign()
                 }
                 else {
+                    console.log("Faculty submt")
                     handleAssign()
                 }
                 

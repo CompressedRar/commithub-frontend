@@ -65,6 +65,49 @@ function PendingOPCR(props) {
                 }
             }) 
         }
+
+        async function handleReject(){
+                setArchiving(true)
+                var res = await rejectsOPCR(props.opcr.id).then(data => data.data.message).catch(error => {
+                    console.log(error.response.data)
+                    Swal.fire({
+                        title: "Error",
+                        text: error.response.data.error,
+                        icon: "error"
+                    })
+                })
+                console.log(res)
+                if (res == "This OPCR is successfully rejected."){
+                    Swal.fire({
+                        title:"Success",
+                        text: res,
+                        icon:"success"
+                    })
+                }
+                setArchiving(false)
+            } 
+                
+            async function rejectsOPCR(){
+                Swal.fire({
+                    title:"Reject",
+                    text:"Do you want to reject this OPCR?",
+                    showDenyButton: true,
+                    confirmButtonText:"Reject",
+                    confirmButtonColor:"red",
+                    denyButtonText:"No",
+                    denyButtonColor:"grey",
+                    icon:"warning",
+                    customClass: {
+                        actions: 'my-actions',
+                        confirmButton: 'order-2',
+                        denyButton: 'order-1 right-gap',
+                    },
+                }).then((result)=> {
+                    if(result.isConfirmed){
+                        handleReject()
+                    }
+                }) 
+            }
     
         async function download() {
             setDownloading(true)
@@ -129,7 +172,11 @@ function PendingOPCR(props) {
                         </button>
                         <button className="choices btn btn-danger" onClick={()=>{archiveOPCR()}}>
                             <span className="material-symbols-outlined">{!archiving? "archive":"refresh"}</span>
-                        </button>                        
+                        </button>       
+                        <button className="btn btn-danger" onClick={()=> {rejectsOPCR()}} style={{display:"flex", flexDirection:"row", alignItems:"center", padding:"10px", gap:"10px"}}>
+                            <span className="material-symbols-outlined">cancel_presentation</span>    
+                            <span>Reject</span>
+                        </button>                      
                     </div>:
                     <span style={{display:"flex", flexDirection:"row", justifyContent:"flex-end", fontStyle:"italic"}}>Awaiting Submission</span>
                 }

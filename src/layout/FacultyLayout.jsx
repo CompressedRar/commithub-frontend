@@ -125,15 +125,14 @@ function FacultyLayout() {
 
           <ul className="nav flex-column gap-2 sidebar-nav">
             {[
-              { href: "/faculty/ipcr", icon: "article", text: "My IPCR" },
-              { href: "/faculty/reports", icon: "analytics", text: "Reports" },
+              { href: "/faculty/ipcr", icon: "article", text: "My IPCR" }
             ].map((item, idx) => (
               <li key={idx}>
                 <NavLink
                   to={item.href}
                   end
                   className={({ isActive }) =>
-                    `nav-link d-flex align-items-center gap-2 px-3 py-2 ${
+                    `nav-link d-flex align-items-center gap-2 px-3 py-3 ${
                       isActive ? "active-nav" : ""
                     }`
                   }

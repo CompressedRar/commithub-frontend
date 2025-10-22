@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { approveIPCR, approveOPCR, archiveIprc, archiveOprc, downloadIPCR, downloadOPCR } from "../../services/pcrServices";
+import { approveIPCR, approveOPCR, archiveIprc, archiveOprc, downloadIPCR, downloadOPCR, rejectOPCR } from "../../services/pcrServices";
 import Swal from "sweetalert2";
 
 
@@ -65,6 +65,49 @@ function ReviewedOPCR(props) {
                 }
             }) 
         }
+
+        async function handleReject(){
+                        setArchiving(true)
+                        var res = await rejectOPCR(props.opcr.id).then(data => data.data.message).catch(error => {
+                            console.log(error.response.data)
+                            Swal.fire({
+                                title: "Error",
+                                text: error.response.data.error,
+                                icon: "error"
+                            })
+                        })
+                        console.log(res)
+                        if (res == "This OPCR is successfully rejected."){
+                            Swal.fire({
+                                title:"Success",
+                                text: res,
+                                icon:"success"
+                            })
+                        }
+                        setArchiving(false)
+                    } 
+                        
+                    async function rejectsOPCR(){
+                        Swal.fire({
+                            title:"Reject",
+                            text:"Do you want to reject this OPCR?",
+                            showDenyButton: true,
+                            confirmButtonText:"Reject",
+                            confirmButtonColor:"red",
+                            denyButtonText:"No",
+                            denyButtonColor:"grey",
+                            icon:"warning",
+                            customClass: {
+                                actions: 'my-actions',
+                                confirmButton: 'order-2',
+                                denyButton: 'order-1 right-gap',
+                            },
+                        }).then((result)=> {
+                            if(result.isConfirmed){
+                                handleReject()
+                            }
+                        }) 
+                    }
     
         async function download() {
             setDownloading(true)
@@ -171,6 +214,10 @@ function ReviewedOPCR(props) {
                         <button className="btn btn-primary" onClick={()=> {approvalOPCR()}} style={{display:"flex", flexDirection:"row", alignItems:"center", padding:"10px", gap:"10px"}}>
                             <span className="material-symbols-outlined">approval_delegation</span>    
                             <span>Approve</span>
+                        </button>   
+                        <button className="btn btn-danger" onClick={()=> {rejectsOPCR()}} style={{display:"flex", flexDirection:"row", alignItems:"center", padding:"10px", gap:"10px"}}>
+                            <span className="material-symbols-outlined">cancel_presentation</span>    
+                            <span>Reject</span>
                         </button>                     
                     </div>:
                     <span style={{display:"flex", flexDirection:"row", justifyContent:"flex-end", fontStyle:"italic"}}>Awaiting Submission</span>

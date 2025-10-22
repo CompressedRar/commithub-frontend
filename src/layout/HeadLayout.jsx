@@ -142,7 +142,7 @@ function HeadLayout() {
                   to={item.href}
                   end
                   className={({ isActive }) =>
-                    `nav-link d-flex align-items-center gap-2 px-3 py-2 ${
+                    `nav-link d-flex align-items-center gap-2 px-3 py-3 ${
                       isActive ? "active-nav" : ""
                     }`
                   }

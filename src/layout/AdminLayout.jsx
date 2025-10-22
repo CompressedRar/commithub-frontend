@@ -124,6 +124,7 @@ function AdminLayout() {
               { href: "/admin/tasks", icon: "task", text: "Key Result Areas" },
               { href: "/admin/users", icon: "group", text: "User Management" },
               { href: "/admin/logs", icon: "article", text: "Audit Logs" },
+              { href: "/admin/review", icon: "approval", text: "Pending Review" },
               { href: "/admin/approve", icon: "approval", text: "Pending Approval" },
               { href: "/admin/ipcr", icon: "assignment_ind", text: "IPCR" },
             ].map((item, idx) => (
@@ -132,7 +133,7 @@ function AdminLayout() {
                   to={item.href}
                   end
                   className={({ isActive }) =>
-                    `nav-link d-flex align-items-center gap-2 px-3 py-2 ${
+                    `nav-link d-flex align-items-center gap-2 px-3 py-3 ${
                       isActive ? "active-nav" : ""
                     }`
                   }
