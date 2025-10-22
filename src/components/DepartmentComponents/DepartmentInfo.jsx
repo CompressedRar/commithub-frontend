@@ -81,7 +81,7 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
   };
 
   return (
-    <div className="container-fluid py-3 overflow-auto" style={{ maxHeight: "calc(100vh - 110px)" }}>
+    <div className="container-fluid py-3 overflow-auto bg-light" style={{ maxHeight: "calc(100vh - 110px)" }}>
       <CreateOPCRModal deptid={id} />
 
       {/* ─── Archive Modal ─────────────────────────────── */}
