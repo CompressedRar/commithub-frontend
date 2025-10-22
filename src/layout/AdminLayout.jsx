@@ -6,7 +6,9 @@ import Swal from "sweetalert2";
 import { getAccountNotification, readNotification } from "../services/userService";
 import AccountSettings from "../components/UsersComponents/AccountSettings";
 import "../assets/styles/Main.css";
+
 import "bootstrap/dist/css/bootstrap.min.css";
+import NotificationModal from "../components/NotificationModal";
 
 function AdminLayout() {
   const token = localStorage.getItem("token");
@@ -182,32 +184,8 @@ function AdminLayout() {
             <div className="position-relative">
               <span
                 className="material-symbols-outlined fs-4 cursor-pointer position-relative"
-                onClick={() => {
-                  const newState = !openNotif;
-                  setOpenNotif(newState);
-
-                  // Mark unread notifications as read
-                  if (newState && notifications.length > 0) {
-                    const unreadIds = notifications
-                      .filter((n) => !n.read)
-                      .map((n) => n.id);
-
-                    if (unreadIds.length > 0) {
-                      readNotification(unreadIds)
-                        .then(() => {
-                          setNotifications((prev) =>
-                            prev.map((n) => ({
-                              ...n,
-                              read: unreadIds.includes(n.id) ? true : n.read,
-                            }))
-                          );
-                        })
-                        .catch((err) =>
-                          console.error("Failed to read notifications:", err)
-                        );
-                    }
-                  }
-                }}
+                data-bs-toggle="modal"
+                data-bs-target="#notification-modal"
               >
                 notifications
                 {notifications.some((n) => !n.read) && (
@@ -346,6 +324,11 @@ function AdminLayout() {
           </div>
         </div>
       </div>
+      <NotificationModal
+        notifications={notifications}
+        setNotifications={setNotifications}
+      />
+
     </div>
   );
 }

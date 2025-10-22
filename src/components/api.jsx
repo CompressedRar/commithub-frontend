@@ -35,10 +35,10 @@ export function checkRole(){
 const backend_url = import.meta.env.VITE_BACKEND_URL;
 
 console.log("BACKEND: ", backend_url)
-export var socket = io("https://15.134.32.170")
+export var socket = io("https://commithub.shop/")
 
 const api = axios.create({
-        baseURL: "https://15.134.32.170",
+        baseURL: "https://commithub.shop/",
         headers: {
           Authorization: `Bearer ${token}`
         }
