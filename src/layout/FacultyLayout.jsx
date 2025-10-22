@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { getAccountNotification, readNotification } from "../services/userService";
 import AccountSettings from "../components/UsersComponents/AccountSettings";
+import NotificationModal from "../components/NotificationModal";
 
 function FacultyLayout() {
   const token = localStorage.getItem("token");
@@ -184,7 +185,8 @@ function FacultyLayout() {
             <div className="position-relative">
               <span
                 className="material-symbols-outlined fs-4 cursor-pointer position-relative"
-                onClick={handleOpenNotification}
+                data-bs-toggle="modal"
+                data-bs-target="#notification-modal"
               >
                 notifications
                 {notifications.some((n) => !n.read) && (
@@ -321,6 +323,10 @@ function FacultyLayout() {
           </div>
         </div>
       </div>
+      <NotificationModal
+        notifications={notifications}
+        setNotifications={setNotifications}
+      />
     </div>
   );
 }

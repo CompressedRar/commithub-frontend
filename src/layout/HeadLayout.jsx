@@ -8,6 +8,7 @@ import {
   readNotification,
 } from "../services/userService";
 import AccountSettings from "../components/UsersComponents/AccountSettings";
+import NotificationModal from "../components/NotificationModal";
 
 function HeadLayout() {
   const token = localStorage.getItem("token");
@@ -203,7 +204,8 @@ function HeadLayout() {
             <div className="position-relative">
               <span
                 className="material-symbols-outlined fs-4 cursor-pointer"
-                onClick={handleOpenNotification}
+                data-bs-toggle="modal"
+                data-bs-target="#notification-modal"
               >
                 notifications
               </span>
@@ -342,6 +344,10 @@ function HeadLayout() {
           </div>
         </div>
       </div>
+      <NotificationModal
+        notifications={notifications}
+        setNotifications={setNotifications}
+      />
     </div>
   );
 }

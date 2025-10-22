@@ -96,7 +96,7 @@ function TaskInfo({ id, backAfterArchive }) {
 
         <div className="card-body">
           <div className="mb-3">
-            <label className="form-label fw-bold">Output Title</label>
+            <label className="form-label fw-bold">Output</label>
             <input
               id="name"
               type="text"
@@ -108,7 +108,7 @@ function TaskInfo({ id, backAfterArchive }) {
 
           <div className="row">
             <div className="col-md-6 mb-3">
-              <label className="form-label fw-bold">Target Output</label>
+              <label className="form-label fw-bold">Target Quantity</label>
               <textarea
                 id="target_accomplishment"
                 className="form-control"
@@ -118,7 +118,7 @@ function TaskInfo({ id, backAfterArchive }) {
               ></textarea>
             </div>
             <div className="col-md-6 mb-3">
-              <label className="form-label fw-bold">Actual Output</label>
+              <label className="form-label fw-bold">Actual Quantity</label>
               <textarea
                 id="actual_accomplishment"
                 className="form-control"
@@ -131,7 +131,7 @@ function TaskInfo({ id, backAfterArchive }) {
 
           <div className="row">
             <div className="col-md-6 mb-3">
-              <label className="form-label fw-bold">Time Measurement</label>
+              <label className="form-label fw-bold">Timeliness</label>
               <input
                 id="time_measurement"
                 type="text"
@@ -141,7 +141,7 @@ function TaskInfo({ id, backAfterArchive }) {
               />
             </div>
             <div className="col-md-6 mb-3">
-              <label className="form-label fw-bold">Modification</label>
+              <label className="form-label fw-bold">Efficiency</label>
               <input
                 id="modifications"
                 type="text"

@@ -176,7 +176,7 @@ function DepartmentTasksTable({ id, admin_mode }) {
 
       {/* === Header Controls === */}
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-3">
-        <h4 className="fw-semibold text-dark mb-0">Department-Specific Tasks</h4>
+        <h4 className="fw-semibold text-dark mb-0">Department-Specific Outputs</h4>
         <div className="d-flex align-items-center gap-2">
             {admin_mode? <button
                 className="btn btn-primary d-flex align-items-center px-3 py-2"

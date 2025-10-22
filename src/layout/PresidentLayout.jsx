@@ -6,6 +6,7 @@ import { getAccountNotification, readNotification } from "../services/userServic
 import AccountSettings from "../components/UsersComponents/AccountSettings";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../assets/styles/Main.css";
+import NotificationModal from "../components/NotificationModal";
 
 function PresidentLayout() {
   const token = localStorage.getItem("token");
@@ -199,7 +200,8 @@ function PresidentLayout() {
             <div className="position-relative">
               <span
                 className="material-symbols-outlined fs-4 cursor-pointer position-relative"
-                onClick={handleNotificationToggle}
+                data-bs-toggle="modal"
+                data-bs-target="#notification-modal"
               >
                 notifications
                 {notifications.some((n) => !n.read) && (
@@ -325,6 +327,10 @@ function PresidentLayout() {
           </div>
         </div>
       </div>
+      <NotificationModal
+        notifications={notifications}
+        setNotifications={setNotifications}
+      />
     </div>
   );
 }

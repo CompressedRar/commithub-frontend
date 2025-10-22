@@ -22,6 +22,7 @@ function CategoryTasks(props){
     
     const [formData, setFormData] = useState({"category_name": "", "id": props.id})
 
+    const [updateData, setUpdateData] = useState({"category_name": "", "id": props.id})
     const [submitting, setSubmission] = useState(false)
     const [archiving, setArchiving] = useState(false)
     const [open, setOpen] = useState(false)
@@ -57,6 +58,9 @@ function CategoryTasks(props){
                     "accomplishment_editable": 0,
                     "time_editable": 0,
                     "modification_editable": 0,
+                    "id": id})
+
+        setUpdateData({"title": res.name,
                     "id": id})
         
     }
@@ -104,7 +108,7 @@ function CategoryTasks(props){
     }
 
     const handleTitleChange = (e) => {
-        setFormData({...formData, [e.target.id]: e.target.textContent})        
+        setUpdateData({...updateData, [e.target.id]: e.target.textContent})        
     }
 
     const handleSwitchChange = (e) => {
@@ -257,8 +261,8 @@ function CategoryTasks(props){
         }
 
     const handleUpdate = async () => {
-            var a = await updateCategory(formData).catch(error => {
-            console.log(error.response.data.error)
+            var a = await updateCategory(updateData).catch(error => {
+            console.log(updateData)
             Swal.fire({
                 title: "Error",
                 text: error.response.data.error,
@@ -320,7 +324,7 @@ function CategoryTasks(props){
                         {/* Task Name */}
                         <div className="mb-3">
                             <label htmlFor="task_name" className="form-label fw-semibold">
-                            Output Title <span className="text-danger">*</span>
+                            Output <span className="text-danger">*</span>
                             </label>
                             <input
                             type="text"
@@ -354,15 +358,16 @@ function CategoryTasks(props){
                         </div>
 
                         {/* Description */}
+                        <h5 className="">Success Indicators (Targets + Measures)</h5>
                         <div className="mb-3">
                             <label htmlFor="task_desc" className="form-label fw-semibold">
-                            Output Description
+                            Quantity
                             </label>
                             <textarea
                             id="task_desc"
                             name="task_desc"
                             className="form-control"
-                            placeholder="Describe the task..."
+                            placeholder="Describe the measurable aspect of the output..."
                             rows={5}
                             onInput={(e) => {
                                 handleDataChange(e);
@@ -376,7 +381,7 @@ function CategoryTasks(props){
                         <div className="row">
                             <div className="col-md-6 mb-3">
                             <label htmlFor="time_measurement" className="form-label fw-semibold">
-                                Time Measurement
+                                Timeliness
                             </label>
                             <select
                                 id="time_measurement"
@@ -396,7 +401,7 @@ function CategoryTasks(props){
 
                             <div className="col-md-6 mb-3">
                             <label htmlFor="modification" className="form-label fw-semibold">
-                                Modifications
+                                Efficiency
                             </label>
                             <select
                                 id="modification"
