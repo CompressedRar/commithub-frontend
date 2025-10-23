@@ -19,6 +19,7 @@ function AccountSettings(props) {
   const [emailQueryResult, setEmailQueryResult] = useState(null)
   const [firstEmail, setFirstEmail] = useState(null)
   const [isEmailValid, setEmailValid] = useState(true)
+  const [changingPassword, setChangingPassword] = useState(false)
   const fileInput = useRef(null)
 
   // For password change
@@ -315,7 +316,10 @@ function AccountSettings(props) {
               </div>
               <div className="modal-footer">
                 <button className="btn btn-secondary" onClick={() => setShowPasswordModal(false)}>Cancel</button>
-                <button className="btn btn-primary" onClick={handleChangePassword} disabled = {isMatched || passwordResultText}>Update Password</button>
+                <button className="btn btn-primary" onClick={handleChangePassword} disabled = {isMatched || passwordResultText || changingPassword}>
+
+                  {changingPassword ? "Update Password": <span className="spinner-border spinner-border-sm me-2"></span>}
+                </button>
               </div>
             </div>
           </div>

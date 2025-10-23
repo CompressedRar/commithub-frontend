@@ -100,9 +100,6 @@ function DeptIPCR(props) {
                         <span >{ props.ipcr.ipcr && "IPCR - "}</span>
                         <span>{props.ipcr.member.first_name + " " + props.ipcr.member.last_name}</span>
                     </div>
-                    <div style={{gap:"10px", display:"flex"}}> 
-                        {props.ipcr.ipcr && <span className="form-status">{props.ipcr.ipcr && props.ipcr.ipcr.form_status.toUpperCase()}</span>}
-                    </div>
                 </div> 
 
                 {
@@ -119,10 +116,7 @@ function DeptIPCR(props) {
                         <button className="choices btn btn-success" onClick={props.onClick}  data-bs-toggle="modal" data-bs-target="#view-ipcr">
                             <span className="material-symbols-outlined">view_list</span>
                             <span>View</span>
-                        </button>
-                        <button className="choices btn btn-danger" onClick={()=>{archiveIPCR()}}>
-                            <span className="material-symbols-outlined">{!archiving? "archive":"refresh"}</span>
-                        </button>                        
+                        </button>                      
                     </div>:
                     <span style={{display:"flex", flexDirection:"row", justifyContent:"flex-end", fontStyle:"italic"}}>Awaiting Submission</span>
                 }
