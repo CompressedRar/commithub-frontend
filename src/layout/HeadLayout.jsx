@@ -135,7 +135,6 @@ function HeadLayout() {
           <ul className="nav flex-column gap-2 sidebar-nav">
             {[
               { href: "/head/department", icon: "apartment", text: "Office" },
-              { href: "/head/review", icon: "pageview", text: "Pending Review" },
               { href: "/head/ipcr", icon: "assignment_ind", text: "IPCR" },
             ].map((item, idx) => (
               <li key={idx}>

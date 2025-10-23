@@ -135,8 +135,6 @@ function PresidentLayout() {
               { href: "/president/dashboard", icon: "dashboard", text: "Dashboard" },
               { href: "/president/department", icon: "apartment", text: "Offices" },
               { href: "/president/tasks", icon: "task", text: "Key Result Areas" },
-              { href: "/president/review", icon: "pageview", text: "Pending Review" },
-              { href: "/president/approve", icon: "approval", text: "Pending Approval" },
               { href: "/president/ipcr", icon: "assignment_ind", text: "IPCR" },
             ].map((item, idx) => (
               <li key={idx}>
