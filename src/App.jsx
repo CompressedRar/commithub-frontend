@@ -25,6 +25,7 @@ import PresPendingApprovals from './components/DepartmentComponents/PresPendingA
 import PresPendingReviews from './components/DepartmentComponents/PresPendingReviews'
 import HeadPendingReviews from './components/DepartmentComponents/HeadPendingReviews'
 import PresidentLayout from './layout/PresidentLayout'
+import MasterOPCR from './pages/MasterOPCR'
 
 
 
@@ -49,6 +50,7 @@ function App() {
           <Route path = "/admin/ipcr" element={<Faculty></Faculty>}></Route>
           <Route path = "/admin/review" element={<PresPendingReviews></PresPendingReviews>}></Route>
           <Route path = "/admin/approve" element={<PresPendingApprovals></PresPendingApprovals>}></Route>
+          <Route path = "/admin/master" element={<MasterOPCR></MasterOPCR>}></Route>
         </Route>
 
         <Route element = {<PresidentLayout></PresidentLayout>}>
@@ -58,6 +60,7 @@ function App() {
           <Route path = "/president/ipcr" element={<Faculty></Faculty>}></Route>
           <Route path = "/president/review" element={<PresPendingReviews></PresPendingReviews>}></Route>
           <Route path = "/president/approve" element={<PresPendingApprovals></PresPendingApprovals>}></Route>
+          <Route path = "/president/master" element={<MasterOPCR></MasterOPCR>}></Route>
         </Route>
 
         <Route element = {<HeadLayout></HeadLayout>}>

@@ -34,7 +34,8 @@ function EditIPCR(props) {
 
     const [currentUserInfo, setCurrentUserInfo] = useState(null)
 
-    const  [submitting, setSubmitting] = useState(false)
+    const [canEval, setCanEval] = useState(false)
+    const [submitting, setSubmitting] = useState(false)
 
     function readTokenInformation(){
         let payload = {}
@@ -124,109 +125,6 @@ function EditIPCR(props) {
         }
     }
 
-    async function handleApproval(){
-        var res = await approveIPCR(ipcrInfo.id).then(data => data.data.message).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-            
-        if (res == "This IPCR is successfully approved."){
-            Swal.fire({
-                title:"Success",
-                text: res,
-                icon:"success"
-            })
-        }
-    } 
-    
-    async function approvalIPCR(){
-        Swal.fire({
-            title:"Approve",
-            text:"By approving this IPCR, you acknowledge that this IPCR can be consolidated for the OPCR. Do you wish to proceed?",
-            showDenyButton: true,
-            confirmButtonText:"Approve",
-            confirmButtonColor:"green",
-            denyButtonText:"No",
-            denyButtonColor:"grey",
-            icon:"question",
-            customClass: {
-                actions: 'my-actions',
-                confirmButton: 'order-2',
-                denyButton: 'order-1 right-gap',
-            },
-        }).then((result)=> {
-            if(result.isConfirmed){
-                handleApproval()
-            }
-        }) 
-    }
-
-    async function handleReview(){
-        var res = await reviewIPCR(ipcrInfo.id).then(data => data.data.message).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-            
-        if (res == "This IPCR is successfully reviewed."){
-            Swal.fire({
-                title:"Success",
-                text: res,
-                icon:"success"
-            })
-        }
-    } 
-    
-    async function reviewalIPCR(){
-        Swal.fire({
-            title:"Review",
-            text:"Please confirm that you have thoroughly reviewed this IPCR. Do you want to proceed with marking it as reviewed?",
-            showDenyButton: true,
-            confirmButtonText:"Yes",
-            confirmButtonColor:"blue",
-            denyButtonText:"No",
-            denyButtonColor:"grey",
-            icon:"question",
-            customClass: {
-                actions: 'my-actions',
-                confirmButton: 'order-2',
-                denyButton: 'order-1 right-gap',
-            },
-        }).then((result)=> {
-            if(result.isConfirmed){
-                handleReview()
-            }
-        }) 
-    }
-
-    async function scrollReviewalIPCR(){
-        Swal.fire({
-            title:"Review",
-            text:"Please confirm that you have thoroughly reviewed this IPCR. Do you want to proceed with marking it as reviewed?",
-            showDenyButton: true,
-            confirmButtonText:"Yes",
-            confirmButtonColor:"blue",
-            denyButtonText:"No",
-            denyButtonColor:"grey",
-            icon:"question",
-            customClass: {
-                actions: 'my-actions',
-                confirmButton: 'order-2',
-                denyButton: 'order-1 right-gap',
-            },
-        }).then((result)=> {
-            if(result.isConfirmed){
-                handleReview()
-            }
-        }) 
-    }
 
     async function handleAssign(){
         setSubmitting(true)
@@ -258,47 +156,6 @@ function EditIPCR(props) {
         }
     } 
 
-    async function handlePresAssign(){
-        setSubmitting(true)
-        var res = await assignPresIPCR(ipcrInfo.id, ipcrInfo.user).then(data => data.data.message).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-            setSubmitting(false)
-        })
-            
-        if (res == "IPCR successfully assigned."){
-            Swal.fire({
-                title:"Success",
-                text: "IPCR sucessfully submitted.",
-                icon:"success"
-            })
-            setSubmitting(false)
-        }
-        else {
-            Swal.fire({
-                title:"Error",
-                text: "Submission of IPCR failed",
-                icon:"error"
-            })
-            setSubmitting(false)
-        }
-    } 
-
-    async function handleAssignMain(){
-        var res = await assignMainIPCR(ipcrInfo.id, userinfo.id).then(data => data.data.message).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-        
-    } 
     
     async function assignIPCR(){
         Swal.fire({
@@ -316,32 +173,11 @@ function EditIPCR(props) {
             },
         }).then((result)=> {
             if(result.isConfirmed){
-                if(userinfo.role == "president" || userinfo.role == "administrator"){
-                    console.log("President submt")
-                    handlePresAssign()
-                }
-                else {
-                    console.log("Faculty submt")
-                    handleAssign()
-                }
-                
+                handleAssign()                
             }
         }) 
     }
 
-    async function download() {
-        setDownloading(true)
-        var res = await downloadIPCR(props.ipcr_id).then(data => data.data.link).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-        window.open(res, "_blank", "noopener,noreferrer");
-        setDownloading(false)
-    }
     useEffect(() => {
         const modalBody = document.querySelector("#view-ipcr .modal-body"); // change selector to your modal
         console.log(modalBody)
@@ -381,6 +217,7 @@ function EditIPCR(props) {
 
     useEffect(() => {
         if (value === "") return;
+        console.log("test")
 
         const debounce = setTimeout(() => {
             updateSubTask(subTaskID, field, value)
@@ -397,7 +234,12 @@ function EditIPCR(props) {
 
 
     useEffect(()=> {
-        //if(ipcrInfo && userinfo) handleAssignMain();
+        if(ipcrInfo && userinfo) {
+            var ipcr_full_name = ipcrInfo.user_info.first_name + " "+ ipcrInfo.user_info.last_name
+            var visitor_full_name = userinfo.first_name + " " + userinfo.last_name
+
+            setCanEval(ipcr_full_name != visitor_full_name)
+        }
     }, [ipcrInfo, userinfo])
     
 
@@ -406,6 +248,9 @@ function EditIPCR(props) {
         loadIPCR()
         loadUserInfo()
         readTokenInformation()
+
+
+        
 
         socket.on("ipcr", ()=>{
             loadIPCR()
@@ -457,7 +302,7 @@ function EditIPCR(props) {
             
             <div className="ipcr-form-container">
                 {
-                    props.mode != "dept"? <div className="alert alert-info d-flex align-items-center gap-2" role="alert">
+                    props.mode != "dept" && canEval? <div className="alert alert-info d-flex align-items-center gap-2" role="alert">
                     <span className="material-symbols-outlined">info</span>
                     <span>Only modify the fields highlighted with a <span className="fw-semibold text-success">green background</span>.</span>
                 </div> :""
@@ -608,9 +453,9 @@ function EditIPCR(props) {
                                         </div>
 
                                         <div className="sub-task-rating">
-                                            <span className = {props.mode == "check"? "quantity editable-field": "quantity"} onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleSpanChange(e)} contentEditable ={props.mode == "check"}>{parseFloat(task.quantity).toFixed(0)}</span>
-                                            <span className = {props.mode == "check"? "efficiency editable-field": "efficiency"} onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleSpanChange(e)} contentEditable ={props.mode == "check"}>{parseFloat(task.efficiency).toFixed(0)}</span>
-                                            <span className = {props.mode == "check"? "timeliness editable-field": "timeliness"} onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleSpanChange(e)} contentEditable ={props.mode == "check"}>{parseFloat(task.timeliness).toFixed(0)}</span>
+                                            <span className = {props.mode == "check" && canEval? "quantity editable-field": "quantity"} onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleSpanChange(e)} contentEditable ={props.mode == "check" && canEval}>{parseFloat(task.quantity).toFixed(0)}</span>
+                                            <span className = {props.mode == "check" && canEval? "efficiency editable-field": "efficiency"} onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleSpanChange(e)} contentEditable ={props.mode == "check" && canEval}>{parseFloat(task.efficiency).toFixed(0)}</span>
+                                            <span className = {props.mode == "check" && canEval? "timeliness editable-field": "timeliness"} onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleSpanChange(e)} contentEditable ={props.mode == "check" && canEval}>{parseFloat(task.timeliness).toFixed(0)}</span>
                                             <span className = "average" >{parseFloat(task.average).toFixed(2)}</span>
                                         </div>
 

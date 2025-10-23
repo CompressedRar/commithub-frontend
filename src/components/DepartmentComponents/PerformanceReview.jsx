@@ -11,6 +11,7 @@ import Swal from "sweetalert2"
 import DeptIPCR from "./DeptIPCR"
 import DeptOPCR from "./DeptOPCR"
 import OPCRSupportingDocuments from "./OPCRSupportingDocuments"
+import { createOPCR } from "../../services/pcrServices"
 
 
 function PerformanceReviews(props){
@@ -19,6 +20,10 @@ function PerformanceReviews(props){
     const [currentIPCRID, setCurrentIPCRID] = useState(null)
     const [currentOPCRID, setCurrentOPCRID] = useState(null)
     const [batchID, setBatchID] = useState(null)
+
+    const [filteredID, setFilteredID] = useState(null)
+
+    const [consolidating, setConsolidating] = useState(false)
 
     async function loadIPCR() {
         var res = await getDepartmentIPCR(props.deptid).then(data => data.data).catch(error => {
@@ -29,9 +34,67 @@ function PerformanceReviews(props){
             })
         })
 
+        const data = res || [];
 
+        
+
+        const filtered = data.filter(
+                (item) => item.ipcr && item.ipcr.status === 1 && item.ipcr.form_status === "submitted"
+            );
+
+        var filtArray = []
+
+        for(const i of filtered){
+            filtArray.push(i.ipcr.id)
+        }
+        
+        console.log(filtArray)
+        
+        setFilteredID(filtArray)
+
+
+        console.log(res)
         setAllIPCR(res)
     }
+
+    const handleSubmission = () => {
+        
+    
+        if (filteredID.length === 0)
+          return Swal.fire("Error", "The office must have at least one submitted IPCR.", "error");
+    
+        Swal.fire({
+          title: "Create OPCR",
+          text: "Do you want to consolidate all submitted IPCRs?",
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonText: "Yes",
+          cancelButtonText: "No",
+        }).then((res) => {
+          if (res.isConfirmed) submission();
+        });
+      };
+
+    async function submission() {
+        setConsolidating(true)
+        try {
+
+          const res = await createOPCR(props.deptid, { "ipcr_ids": filteredID });
+          const msg = res.data.message;
+    
+          Swal.fire({
+            title: msg.includes("successfully") ? "Success" : "Error",
+            text: msg,
+            icon: msg.includes("successfully") ? "success" : "error",
+          });
+
+          setConsolidating(false)
+        } catch (error) {
+            console.log(error)
+          Swal.fire("Error", error.response?.data?.error || "Failed to create OPCR", "error");
+          setConsolidating(false)
+        }
+      }
 
     async function loadOPCR() {
         var res = await getDepartmentOPCR(props.deptid).then(data => data.data).catch(error => {
@@ -49,6 +112,7 @@ function PerformanceReviews(props){
                 filter.push(opcr)
             }
         }
+        console.log(res)
         setAllOPCR(filter)
     }
 
@@ -94,7 +158,7 @@ function PerformanceReviews(props){
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
-                            {currentIPCRID && <EditIPCR dept_id = {props.deptid} key={currentIPCRID} ipcr_id = {currentIPCRID} mode = {"dept"} switchPage={()=>{
+                            {currentIPCRID && <EditIPCR dept_id = {props.deptid} key={currentIPCRID} ipcr_id = {currentIPCRID} mode = {"check"} switchPage={()=>{
 
                             }}></EditIPCR>}
                         </div>
@@ -118,8 +182,8 @@ function PerformanceReviews(props){
             
             <h3 className="d-flex align-items-center gap-3">
                 Office Performance Review and Commitment Form 
-                <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#create-opcr">
-                    Consolidate IPCRs
+                <button className="btn btn-primary" onClick={()=>{handleSubmission()}} disabled = {consolidating}>
+                    {!consolidating ? "Consolidate IPCRs" : <span className="spinner-border spinner-border-sm me-2"></span>}
                 </button>
             </h3>
             <div className="all-ipcr-container" style={{display:"flex", flexDirection:"column", gap:"10px"}}>

@@ -119,10 +119,6 @@ function DeptOPCR(props) {
                             <span className="material-symbols-outlined">{downloading ? "refresh": "download"}</span>
                             {!downloading && <span>Download</span>}
                         </button>
-                        <button className="choices btn btn-primary"  data-bs-toggle="modal" data-bs-target="#manage-opcr-docs" onMouseOver={props.onMouseOver}>
-                            <span className="material-symbols-outlined">attach_file</span>
-                            <span>Documents</span>
-                        </button>
                         <button className="choices btn btn-success" onClick={props.onClick} data-bs-toggle="modal" data-bs-target="#view-opcr" onMouseOver={props.dept_mode? props.onMouseOver:null}>
                             <span className="material-symbols-outlined">view_list</span>
                             <span>View</span>

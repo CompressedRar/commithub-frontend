@@ -302,15 +302,15 @@ function AccountSettings(props) {
               <div className="modal-body">
                 <div className="mb-3">
                   <label className="form-label">Current Password <div>{passwordResultText}</div></label>
-                  <input type="password" className={`form-control border ${!passwordResultText? "border-success": (currentPassword)? "border-danger":""}`} value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
+                  <input type="password" name = "pass" className={`form-control border ${!passwordResultText? "border-success": (currentPassword)? "border-danger":""}`} value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
                 </div>
                 <div className="mb-3">
                   <label className="form-label">New Password</label>
-                  <input type="password" className={`form-control border ${!isMatched? "border-success": (newPassword && confirmPassword)? "border-danger":""}`} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+                  <input type="password" name = "passs" className={`form-control border ${!isMatched? "border-success": (newPassword && confirmPassword)? "border-danger":""}`} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Confirm New Password</label>
-                  <input type="password" className={`form-control border ${!isMatched? "border-success": (newPassword && confirmPassword)? "border-danger":""}`} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+                  <input type="password" name = "pas" className={`form-control border ${!isMatched? "border-success": (newPassword && confirmPassword)? "border-danger":""}`} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
                 </div>
                 
               </div>

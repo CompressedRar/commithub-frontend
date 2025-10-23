@@ -71,9 +71,9 @@ function EditOPCR(props) {
     opcrInfo.forEach(categoryObj => {
         Object.entries(categoryObj).forEach(([category, tasks]) => {
             tasks.forEach(task => {
-                let q = calculateQuantity(task.summary.target, task.summary.actual);
-                let e = calculateEfficiency(task.corrections.target, task.corrections.actual);
-                let t = calculateTimeliness(task.working_days.target, task.working_days.actual);
+                let q = task.rating.quantity;
+                let e = task.rating.efficiency;
+                let t = task.rating.timeliness;
                 
                 let avg = calculateAverage(q, e, t);
 
@@ -522,10 +522,10 @@ function EditOPCR(props) {
                                             </div>
 
                                             <div className="sub-task-rating">
-                                                <span>{calculateQuantity(task.summary.target, task.summary.actual)}</span>
-                                                <span>{calculateEfficiency(task.title, task.corrections.actual)}</span>
-                                                <span>{calculateTimeliness(task.working_days.target, task.working_days.actual)}</span>
-                                                <span>{parseFloat(calculateAverage(calculateQuantity(task.summary.target, task.summary.actual), calculateEfficiency(task.working_days.target, task.working_days.actual), calculateTimeliness(task.corrections.target, task.corrections.actual))).toFixed(0)}</span>
+                                                <span>{task.rating.quantity}</span>
+                                                <span>{task.rating.efficiency}</span>
+                                                <span>{task.rating.timeliness}</span>
+                                                <span>{task.rating.average}</span>
                                             </div>
 
                                             <div className="remarks">

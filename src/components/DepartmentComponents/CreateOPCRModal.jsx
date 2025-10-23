@@ -14,7 +14,7 @@ function CreateOPCRModal({ deptid }) {
       const data = res.data || [];
 
       const filtered = data.filter(
-        (item) => item.ipcr && item.ipcr.status === 1 && item.ipcr.form_status === "approved"
+        (item) => item.ipcr && item.ipcr.status === 1 && item.ipcr.form_status === "submitted"
       );
       setAllIPCR(filtered);
     } catch (error) {
@@ -98,12 +98,12 @@ function CreateOPCRModal({ deptid }) {
               <span className="material-symbols-outlined me-1 align-middle text-primary">
                 info
               </span>
-              Select approved IPCRs to include in the OPCR.
+              Select IPCRs to include in the OPCR.
             </p>
 
             {allIPCR.length === 0 ? (
               <div className="text-center text-secondary py-5 fs-6 fw-semibold">
-                No approved IPCRs found.
+                No IPCRs found.
               </div>
             ) : (
               <div className="row g-3">
@@ -114,6 +114,7 @@ function CreateOPCRModal({ deptid }) {
                         type="checkbox"
                         className="ipcr-checkbox position-absolute"
                         id={item.ipcr.id}
+                        checked
                       />
                       <label
                         htmlFor={item.ipcr.id}

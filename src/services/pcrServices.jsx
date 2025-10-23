@@ -13,6 +13,11 @@ export async function getOPCR(opcr_id) {
     return api.get(`/api/v1/pcr/opcr/${opcr_id}`)
 }
 
+export async function getMasterOPCR() {
+    console.log("fetching master opcr")
+    return api.get(`/api/v1/pcr/master-opcr/`)
+}
+
 export async function downloadIPCR(ipcr_id) {
     console.log("fetching ipcr")
     return api.get(`/api/v1/pcr/ipcr/download/${ipcr_id}`)
