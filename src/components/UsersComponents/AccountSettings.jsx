@@ -318,7 +318,7 @@ function AccountSettings(props) {
                 <button className="btn btn-secondary" onClick={() => setShowPasswordModal(false)}>Cancel</button>
                 <button className="btn btn-primary" onClick={handleChangePassword} disabled = {isMatched || passwordResultText || changingPassword}>
 
-                  {changingPassword ? "Update Password": <span className="spinner-border spinner-border-sm me-2"></span>}
+                  {!changingPassword ? "Update Password": <span className="spinner-border spinner-border-sm me-2"></span>}
                 </button>
               </div>
             </div>
