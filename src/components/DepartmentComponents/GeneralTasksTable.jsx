@@ -168,7 +168,7 @@ function GeneralTasksTable(props) {
       {/* === Header Controls === */}
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-3">
         <h4 className="fw-semibold text-dark mb-0">General Outputs</h4>
-        <div className="d-flex align-items-center gap-2">
+        <div className="d-flex align-items-center gap-2 m-2">
           
 
           <div className="input-group" style={{ width: "250px", height: "38px" }}>

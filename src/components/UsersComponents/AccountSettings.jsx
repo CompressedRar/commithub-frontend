@@ -32,6 +32,41 @@ function AccountSettings(props) {
   const [passwordResultText, setPasswordResultText] = useState(null)
   const [passwordResult, setPasswordResult] = useState(false)
 
+  const [showCurrentPass, setShowCurrentPass] = useState(false)
+  const [showNewPass, setShowNewPass] = useState(false)
+  const [showConfirmPass, setShowConfirmPass] = useState(false)
+  const [strengthLevel, setStrengthLevel] = useState("")
+
+  const [hasMinLength, setHasMinLength] = useState(false)
+  const [hasUppercase, setHasUppercase] = useState(false)
+  const [hasLowercase, setHasLowercase] = useState(false)
+  const [hasNumber, setHasNumber] = useState(false)
+
+
+  function checkPasswordStrength(password) {
+    const minLength = password.length >= 8
+    const uppercase = /[A-Z]/.test(password)
+    const lowercase = /[a-z]/.test(password)
+    const number = /[0-9]/.test(password)
+
+    setHasMinLength(minLength)
+    setHasUppercase(uppercase)
+    setHasLowercase(lowercase)
+    setHasNumber(number)
+
+    let score = 0
+    if (minLength) score++
+    if (uppercase) score++
+    if (lowercase) score++
+    if (number) score++
+
+    if (score <= 2) setStrengthLevel("Weak")
+    else if (score === 3) setStrengthLevel("Medium")
+    else setStrengthLevel("Strong")
+  }
+
+
+
   async function loadUserInformation() {
     const res = await getAccountInfo(props.id).then((data) => data.data).catch((error) => {
       Swal.fire("Error", error.response.data.error, "error")
@@ -279,52 +314,229 @@ function AccountSettings(props) {
             <span className="material-symbols-outlined">lock_reset</span> Change Password
           </button>
 
-          <button className="btn btn-warning d-flex align-items-center gap-1" disabled = {resetting} onClick={handleResetPassword}>
-            <span className="material-symbols-outlined">{resetting? "refresh": "restart_alt"}</span> {resetting? "":"Reset Password"}
-          </button>
-
-          <button className={`btn d-flex align-items-center gap-1 ${memberInformation && memberInformation.account_status ? "btn-danger" : "btn-success"}`} onClick={handleArchive}>
-            <span className="material-symbols-outlined">{memberInformation && memberInformation.account_status ? "account_circle_off" : "account_circle"}</span>
-            {memberInformation.account_status ? "Deactivate" : "Reactivate"}
-          </button>
         </div>
       </div>
 
       {/* Change Password Modal */}
       {showPasswordModal && (
-        <div className="modal fade show d-block" tabIndex="-1" role="dialog" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Change Password</h5>
-                <button type="button" className="btn-close" onClick={() => setShowPasswordModal(false)}></button>
+      <div
+        className="modal fade show d-block"
+        tabIndex="-1"
+        role="dialog"
+        style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+      >
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Change Password</h5>
+              <button
+                type="button"
+                className="btn-close"
+                onClick={() => setShowPasswordModal(false)}
+              ></button>
+            </div>
+            <div className="modal-body">
+              
+              {/* Current Password */}
+              <div className="mb-3">
+                <label className="form-label">
+                  Current Password <div>{passwordResultText}</div>
+                </label>
+                <div className="input-group">
+                  <input
+                    type={showCurrentPass ? "text" : "password"}
+                    autoComplete="off"
+                    className={`form-control border ${
+                      !passwordResultText
+                        ? "border-success"
+                        : currentPassword
+                        ? "border-danger"
+                        : ""
+                    }`}
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={() => setShowCurrentPass(!showCurrentPass)}
+                  >
+                    <span className="material-symbols-outlined">
+                      {showCurrentPass ? "visibility_off" : "visibility"}
+                    </span>
+                  </button>
+                </div>
               </div>
-              <div className="modal-body">
-                <div className="mb-3">
-                  <label className="form-label">Current Password <div>{passwordResultText}</div></label>
-                  <input type="password" name = "pass" className={`form-control border ${!passwordResultText? "border-success": (currentPassword)? "border-danger":""}`} value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
-                </div>
-                <div className="mb-3">
-                  <label className="form-label">New Password</label>
-                  <input type="password" name = "passs" className={`form-control border ${!isMatched? "border-success": (newPassword && confirmPassword)? "border-danger":""}`} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
-                </div>
-                <div className="mb-3">
-                  <label className="form-label">Confirm New Password</label>
-                  <input type="password" name = "pas" className={`form-control border ${!isMatched? "border-success": (newPassword && confirmPassword)? "border-danger":""}`} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
-                </div>
-                
-              </div>
-              <div className="modal-footer">
-                <button className="btn btn-secondary" onClick={() => setShowPasswordModal(false)}>Cancel</button>
-                <button className="btn btn-primary" onClick={handleChangePassword} disabled = {isMatched || passwordResultText || changingPassword}>
 
-                  {!changingPassword ? "Update Password": <span className="spinner-border spinner-border-sm me-2"></span>}
-                </button>
+              {/* New Password */}
+              <div className="mb-3">
+                <label className="form-label">New Password</label>
+                <div className="input-group">
+                  <input
+                    type={showNewPass ? "text" : "password"}
+                    className={`form-control border ${
+                      !isMatched
+                        ? "border-success"
+                        : newPassword && confirmPassword
+                        ? "border-danger"
+                        : ""
+                    }`}
+                    value={newPassword}
+                    onChange={(e) => {
+                      setNewPassword(e.target.value)
+                      checkPasswordStrength(e.target.value)
+                    }}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={() => setShowNewPass(!showNewPass)}
+                  >
+                    <span className="material-symbols-outlined">
+                      {showNewPass ? "visibility_off" : "visibility"}
+                    </span>
+                  </button>
+                </div>
+
+                {/* Password Strength Indicator */}
+                {newPassword && (
+                  <div className="mt-2">
+                    <div
+                      className={`fw-semibold ${
+                        strengthLevel === "Weak"
+                          ? "text-danger"
+                          : strengthLevel === "Medium"
+                          ? "text-warning"
+                          : "text-success"
+                      }`}
+                    >
+                      Password Strength: {strengthLevel}
+                    </div>
+                    <div className="progress mt-1" style={{ height: "5px" }}>
+                      <div
+                        className={`progress-bar ${
+                          strengthLevel === "Weak"
+                            ? "bg-danger"
+                            : strengthLevel === "Medium"
+                            ? "bg-warning"
+                            : "bg-success"
+                        }`}
+                        style={{
+                          width:
+                            strengthLevel === "Weak"
+                              ? "25%"
+                              : strengthLevel === "Medium"
+                              ? "60%"
+                              : "100%",
+                        }}
+                      ></div>
+                    </div>
+
+                    {/* Password Rules */}
+                    <ul className="list-unstyled mt-2 small">
+                      <li className="d-flex align-items-center gap-2">
+                        <span className="material-symbols-outlined text-success">
+                          {hasMinLength ? "check_circle" : ""}
+                        </span>
+                        {!hasMinLength && (
+                          <span className="material-symbols-outlined text-danger">cancel</span>
+                        )}
+                        <span>At least 8 characters</span>
+                      </li>
+                      <li className="d-flex align-items-center gap-2">
+                        <span className="material-symbols-outlined text-success">
+                          {hasUppercase ? "check_circle" : ""}
+                        </span>
+                        {!hasUppercase && (
+                          <span className="material-symbols-outlined text-danger">cancel</span>
+                        )}
+                        <span>At least one uppercase letter</span>
+                      </li>
+                      <li className="d-flex align-items-center gap-2">
+                        <span className="material-symbols-outlined text-success">
+                          {hasLowercase ? "check_circle" : ""}
+                        </span>
+                        {!hasLowercase && (
+                          <span className="material-symbols-outlined text-danger">cancel</span>
+                        )}
+                        <span>At least one lowercase letter</span>
+                      </li>
+                      <li className="d-flex align-items-center gap-2">
+                        <span className="material-symbols-outlined text-success">
+                          {hasNumber ? "check_circle" : ""}
+                        </span>
+                        {!hasNumber && (
+                          <span className="material-symbols-outlined text-danger">cancel</span>
+                        )}
+                        <span>At least one number</span>
+                      </li>
+                    </ul>
+
+                  </div>
+                )}
               </div>
+
+              {/* Confirm New Password */}
+              <div className="mb-3">
+                <label className="form-label">Confirm New Password</label>
+                <div className="input-group">
+                  <input
+                    type={showConfirmPass ? "text" : "password"}
+                    className={`form-control border ${
+                      !isMatched
+                        ? "border-success"
+                        : newPassword && confirmPassword
+                        ? "border-danger"
+                        : ""
+                    }`}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={() => setShowConfirmPass(!showConfirmPass)}
+                  >
+                    <span className="material-symbols-outlined">
+                      {showConfirmPass ? "visibility_off" : "visibility"}
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="modal-footer">
+              <button
+                className="btn btn-secondary"
+                onClick={() => setShowPasswordModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={handleChangePassword}
+                disabled={
+                  isMatched ||
+                  passwordResultText ||
+                  changingPassword ||
+                  !hasMinLength ||
+                  !hasUppercase ||
+                  !hasLowercase ||
+                  !hasNumber
+                }
+              >
+                {!changingPassword ? (
+                  "Update Password"
+                ) : (
+                  <span className="spinner-border spinner-border-sm me-2"></span>
+                )}
+              </button>
             </div>
           </div>
         </div>
-      )}
+      </div>
+    )}
     </div>
   )
 }

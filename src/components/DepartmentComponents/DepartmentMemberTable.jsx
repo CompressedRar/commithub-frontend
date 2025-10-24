@@ -1,186 +1,160 @@
-import { useEffect, useState } from "react"
-import { getDepartment} from "../../services/departmentService";
+import { useEffect, useState } from "react";
+import { getDepartment } from "../../services/departmentService";
 import DepartmentMembers from "./DepartmentMembers";
 import { socket } from "../api";
 import Swal from "sweetalert2";
+import "bootstrap/dist/css/bootstrap.min.css";
 
-function DepartmentMemberTable(props) {
+function DepartmentMemberTable({ deptid }) {
+  const [allMembers, setAllMembers] = useState([]);
+  const [filteredMembers, setFilteredMembers] = useState([]);
+  const [tenMembers, setTenMembers] = useState([]);
+  const [pages, setPages] = useState([]);
+  const [memberLimit, setMemberLimit] = useState({ offset: 0, limit: 10 });
+  const [searchQuery, setQuery] = useState("");
 
-    const [allMembers, setAllMembers] = useState([])
-    const [filteredMembers, setFilteredMembers] = useState([])
+  async function loadAllMembers(id) {
+    try {
+      const res = await getDepartment(id).then((data) => data.data.users);
+      setAllMembers(res);
+      setFilteredMembers(res);
+      generatePagination(res);
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: error.response?.data?.error || "Failed to load members",
+        icon: "error",
+      });
+    }
+  }
 
-    const [tenMembers, setTenMembers] = useState([])
-    const [pages, setPages] = useState([]) 
-    const [memberLimit, setMemberLimit] = useState({"offset": 0, "limit": 10})
-    const [searchQuery, setQuery] = useState("")
-    
-    async function loadAllMembers(id) {      
-        var res = await getDepartment(id).then(data => data.data.users).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-        setAllMembers(res)
-        setFilteredMembers(res)
-        generatePagination(res)
-        
+  function loadLimited() {
+    const sliced = filteredMembers.slice(memberLimit.offset, memberLimit.limit);
+    setTenMembers(sliced);
+  }
 
+  function loadSearchedData(query) {
+    const matched = allMembers.filter((m) =>
+      [m.email, m.first_name, m.last_name, m.position.name, String(m.id)].some((field) =>
+        field.toLowerCase().includes(query.toLowerCase())
+      )
+    );
+    setFilteredMembers(matched);
+    generatePagination(matched);
+    setMemberLimit({ offset: 0, limit: 10 });
+  }
+
+  function generatePagination(array) {
+    const pageCount = Math.ceil(array.length / 10);
+    const newPages = Array.from({ length: pageCount }, (_, i) => ({ id: i + 1, page: i + 1 }));
+    setPages(newPages);
+  }
+
+  // --- Load members initially ---
+  useEffect(() => {
+    loadAllMembers(deptid);
+
+    socket.on("user_modified", () => loadAllMembers(deptid));
+    socket.on("user_created", () => loadAllMembers(deptid));
+
+    return () => {
+      socket.off("user_created");
+      socket.off("user_modified");
+    };
+  }, [deptid]);
+
+  // --- Pagination updates ---
+  useEffect(() => {
+    loadLimited();
+  }, [filteredMembers, memberLimit, allMembers]);
+
+  // --- Search debounce ---
+  useEffect(() => {
+    if (searchQuery.trim().length === 0) {
+      setFilteredMembers(allMembers);
+      generatePagination(allMembers);
+      setMemberLimit({ offset: 0, limit: 10 });
+      return;
     }
 
-    function loadLimited(){
-        var slicedMembers = filteredMembers.slice(memberLimit["offset"], memberLimit["limit"])
-        console.log(slicedMembers)
-        setTenMembers(slicedMembers)
-    }
+    const debounce = setTimeout(() => loadSearchedData(searchQuery), 400);
+    return () => clearTimeout(debounce);
+  }, [searchQuery]);
 
-    function loadSearchedData(query){
-        console.log("displatyed")
-        var matchedMembers = []
+  return (
+    <div className="container-fluid mt-3">
+      {/* Header */}
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
+        <h5 className="fw-bold text-primary mb-2 mb-md-0">Office Members</h5>
 
-        for(const member of allMembers){
-            
-            if( member.email.includes(query) || 
-            member.first_name.includes(query) || 
-            member.last_name.includes(query) || 
-            member.position.name.includes(query) || 
-            String(member.id).includes(query) ){
-                matchedMembers = [...matchedMembers, member]
-            }
-        }
-        console.log(matchedMembers)
-        
-        setFilteredMembers(matchedMembers)
-        generatePagination(matchedMembers)
-        setMemberLimit({"offset": 0, "limit": 10})
-    }
-
-
-    function generatePagination(array){
-        var calculatedPage = array.length / 10
-        
-        var newPages = []
-        for(var i = 1; i <= Math.ceil(calculatedPage); i++){
-            console.log(i)
-            newPages = [...newPages, {"id": i, "page": i}]
-        }  
-        console.log(newPages)
-        setPages(newPages)
-    }
-
-    useEffect(()=>{
-        if(searchQuery.length == 0) {
-            loadLimited()
-            loadAllMembers(props.deptid)
-            return   
-        }
-        const debounce = setTimeout(()=>{
-            loadSearchedData(searchQuery)
-        }, 500)
-
-        return ()=> clearTimeout(debounce)
-
-
-    }, [searchQuery])
-
-    useEffect(()=> {
-        
-        loadLimited()
-        
-    }, [allMembers])
-
-    useEffect(()=> {
-        
-        loadLimited()
-        
-    }, [memberLimit])
-
-    useEffect(()=>{
-        console.log("loading members")
-        loadAllMembers(props.deptid)
-        console.log("members loaded")
-
-        socket.on("user_modified", ()=>{
-            loadAllMembers(props.deptid)
-            console.log("user modified")
-        })
-
-        socket.on("user_created", ()=>{
-            loadAllMembers(props.deptid)
-            console.log("user modified")
-        })
-        
-        return () => {
-            socket.off("user_created");
-            socket.off("user_modified");
-        }
-        
-    },[])
-    return (
-        <div className="member-container">
-            <div className="table-header-container">
-                <div className="table-title">Office Members</div>
-                        {/**<div className="add-members">
-                            <button>
-                                <span className="material-symbols-outlined">add</span>
-                                <span>Add Members</span>
-                            </button>
-                        </div>
-                        <div className="sorting-container">
-                            <label htmlFor="sort">Sort By: </label>
-                            <select name="sort" id="sort">
-                                <option value="">First Name</option>
-                                <option value="">Last Name</option>
-                                <option value="">Role</option>
-                                <option value="">Date Created</option>
-                            </select>
-                            <select name="sort" id="sort">
-                                <option value="">Ascending</option>
-                                <option value="">Descending</option>
-                            </select>
-                        </div> */
-                            
-                        }
-                <div className="search-members">
-                        <input type="text" placeholder="Search member..." onInput={(element)=>{setQuery(element.target.value)}}/>                        
-                </div>                        
-            </div>
-
-            <div className="table-container">
-                <table>
-                    <tbody>
-                        <tr>
-                            <th>FULL NAME</th>
-                            <th>PERFORMANCE</th>
-                            <th>EMAIL ADDRESS</th>                            
-                            <th>POSITION</th>
-                            <th>NO. OF TASKS</th>
-                            <th>STATUS</th>
-                            <th></th>
-                        </tr>
-                                
-                        {tenMembers != 0? tenMembers.map(mems => (
-                        <DepartmentMembers mems = {mems}></DepartmentMembers>)):""
-                        }
-                    </tbody>                               
-                </table>      
-                                  
-            </div>
-            {tenMembers != 0?"":
-                    <div className="empty-symbols">
-                        <span className="material-symbols-outlined">no_accounts</span>    
-                        <span className="desc">No Members Found</span>
-                    </div>}  
-            <div className="pagination">
-                {pages.map(data => (<span className="pages" key={data.id} onClick={()=>{
-                    setMemberLimit({"offset": 0+((data.page * 10) - 10), "limit": data.page * 10})
-                    
-                }}> {data.page}</span>))}
-            </div>
+        <div className="input-group w-100 w-md-50" style={{ maxWidth: "300px" }}>
+          <span className="input-group-text bg-light">
+            <span className="material-symbols-outlined">search</span>
+          </span>
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Search member..."
+            value={searchQuery}
+            onInput={(e) => setQuery(e.target.value)}
+          />
         </div>
-    )
+      </div>
+
+      {/* Table */}
+      <div className="table-responsive">
+        <table className="table table-striped table-hover align-middle text-center">
+          <thead className="table-primary">
+            <tr>
+              <th>FULL NAME</th>
+              <th>PERFORMANCE</th>
+              <th>EMAIL ADDRESS</th>
+              <th>POSITION</th>
+              <th>NO. OF TASKS</th>
+              <th>STATUS</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {tenMembers.length > 0 ? (
+              tenMembers.map((mems) => <DepartmentMembers key={mems.id} mems={mems} />)
+            ) : (
+              <tr>
+                <td colSpan="7" className="py-4 text-muted">
+                  <div className="d-flex flex-column align-items-center">
+                    <span className="material-symbols-outlined fs-1 text-secondary">no_accounts</span>
+                    <small>No Members Found</small>
+                  </div>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination */}
+      {pages.length > 1 && (
+        <nav className="d-flex justify-content-center mt-3">
+          <ul className="pagination pagination-sm mb-0">
+            {pages.map((data) => (
+              <li key={data.id} className="page-item">
+                <button
+                  className={`page-link ${
+                    memberLimit.offset / 10 + 1 === data.page ? "active bg-primary text-white" : ""
+                  }`}
+                  onClick={() =>
+                    setMemberLimit({ offset: (data.page - 1) * 10, limit: data.page * 10 })
+                  }
+                >
+                  {data.page}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
+    </div>
+  );
 }
 
-export default DepartmentMemberTable
+export default DepartmentMemberTable;

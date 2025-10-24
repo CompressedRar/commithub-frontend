@@ -300,7 +300,7 @@ function PresidentLayout() {
         </header>
 
         {/* Main Content */}
-        <main className="flex-grow-1 overflow-auto p-2" style={{ backgroundColor: "#f1f1f1ff" }}>
+        <main className="flex-grow-1 overflow-auto p-2" style={{ backgroundColor: "#ffffffff" }}>
           <Outlet />
         </main>
       </div>

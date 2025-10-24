@@ -1,197 +1,233 @@
 import { useEffect, useState } from "react";
-import "../assets/styles/Department.css"
 import { getDepartments, registerDepartment } from "../services/departmentService";
 import DepartmentInfo from "../components/DepartmentComponents/DepartmentInfo";
-import AllDepartmentMember from "../components/DepartmentComponents/AllDepartmentMember";
 import { objectToFormData } from "../components/api";
 import Swal from "sweetalert2";
 
+function Department() {
+  const [departments, setDepartments] = useState([]);
+  const [currentDepartment, setCurrentDepartment] = useState(null);
+  const [formData, setFormData] = useState({ department_name: "", icon: "" });
+  const [submitting, setSubmitting] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false); // mobile collapsible toggle
 
-function Department(){
-    const [departments, setDepartments] = useState([])
-    const [currentDepartment, setCurrentDepartment] = useState(null)
-    const [formData, setFormData] = useState({"department_name": "", "icon": ""})
-    const [submitting, setSubmission] = useState(false)
+  async function loadAllDepartments() {
+    try {
+      const res = await getDepartments();
+      setDepartments(res.data);
 
-    
-
-    async function loadAllDepartments(){
-        var res = await getDepartments().then(data => data.data).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-
-        setDepartments(res)
-        return res
+      if (res.data.length > 0 && !currentDepartment) {
+        setCurrentDepartment(res.data[0].id);
+      }
+    } catch (error) {
+      Swal.fire("Error", error.response?.data?.error || "Failed to load departments", "error");
     }
+  }
 
-    async function loadFirstDepartment() {
-        loadAllDepartments().then(res => {
-            console.log("loading first")
-            if (res.length > 0) setCurrentDepartment(res[0].id);
-        }).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        });
+  async function handleSubmission() {
+    const newFormData = objectToFormData(formData);
+    setSubmitting(true);
+    try {
+      const res = await registerDepartment(newFormData);
+      if (res.data.message === "Office successfully created.") {
+        Swal.fire("Success", res.data.message, "success");
+        await loadAllDepartments();
+      }
+    } catch (error) {
+      Swal.fire("Error", error.response?.data?.error || "Failed to create office", "error");
+    } finally {
+      setSubmitting(false);
     }
-    
-    function loadAnotherDepartment(id){
-        console.log("Loading another" + id)
-        setCurrentDepartment(id)
-    }
+  }
 
-    const handleDataChange = (e) => {
-        setFormData({...formData, [e.target.name]: e.target.value})        
-    }
+  useEffect(() => {
+    loadAllDepartments();
+  }, []);
 
-    const handleSubmission = async () => {
-        const newFormData = objectToFormData(formData);
-        setSubmission(true)
-        var a = await registerDepartment(newFormData).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-        
-        if(a.data.message == "Office successfully created.") {
-            Swal.fire({
-                title:"Success",
-                text: a.data.message,
-                icon:"success"
-            })
-        }
-        setSubmission(false)
-        loadAllDepartments()
-    }
+  const availableIcons = [
+    "computer", "auto_stories", "flights_and_hotels", "checkbook",
+    "account_balance", "local_library", "school", "psychology",
+    "supervisor_account", "domain",
+  ];
 
-    useEffect(()=>{
-        if(departments.length == 0) return;
-        //loadFirstDepartment()
-    }, [departments])
+  return (
+    <div className="container-fluid p-4 bg-light min-vh-100">
+      {/* Create Office Modal */}
+      <div
+        className="modal fade"
+        id="add-department"
+        data-bs-backdrop="static"
+        data-bs-keyboard="false"
+        tabIndex="-1"
+        aria-labelledby="addDeptLabel"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content border-0 shadow">
+            <div className="modal-header">
+              <h5 className="modal-title fw-semibold" id="addDeptLabel">
+                Create Office
+              </h5>
+              <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div className="modal-body">
+              <div className="mb-3">
+                <label htmlFor="department_name" className="form-label fw-semibold">
+                  Office Name <span className="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="department_name"
+                  className="form-control"
+                  placeholder="e.g. Computing Studies"
+                  onInput={(e) => setFormData({ ...formData, department_name: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label fw-semibold">
+                  Choose Icon <span className="text-danger">*</span>
+                </label>
+                <div className="d-flex flex-wrap gap-3">
+                  {availableIcons.map((icon) => (
+                    <div key={icon} className="text-center">
+                      <input
+                        type="radio"
+                        className="btn-check"
+                        name="icon"
+                        id={icon}
+                        value={icon}
+                        onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+                      />
+                      <label
+                        className={`btn btn-outline-primary d-flex flex-column align-items-center p-2 rounded-3 ${
+                          formData.icon === icon ? "active" : ""
+                        }`}
+                        htmlFor={icon}
+                        style={{ width: "65px", height: "65px" }}
+                      >
+                        <span className="material-symbols-outlined fs-3">{icon}</span>
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button
+                className="btn btn-primary d-flex align-items-center gap-2"
+                onClick={handleSubmission}
+                disabled={submitting}
+              >
+                {submitting ? (
+                  <span className="material-symbols-outlined spin">progress_activity</span>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined">add</span> Create
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-    useEffect(()=>{
-        loadFirstDepartment()
-    },[])
+      {/* Mobile Collapsible Toggle */}
+      <div className="d-lg-none mb-3">
+        <button
+            className="btn btn-primary w-100 d-flex justify-content-between align-items-center"
+            onClick={() => setMobileOpen(!mobileOpen)}
+        >
+            <span>Offices</span>
+            <span className="material-symbols-outlined">
+            {mobileOpen ? "expand_less" : "expand_more"}
+            </span>
+        </button>
 
-    useEffect(()=>{
-        console.log(formData)
-    },[formData])
-
-    return(
-
-        <div className="department-container">
-            <div className="modal fade" id="add-department" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                <div className="modal-dialog modal-dialog-centered" >
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title" id="staticBackdropLabel">Create Office</h5>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div className="modal-body">
-                            <div className="textboxes">
-                                <label htmlFor="last_name">Office Name <span className="required">*</span></label>
-                                <input type="department_name" id="department_name" name="department_name" onInput={handleDataChange} placeholder="Eg. Computing Studies"  required/>
-                            </div>
-                            <div className="textboxes" style={{display:"none"}}>
-                                <label htmlFor="department_icon">Choose Icon <span className="required">*</span></label>
-                                <div className="icons-container">
-                                    <input type="radio" name = "icon" id = "cs" hidden onChange={handleDataChange} value = "computer"/>
-                                    <label htmlFor="cs" className="icon">
-                                        <span className="material-symbols-outlined">computer</span>
-                                    </label>
-
-                                    <input type="radio" name = "icon" id = "ed" hidden onChange={handleDataChange} value = "auto_stories"/>
-                                    <label htmlFor="ed" className="icon">
-                                        <span className="material-symbols-outlined">auto_stories</span>
-                                    </label>
-
-                                    <input type="radio" name = "icon" id = "hm" hidden onChange={handleDataChange} value = "flights_and_hotels"/>
-                                    <label htmlFor="hm" className="icon">
-                                        <span className="material-symbols-outlined">flights_and_hotels</span>
-                                    </label>
-
-                                    <input type="radio" name = "icon" id = "reg" hidden onChange={handleDataChange} value = "checkbook"/>
-                                     <label htmlFor="reg" className="icon">
-                                        <span className="material-symbols-outlined">checkbook</span>
-                                    </label>
-                                    
-                                    <input type="radio" name = "icon" id = "acc" hidden onChange={handleDataChange} value = "account_balance"/>
-                                    <label htmlFor="acc" className="icon">
-                                        <span className="material-symbols-outlined">account_balance</span>
-                                    </label>
-                                    
-                                    <input type="radio" name = "icon" id = "lib" hidden onChange={handleDataChange} value = "local_library"/>
-                                    <label htmlFor="lib" className="icon">
-                                        <span className="material-symbols-outlined">local_library</span>
-                                    </label>
-
-                                    <input type="radio" name = "icon" id = "nc" hidden onChange={handleDataChange} value = "school"/>
-                                    <label htmlFor="nc" className="icon">
-                                        <span className="material-symbols-outlined">school</span>
-                                    </label>
-
-                                    <input type="radio" name = "icon" id = "psy" hidden onChange={handleDataChange} value = "psychology"/>
-                                    <label htmlFor="psy" className="icon">
-                                        <span className="material-symbols-outlined">psychology</span>
-                                    </label>
-
-                                    <input type="radio" name = "icon" id = "off" hidden onChange={handleDataChange} value = "supervisor_account"/>
-                                    <label htmlFor="off" className="icon">
-                                        <span className="material-symbols-outlined">supervisor_account</span>
-                                    </label>
-
-                                    <input type="radio" name = "icon" id = "dom" hidden onChange={handleDataChange} value = "domain"/>
-                                    <label htmlFor="dom" className="icon">
-                                        <span className="material-symbols-outlined">domain</span>
-                                    </label>
-                                    
-                                </div>
-                            </div>
-                            
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" className="btn btn-primary" onClick={handleSubmission}>
-                                 {submitting ?<span className="material-symbols-outlined loading">progress_activity</span> : <span>Create Office</span>}
-                            </button>
-                           
-                        </div>
+        {mobileOpen && (
+            <div className="bg-white border rounded-3 mt-2 p-3">
+            {departments.length > 0 ? (
+                departments.map((dept) => (
+                <div
+                    key={dept.id}
+                    className={`card mb-2 p-2 cursor-pointer ${
+                    currentDepartment === dept.id ? "border-primary" : "border"
+                    }`}
+                    onClick={() => {
+                    setCurrentDepartment(dept.id);
+                    setMobileOpen(false); // auto-collapse after selecting
+                    }}
+                >
+                    <div className="d-flex align-items-center gap-2">
+                    <span className="material-symbols-outlined text-primary">{dept.icon || "apartment"}</span>
+                    <span className="fw-semibold">{dept.name}</span>
                     </div>
                 </div>
+                ))
+            ) : (
+                <div className="text-center text-muted py-2">No offices created yet.</div>
+            )}
             </div>
+        )}
 
-            <div className="all-departments-container">
-                <div className="sidebar-title" >
-                    Offices
-                </div>
-                <div className="add-container">
-                    <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-department">
-                        <span className="material-symbols-outlined">add</span>
-                        <span>Create Office</span>
-                    </button>
-                </div>
-                <div className = "all-departments">
-                    {departments.map(dept => (
-                        <AllDepartmentMember dept={dept} key={dept.id} onClick={()=>{loadAnotherDepartment(dept.id)}} ></AllDepartmentMember>
-                    ))}
-
-                </div>  
+        {/* Mobile Info Panel */}
+        {currentDepartment && (
+            <div className="bg-white rounded-4 border p-4 mt-3">
+            <DepartmentInfo key={currentDepartment} id={currentDepartment} loadDepts={loadAllDepartments} />
             </div>
-            
-            {currentDepartment && <DepartmentInfo key = {currentDepartment} id = {currentDepartment} loadDepts = {()=>{loadAllDepartments()}} firstLoad = {()=>{loadFirstDepartment()}}></DepartmentInfo>}
+        )}
         </div>
-    )
+
+      {/* Desktop 2-Column Layout */}
+      <div className="row g-4 d-none d-lg-flex">
+        <div className="col-4">
+          <div className="bg-white rounded-4 border p-4 d-flex flex-column h-100">
+            <div className="d-flex justify-content-between align-items-center mb-4">
+              <h4 className="fw-semibold mb-0">
+                <span className="material-symbols-outlined align-middle me-2 text-primary">domain</span>
+                Offices
+              </h4>
+              <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-department">
+                <span className="material-symbols-outlined">add</span>
+              </button>
+            </div>
+            <div className="overflow-auto" style={{ maxHeight: "calc(100vh - 200px)" }}>
+              {departments.length > 0 ? (
+                departments.map((dept) => (
+                  <div
+                    key={dept.id}
+                    className={`card mb-2 p-3 cursor-pointer ${
+                      currentDepartment === dept.id ? "border-primary" : "border"
+                    }`}
+                    onClick={() => setCurrentDepartment(dept.id)}
+                  >
+                    <div className="d-flex align-items-center gap-3">
+                      <span className="material-symbols-outlined text-primary">{dept.icon || "apartment"}</span>
+                      <span className="fw-semibold">{dept.name}</span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center text-muted py-5">No offices created yet.</div>
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="col-8" id="department-info-panel">
+          {currentDepartment ? (
+            <div className="bg-white rounded-4 border p-4 h-100">
+              <DepartmentInfo key={currentDepartment} id={currentDepartment} loadDepts={loadAllDepartments} />
+            </div>
+          ) : (
+            <div className="bg-white rounded-4 border p-4 h-100 d-flex align-items-center justify-content-center text-muted">
+              Select an office to view details
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
 
-export default Department
+export default Department;

@@ -1,101 +1,138 @@
-import { useEffect, useState } from "react"
-import { Modal } from "bootstrap"
-import Swal from "sweetalert2"
-import { removeUserFromDepartment } from "../../services/departmentService"
+import { useState } from "react";
+import Swal from "sweetalert2";
+import { removeUserFromDepartment } from "../../services/departmentService";
 
+function DepartmentMembers({ mems }) {
+  const [open, setOpen] = useState(false);
 
-function DepartmentMembers({mems}){
-    const [open, setOpen] = useState(false)
-    const [archiving, setArchiving] = useState(false)
-
-    const RemoveUser = async () => {
-
-        var res = await removeUserFromDepartment(mems.id).then(data => data.data.message).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-        if(res == "User successfully removed.") {
-            Swal.fire({
-                title:"Success",
-                text: res,
-                icon:"success"
-            })
+  // Handle member removal
+  const handleRemoval = async () => {
+    Swal.fire({
+      title: "Remove member from this office?",
+      text: `${mems.first_name} ${mems.last_name} will lose access to this office.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, remove",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#dc3545",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const res = await removeUserFromDepartment(mems.id);
+          Swal.fire("Removed", res.data.message, "success");
+        } catch (error) {
+          Swal.fire("Error", error.response?.data?.error || "Failed to remove member", "error");
         }
-        else {
-            Swal.fire({
-                title:"Error",
-                text: res,
-                icon:"error"
-            })
-        }
-    }
-    const handleRemoval = async () => {
-        Swal.fire({
-            title: 'Do you want to remove this member from this office?',
-            showDenyButton: true,
-            confirmButtonText: 'Yes',
-            denyButtonText: 'No',
-            customClass: {
-                actions: 'my-actions',
-                cancelButton: 'order-1 right-gap',
-                confirmButton: 'order-2'
-                },
-                    }).then(async (result) => {
-                    if (result.isConfirmed) {
-                        RemoveUser()
-                    } else if (result.isDenied) {
-                                   
-                    }
-                })
-        
-         setArchiving(false)
-    }
+      }
+    });
+  };
 
-    useEffect(()=> {
-        
-    }, [])
+  // Determine performance label and style
+  const getPerformanceBadge = () => {
+    const rating = mems.avg_performance;
+    if (rating === 5)
+      return <span className="badge bg-success px-3 py-2">OUTSTANDING</span>;
+    if (rating >= 4)
+      return <span className="badge bg-primary px-3 py-2">VERY SATISFACTORY</span>;
+    if (rating >= 3)
+      return <span className="badge bg-info text-dark px-3 py-2">SATISFACTORY</span>;
+    if (rating >= 2)
+      return <span className="badge bg-warning text-dark px-3 py-2">UNSATISFACTORY</span>;
+    if (rating >= 1)
+      return <span className="badge bg-danger px-3 py-2">POOR</span>;
+    return <span className="badge bg-secondary px-3 py-2">UNRATED</span>;
+  };
 
-    return (
-        <tr key = {mems.id}>     
-            <td className="table-profile">
-                <div className="table-profile-picture" style={{backgroundImage:`url(${mems.profile_picture_link})`}}>.</div>
-                {mems.first_name + " " + mems.last_name}
-            </td>
-            <td>{(mems.avg_performance == 5)? <span className="outstanding">OUTSTANDING</span>:
-                (mems.avg_performance < 4.99 && mems.avg_performance >= 4) ? <span className="very-satisfactory">VERY SATISFACTORY</span>:
-                (mems.avg_performance < 3.99 && mems.avg_performance >= 3) ? <span className="satisfactory">SATISFACTORY</span>:
-                (mems.avg_performance < 2.99 && mems.avg_performance >= 2) ? <span className="unsatisfactory">UNSATISFACTORY</span>:
-                (mems.avg_performance < 1.99 && mems.avg_performance >= 1) ? <span className="poor">POOR</span>:
-                (mems.avg_performance < 1) ? <span className="unrated">UNRATED</span>:""}</td>                           
-            <td>{mems.email}</td>
-            
-            <td>{mems.position.name}</td>
-            <td>{mems.main_tasks_count}</td>
-            <td>{mems.account_status == 0? 
-            <span className="deactivated">Deactivated</span>: <span className="active" >Active</span>}</td>
-            
-            <td className="more-options">
-                <btn className="btn btn-danger d-flex gap-2" onClick={()=>{handleRemoval()}}>
-                        <span className="material-symbols-outlined">group_remove</span>
-                        <span>Remove</span>
-                    </btn>
-                
+  return (
+    <tr key={mems.id} className="align-middle">
+      {/* Profile */}
+      <td className="d-flex align-items-center gap-2 text-nowrap">
+        <div
+          className="rounded-circle border flex-shrink-0"
+          style={{
+            width: "40px",
+            height: "40px",
+            backgroundImage: `url(${mems.profile_picture_link || "/default-profile.png"})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        ></div>
+        <span className="fw-semibold text-truncate" style={{ maxWidth: "150px" }}>
+          {mems.first_name} {mems.last_name}
+        </span>
+      </td>
 
-                {/**
-                    * view profile
-                    * assign tasks
-                    * change role
-                    * remove
-                    * deactivate or reactivate
-                    * edt member info
-                */}
-             </td>
-        </tr>
-    )
+      {/* Performance */}
+      <td className="text-nowrap">{getPerformanceBadge()}</td>
+
+      {/* Email */}
+      <td className="text-truncate" style={{ maxWidth: "180px" }}>
+        <small className="text-muted">{mems.email}</small>
+      </td>
+
+      {/* Position */}
+      <td className="text-nowrap">{mems.position.name}</td>
+
+      {/* Tasks Count */}
+      <td className="text-center">{mems.main_tasks_count}</td>
+
+      {/* Status */}
+      <td className="text-center">
+        {mems.account_status === 0 ? (
+          <span className="badge bg-secondary px-3 py-2">Deactivated</span>
+        ) : (
+          <span className="badge bg-success px-3 py-2">Active</span>
+        )}
+      </td>
+
+      {/* Actions (Dropdown) */}
+      <td className="text-end position-relative">
+        <button
+          className="btn btn-sm btn-light border rounded-circle"
+          onClick={() => setOpen(!open)}
+        >
+          <span className="material-symbols-outlined align-middle">more_vert</span>
+        </button>
+
+        {open && (
+          <div
+            className="position-absolute bg-white border rounded-3 shadow-sm mt-2 py-2"
+            style={{
+              right: 0,
+              minWidth: "220px",
+              zIndex: 1050,
+              boxShadow: "0 4px 10px rgba(0, 0, 0, 0.08)",
+            }}
+            onMouseLeave={() => setOpen(false)}
+          >
+            <button
+              className="dropdown-item d-flex align-items-center gap-2 px-3 py-2 text-secondary"
+              style={{
+                borderRadius: "8px",
+                transition: "background-color 0.2s ease",
+              }}
+              onClick={() => handleRemoval()}
+            >
+              <span className="material-symbols-outlined fs-5 text-danger">
+                group_remove
+              </span>
+              <span>Remove Member</span>
+            </button>
+
+            {/* Example placeholder options (optional) */}
+            {/* <button
+              className="dropdown-item d-flex align-items-center gap-2 px-3 py-2 text-secondary"
+            >
+              <span className="material-symbols-outlined fs-5 text-primary">
+                visibility
+              </span>
+              <span>View Profile</span>
+            </button> */}
+          </div>
+        )}
+      </td>
+    </tr>
+  );
 }
 
-export default DepartmentMembers
+export default DepartmentMembers;

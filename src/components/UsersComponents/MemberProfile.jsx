@@ -11,6 +11,7 @@ function MemberProfile(props){
     const [memberInformation, setMemberInformation] = useState(null) 
     const [positions, setPositions] = useState(null)   
     const [allDepartments, setAllDepartments] = useState(null)
+    const isMounted = useRef(true);
     const [formData, setFormData] = useState({
         id: 0, 
         department: "", 
@@ -40,6 +41,7 @@ function MemberProfile(props){
         await loadDepartments()
         await loadPositions()
         try {
+            if (!isMounted.current) return; 
             const res = await getAccountInfo(props.id).then(d => d.data)
             setMemberInformation(res)
             setIPCRs(res.ipcrs)
@@ -64,6 +66,7 @@ function MemberProfile(props){
     // Departments
     async function loadDepartments(){
         try {
+            if (!isMounted.current) return; 
             const res = await getDepartments().then(d => d.data)
             setAllDepartments(res)
         } catch(err) {
@@ -75,6 +78,7 @@ function MemberProfile(props){
     // Positions
     const loadPositions = async () => {
         try {
+            if (!isMounted.current) return; 
             const res = await getPositions().then(d => d.data)
             setPositions(res)
         } catch(err) {
@@ -86,6 +90,7 @@ function MemberProfile(props){
     // Archiving / Reactivating
     const Reactivate = async () => {
         try {
+            if (!isMounted.current) return; 
             const res = await unarchiveAccount(props.id).then(d => d.data.message)
             Swal.fire({ title: "Success", text: res, icon: "success" })
         } catch(err) {
@@ -108,6 +113,7 @@ function MemberProfile(props){
 
     const handleArch = async () => {
         try {
+            if (!isMounted.current) return; 
             const res = await archiveAccount(props.id).then(d => d.data.message)
             Swal.fire({ title: "Success", text: res, icon: "success" })
         } catch(err) {
@@ -131,6 +137,7 @@ function MemberProfile(props){
 
     // Reset password
     const ResetPassword = async () => {
+        if (!isMounted.current) return; 
         setResetting(true)
         try {
             const res = await resetAccountPasssword(props.id).then(d => d.data.message)
@@ -157,15 +164,21 @@ function MemberProfile(props){
 
     const closeModal = () => {
         const modalEl = document.getElementById("user-profile");
-        const modal = Modal.getOrCreateInstance(modalEl);
-        modal.hide();
-        document.querySelectorAll(".modal-backdrop").forEach(el => el.remove());
-        document.body.classList.remove("modal-open");
-        document.body.style.overflow = "";
-    }
+        if (!modalEl) return;
+
+        const modal = Modal.getInstance(modalEl);
+        if (modal) {
+            modal.hide();
+            modal.dispose(); // completely clean up event listeners
+        }
+
+        // Let Bootstrap handle the rest automatically
+    };
+
 
     // Update user
     const handleUpdate = async () => {
+        if (!isMounted.current) return; 
         if(!isEmailValid) {
             Swal.fire({ title: "Error", text: "Email already taken", icon: "error" })
             return
@@ -213,11 +226,20 @@ function MemberProfile(props){
     // Effects
     useEffect(()=> detectChange(), [formData, preview])
     useEffect(()=> setDataChanged(false), [preview])
-    useEffect(()=> loadUserInformation(), [page])
+    
+    useEffect(() => {
+        (async () => {
+            await loadUserInformation();
+        })();
+    }, [page]);
+
+
+
     useEffect(()=>{
         if(!emailQuery) return
         const timeout = setTimeout(async () => {
             try{
+                if (!isMounted.current) return; 
                 if(emailQuery === firstEmail) { setEmailValid(true); return }
                 const res = await checkEmail(emailQuery)
                 const msg = res.data.message
@@ -227,9 +249,17 @@ function MemberProfile(props){
         }, 400)
         return () => clearTimeout(timeout)
     }, [emailQuery])
-    useEffect(()=>{
-        socket.on("user_modified", ()=> loadUserInformation())
-    }, [])
+
+    useEffect(() => {
+        const handleUserModified = () => loadUserInformation();
+        socket.on("user_modified", handleUserModified);
+
+        return () => {
+            socket.off("user_modified", handleUserModified);
+            isMounted.current = false;
+        };
+    }, []);
+
 
     return (
         <div className="profile-edit-container container-fluid">

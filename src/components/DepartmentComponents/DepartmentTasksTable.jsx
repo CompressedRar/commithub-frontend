@@ -176,17 +176,17 @@ function DepartmentTasksTable({ id, admin_mode }) {
 
       {/* === Header Controls === */}
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-3">
-        <h4 className="fw-semibold text-dark mb-0">Department-Specific Outputs</h4>
-        <div className="d-flex align-items-center gap-2">
+        <h4 className="fw-semibold text-dark mb-0">Office Outputs</h4>
+        <div className="d-flex align-items-center gap-2 m-2">
             {admin_mode? <button
-                className="btn btn-primary d-flex align-items-center px-3 py-2"
+                className="btn btn-primary d-flex align-items-center"
                 data-bs-toggle="modal"
                 data-bs-target="#add-user"
-                style={{ height: "38px" }}
+                style={{ height: "38px", textWrap:"wrap" }}
                 
             >
                 <span className="material-symbols-outlined">add</span>
-                Add Output
+                <span className="" style={{textWrap:"nowrap" }}>Add Output</span>
             </button>: ""}
 
             <div className="input-group" style={{ width: "250px", height: "38px" }}>

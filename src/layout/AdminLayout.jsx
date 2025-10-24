@@ -290,7 +290,7 @@ function AdminLayout() {
         {/* 🔹 Content */}
         <main
           className="flex-grow-1 overflow-auto p-2"
-          style={{ backgroundColor: "#f1f1f1ff" }}
+          style={{ backgroundColor: "#ffffffff" }}
         >
           <Outlet />
         </main>
