@@ -22,6 +22,10 @@ function EditOPCR(props) {
 
     const [downloading, setDownloading] = useState(false)
     const [ submitting, setSubmitting] = useState(false)
+
+    const [field, setField] = useState("")
+    const [value, setValue] = useState(0)
+    const [ratingID, setRatingID] = useState(0)
     
     async function loadOPCR(){
         var res = await getOPCR(props.opcr_id).then(data => data.data).catch(error => {
@@ -174,6 +178,10 @@ function EditOPCR(props) {
         let result = calculations / 3;
 
         return result;
+    }
+    function handleSpanChange(e){
+        setField(e.target.className)
+        setValue(e.target.textContent)
     }
 
     //do the final rating in president module
@@ -342,6 +350,23 @@ function EditOPCR(props) {
             socket.off("document")
         }
     }, [])
+
+    useEffect(() => {
+                    if (value === "") return;
+                    console.log("test")
+            
+                    const debounce = setTimeout(() => {
+                        updateRating(ratingID, field, value)
+                        .then(() => {
+                            
+                        })
+                        .catch((error) => {
+                            console.log(error.response?.data?.error || error);
+                        });
+                    }, 500);
+            
+                    return () => clearTimeout(debounce);
+                }, [value]);
 
     return (
         <div className="edit-ipcr-container">
@@ -528,9 +553,9 @@ function EditOPCR(props) {
                                             </div>
 
                                             <div className="sub-task-rating">
-                                                <span>{task.rating.quantity}</span>
-                                                <span>{task.rating.efficiency}</span>
-                                                <span>{task.rating.timeliness}</span>
+                                                <span contentEditable onClick={()=>{setRatingID(task.id)}} onInput={(e)=> handleSpanChange(e)} >{task.rating.quantity}</span>
+                                                <span contentEditable onClick={()=>{setRatingID(task.id)}} onInput={(e)=> handleSpanChange(e)} >{task.rating.efficiency}</span>
+                                                <span contentEditable onClick={()=>{setRatingID(task.id)}} onInput={(e)=> handleSpanChange(e)} >{task.rating.timeliness}</span>
                                                 <span>{task.rating.average}</span>
                                             </div>
 

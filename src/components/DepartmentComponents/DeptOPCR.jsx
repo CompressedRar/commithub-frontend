@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { archiveIprc, archiveOprc, downloadIPCR, downloadOPCR } from "../../services/pcrServices";
+import { archiveIprc, archiveOprc, downloadIPCR, downloadOPCR, updateRating } from "../../services/pcrServices";
 import Swal from "sweetalert2";
 
 
@@ -79,6 +79,9 @@ function DeptOPCR(props) {
                 window.open(res, "_blank", "noopener,noreferrer");
                 setDownloading(false)
             }
+
+        
+            
     return (
         <div className="ipcr-wrapper "> 
             {optionsOpen && <div className="popup" onMouseLeave={()=>{setOpen(false)}}>

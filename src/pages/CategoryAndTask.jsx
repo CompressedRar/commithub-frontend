@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "../assets/styles/CategoryAndTask.css"
 import { getCategories, registerCategory } from "../services/categoryService";
-import { objectToFormData } from "../components/api";
+import { objectToFormData, socket } from "../components/api";
 import CategoryTasks from "../components/CategoryAndTaskComponents/CategoryTasks";
 
 import Swal from "sweetalert2";
@@ -59,7 +59,7 @@ function CategoryAndTask(){
             })
         })
 
-        if(res.data.message == "Key Area Result created.") {
+        if(res.data.message) {
                     Swal.fire({
                         title:"Success",
                         text: res.data.message,
@@ -73,21 +73,32 @@ function CategoryAndTask(){
                         icon:"error"
                     })
                 }
-        const modalEl = document.getElementById("add-category");
-            const modal = Modal.getOrCreateInstance(modalEl);
-
-            modal.hide();
-
-            // Cleanup leftover backdrop if any
-            document.querySelectorAll(".modal-backdrop").forEach(el => el.remove());
-            document.body.classList.remove("modal-open");
-            document.body.style.overflow = ""; // reset scroll lock
+       
         setSubmission(false)
         loadCategories()
     }
 
+    const closeModal = () => {
+        const modalEl = document.getElementById("add-category");
+        const modal = Modal.getInstance(modalEl);
+        if (modal) modal.hide();
+
+        // Remove leftover backdrop after short delay
+        setTimeout(() => {
+            const backdrops = document.querySelectorAll(".modal-backdrop");
+            backdrops.forEach(bd => bd.remove());
+            document.body.classList.remove("modal-open");
+            document.body.style.removeProperty("padding-right");
+        }, 200);
+    };
+
+
+
+
     useEffect(()=>{
         console.log(formData)
+
+        
     }, [formData])
 
     useEffect(()=>{
@@ -96,6 +107,10 @@ function CategoryAndTask(){
 
             setFirst(data[0].id)
             console.log(data[0].id)
+        })
+
+        socket.on("category", ()=> {
+            loadCategories()
         })
     }, [])
 
@@ -142,7 +157,7 @@ function CategoryAndTask(){
                 </div>
             </div>
 
-            <div className="all-categories-container">
+            <div className="all-categories-container scrollable" style={{height:"91vh"}}>
                 <div className="sidebar-title">
                     Key Result Areas
                 </div>
@@ -152,16 +167,19 @@ function CategoryAndTask(){
                         <span>Create Key Result Area</span>
                     </button>
                 </div>
-                <div className = "all-categories">
-                    
-                    {allCategory.map(category => (
-                        <div className="department" onClick={()=>{setFirst(category.id)}}>
-                            <span className="material-symbols-outlined"></span>
-                            <span>{category.name}</span>
-                        </div>    
+                <div className="all-categories ">
+                    {allCategory.map((category) => (
+                        <div
+                        key={category.id}
+                        className="department"
+                        onClick={() => setFirst(category.id)}
+                        >
+                        <span className="material-symbols-outlined"></span>
+                        <span>{category.name}</span>
+                        </div>
                     ))}
+                </div>
 
-                </div>  
             </div>
 
             <CategoryTasks id = {firstCategoryID} key={firstCategoryID} changeTaskID = {(id)=>{setCurrentTaskID(id); setPageNumber(2)}} reloadAll = {()=>{reloadAllCategories()}} reloadCategory = {(id)=>{setFirst(id);}}></CategoryTasks>        

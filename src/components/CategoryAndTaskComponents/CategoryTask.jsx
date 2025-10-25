@@ -84,6 +84,20 @@ function CategoryTask({ category, onClick, onEdit }) {
             </span>
           </div>
         </div>
+        <div className="d-flex flex-wrap gap-3 small text-secondary mb-3">
+          <div>
+            <span className="text-muted fw-bold">Target:</span>{" "}
+            <span className="fw-medium">
+              {category.target_accomplishment || "N/A"}
+            </span>
+          </div>
+          <div>
+            <span className="text-muted fw-bold">Actual:</span>{" "}
+            <span className="fw-medium">
+              {category.actual_accomplishment || "N/A"}
+            </span>
+          </div>
+        </div>
 
         {/* Assigned users + Button */}
         <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">

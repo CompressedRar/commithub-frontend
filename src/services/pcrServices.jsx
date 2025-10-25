@@ -68,6 +68,11 @@ export async function updateSubTask(sub_task_id, field, value) {
     return api.patch(`/api/v1/task/sub_task/${sub_task_id}?field=${field}&value=${value}`)
 }
 
+export async function updateRating(rating_id, field, value) {
+    console.log("updating rating")
+    return api.patch(`/api/v1/pcr/rating/${rating_id}?field=${field}&value=${value}`)
+}
+
 export async function assignMainIPCR(ipcr_id, user_id) {
     console.log("assigning ipcr")
     return api.patch(`/api/v1/pcr/ipcr/${ipcr_id}&${user_id}`)
