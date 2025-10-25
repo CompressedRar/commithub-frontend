@@ -2,7 +2,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import { getAccountNotification, readNotification } from "../services/userService";
+import { getAccountInfo, getAccountNotification, readNotification } from "../services/userService";
 import AccountSettings from "../components/UsersComponents/AccountSettings";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../assets/styles/Main.css";

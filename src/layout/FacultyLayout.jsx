@@ -3,7 +3,7 @@ import "../assets/styles/Main.css";
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import { getAccountNotification, readNotification } from "../services/userService";
+import { getAccountInfo, getAccountNotification, readNotification } from "../services/userService";
 import AccountSettings from "../components/UsersComponents/AccountSettings";
 import NotificationModal from "../components/NotificationModal";
 import { socket } from "../components/api";
