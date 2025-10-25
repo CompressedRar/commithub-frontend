@@ -14,6 +14,7 @@ function HeadLayout() {
   const token = localStorage.getItem("token");
   const [profilePictureLink, setProfilePictureLink] = useState("");
   const [userInfo, setUserInfo] = useState(null);
+  const [role, setRole] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [options, setOptions] = useState(false);
   const [openNotif, setOpenNotif] = useState(false);

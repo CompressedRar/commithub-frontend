@@ -9,6 +9,7 @@ import NotificationModal from "../components/NotificationModal";
 import { socket } from "../components/api";
 function FacultyLayout() {
   const token = localStorage.getItem("token");
+  const [role, setRole] = useState(null);
   const [profilePictureLink, setProfilePictureLink] = useState("");
   const [userInfo, setUserInfo] = useState(null);
   const [notifications, setNotifications] = useState([]);
