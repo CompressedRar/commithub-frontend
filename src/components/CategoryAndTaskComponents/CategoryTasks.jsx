@@ -10,8 +10,8 @@ import { convert_tense } from "../../services/tenseConverted";
 import CategoryTask from "./CategoryTask";
 import CategoryTaskAverages from "../Charts/CategoryTaskAverage";
 import CategoryPerformanceCharts from "../Charts/CategoryPerformance";
-import { createMainTask } from "../../services/taskService";
 
+import { createMainTask } from "../../services/taskService";
 function CategoryTasks(props) {
   const [categoryTasks, setCategoryTasks] = useState([]);
   const [allDepartments, setAllDepartments] = useState([]);
@@ -285,20 +285,20 @@ function CategoryTasks(props) {
 
       {/* ===== CARDS ===== */}
       <div className="row g-3 mb-4">
-        <div className="col-12 col-lg-6">
-          <div className="card h-100 shadow-sm border-0">
+        
+        <div className="col-12">
+          <div className="p-3 shadow-sm border-0">
             <div className="card-body">
-              <h6 className="text-muted mb-3">Output Averages</h6>
               <CategoryTaskAverages cat_id={props.id} />
             </div>
           </div>
         </div>
 
-        <div className="col-12 col-lg-6">
-          <div className="card h-100 shadow-sm border-0">
-            <div className="card-body">
-              <h6 className="text-muted mb-3">Performance</h6>
-              <CategoryPerformanceCharts categoryId={props.id} />
+        <div className="col-12">
+          <div className="p-3 h-100 shadow-sm border-0">
+            <div className="">
+              <CategoryPerformanceCharts categoryId={props.id} ></CategoryPerformanceCharts>
+
             </div>
           </div>
         </div>

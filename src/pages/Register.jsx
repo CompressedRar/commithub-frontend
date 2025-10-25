@@ -339,9 +339,9 @@ function Register() {
           value={formData.role || "faculty"}
           onChange={handleRoleChange}
         >
+          
+          {doesPresidentExists()? <option value="president">President</option>:""}
           <option value="faculty">Faculty</option>
-          <option value="administrator">Administrator</option>
-          <option value="president">President</option>
           <option value="head">Head</option>
         </select>
       </div>

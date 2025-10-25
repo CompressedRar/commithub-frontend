@@ -197,7 +197,10 @@ function PerformanceReviews(props){
             <h3 className="d-flex align-items-center gap-3">
                 Office Performance Review and Commitment Form 
                 <button className="btn btn-primary" onClick={()=>{handleSubmission()}} disabled = {consolidating}>
-                    {!consolidating ? "Consolidate IPCRs" : <span className="spinner-border spinner-border-sm me-2"></span>}
+                    {!consolidating ? <span className="d-flex gap-2">
+                        <span className="material-symbols-outlined">compare_arrows</span>
+                        <span>Consolidate IPCRs</span>
+                    </span> : <span className="spinner-border spinner-border-sm me-2"></span>}
                 </button>
             </h3>
             <div className="all-ipcr-container" style={{display:"flex", flexDirection:"column", gap:"10px"}}>

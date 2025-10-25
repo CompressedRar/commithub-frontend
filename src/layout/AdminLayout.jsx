@@ -127,7 +127,7 @@ function AdminLayout() {
               { href: "/admin/users", icon: "group", text: "User Management" },
               { href: "/admin/logs", icon: "article", text: "Audit Logs" },
               { href: "/admin/ipcr", icon: "assignment_ind", text: "IPCR" },
-              { href: "/admin/master", icon: "assignment_ind", text: "Master OPCR" },
+              { href: "/admin/master", icon: "assignment_globe", text: "Master OPCR" },
             ].map((item, idx) => (
               <li key={idx}>
                 <NavLink
@@ -265,7 +265,7 @@ function AdminLayout() {
             {options && (
               <div
                 className="position-absolute bg-white border rounded shadow-sm p-2"
-                style={{ top: "60px", right: "20px", width: "180px", zIndex: "1000" }}
+                style={{ top: "60px", right: "20px", width: "auto", zIndex: "1000" }}
                 onMouseLeave={() => setOptions(false)}
               >
                 <button

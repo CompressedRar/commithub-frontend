@@ -136,7 +136,7 @@ function PresidentLayout() {
               { href: "/president/department", icon: "apartment", text: "Offices" },
               { href: "/president/tasks", icon: "task", text: "Key Result Areas" },
               { href: "/president/ipcr", icon: "assignment_ind", text: "IPCR" },
-              { href: "/president/master", icon: "assignment_ind", text: "Master OPCR" },
+              { href: "/president/master", icon: "assignment_globe", text: "Master OPCR" },
             ].map((item, idx) => (
               <li key={idx}>
                 <a
@@ -277,7 +277,7 @@ function PresidentLayout() {
             {options && (
               <div
                 className="position-absolute bg-white border rounded shadow-sm p-2"
-                style={{ top: "60px", right: "20px", width: "180px", zIndex: "1000" }}
+                style={{ top: "60px", right: "20px", width: "auto", zIndex: "1000" }}
                 onMouseLeave={() => setOptions(false)}
               >
                 <button

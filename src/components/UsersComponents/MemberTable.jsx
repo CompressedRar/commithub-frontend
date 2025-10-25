@@ -132,7 +132,7 @@ function MemberTable() {
         tabIndex="-1"
         aria-hidden="true"
       >
-        <div className="modal-dialog modal-dialog-centered modal-fullscreen">
+        <div className="modal-dialog modal-dialog-centered modal-xl">
           <div className="modal-content">
             <div className="modal-header bg-primary text-white">
               <h5 className="modal-title">Create Account</h5>

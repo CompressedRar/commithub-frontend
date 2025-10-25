@@ -281,7 +281,7 @@ function HeadLayout() {
                 style={{
                   top: "60px",
                   right: "20px",
-                  width: "180px",
+                  width: "auto",
                   zIndex: "1000",
                 }}
                 onMouseLeave={() => setOptions(false)}

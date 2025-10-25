@@ -12,7 +12,6 @@ import ActivityTrendChart from "../components/Charts/ActivityTrendChart";
 import PopulationPerDepartment from "../components/Charts/PopulationPerDepartment";
 import PerformancePerDepartment from "../components/Charts/PerformancePerDepartment";
 import PerformanceSummaryPerDepartment from "../components/Charts/PerformanceSummaryPerDepartment";
-import { TopDepartmentChats } from "../components/Charts/CategoryPerformance";
 import AllTaskAverages from "../components/Charts/AllTaskAverage";
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -118,8 +117,8 @@ function Administrator() {
       <div className="row g-3 mb-4">
         {[
           { icon: "group", label: "Total Users", count: allCount, color: "primary" },
-          { icon: "task", label: "Total Tasks", count: taskCount, color: "success" },
-          { icon: "category", label: "Total Categories", count: categoryCount, color: "warning" },
+          { icon: "task", label: "Total Outputs", count: taskCount, color: "success" },
+          { icon: "category", label: "Total Key Result Area", count: categoryCount, color: "warning" },
         ].map((stat, idx) => (
           <div className="col-md-4" key={idx}>
             <div className="card border-0 shadow-sm text-center rounded-4">
