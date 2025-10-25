@@ -331,6 +331,12 @@ function EditOPCR(props) {
             console.log("assigned")
         })
 
+        socket.on("opcr_created", ()=>{
+            loadOPCR()
+            console.log("assigned")
+        })
+
+
         return () => {
             socket.off("ipcr")
             socket.off("document")
