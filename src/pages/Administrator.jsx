@@ -175,11 +175,6 @@ function Administrator() {
 
         <div className="col-md-6">
           <div className="card border-0 shadow-sm rounded-4 p-3">
-            <TopDepartmentChats />
-          </div>
-        </div>
-        <div className="col-md-6">
-          <div className="card border-0 shadow-sm rounded-4 p-3">
             <AllTaskAverages />
           </div>
         </div>

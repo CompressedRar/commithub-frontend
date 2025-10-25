@@ -81,10 +81,11 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
   };
 
   return (
-    <div className="container-fluid py-3 overflow-auto bg-light" style={{ maxHeight: "calc(100vh - 110px)" }}>
+    <>
+      {/* ✅ ─── Modals moved OUTSIDE the scrollable container ─── */}
       <CreateOPCRModal deptid={id} />
 
-      {/* ─── Archive Modal ─────────────────────────────── */}
+      {/* Archive Modal */}
       <div className="modal fade" id="archive-department" tabIndex="-1" aria-hidden="true">
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
@@ -103,8 +104,8 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
         </div>
       </div>
 
-      {/* ─── Assign Head Modal ──────────────────────────── */}
-      <div className="modal fade" id="assign-head" tabIndex="-1" aria-hidden="true">
+      {/* Assign Head Modal */}
+      <div className="modal fade" id="assign-head" aria-hidden="true">
         <div className="modal-dialog modal-lg modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header">
@@ -118,8 +119,8 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
         </div>
       </div>
 
-      {/* ─── Edit Modal ──────────────────────────── */}
-      <div className="modal fade" id="edit-department" tabIndex="-1" aria-hidden="true">
+      {/* Edit Department Modal */}
+      <div className="modal fade" id="edit-department" aria-hidden="true">
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header">
@@ -147,124 +148,126 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
         </div>
       </div>
 
-      {/* ─── Header Banner ──────────────────────────────── */}
-      <div
-        className="rounded-4 shadow-sm mb-4 position-relative overflow-hidden"
-        style={{
-          backgroundImage: `url('${import.meta.env.BASE_URL}nc-splash-new.jpg')`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          height: "240px",
-        }}
-      >
-        <div className="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-50"></div>
-        <div className="position-relative text-white p-4 h-100 d-flex flex-column justify-content-between">
-          <div>
-            <h3 className="fw-bold mb-1">{deptInfo.name || "Loading..."}</h3>
-            <p className="mb-0">
-              Office Head:{" "}
-              {managerInfo ? (
-                <span className="fw-semibold text-info">
-                  {managerInfo.first_name + " " + managerInfo.last_name}
-                </span>
-              ) : (
-                <span className="text-warning">None</span>
-              )}
-            </p>
-          </div>
+      {/* ✅ ─── Scrollable Container starts here ─── */}
+      <div className="container-fluid py-3 overflow-auto bg-light" style={{ maxHeight: "calc(100vh - 110px)" }}>
+        {/* Banner */}
+        <div
+          className="rounded-4 shadow-sm mb-4 position-relative overflow-hidden"
+          style={{
+            backgroundImage: `url('${import.meta.env.BASE_URL}nc-splash-new.jpg')`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            height: "240px",
+          }}
+        >
+          <div className="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-50"></div>
+          <div className="position-relative text-white p-4 h-100 d-flex flex-column justify-content-between">
+            <div>
+              <h3 className="fw-bold mb-1">{deptInfo.name || "Loading..."}</h3>
+              <p className="mb-0">
+                Office Head:{" "}
+                {managerInfo ? (
+                  <span className="fw-semibold text-info">
+                    {managerInfo.first_name + " " + managerInfo.last_name}
+                  </span>
+                ) : (
+                  <span className="text-warning">None</span>
+                )}
+              </p>
+            </div>
 
-          <div className="d-flex gap-2 justify-content-end flex-wrap">
-            <button
-              className="btn btn-light text-dark fw-semibold d-flex align-items-center gap-1 shadow-sm border-0 px-3 py-2 rounded-pill"
-              data-bs-toggle="modal"
-              data-bs-target="#assign-head"
-            >
-              <span className="material-symbols-outlined">person_add</span>
-              Assign Head
-            </button>
-            <button
-              className="btn btn-primary fw-semibold d-flex align-items-center gap-1 shadow-sm px-3 py-2 rounded-pill"
-              data-bs-toggle="modal"
-              data-bs-target="#edit-department"
-            >
-              <span className="material-symbols-outlined">edit</span>
-              Edit
-            </button>
-            {
-              deptInfo.name == "College of Computing Studies "  || deptInfo.name == "College of Education " || deptInfo.name == "College of Hospitality Management" || deptInfo.name == "President's Office" ? "" :
+            <div className="d-flex gap-2 justify-content-end flex-wrap">
               <button
-              className="btn btn-danger fw-semibold d-flex align-items-center gap-1 shadow-sm px-3 py-2 rounded-pill"
-              data-bs-toggle="modal"
-              data-bs-target="#archive-department"
-            >
-              <span className="material-symbols-outlined">archive</span>
-              Archive
-            </button>
-            }
+                className="btn btn-light text-dark fw-semibold d-flex align-items-center gap-1 shadow-sm border-0 px-3 py-2 rounded-pill"
+                data-bs-toggle="modal"
+                data-bs-target="#assign-head"
+              >
+                <span className="material-symbols-outlined">person_add</span>
+                Assign Head
+              </button>
+              <button
+                className="btn btn-primary fw-semibold d-flex align-items-center gap-1 shadow-sm px-3 py-2 rounded-pill"
+                data-bs-toggle="modal"
+                data-bs-target="#edit-department"
+              >
+                <span className="material-symbols-outlined">edit</span>
+                Edit
+              </button>
+              {!(["College of Computing Studies ", "College of Education ", "College of Hospitality Management", "President's Office"].includes(deptInfo.name)) && (
+                <button
+                  className="btn btn-danger fw-semibold d-flex align-items-center gap-1 shadow-sm px-3 py-2 rounded-pill"
+                  data-bs-toggle="modal"
+                  data-bs-target="#archive-department"
+                >
+                  <span className="material-symbols-outlined">archive</span>
+                  Archive
+                </button>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* ─── Stats Cards ─────────────────────────────── */}
-      <div className="row g-3 mb-4">
-        {[
-          { icon: "assignment_globe", label: "OPCR", value: deptInfo.opcr_count },
-          { icon: "article_person", label: "IPCR", value: deptInfo.ipcr_count },
-          { icon: "group", label: "Members", value: deptInfo.user_count },
-          { icon: "task", label: "Outputs", value: deptInfo.main_tasks_count },
-        ].map((stat, i) => (
-          <div className="col-6 col-md-3" key={i}>
-            <div className="card text-center h-100 border-0 shadow-sm">
-              <div className="card-body">
-                <span className="material-symbols-outlined text-primary fs-2">{stat.icon}</span>
-                <h4 className="fw-bold mt-2">{stat.value || 0}</h4>
-                <small className="text-muted">{stat.label}</small>
+        {/* Stats */}
+        <div className="row g-3 mb-4">
+          {[
+            { icon: "assignment_globe", label: "OPCR", value: deptInfo.opcr_count },
+            { icon: "article_person", label: "IPCR", value: deptInfo.ipcr_count },
+            { icon: "group", label: "Members", value: deptInfo.user_count },
+            { icon: "task", label: "Outputs", value: deptInfo.main_tasks_count },
+          ].map((stat, i) => (
+            <div className="col-6 col-md-3" key={i}>
+              <div className="card text-center h-100 border-0 shadow-sm">
+                <div className="card-body">
+                  <span className="material-symbols-outlined text-primary fs-2">{stat.icon}</span>
+                  <h4 className="fw-bold mt-2">{stat.value || 0}</h4>
+                  <small className="text-muted">{stat.label}</small>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
 
-      {/* ─── Tabs ─────────────────────────────── */}
-      <ul className="nav nav-tabs mb-3 border-bottom">
-        {["Outputs", "Members", "Performance Reviews"].map((label, index) => (
-          <li className="nav-item" key={index}>
-            <button
-              onClick={() => setCurrentPage(index)}
-              className="nav-link border-0"
-              style={{
-                borderBottom: currentPage === index ? "3px solid #0d6efd" : "3px solid transparent",
-                color: currentPage === index ? "#0d6efd" : "#6c757d",
-                fontWeight: currentPage === index ? "600" : "400",
-                backgroundColor: "transparent",
-                transition: "all 0.2s ease-in-out",
-              }}
-            >
-              {label}
-            </button>
-          </li>
-        ))}
-      </ul>
+        {/* Tabs */}
+        <ul className="nav nav-tabs mb-3 border-bottom">
+          {["Outputs", "Members", "Performance Reviews"].map((label, index) => (
+            <li className="nav-item" key={index}>
+              <button
+                onClick={() => setCurrentPage(index)}
+                className="nav-link border-0"
+                style={{
+                  borderBottom: currentPage === index ? "3px solid #0d6efd" : "3px solid transparent",
+                  color: currentPage === index ? "#0d6efd" : "#6c757d",
+                  fontWeight: currentPage === index ? "600" : "400",
+                  backgroundColor: "transparent",
+                  transition: "all 0.2s ease-in-out",
+                }}
+              >
+                {label}
+              </button>
+            </li>
+          ))}
+        </ul>
 
-      {/* ─── Tab Content ─────────────────────────────── */}
-      <div >
-        {currentPage === 0 && (
-          <>
-            <DepartmentTasksTable id={id} admin_mode = {true}/>
-            <GeneralTasksTable id={id} />
-          </>
-        )}
-        {currentPage === 1 && (
-          <>
-            <div className="bg-white p-3 mb-3 rounded shadow-sm">
-              <UserPerformanceInDepartment dept_id={id} />
-            </div>
-            <DepartmentMemberTable deptid={id} />
-          </>
-        )}
-        {currentPage === 2 && <PerformanceReviews deptid={id} />}
+        {/* Tab Content */}
+        <div>
+          {currentPage === 0 && (
+            <>
+              <DepartmentTasksTable id={id} admin_mode={true} />
+              <GeneralTasksTable id={id} />
+            </>
+          )}
+          {currentPage === 1 && (
+            <>
+              <div className="bg-white p-3 mb-3 rounded shadow-sm">
+                <UserPerformanceInDepartment dept_id={id} />
+              </div>
+              <DepartmentMemberTable deptid={id} />
+            </>
+          )}
+          {currentPage === 2 && <PerformanceReviews deptid={id} />}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
