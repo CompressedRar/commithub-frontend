@@ -3,7 +3,7 @@ import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 import { socket } from "../components/api";
 import Swal from "sweetalert2";
-import { getAccountNotification, readNotification } from "../services/userService";
+import { getAccountInfo, getAccountNotification, readNotification } from "../services/userService";
 import AccountSettings from "../components/UsersComponents/AccountSettings";
 import "../assets/styles/Main.css";
 
@@ -12,6 +12,7 @@ import NotificationModal from "../components/NotificationModal";
 
 function AdminLayout() {
   const token = localStorage.getItem("token");
+  const [payloads, setPayload] = useState(null)
   const [role, setRole] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
   const [profilePictureLink, setProfilePictureLink] = useState("");
@@ -43,11 +44,27 @@ function AdminLayout() {
     try {
       const payload = jwtDecode(token);
       setUserInfo(payload);
+      setPayload(payload);
       setRole(payload.role || null);
       setProfilePictureLink(payload.profile_picture_link);
       loadNotification(payload.id);
+      getUser(payload.id)
     } catch (err) {
       console.error(err);
+    }
+  }
+
+  async function getUser(user_id){
+    try {
+      var res = await getAccountInfo(user_id)
+      console.log(res.data)
+      setUserInfo(res.data)
+      setProfilePictureLink(res.data.profile_picture_link);
+      setRole(res.data.role || null)
+      
+    }
+    catch(error){
+      console.error(error);
     }
   }
 
@@ -72,15 +89,17 @@ function AdminLayout() {
   useEffect(() => {
     if (!token) return;
     readTokenInformation();
-    socket.on("user_modified", readTokenInformation);
-    socket.on("user_updated", readTokenInformation);
+    socket.on("user_modified", ()=> {
+      readTokenInformation()
+      console.log("USER UPDATED!!")
+      
+    });
+    socket.on("user_updated", ()=> {
+      readTokenInformation()
+      console.log("USER UPDATED!!")
+    });
     socket.on("notification_sent", () => readTokenInformation());
 
-    return () => {
-      socket.off("user_modified", readTokenInformation);
-      socket.off("user_updated", readTokenInformation);
-      socket.off("notification_sent");
-    };
   }, []);
 
   if (!token) return <Navigate to="/" replace />;
