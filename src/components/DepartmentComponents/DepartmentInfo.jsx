@@ -229,7 +229,7 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
 
         {/* Tabs */}
         <ul className="nav nav-tabs mb-3 border-bottom">
-          {["Outputs", "Members", "Performance Reviews"].map((label, index) => (
+          {["Performance Reviews","Outputs", "Members"].map((label, index) => (
             <li className="nav-item" key={index}>
               <button
                 onClick={() => setCurrentPage(index)}
@@ -250,13 +250,13 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
 
         {/* Tab Content */}
         <div>
-          {currentPage === 0 && (
+          {currentPage === 1 && (
             <>
               <DepartmentTasksTable id={id} admin_mode={true} />
               <GeneralTasksTable id={id} />
             </>
           )}
-          {currentPage === 1 && (
+          {currentPage === 2 && (
             <>
               <div className="bg-white p-3 mb-3 rounded shadow-sm">
                 <UserPerformanceInDepartment dept_id={id} />
@@ -264,7 +264,7 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
               <DepartmentMemberTable deptid={id} />
             </>
           )}
-          {currentPage === 2 && <PerformanceReviews deptid={id} />}
+          {currentPage === 0 && <PerformanceReviews deptid={id} />}
         </div>
       </div>
     </>
