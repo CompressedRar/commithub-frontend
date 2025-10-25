@@ -36,7 +36,7 @@ function EditOPCR(props) {
             })
         })
 
-        console.log("OPCR INFRO",props.opcr_id)
+        console.log("OPCR INFRO",res)
         setOPCRInfo(res.ipcr_data)
         setFormStatus(res.form_status.toUpperCase())
         setAssignedData(res.assigned)
@@ -552,9 +552,9 @@ function EditOPCR(props) {
                                             </div>
 
                                             <div className="sub-task-rating">
-                                                <span contentEditable onClick={()=>{setRatingID(task.id)}} onInput={(e)=> handleSpanChange(e)} >{task.rating.quantity}</span>
-                                                <span contentEditable onClick={()=>{setRatingID(task.id)}} onInput={(e)=> handleSpanChange(e)} >{task.rating.efficiency}</span>
-                                                <span contentEditable onClick={()=>{setRatingID(task.id)}} onInput={(e)=> handleSpanChange(e)} >{task.rating.timeliness}</span>
+                                                <span contentEditable onClick={()=>{setRatingID(task.rating.id)}} onInput={(e)=> handleSpanChange(e)} >{task.rating.quantity}</span>
+                                                <span contentEditable onClick={()=>{setRatingID(task.rating.id)}} onInput={(e)=> handleSpanChange(e)} >{task.rating.efficiency}</span>
+                                                <span contentEditable onClick={()=>{setRatingID(task.rating.id)}} onInput={(e)=> handleSpanChange(e)} >{task.rating.timeliness}</span>
                                                 <span>{task.rating.average}</span>
                                             </div>
 
