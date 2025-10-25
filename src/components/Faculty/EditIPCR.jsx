@@ -159,10 +159,10 @@ function EditIPCR(props) {
     
     async function assignIPCR(){
         Swal.fire({
-            title:"Assign",
+            title:"Submit",
             text:"Submitting this IPCR would make this your latest IPCR?",
             showDenyButton: true,
-            confirmButtonText:"Assign",
+            confirmButtonText:"Submit",
             denyButtonText:"No",
             denyButtonColor:"grey",
             icon:"question",

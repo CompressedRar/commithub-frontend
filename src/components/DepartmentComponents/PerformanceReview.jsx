@@ -131,6 +131,11 @@ function PerformanceReviews(props){
             loadOPCR()
         })
 
+        socket.on("opcr_created", ()=>{
+            loadIPCR()
+            loadOPCR()
+        })
+
         socket.on("ipcr", ()=>{
             loadIPCR()
             loadOPCR()
