@@ -155,11 +155,7 @@ function Administrator() {
 
       {/* Graphs Section */}
       <div className="row g-4">
-        <div className="col-md-6">
-          <div className="card border-0 shadow-sm rounded-4 p-3">
-            <ActivityTrendChart />
-          </div>
-        </div>
+        
         <div className="col-md-6">
           <div className="card border-0 shadow-sm rounded-4 p-3">
             <PopulationPerDepartment />
