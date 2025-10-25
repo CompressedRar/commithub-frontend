@@ -33,7 +33,7 @@ function EditOPCR(props) {
             })
         })
 
-        console.log("OPCR INFRO",res)
+        console.log("OPCR INFRO",props.opcr_id)
         setOPCRInfo(res.ipcr_data)
         setFormStatus(res.form_status.toUpperCase())
         setAssignedData(res.assigned)

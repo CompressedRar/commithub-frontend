@@ -281,7 +281,7 @@ function EditIPCR(props) {
     }, [])
 
     return (
-        <div className="edit-ipcr-container">
+        <div className="edit-ipcr-container" onMouseOver={props.onMouseOver}>
             <div className="back-container d-flex justify-content-between">
                 <div className="back"  data-bs-dismiss="modal" data-bs-target={props.mode != "dept"? "#view-ipcr":""} onClick={()=> {
                     props.switchPage()
