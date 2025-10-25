@@ -218,7 +218,7 @@ function PerformanceReviews(props){
             {allIPCR && allIPCR.length == 0?
                     <div className="empty-symbols">
                         <span className="material-symbols-outlined">file_copy_off</span>    
-                        <span className="desc">No IPCRs Found</span>
+                        <span className="desc">No IPCR Found</span>
             </div>:""} 
         </div>
     )
