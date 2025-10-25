@@ -38,21 +38,47 @@ function PresidentLayout() {
 
   // ✅ Decode token
   function readTokenInformation() {
-    try {
-      const payload = jwtDecode(token);
-      setRole(payload.role || null);
-      setUserInfo(payload);
-      setProfilePictureLink(payload.profile_picture_link);
-      loadNotification(payload.id);
-    } catch (err) {
-      console.error("Token decoding failed:", err);
+      try {
+        const payload = jwtDecode(token);
+        setUserInfo(payload);
+        setRole(payload.role || null);
+        setProfilePictureLink(payload.profile_picture_link);
+        loadNotification(payload.id);
+        getUser(payload.id)
+      } catch (err) {
+        console.error(err);
+      }
     }
-  }
+  
+    async function getUser(user_id){
+      try {
+        var res = await getAccountInfo(user_id)
+        console.log(res.data)
+        setUserInfo(res.data)
+        setProfilePictureLink(res.data.profile_picture_link);
+        setRole(res.data.role || null)
+        
+      }
+      catch(error){
+        console.error(error);
+      }
+    }
 
   useEffect(() => {
-    if (!token) return;
-    readTokenInformation();
-  }, []);
+      if (!token) return;
+      readTokenInformation();
+      socket.on("user_modified", ()=> {
+        readTokenInformation()
+        console.log("USER UPDATED!!")
+        
+      });
+      socket.on("user_updated", ()=> {
+        readTokenInformation()
+        console.log("USER UPDATED!!")
+      });
+      socket.on("notification_sent", () => readTokenInformation());
+  
+    }, []);
 
   // ✅ Logout
   function Logout() {

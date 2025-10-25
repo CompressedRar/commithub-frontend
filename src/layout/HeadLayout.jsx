@@ -39,19 +39,31 @@ function HeadLayout() {
 
   // 🔹 Decode JWT token
   function readTokenInformation() {
-    try {
-      const payload = jwtDecode(token);
-      if (payload.role !== "head") {
-        window.location.href = "/unauthorized";
-        return;
+      try {
+        const payload = jwtDecode(token);
+        setUserInfo(payload);
+        setRole(payload.role || null);
+        setProfilePictureLink(payload.profile_picture_link);
+        loadNotification(payload.id);
+        getUser(payload.id)
+      } catch (err) {
+        console.error(err);
       }
-      setUserInfo(payload);
-      setProfilePictureLink(payload.profile_picture_link);
-      loadNotification(payload.id);
-    } catch (err) {
-      console.error(err);
     }
-  }
+  
+    async function getUser(user_id){
+      try {
+        var res = await getAccountInfo(user_id)
+        console.log(res.data)
+        setUserInfo(res.data)
+        setProfilePictureLink(res.data.profile_picture_link);
+        setRole(res.data.role || null)
+        
+      }
+      catch(error){
+        console.error(error);
+      }
+    }
 
   // 🔹 Mark notifications as read
   const handleOpenNotification = () => {
@@ -94,6 +106,22 @@ function HeadLayout() {
   useEffect(() => {
     if (token) readTokenInformation();
   }, []);
+
+  useEffect(() => {
+      if (!token) return;
+      readTokenInformation();
+      socket.on("user_modified", ()=> {
+        readTokenInformation()
+        console.log("USER UPDATED!!")
+        
+      });
+      socket.on("user_updated", ()=> {
+        readTokenInformation()
+        console.log("USER UPDATED!!")
+      });
+      socket.on("notification_sent", () => readTokenInformation());
+  
+    }, []);
 
   if (!token) return <Navigate to="/" replace />;
 

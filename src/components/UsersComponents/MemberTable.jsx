@@ -115,10 +115,6 @@ function MemberTable() {
     socket.on("user_created", loadAllMembers);
     socket.on("user_modified", loadAllMembers);
 
-    return () => {
-      socket.off("user_created");
-      socket.off("user_modified");
-    };
   }, []);
 
   return (
@@ -213,7 +209,7 @@ function MemberTable() {
           >
             <option value="All">All Roles</option>
             <option value="Administrator">Administrator</option>
-            <option value="College President">College President</option>
+            <option value="President">College President</option>
             <option value="Head">Head</option>
             <option value="Faculty">Faculty</option>
           </select>

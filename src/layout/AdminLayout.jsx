@@ -44,7 +44,6 @@ function AdminLayout() {
     try {
       const payload = jwtDecode(token);
       setUserInfo(payload);
-      setPayload(payload);
       setRole(payload.role || null);
       setProfilePictureLink(payload.profile_picture_link);
       loadNotification(payload.id);
