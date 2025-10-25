@@ -552,9 +552,9 @@ function EditOPCR(props) {
                                             </div>
 
                                             <div className="sub-task-rating">
-                                                <span contentEditable onClick={()=>{setRatingID(task.rating.id)}} onInput={(e)=> handleSpanChange(e)} >{task.rating.quantity}</span>
-                                                <span contentEditable onClick={()=>{setRatingID(task.rating.id)}} onInput={(e)=> handleSpanChange(e)} >{task.rating.efficiency}</span>
-                                                <span contentEditable onClick={()=>{setRatingID(task.rating.id)}} onInput={(e)=> handleSpanChange(e)} >{task.rating.timeliness}</span>
+                                                <span className="quantity" contentEditable onClick={()=>{setRatingID(task.rating.id)}} onInput={(e)=> handleSpanChange(e)} >{task.rating.quantity}</span>
+                                                <span className="efficiency" contentEditable onClick={()=>{setRatingID(task.rating.id)}} onInput={(e)=> handleSpanChange(e)} >{task.rating.efficiency}</span>
+                                                <span className="timeliness" contentEditable onClick={()=>{setRatingID(task.rating.id)}} onInput={(e)=> handleSpanChange(e)} >{task.rating.timeliness}</span>
                                                 <span>{task.rating.average}</span>
                                             </div>
 
