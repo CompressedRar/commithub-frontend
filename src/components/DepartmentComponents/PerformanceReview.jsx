@@ -87,6 +87,7 @@ function PerformanceReviews(props){
             text: msg,
             icon: msg.includes("successfully") ? "success" : "error",
           });
+          loadOPCR()
 
           setConsolidating(false)
         } catch (error) {
@@ -110,6 +111,7 @@ function PerformanceReviews(props){
         for(const opcr of res){
             if(opcr.status == 1) {
                 filter.push(opcr)
+                setCurrentOPCRID(opcr.id)
             }
         }
         console.log(res)
@@ -134,6 +136,7 @@ function PerformanceReviews(props){
         socket.on("opcr_created", ()=>{
             loadIPCR()
             loadOPCR()
+            console.log("OPCR CREATED")
         })
 
         socket.on("ipcr", ()=>{
@@ -200,6 +203,7 @@ function PerformanceReviews(props){
                 {allOPCR && allOPCR.map(opcr => (
                     <DeptOPCR opcr = {opcr} onClick={()=>{
                         setCurrentOPCRID(opcr.id)
+                        console.log("CURRENT OPCR ID",opcr.id)
                         
                     }} onMouseOver = {()=>{setCurrentOPCRID(opcr.id)}}></DeptOPCR>
                 ))}
