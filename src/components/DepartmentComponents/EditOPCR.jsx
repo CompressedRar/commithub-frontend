@@ -1,8 +1,7 @@
 import { useEffect, useState} from "react"
-import { approveOPCR, assignMainOPCR, downloadOPCR,getOPCR, reviewOPCR } from "../../services/pcrServices"
+import { approveOPCR, assignMainOPCR, downloadOPCR,getOPCR, reviewOPCR, updateRating } from "../../services/pcrServices"
 import { socket } from "../api"
 import Swal from "sweetalert2"
-
 
 //gawin yung UI neto bukas
 function EditOPCR(props) {
