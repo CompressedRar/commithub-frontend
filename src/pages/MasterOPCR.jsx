@@ -32,7 +32,7 @@ function MasterOPCR(){
                 })
             })
     
-            console.log("MASTER OPCR INFRO",res)
+            console.log("MASTER OPCR INFRO", res)
             setOPCRInfo(res.ipcr_data)
             setAssignedData(res.assigned)
             setHeadData(res.admin_data)

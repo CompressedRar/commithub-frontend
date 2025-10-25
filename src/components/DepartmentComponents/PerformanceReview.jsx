@@ -231,14 +231,14 @@ function PerformanceReviews({ deptid }) {
           {allIPCR.length > 0 ? (
             allIPCR.map((ipcr) => (
               <DeptIPCR
-                key={ipcr.ipcr.id}
+                key={ipcr.id}
                 ipcr={ipcr}
                 dept_mode={true}
                 onMouseOver={() => {
-                  setBatchID(ipcr.ipcr.batch_id);
-                  setCurrentIPCRID(ipcr.ipcr.id);
+                  setBatchID(ipcr.batch_id);
+                  setCurrentIPCRID(ipcr.id);
                 }}
-                onClick={() => setCurrentIPCRID(ipcr.ipcr.id)}
+                onClick={() => setCurrentIPCRID(ipcr.id)}
               />
             ))
           ) : (
