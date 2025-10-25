@@ -26,6 +26,7 @@ function PerformanceReviews(props){
     const [consolidating, setConsolidating] = useState(false)
 
     async function loadIPCR() {
+      setAllIPCR(null)
         var res = await getDepartmentIPCR(props.deptid).then(data => data.data).catch(error => {
             Swal.fire({
                 title: "Error",
@@ -98,6 +99,7 @@ function PerformanceReviews(props){
       }
 
     async function loadOPCR() {
+      setAllOPCR(null)
         var res = await getDepartmentOPCR(props.deptid).then(data => data.data).catch(error => {
             Swal.fire({
                 title: "Error",
