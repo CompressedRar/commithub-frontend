@@ -7,7 +7,7 @@ import AccountSettings from "../components/UsersComponents/AccountSettings";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../assets/styles/Main.css";
 import NotificationModal from "../components/NotificationModal";
-
+import { socket } from "../components/api";
 function PresidentLayout() {
   const token = localStorage.getItem("token");
   const [role, setRole] = useState(null);

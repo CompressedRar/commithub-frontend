@@ -9,7 +9,7 @@ import {
 } from "../services/userService";
 import AccountSettings from "../components/UsersComponents/AccountSettings";
 import NotificationModal from "../components/NotificationModal";
-
+import { socket } from "../components/api";
 function HeadLayout() {
   const token = localStorage.getItem("token");
   const [profilePictureLink, setProfilePictureLink] = useState("");
