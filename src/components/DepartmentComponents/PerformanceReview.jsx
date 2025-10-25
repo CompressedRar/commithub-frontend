@@ -87,7 +87,6 @@ function PerformanceReviews(props){
             text: msg,
             icon: msg.includes("successfully") ? "success" : "error",
           });
-          window.location.reload()
 
           setConsolidating(false)
         } catch (error) {
