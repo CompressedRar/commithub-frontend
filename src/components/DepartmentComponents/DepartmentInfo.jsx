@@ -208,7 +208,7 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
         </div>
 
         {/* Stats */}
-        <div className="row g-3 mb-4">
+        <div className="row g-3 mb-4 d-none">
           {[
             { icon: "assignment_globe", label: "OPCR", value: deptInfo.opcr_count },
             { icon: "article_person", label: "IPCR", value: deptInfo.ipcr_count },
