@@ -2,7 +2,8 @@ import { useEffect, useState} from "react"
 import { approveOPCR, assignMainOPCR, downloadOPCR,getOPCR, reviewOPCR, updateRating } from "../../services/pcrServices"
 import { socket } from "../api"
 import Swal from "sweetalert2"
-
+import { jwtDecode } from "jwt-decode"
+import { getAccountInfo } from "../../services/userService"
 //gawin yung UI neto bukas
 function EditOPCR(props) {
     
@@ -21,10 +22,14 @@ function EditOPCR(props) {
 
     const [downloading, setDownloading] = useState(false)
     const [ submitting, setSubmitting] = useState(false)
+    const [userInfo, setUserInfo] = useState(null)
 
     const [field, setField] = useState("")
     const [value, setValue] = useState(0)
     const [ratingID, setRatingID] = useState(0)
+
+    
+    const [canEval, setCanEval] = useState(false)
     
     async function loadOPCR(){
         var res = await getOPCR(props.opcr_id).then(data => data.data).catch(error => {
@@ -44,6 +49,23 @@ function EditOPCR(props) {
         //rearrange my tasks here
         
     }
+    async function loadUserInfo() {
+            if (Object.keys(localStorage).includes("token")){
+                var token = localStorage.getItem("token")
+                var payload = jwtDecode(token)
+                    
+                var res = await getAccountInfo(payload.id).then(data => data.data).catch(error => {
+                console.log(error.response.data.error)
+                Swal.fire({
+                    title: "Error",
+                    text: error.response.data.error,
+                    icon: "error"
+                })
+            })
+        
+                setUserInfo(res)
+            }
+        }
 
 
     async function download() {
@@ -95,82 +117,7 @@ function EditOPCR(props) {
     }, [opcrInfo]);
 
     
-    function calculateQuantity(target_acc, actual_acc) {
-        let rating = 0;
-        let target = target_acc;
-        let actual = actual_acc;
-
-        if (target == 0) {
-            return 0;
-        }
-
-        let calculations = actual / target;
-
-        if (calculations >= 1.3) {
-            rating = 5;
-        } else if (calculations >= 1.01 && calculations <= 1.299) {
-            rating = 4;
-        } else if (calculations >= 0.90 && calculations <= 1) {
-            rating = 3;
-        } else if (calculations >= 0.70 && calculations <= 0.899) {
-            rating = 2;
-        } else if (calculations <= 0.699) {
-            rating = 1;
-        }
-
-
-        return rating;
-    }
-
-    function calculateEfficiency(target_mod, actual_mod) {
-        let target = target_mod;
-        let actual = actual_mod;
-        let rating = 0;
-
-        let calculations = actual;
-        
-
-        if (calculations == 0) {
-            rating = 5;
-        } else if (calculations >= 1 && calculations <= 2) {
-            rating = 4;
-        } else if (calculations >= 3 && calculations <= 4) {
-            rating = 3;
-        } else if (calculations >= 5 && calculations <= 6) {
-            rating = 2;
-        } else if (calculations >= 7) {
-            rating = 1;
-        }
-        console.log(target_mod,"actual: ", actual_mod,"efficiency" ,rating)
-        return rating;
-    }
-
-    function calculateTimeliness(target_time, actual_time) {
-        let target = target_time;
-        let actual = actual_time;
-        let rating = 0;
-
-
-        if (target === 0) {
-            return 0;
-        }
-
-        let calculations = ((target - actual) / target) + 1;
-
-        if (calculations >= 1.3) {
-            rating = 5;
-        } else if (calculations >= 1.15 && calculations <= 1.29) {
-            rating = 4;
-        } else if (calculations >= 0.9 && calculations <= 1.14) {
-            rating = 3;
-        } else if (calculations >= 0.51 && calculations <= 0.89) {
-            rating = 2;
-        } else if (calculations <= 0.5) {
-            rating = 1;
-        }
-
-        return rating;
-    }
+    
 
     function calculateAverage(quantity, efficiency, timeliness) {
         let calculations = quantity + efficiency + timeliness;
@@ -315,8 +262,16 @@ function EditOPCR(props) {
         }
 
     useEffect(()=> {
+        if(opcrInfo && userInfo) {
+            
+
+            setCanEval(userInfo.role == "president" || userInfo.role == "administrator" )
+        }
+    }, [opcrInfo, userInfo])
+
+    useEffect(()=> {
         loadOPCR()
-        
+        loadUserInfo()
 
         socket.on("ipcr", ()=>{
             loadOPCR()
@@ -339,6 +294,11 @@ function EditOPCR(props) {
         })
 
         socket.on("opcr_created", ()=>{
+            loadOPCR()
+            console.log("assigned")
+        })
+
+        socket.on("rating", ()=>{
             loadOPCR()
             console.log("assigned")
         })
@@ -404,6 +364,12 @@ function EditOPCR(props) {
             </div>
             
             <div className="ipcr-form-container">
+                {
+                    canEval? <div className="alert alert-info d-flex align-items-center gap-2" role="alert">
+                    <span className="material-symbols-outlined">info</span>
+                    <span>Only modify the fields highlighted with a <span className="fw-semibold text-success">green background</span>.</span>
+                </div> :""
+                }
                 <span className="pcr-status-container" style={{display:"flex"}}>
                     <span>{formStatus}</span>
                 </span>
@@ -552,9 +518,9 @@ function EditOPCR(props) {
                                             </div>
 
                                             <div className="sub-task-rating">
-                                                <span className="quantity" contentEditable onClick={()=>{setRatingID(task.rating.id)}} onInput={(e)=> handleSpanChange(e)} >{task.rating.quantity}</span>
-                                                <span className="efficiency" contentEditable onClick={()=>{setRatingID(task.rating.id)}} onInput={(e)=> handleSpanChange(e)} >{task.rating.efficiency}</span>
-                                                <span className="timeliness" contentEditable onClick={()=>{setRatingID(task.rating.id)}} onInput={(e)=> handleSpanChange(e)} >{task.rating.timeliness}</span>
+                                                <span className={canEval? "quantity editable-field" : "quantity"} contentEditable = {canEval} onClick={()=>{setRatingID(task.rating.id)}} onInput={(e)=> handleSpanChange(e)} >{task.rating.quantity}</span>
+                                                <span className={canEval? "efficiency editable-field" : "efficiency"} contentEditable = {canEval} onClick={()=>{setRatingID(task.rating.id)}} onInput={(e)=> handleSpanChange(e)} >{task.rating.efficiency}</span>
+                                                <span className={canEval? "timeliness editable-field" : "timeliness"} contentEditable = {canEval} onClick={()=>{setRatingID(task.rating.id)}} onInput={(e)=> handleSpanChange(e)} >{task.rating.timeliness}</span>
                                                 <span>{parseFloat(task.rating.average).toFixed(0)}</span>
                                             </div>
 

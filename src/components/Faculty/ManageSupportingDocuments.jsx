@@ -160,6 +160,7 @@ function ManageSupportingDocuments({ ipcr_id, batch_id, dept_mode }) {
           <div className="modal-body p-4">
             {/* Upload Section */}
             
+            {!dept_mode? <>
             <div className="d-flex flex-column flex-md-row align-items-md-center gap-3">
               <input
                 type="file"
@@ -176,7 +177,7 @@ function ManageSupportingDocuments({ ipcr_id, batch_id, dept_mode }) {
             </div>
             <small className="text-muted">
                 Please upload documents that support your accomplishments or tasks — e.g., attendance sheets, screenshots, certificates, or reports. Limit: 50 MB per file.
-            </small>
+            </small></>:""}
             
 
             {/* Upload Progress */}
