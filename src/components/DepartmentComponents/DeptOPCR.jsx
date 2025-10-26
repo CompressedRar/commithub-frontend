@@ -110,9 +110,6 @@ function DeptOPCR(props) {
                         <span >{ props.opcr && "OPCR - "}</span>
                         <span>{props.opcr.department}</span>
                     </div>
-                    <div style={{gap:"10px", display:"flex"}}> 
-                        {props.opcr && <span className="form-status">{props.opcr && props.opcr.form_status.toUpperCase()}</span>}
-                    </div>
                 </div> 
 
                 {

@@ -505,7 +505,7 @@ function EditIPCR(props) {
                                             <span className = {props.mode == "check" && canEval? "quantity editable-field": "quantity"} onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleSpanChange(e)} contentEditable ={props.mode == "check" && canEval}>{parseFloat(task.quantity).toFixed(0)}</span>
                                             <span className = {props.mode == "check" && canEval? "efficiency editable-field": "efficiency"} onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleSpanChange(e)} contentEditable ={props.mode == "check" && canEval}>{parseFloat(task.efficiency).toFixed(0)}</span>
                                             <span className = {props.mode == "check" && canEval? "timeliness editable-field": "timeliness"} onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleSpanChange(e)} contentEditable ={props.mode == "check" && canEval}>{parseFloat(task.timeliness).toFixed(0)}</span>
-                                            <span className = "average" >{parseFloat(task.average).toFixed(2)}</span>
+                                            <span className = "average" >{parseFloat(task.average).toFixed(0)}</span>
                                         </div>
 
                                         <div className="remarks">
@@ -529,23 +529,23 @@ function EditIPCR(props) {
                             <div className="whole-rating">
                                 <span className="rating-type">Final Average Rating</span>
                                 <div className="each-rating">
-                                    <span>{parseFloat(quantityAvg).toFixed(1)}</span>
-                                    <span>{parseFloat(efficiencyAvg).toFixed(1)}</span>
-                                    <span>{parseFloat(timelinessAvg).toFixed(1)}</span>
-                                    <span>{parseFloat(allAvg).toFixed(1)}</span>
+                                    <span>{parseFloat(quantityAvg).toFixed(0)}</span>
+                                    <span>{parseFloat(efficiencyAvg).toFixed(0)}</span>
+                                    <span>{parseFloat(timelinessAvg).toFixed(0)}</span>
+                                    <span>{parseFloat(allAvg).toFixed(0)}</span>
                                 </div>
                             </div>  
                             <div className="whole-rating">
                                 <span className="rating-type">FINAL AVERAGE RATING</span>
                                 <div className="avg-rating">
-                                    {parseFloat(allAvg).toFixed(2)}
+                                    {parseFloat(allAvg).toFixed(0)}
                                 </div>
                             </div>  
                             <div className="whole-rating">
                                 <span className="rating-type">ADJECTIVAL RATING</span>
                                 <div className="avg-rating">
                                     {
-                                        parseFloat(allAvg).toFixed(2) == 5? "OUTSTANDING": parseFloat(allAvg).toFixed(2) >= 4? "VERY SATISFACTORY": parseFloat(allAvg).toFixed(2) >= 3? "SATISFACTORY":parseFloat(allAvg).toFixed(2) >= 2? "UNSATISFACTORY": "POOR" 
+                                        parseFloat(allAvg).toFixed(0) == 5? "OUTSTANDING": parseFloat(allAvg).toFixed(0) >= 4? "VERY SATISFACTORY": parseFloat(allAvg).toFixed(0) >= 3? "SATISFACTORY":parseFloat(allAvg).toFixed(0) >= 2? "UNSATISFACTORY": "POOR" 
                                     }
                                 </div>
                             </div>  

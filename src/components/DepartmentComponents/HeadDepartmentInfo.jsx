@@ -25,7 +25,7 @@ function HeadDepartmentInfo({ id, firstLoad }) {
     try {
       const res = await getDepartment(deptId).then((d) => d.data);
       setDeptinfo(res);
-      setManagerInfo(res.users.find((u) => u.role === "head") || null);
+      setManagerInfo(res.users.find((u) => u.role === "head" || u.role === "president" || u.role === "administrator") || null);
       setFormData({ id: deptId, department_name: res.name, icon: res.icon });
     } catch (err) {
       Swal.fire("Error", err.response?.data?.error || "Failed to load office info", "error");

@@ -95,11 +95,10 @@ export default function PerformancePerDepartment() {
             <BarChart
               layout="vertical"
               data={data}
-              margin={{ top: 20, right: 30, left: 80, bottom: 20 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis type="number" domain={[0, 5]} />
-              <YAxis type="category" dataKey="name" />
+              <YAxis type="category" dataKey="name" fontSize={0.2} />
               <Tooltip />
               <Bar
                 dataKey="value"

@@ -107,6 +107,7 @@ export default function AllTaskAverages() {
               <XAxis
                 dataKey="task_name"
                 angle={-25}
+                fontSize={0}
                 textAnchor="end"
                 interval={0}
               />

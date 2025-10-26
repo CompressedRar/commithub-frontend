@@ -79,6 +79,8 @@ function CategoryTasks(props) {
     };
 
     socket.on("category", reload);
+
+    socket.on("main_task", reload);
     return () => {
       socket.off("category", reload);
     };

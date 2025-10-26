@@ -23,7 +23,7 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
     try {
       const res = await getDepartment(deptId).then((data) => data.data);
       setDeptinfo(res);
-      setManagerInfo(res.users.find((u) => u.role === "head") || null);
+      setManagerInfo(res.users.find((u) => u.role === "head" || u.role === "president" ) || null);
       setFormData({ id: deptId, department_name: res.name, icon: res.icon });
     } catch (err) {
       Swal.fire("Error", err.response?.data?.error || "Failed to load department info", "error");

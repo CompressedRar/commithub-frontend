@@ -328,8 +328,21 @@ function EditOPCR(props) {
                 }, [value]);
 
     return (
-        <div className="edit-ipcr-container">
-            
+        <div className="edit-ipcr-container" style = {{position: "absolute"}}>
+            {(!opcrInfo || opcrInfo.length === 0) && (
+                <div className="opcr-overlay">
+                    <div className="overlay-content">
+                    <span className="material-symbols-outlined" style={{ fontSize: "60px", color: "#777" }}>
+                        info
+                    </span>
+                    <h3>No OPCR Data Available</h3>
+                    <p>
+                        This OPCR has no consolidated data yet. Please ensure IPCRs are properly submitted.
+                    </p>
+                    </div>
+                </div>
+            )}
+
            <div className="back-container d-flex justify-content-between">
                 <div className="back"  data-bs-dismiss="modal" data-bs-target={props.mode != "dept"? "#view-ipcr":""} onClick={()=> {
                     props.switchPage()
@@ -545,23 +558,23 @@ function EditOPCR(props) {
                             <div className="whole-rating">
                                 <span className="rating-type">Final Average Rating</span>
                                 <div className="each-rating">
-                                    <span>{parseFloat(quantityAvg).toFixed(2)}</span>
-                                    <span>{parseFloat(efficiencyAvg).toFixed(2)}</span>
-                                    <span>{parseFloat(timelinessAvg).toFixed(2)}</span>
-                                    <span>{parseFloat(allAvg).toFixed(2)}</span>
+                                    <span>{parseFloat(quantityAvg).toFixed(0)}</span>
+                                    <span>{parseFloat(efficiencyAvg).toFixed(0)}</span>
+                                    <span>{parseFloat(timelinessAvg).toFixed(0)}</span>
+                                    <span>{parseFloat(allAvg).toFixed(0)}</span>
                                 </div>
                             </div>  
                             <div className="whole-rating">
                                 <span className="rating-type">FINAL AVERAGE RATING</span>
                                 <div className="avg-rating">
-                                    {parseFloat(allAvg).toFixed(2)}
+                                    {parseFloat(allAvg).toFixed(0)}
                                 </div>
                             </div>  
                             <div className="whole-rating">
                                 <span className="rating-type">ADJECTIVAL RATING</span>
                                 <div className="avg-rating">
                                     {
-                                        parseFloat(allAvg).toFixed(2) == 5? "OUTSTANDING": parseFloat(allAvg).toFixed(2) >= 4? "VERY SATISFACTORY": parseFloat(allAvg).toFixed(2) >= 3? "SATISFACTORY":parseFloat(allAvg).toFixed(2) >= 2? "UNSATISFACTORY": "POOR" 
+                                        parseFloat(allAvg).toFixed(0) == 5? "OUTSTANDING": parseFloat(allAvg).toFixed(0) >= 4? "VERY SATISFACTORY": parseFloat(allAvg).toFixed(0) >= 3? "SATISFACTORY":parseFloat(allAvg).toFixed(0) >= 2? "UNSATISFACTORY": "POOR" 
                                     }
                                 </div>
                             </div>  

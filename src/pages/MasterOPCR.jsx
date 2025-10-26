@@ -36,7 +36,7 @@ function MasterOPCR(){
             setOPCRInfo(res.ipcr_data)
             setAssignedData(res.assigned)
             setHeadData(res.admin_data)
-            //rearrange my tasks here
+            //
             
         }
     
@@ -138,8 +138,20 @@ function MasterOPCR(){
         }, [])
     
         return (
-            <div className="edit-ipcr-container">
-                
+            <div className="edit-ipcr-container"  style={{ position: "relative" }}>
+                {(!opcrInfo || opcrInfo.length === 0) && (
+                    <div className="overlay-container">
+                        <div className="overlay-content">
+                        <img 
+                            src={`${import.meta.env.BASE_URL}empty-folder.png`} 
+                            alt="No Data" 
+                            className="overlay-icon"
+                        />
+                        <h2>No Consolidated OPCR Data</h2>
+                        <p>There are currently no IPCRs assigned or consolidated into the Master OPCR.</p>
+                        </div>
+                    </div>
+                    )}
                <div className="back-container d-flex justify-content-between">
                     
     
@@ -165,6 +177,9 @@ function MasterOPCR(){
                         
                     </div>
                 </div>
+
+                
+
                 
                 <div className="ipcr-form-container">
                     <div className="ipcr-header-container">

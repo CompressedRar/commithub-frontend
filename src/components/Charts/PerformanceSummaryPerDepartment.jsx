@@ -103,7 +103,7 @@ export default function PerformanceSummaryPerDepartment() {
               margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
+              <XAxis dataKey="name" fontSize={0} />
               <YAxis domain={[0, 5]} />
               <Tooltip />
               <Legend />
