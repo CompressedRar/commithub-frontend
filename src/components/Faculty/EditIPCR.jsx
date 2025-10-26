@@ -229,12 +229,13 @@ function EditIPCR(props) {
                 var result = allTargetsFilled(ipcrInfo)
                 setCanSubmit(result)
                 
+                getIPCR(props.ipcr_id).then((res) => {
                 const updatedIPCR = res.data;
                 setIPCRInfo(updatedIPCR);
 
                 // ✅ Only assign main when all targets are filled
                 if (userinfo && allTargetsFilled(updatedIPCR)) {
-                    handleAssign()
+                    handleAssignMain();
 
                     // ✅ Show message only once
                     if (!hasShownMainNotice) {
@@ -247,6 +248,7 @@ function EditIPCR(props) {
                     setHasShownMainNotice(true);
                     }
                 }
+                });
                 
             })
             .catch((error) => {
