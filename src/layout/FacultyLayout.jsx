@@ -97,6 +97,7 @@ function FacultyLayout() {
     }, []);
 
   if (!token) return <Navigate to="/" replace />;
+  if (role && role !== "faculty") return <Navigate to="/unauthorized" replace />;
 
   // ✅ Handle notification open (mark as read)
   const handleOpenNotification = () => {

@@ -43,3 +43,22 @@
 
 .modal-backdrop { z-index: 1050 !important; }
 .modal { z-index: 1060 !important; }
+
+
+.department {
+  cursor: pointer;
+  padding: 10px 15px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.department:hover {
+  background-color: #f1f1f1;
+}
+
+.department.selected {
+  background-color: #007bff; /* Highlight color */
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 0 0 2px #0056b3 inset;
+}

@@ -181,12 +181,17 @@ function Department(){
                         <span>Create Office</span>
                     </button>
                 </div>
-                <div className = "all-departments">
-                    {departments.map(dept => (
-                        <AllDepartmentMember dept={dept} key={dept.id} onClick={()=>{loadAnotherDepartment(dept.id)}} ></AllDepartmentMember>
+                <div className="all-departments">
+                    {departments.map((dept) => (
+                        <AllDepartmentMember
+                        dept={dept}
+                        key={dept.id}
+                        onClick={() => loadAnotherDepartment(dept.id)}
+                        isSelected={currentDepartment === dept.id} // 👈 Pass selection state
+                        />
                     ))}
+                </div>
 
-                </div>  
             </div>
             
             {currentDepartment && <DepartmentInfo key = {currentDepartment} id = {currentDepartment} loadDepts = {()=>{loadAllDepartments()}} firstLoad = {()=>{loadFirstDepartment()}}></DepartmentInfo>}

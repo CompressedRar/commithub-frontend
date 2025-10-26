@@ -137,9 +137,9 @@ function Administrator() {
       {/* Quick Links */}
       <div className="d-flex flex-wrap gap-3 mb-5">
         {[
-          { href: "/admin/users", icon: "manage_accounts", label: "Manage Users" },
-          { href: "/admin/department", icon: "apartment", label: "Manage Departments" },
-          { href: "/admin/tasks", icon: "admin_panel_settings", label: "Manage Tasks" },
+          { href: "/admin/users", icon: "manage_accounts", label: "Manage Accounts" },
+          { href: "/admin/department", icon: "apartment", label: "Manage Offices" },
+          { href: "/admin/tasks", icon: "admin_panel_settings", label: "Manage Outputs" },
         ].map((link, idx) => (
           <a
             key={idx}

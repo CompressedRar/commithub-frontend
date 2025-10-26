@@ -122,7 +122,7 @@ function HeadLayout() {
     }, []);
 
   if (!token) return <Navigate to="/" replace />;
-
+    if (role && role !== "head") return <Navigate to="/unauthorized" replace />;
   return (
     <div className="d-flex flex-column flex-md-row vh-100 overflow-hidden bg-light">
       {/* 🔹 Sidebar */}
