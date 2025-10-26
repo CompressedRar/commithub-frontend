@@ -14,6 +14,7 @@ import Swal from "sweetalert2";
 import { socket } from "../api";
 import { Modal } from "bootstrap";
 import IPCR from "./IPCR";
+import ManageSupportingDocuments from "./ManageSupportingDocuments";
 
 function IPCRContainer({ switchPage }) {
   const [userinfo, setUserInfo] = useState({});
@@ -25,7 +26,8 @@ function IPCRContainer({ switchPage }) {
   const [allIPCR, setAllIPCR] = useState([]);
   const [creating, setCreating] = useState(false)
 
-  
+  const [currentIPCRID, setCurrentIPCRID] = useState(null)
+  const [batchID, setBatchID] = useState(null)
 
   async function loadUserTasks(user_id) {
     setAllAssignedID([]);
@@ -319,6 +321,7 @@ function IPCRContainer({ switchPage }) {
       </div>
 
       {/* IPCR List Section */}
+
       <div className="bg-white shadow-md p-4 rounded-3 mx-auto" style={{ maxWidth: "1600px", height:"85vh" }}>
 
         <div className="d-flex justify-content-between align-items-center mb-3">
@@ -340,6 +343,9 @@ function IPCRContainer({ switchPage }) {
             {creating? "":"Create IPCR"}
           </button>
         </div>
+        {
+          batchID && currentIPCRID && <ManageSupportingDocuments key = {batchID} ipcr_id={currentIPCRID} batch_id={batchID} />
+        }
 
         <div className="row g-3">
           {allIPCR && allIPCR.length > 0 ? (
@@ -352,6 +358,10 @@ function IPCRContainer({ switchPage }) {
                       onClick={() =>
                         switchPage(ipcr.id, userinfo.department.id)
                       }
+                      onMouseOver={()=> {
+                        setBatchID(ipcr.batch_id)
+                        setCurrentIPCRID(ipcr.id)
+                      }}
                     />
                   </div>
                 )

@@ -117,7 +117,9 @@ function DepartmentMemberTable({ deptid }) {
           </thead>
           <tbody>
             {tenMembers.length > 0 ? (
-              tenMembers.map((mems) => <DepartmentMembers key={mems.id} mems={mems} />)
+              tenMembers
+                .filter((mems) => mems.account_status === 1)
+                .map((mems) => <DepartmentMembers key={mems.id} mems={mems} />)
             ) : (
               <tr>
                 <td colSpan="7" className="py-4 text-muted">
@@ -128,6 +130,7 @@ function DepartmentMemberTable({ deptid }) {
                 </td>
               </tr>
             )}
+
           </tbody>
         </table>
       </div>

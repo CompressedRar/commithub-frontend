@@ -185,14 +185,18 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
                 <span className="material-symbols-outlined">person_add</span>
                 Assign Head
               </button>
-              <button
-                className="btn btn-primary fw-semibold d-flex align-items-center gap-1 shadow-sm px-3 py-2 rounded-pill"
-                data-bs-toggle="modal"
-                data-bs-target="#edit-department"
-              >
-                <span className="material-symbols-outlined">edit</span>
-                Edit
-              </button>
+              
+              {!(["College of Computing Studies ", "College of Education ", "College of Hospitality Management", "President's Office"].includes(deptInfo.name)) && (
+                <button
+                  className="btn btn-primary fw-semibold d-flex align-items-center gap-1 shadow-sm px-3 py-2 rounded-pill"
+                  data-bs-toggle="modal"
+                  data-bs-target="#edit-department"
+                >
+                  <span className="material-symbols-outlined">edit</span>
+                  Edit
+                </button>
+              )}
+
               {!(["College of Computing Studies ", "College of Education ", "College of Hospitality Management", "President's Office"].includes(deptInfo.name)) && (
                 <button
                   className="btn btn-danger fw-semibold d-flex align-items-center gap-1 shadow-sm px-3 py-2 rounded-pill"

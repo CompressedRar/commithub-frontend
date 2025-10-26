@@ -276,7 +276,7 @@ function EditIPCR(props) {
             .catch((error) => {
                 console.log(error.response?.data?.error || error);
             });
-        }, 500);
+        }, 100);
 
         return () => clearTimeout(debounce);
     }, [value]);

@@ -40,7 +40,7 @@ function PerformanceReviews(props){
         
 
         const filtered = data.filter(
-                (item) => item.ipcr && item.ipcr.status === 1 && item.ipcr.form_status === "submitted"
+                (item) => item.ipcr && item.ipcr.status === 1 && item.ipcr.form_status === "submitted" && item.member.account_status == 1
             );
 
         var filtArray = []
@@ -49,13 +49,17 @@ function PerformanceReviews(props){
             filtArray.push(i.ipcr.id)
         }
         
-        console.log(filtArray)
+        console.log("PReview",res)
         
         setFilteredID(filtArray)
 
 
-        console.log(res)
-        setAllIPCR(res)
+        console.log("performance review",res)
+
+        const filteredIPCR = data.filter(
+                (item) => item.member.account_status == 1
+            );
+        setAllIPCR(filteredIPCR)
     }
 
     const handleSubmission = () => {
@@ -210,6 +214,7 @@ function PerformanceReviews(props){
                 
                 {allIPCR && allIPCR.map(ipcr => (
                     <DeptIPCR onMouseOver = {()=>{
+                        console.log(ipcr.ipcr.batch_id)
                         setBatchID(ipcr.ipcr.batch_id)
                         setCurrentIPCRID(ipcr.ipcr.id)
                     }} onClick={()=>{

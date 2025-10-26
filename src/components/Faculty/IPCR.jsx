@@ -62,9 +62,10 @@ function IPCR({ ipcr, dept_mode, onClick, onMouseOver }) {
     <div
       className="container-fluid py-3 px-3 bg-white rounded-3 shadow-sm border position-relative"
       style={{ transition: "all 0.2s ease-in-out" }}
+      onMouseOver={onMouseOver}
     >
       {/* Supporting Docs */}
-      <ManageSupportingDocuments ipcr_id={ipcr.id} batch_id={ipcr.batch_id} />
+      
 
       {/* Header */}
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-2 gap-2">
@@ -97,7 +98,7 @@ function IPCR({ ipcr, dept_mode, onClick, onMouseOver }) {
           data-bs-toggle="modal"
           data-bs-target="#view-ipcr"
           role="button"
-          onMouseOver={onMouseOver}
+          
         >
           <div
             className="rounded-circle border bg-light flex-shrink-0"
