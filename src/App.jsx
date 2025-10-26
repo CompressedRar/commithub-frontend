@@ -26,6 +26,7 @@ import PresPendingReviews from './components/DepartmentComponents/PresPendingRev
 import HeadPendingReviews from './components/DepartmentComponents/HeadPendingReviews'
 import PresidentLayout from './layout/PresidentLayout'
 import MasterOPCR from './pages/MasterOPCR'
+import NotFound from './pages/NotFound'
 
 
 
@@ -33,6 +34,7 @@ function App() {
   return (
     <div>
       <Routes>
+        <Route path="*" element={<NotFound />} />
         
         <Route element = {<AuthLayout />}>
           <Route path='/' element = {<Login></Login>}></Route>

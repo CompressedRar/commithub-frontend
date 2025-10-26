@@ -1,15 +1,14 @@
 import { useState } from "react"
 
-function AllDepartmentMember({dept, onClick}) {
+function AllDepartmentMember({dept, onClick, isSelected}) {
 
     return (
         <div
-        className={`department ${isSelected ? "selected" : ""}`} // 👈 Add selected class
+        className={`dpt ${isSelected ? "selected" : ""}`} // 👈 Add selected class
         key={dept.id}
         onClick={onClick}
         >
             <div className="pair">
-                <span className="material-symbols-outlined">{dept.icon || "domain"}</span>
                 <span>{dept.name}</span>
             </div>
         </div>
