@@ -158,6 +158,28 @@ function EditIPCR(props) {
         }
     } 
 
+    async function submitAssign(){
+        setSubmitting(true)
+        var res = await assignMainIPCR(ipcrInfo.id, ipcrInfo.user).then(data => data.data.message).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+            setSubmitting(false)
+        })
+            
+        if (res == "IPCR successfully assigned."){
+            
+            setSubmitting(false)
+        }
+        else {
+            
+            setSubmitting(false)
+        }
+    } 
+
     
     async function assignIPCR(){
         Swal.fire({
@@ -235,7 +257,7 @@ function EditIPCR(props) {
 
                 // ✅ Only assign main when all targets are filled
                 if (userinfo && allTargetsFilled(updatedIPCR)) {
-                    handleAssign();
+                    submitAssign();
 
                     // ✅ Show message only once
                     if (!hasShownMainNotice) {
