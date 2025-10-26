@@ -15,8 +15,6 @@ import ManageSupportingDocuments from "./ManageSupportingDocuments"
 //check bukas kung gumagana pa yung g4f
 function EditIPCR(props) {
 
-    const [canSubmit, setCanSubmit] = useState(false)
-
     const token = localStorage.getItem("token")
     const [userinfo, setuserInfo] = useState(null)
     const [ipcrInfo, setIPCRInfo] = useState(null)
@@ -161,10 +159,10 @@ function EditIPCR(props) {
     
     async function assignIPCR(){
         Swal.fire({
-            title:"Assign",
-            text:"Assigning this IPCR would make it legible for consolidation. Would you like to continue?",
+            title:"Submit",
+            text:"Submitting this IPCR would make this your latest IPCR?",
             showDenyButton: true,
-            confirmButtonText:"Assign",
+            confirmButtonText:"Submit",
             denyButtonText:"No",
             denyButtonColor:"grey",
             icon:"question",
@@ -211,8 +209,6 @@ function EditIPCR(props) {
     function allTargetsFilled(ipcr) {
         if (!ipcr || !ipcr.sub_tasks) return false;
 
-        
-
         return ipcr.sub_tasks.every(task =>
             task.target_acc && task.target_time && task.target_mod
         );
@@ -226,29 +222,6 @@ function EditIPCR(props) {
         const debounce = setTimeout(() => {
             updateSubTask(subTaskID, field, value)
             .then(() => {
-                var result = allTargetsFilled(ipcrInfo)
-                setCanSubmit(result)
-                
-                getIPCR(props.ipcr_id).then((res) => {
-                const updatedIPCR = res.data;
-                setIPCRInfo(updatedIPCR);
-
-                // ✅ Only assign main when all targets are filled
-                if (userinfo && allTargetsFilled(updatedIPCR)) {
-                    handleAssignMain();
-
-                    // ✅ Show message only once
-                    if (!hasShownMainNotice) {
-                    Swal.fire({
-                        title: "Main IPCR Assigned",
-                        text: "All target fields are filled. This IPCR has been automatically set as your main IPCR.",
-                        icon: "success",
-                        confirmButtonColor: "#198754"
-                    });
-                    setHasShownMainNotice(true);
-                    }
-                }
-                });
                 
             })
             .catch((error) => {
@@ -318,7 +291,7 @@ function EditIPCR(props) {
                 </div>
 
                 {
-                    ipcrInfo ? (ipcrInfo.form_status == "rejected" || ipcrInfo.form_status == "draft") && (props.mode != "dept" && props.mode != "check") && canSubmit? <button className="btn btn-primary d-flex align-items-center gap-2" disabled = {submitting} onClick={()=> {assignIPCR()}}>
+                    ipcrInfo ? (ipcrInfo.form_status == "rejected" || ipcrInfo.form_status == "draft") && (props.mode != "dept" && props.mode != "check")? <button className="btn btn-primary d-flex align-items-center gap-2" disabled = {submitting} onClick={()=> {assignIPCR()}}>
                         {submitting?<span className="spinner-border spinner-border-sm me-2"></span> :<span className="material-symbols-outlined">article_shortcut</span>}
                         {submitting? "": <span>Submit</span>}
                     </button>: "":
