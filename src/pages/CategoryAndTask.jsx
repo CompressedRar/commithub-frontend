@@ -158,7 +158,7 @@ function CategoryAndTask(){
             </div>
 
             <div className="all-categories-container scrollable" style={{height:"91vh"}}>
-                <div className="sidebar-title">
+                <div className="sidebar-title " style={{textWrap:"nowrap"}}>
                     Key Result Areas
                 </div>
                 <div className="add-category-container">

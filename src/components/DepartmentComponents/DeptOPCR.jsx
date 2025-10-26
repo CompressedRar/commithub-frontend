@@ -125,10 +125,7 @@ function DeptOPCR(props) {
                         <button className="choices btn btn-success" onClick={props.onClick} data-bs-toggle="modal" data-bs-target="#view-opcr" onMouseOver={props.dept_mode? props.onMouseOver:null}>
                             <span className="material-symbols-outlined">view_list</span>
                             <span>View</span>
-                        </button>
-                        <button className="choices btn btn-danger" onClick={()=>{archiveOPCR()}}>
-                            <span className="material-symbols-outlined">{!archiving? "archive":"refresh"}</span>
-                        </button>                        
+                        </button>                      
                     </div>:
                     <span style={{display:"flex", flexDirection:"row", justifyContent:"flex-end", fontStyle:"italic"}}>Awaiting Submission</span>
                 }

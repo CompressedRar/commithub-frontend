@@ -156,10 +156,14 @@ function LogTable() {
             onChange={(e) => setSelectedAction(e.target.value)}
           >
             <option value="All">All Actions</option>
-            <option value="CREATE">CREATE</option>
-            <option value="UPDATE">UPDATE</option>
-            <option value="ARCHIVE">ARCHIVE</option>
-            <option value="LOGIN">LOGIN</option>
+            <option value="CREATE">Create</option>
+            <option value="UPDATE">Update</option>
+            <option value="ARCHIVE">Archive</option>
+            <option value="LOGIN">Login</option>
+            <option value="SUBMIT">Submit</option>
+            <option value="ASSIGN">Assign</option>
+            <option value="UNASSIGN">Unassign</option>
+            <option value="REMOVE">Remove</option>
           </select>
         </div>
 
@@ -174,6 +178,9 @@ function LogTable() {
             <option value="CATEGORY">Category</option>
             <option value="TASK">Task</option>
             <option value="USER">User</option>
+            <option value="IPCR">IPCR</option>
+            <option value="OPCR">OPCR</option>
+            <option value="SUPPORTING_DOCS">Supporting Documents</option>
           </select>
         </div>
 

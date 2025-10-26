@@ -83,12 +83,6 @@ function PerformanceReviews(props){
           const res = await createOPCR(props.deptid, { "ipcr_ids": filteredID });
           const msg = res.data.message;
     
-          Swal.fire({
-            title: msg.includes("successfully") ? "Success" : "Error",
-            text: msg,
-            icon: msg.includes("successfully") ? "success" : "error",
-          });
-          loadOPCR()
 
           setConsolidating(false)
         } catch (error) {
@@ -100,6 +94,8 @@ function PerformanceReviews(props){
 
     async function loadOPCR() {
       setAllOPCR(null)
+      await submission()
+
         var res = await getDepartmentOPCR(props.deptid).then(data => data.data).catch(error => {
             Swal.fire({
                 title: "Error",
@@ -119,41 +115,31 @@ function PerformanceReviews(props){
         console.log(res)
         setAllOPCR(filter)
     }
+    useEffect(()=> {
+        if (filteredID == null) return
+        
+        loadOPCR()
+    }, [filteredID])
 
     useEffect(()=> {
         loadIPCR()
-        loadOPCR()
 
         socket.on("ipcr_create", ()=>{
             loadIPCR()
-            loadOPCR()
 
         })
 
-        socket.on("opcr", ()=>{
-            loadIPCR()
-            loadOPCR()
-        })
-
-        socket.on("opcr_created", ()=>{
-            loadIPCR()
-            loadOPCR()
-            console.log("OPCR CREATED")
-        })
 
         socket.on("ipcr", ()=>{
             loadIPCR()
-            loadOPCR()
         })
 
         socket.on("assign", ()=>{
             loadIPCR()
-            loadOPCR()
         })
         
         socket.on("ipcr_create", ()=>{
             loadIPCR()
-            loadOPCR()
         })
 
     }, [])
@@ -196,7 +182,7 @@ function PerformanceReviews(props){
             
             <h3 className="d-flex align-items-center gap-3">
                 Office Performance Review and Commitment Form 
-                <button className="btn btn-primary" onClick={()=>{handleSubmission()}} disabled = {consolidating}>
+                <button className="btn btn-primary d-none" onClick={()=>{handleSubmission()}} disabled = {consolidating}>
                     {!consolidating ? <span className="d-flex gap-2">
                         <span className="material-symbols-outlined">compare_arrows</span>
                         <span>Consolidate IPCRs</span>

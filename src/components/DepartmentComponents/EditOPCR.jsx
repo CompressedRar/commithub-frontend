@@ -339,7 +339,7 @@ function EditOPCR(props) {
                 </div>
 
                 {
-                    opcrInfo ? formStatus == "REJECTED" || formStatus == "DRAFT"? <button className="btn btn-primary d-flex align-items-center gap-2" disabled = {submitting} onClick={()=> {assignmentOPCR()}}>
+                    opcrInfo ? formStatus == ("REJECTED" || formStatus == "DRAFT") && canSubmit? <button className="btn btn-primary d-flex align-items-center gap-2" disabled = {submitting} onClick={()=> {assignmentOPCR()}}>
                         {submitting?<span className="spinner-border spinner-border-sm me-2"></span> :<span className="material-symbols-outlined">article_shortcut</span>}
                         {submitting? "": <span>Submit</span>}
                     </button>: "":
