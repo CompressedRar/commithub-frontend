@@ -110,7 +110,6 @@ function DepartmentMemberTable({ deptid }) {
               <th>PERFORMANCE</th>
               <th>EMAIL ADDRESS</th>
               <th>POSITION</th>
-              <th>NO. OF TASKS</th>
               <th>STATUS</th>
               <th></th>
             </tr>

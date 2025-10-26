@@ -74,7 +74,6 @@ function DepartmentMembers({ mems }) {
       <td className="text-nowrap">{mems.position.name}</td>
 
       {/* Tasks Count */}
-      <td className="text-center">{mems.main_tasks_count}</td>
 
       {/* Status */}
       <td className="text-center">
