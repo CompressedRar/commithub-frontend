@@ -33,6 +33,8 @@ function CategoryTasks(props) {
   const [pastTense, setPastTense] = useState("");
   const [translating, setTranslating] = useState(false);
 
+  const [isEmpty, setEmpty] = useState(true)
+
   const titleRef = useRef(null);
 
   // --- API Loaders
@@ -46,6 +48,8 @@ function CategoryTasks(props) {
   }
 
   async function loadCategoryTasks(id) {
+    if (id == null) return;
+    setEmpty(false)
     try {
       const res = await getCategory(id).then((d) => d.data);
       setCategoryInfo(res);
@@ -199,11 +203,23 @@ function CategoryTasks(props) {
       className="category-main-container container-fluid py-3"
       style={{
         height: "100vh",
-        overflowY: "auto",
+        overflowY: "scroll",
         overflowX: "hidden",
         paddingBottom: "2.5rem",
+        position:"relative"
       }}
     >
+      {
+        isEmpty && 
+      <div className="empty-container">
+        <div className="empty-indicator">
+          <h2>
+            No MFO Data
+          </h2>
+          <p>There are no information about this major final output.</p>
+        </div>
+      </div>
+      }
       {/* ===== TOP HEADER (Improved Editable Title) ===== */}
       <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
         <div className="d-flex align-items-center gap-2">

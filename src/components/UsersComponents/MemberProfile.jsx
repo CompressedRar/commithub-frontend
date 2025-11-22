@@ -331,7 +331,6 @@ function MemberProfile(props){
 
                 {/* Buttons */}
                 <div className="d-flex justify-content-end gap-2 mt-4">
-                    <button className="btn btn-secondary" disabled={dataChanged}>Cancel</button>
                     <button className="btn btn-success" disabled={dataChanged || updating} onClick={handleUpdate}>
                         {updating ? <span className="spinner-border spinner-border-sm me-2"></span> : <> <span className="material-symbols-outlined align-middle me-1">save</span> Save Changes </>}
                     </button>

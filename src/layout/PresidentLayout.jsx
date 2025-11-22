@@ -160,7 +160,7 @@ function PresidentLayout() {
             {[
               { href: "/president/dashboard", icon: "dashboard", text: "Dashboard" },
               { href: "/president/department", icon: "apartment", text: "Offices" },
-              { href: "/president/tasks", icon: "task", text: "Key Result Areas" },
+              { href: "/president/tasks", icon: "task", text: "Major Final Outputs" },
               { href: "/president/ipcr", icon: "assignment_ind", text: "IPCR" },
               { href: "/president/master", icon: "assignment_globe", text: "Master OPCR" },
             ].map((item, idx) => (

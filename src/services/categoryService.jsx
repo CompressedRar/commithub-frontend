@@ -18,12 +18,8 @@ export async function getCategory(id) {
 }
 
 export async function registerCategory(data) {
-    console.log("registering department")
-    return api.post("/api/v1/category/", data, {
-        headers: {
-            "Content-type": "multipart/form-data"
-        }
-    })
+    console.log("registering category")
+    return api.post("/api/v1/category/", data)
 }
 
 export async function archiveCategory(id) {

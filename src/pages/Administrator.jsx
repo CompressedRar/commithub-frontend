@@ -118,7 +118,7 @@ function Administrator() {
         {[
           { icon: "group", label: "Total Users", count: allCount, color: "primary" },
           { icon: "task", label: "Total Outputs", count: taskCount, color: "success" },
-          { icon: "category", label: "Total Key Result Area", count: categoryCount, color: "warning" },
+          { icon: "category", label: "Total Major Final Outputs", count: categoryCount, color: "warning" },
         ].map((stat, idx) => (
           <div className="col-md-4" key={idx}>
             <div className="card border-0 shadow-sm text-center rounded-4">

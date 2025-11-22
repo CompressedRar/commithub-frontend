@@ -10,10 +10,10 @@ import TaskInfo from "../components/CategoryAndTaskComponents/TaskInfo";
 function CategoryAndTask(){
     const [allCategory, setAllCategory] = useState([])
     const [submitting, setSubmission] = useState(false)
-    const [formData, setFormData] = useState({"category_name": ""})
+    const [formData, setFormData] = useState({"category_name": "", "category_type":"Core Function"})
 
-    const [pageNumber, setPageNumber] = useState(1)
-    const [firstCategoryID, setFirst] = useState(1)
+    const [pageNumber, setPageNumber] = useState(null)
+    const [firstCategoryID, setFirst] = useState(null)
 
     const [currentTaskID, setCurrentTaskID] = useState()
 
@@ -49,6 +49,8 @@ function CategoryAndTask(){
     const handleSubmission = async () =>{
         var converted_data = objectToFormData(formData)
         setSubmission(true)
+        console.log(converted_data)
+
 
         var res = await registerCategory(converted_data).catch(error => {
             console.log(error.response.data.error)
@@ -116,31 +118,66 @@ function CategoryAndTask(){
 
     return (
         <div className="category-task-container">
-            <div className="modal fade" id="add-category" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                <div className="modal-dialog modal-dialog-centered" >
+            <div className="modal fade" id="add-category" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="addCategoryLabel" aria-hidden="true">
+                <div className="modal-dialog modal-dialog-centered">
                     <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title" id="staticBackdropLabel">Create Key Result Area</h5>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+                    <div className="modal-header">
+                        <h5 className="modal-title" id="addCategoryLabel">Create Major Final Output</h5>
+                        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div className="modal-body">
+
+                        <div className="mb-3">
+                        <label htmlFor="category_name" className="form-label">
+                            Major Final Output <span className="text-danger">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            id="category_name"
+                            name="category_name"
+                            className="form-control"
+                            placeholder="Eg. Research Services"
+                            onInput={handleDataChange}
+                            required
+                        />
                         </div>
-                        <div className="modal-body">
-                            <div className="textboxes">
-                                <label htmlFor="category_name">Key Result Area <span className="required">*</span></label>
-                                <input type="category_name" id="category_name" name="category_name" placeholder="Eg. Research Services" onInput={handleDataChange} required/>
-                            </div>
-                            
-                            
+
+                        <div className="mb-3">
+                        <label htmlFor="category_type" className="form-label">
+                            Function <span className="text-danger">*</span>
+                        </label>
+                        <select
+                            id="category_type"
+                            name="category_type"
+                            className="form-select"
+                            onChange={handleDataChange}
+                            required
+                        >
+                            <option value="Core Function">Core Function</option>
+                            <option value="Strategic Function">Strategic Function</option>
+                            <option value="Support Function">Support Function</option>
+                        </select>
                         </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" className="btn btn-primary" onClick={handleSubmission}>
-                                 {submitting ?<span className="material-symbols-outlined loading">progress_activity</span> : <span>Create Key Result Area</span>}
-                            </button>
-                           
-                        </div>
+
+                    </div>
+
+                    <div className="modal-footer">
+                        <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" className="btn btn-primary" onClick={handleSubmission} disabled = {submitting || formData["category_name"].length == 0}>
+                        {submitting ? (
+                            <span className="material-symbols-outlined loading">progress_activity</span>
+                        ) : (
+                            <span>Create Major Final Output</span>
+                        )}
+                        </button>
+                    </div>
+
                     </div>
                 </div>
             </div>
+
 
             <div className="modal fade" id="view-task-info" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                 <div className="modal-dialog modal-dialog-centered modal-xl" >
@@ -158,13 +195,13 @@ function CategoryAndTask(){
             </div>
 
             <div className="all-categories-container scrollable" style={{height:"91vh"}}>
-                <div className="sidebar-title " style={{textWrap:"nowrap"}}>
-                    Key Result Areas
+                <div className="sidebar-title " style={{textWrap:"nowrap", fontSize:"1.5rem"}}>
+                    Major Final Outputs
                 </div>
                 <div className="add-category-container">
                     <button className="add-category btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-category">
                         <span className="material-symbols-outlined">add</span>
-                        <span>Create Key Result Area</span>
+                        <span>Create Major Final Output</span>
                     </button>
                 </div>
                 <div className="all-categories ">
