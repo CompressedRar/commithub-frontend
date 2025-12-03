@@ -63,7 +63,6 @@ function CategoryTask({ category, onClick, onEdit }) {
           </span>
         </div>
 
-
         <div className="d-flex flex-wrap gap-3 small text-secondary mb-3">
           <div>
             <span className="text-muted">Time:</span>{" "}
@@ -84,6 +83,7 @@ function CategoryTask({ category, onClick, onEdit }) {
             </span>
           </div>
         </div>
+
         <div className="d-flex flex-wrap gap-3 small text-secondary mb-3">
           <div>
             <span className="text-muted fw-bold">Target:</span>{" "}
@@ -99,7 +99,7 @@ function CategoryTask({ category, onClick, onEdit }) {
           </div>
         </div>
 
-        {/* Assigned users + Button */}
+        {/* Assigned users + Buttons */}
         <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
           {/* Assigned Users */}
           <div className="d-flex align-items-center flex-wrap gap-2">
@@ -122,25 +122,23 @@ function CategoryTask({ category, onClick, onEdit }) {
             )}
           </div>
 
-          {/* Action button */}
-          <button
-            className="btn btn-sm btn-outline-primary d-flex align-items-center gap-2 px-3 py-1 ms-auto"
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit?.(category);
-              onClick();
-            }}
-            data-bs-toggle="modal"
-            data-bs-target="#view-task-info"
-          >
-            <span
-              className="material-symbols-outlined"
-              style={{ fontSize: "18px" }}
+          {/* Action buttons */}
+          <div className="d-flex gap-2 ms-auto">
+            <button
+              className="btn btn-sm btn-outline-primary d-flex align-items-center gap-2 px-3 py-1"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClick?.();
+              }}
             >
-              edit
-            </span>
-            Edit Info
-          </button>
+              <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
+                edit
+              </span>
+              Edit
+            </button>
+
+            
+          </div>
         </div>
       </div>
     </div>

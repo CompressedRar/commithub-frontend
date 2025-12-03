@@ -1,3 +1,4 @@
+// ...existing code...
 import { useEffect, useRef, useState } from "react";
 import { objectToFormData, socket } from "../api";
 import Swal from "sweetalert2";
@@ -12,6 +13,7 @@ import CategoryTaskAverages from "../Charts/CategoryTaskAverage";
 import CategoryPerformanceCharts from "../Charts/CategoryPerformance";
 
 import { createMainTask } from "../../services/taskService";
+
 function CategoryTasks(props) {
   const [categoryTasks, setCategoryTasks] = useState([]);
   const [allDepartments, setAllDepartments] = useState([]);
@@ -32,8 +34,9 @@ function CategoryTasks(props) {
   const [titleEditable, setTitleEditable] = useState(false);
   const [pastTense, setPastTense] = useState("");
   const [translating, setTranslating] = useState(false);
+  const [requireDocument, setRequireDocument] = useState(false);
 
-  const [isEmpty, setEmpty] = useState(true)
+  const [isEmpty, setEmpty] = useState(true);
 
   const titleRef = useRef(null);
 
@@ -49,7 +52,7 @@ function CategoryTasks(props) {
 
   async function loadCategoryTasks(id) {
     if (id == null) return;
-    setEmpty(false)
+    setEmpty(false);
     try {
       const res = await getCategory(id).then((d) => d.data);
       setCategoryInfo(res);
@@ -83,10 +86,10 @@ function CategoryTasks(props) {
     };
 
     socket.on("category", reload);
-
     socket.on("main_task", reload);
     return () => {
       socket.off("category", reload);
+      socket.off("main_task", reload);
     };
   }, [props.id]);
 
@@ -197,163 +200,170 @@ function CategoryTasks(props) {
     closeModal();
   };
 
-  // --- Render
+  // --- Utilities
+  const requiredCount = categoryTasks.filter((t) => t.required_documents).length;
+  const completedCount = categoryTasks.filter((t) => t.required_documents && t.status === 1).length;
+
+  // --- Render (no cards; clean panels + list)
   return (
     <div
       className="category-main-container container-fluid py-3"
       style={{
         height: "100vh",
-        overflowY: "scroll",
+        overflowY: "auto",
         overflowX: "hidden",
         paddingBottom: "2.5rem",
-        position:"relative"
+        position: "relative",
       }}
     >
-      {
-        isEmpty && 
-      <div className="empty-container">
-        <div className="empty-indicator">
-          <h2>
-            No MFO Data
-          </h2>
-          <p>There are no information about this major final output.</p>
+      {isEmpty && (
+        <div className="mb-3 p-4 bg-light border rounded-3">
+          <div className="d-flex align-items-start gap-3">
+            <span className="material-symbols-outlined fs-2 text-muted">info</span>
+            <div>
+              <h5 className="mb-1">No MFO Data</h5>
+              <p className="mb-0 text-muted">There are no information about this major final output.</p>
+            </div>
+          </div>
         </div>
-      </div>
-      }
-      {/* ===== TOP HEADER (Improved Editable Title) ===== */}
-      <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-        <div className="d-flex align-items-center gap-2">
-          <div className="position-relative">
+      )}
+
+      {/* TOP: title + actions */}
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 mb-3">
+        <div className="d-flex align-items-center gap-3">
+          <div style={{ minWidth: 220 }}>
             <h4
               ref={titleRef}
               id="title"
               contentEditable={titleEditable}
               suppressContentEditableWarning={true}
               onInput={handleTitleChange}
-              className={`mb-0 fw-semibold d-flex align-items-center gap-2 pe-4 ${
-                titleEditable
-                  ? "border border-primary bg-light rounded px-2 py-1 shadow-sm"
-                  : "text-primary"
-              }`}
-              style={{
-                transition: "all 0.2s ease-in-out",
-                minWidth: "200px",
-                outline: "none",
-                cursor: titleEditable ? "text" : "default",
-              }}
+              className={`mb-0 fw-semibold d-flex align-items-center gap-2 ${titleEditable ? "border border-primary bg-white rounded px-2 py-1" : "text-primary"}`}
+              style={{ outline: "none", cursor: titleEditable ? "text" : "default" }}
             >
               <span className="material-symbols-outlined">folder</span>
               <span>{categoryInfo?.name || "Category"}</span>
             </h4>
-
-            {!titleEditable && (
-              <span
-                className="material-symbols-outlined position-absolute top-50 end-0 translate-middle-y text-muted"
-                style={{ cursor: "pointer" }}
-                onClick={() => {
-                  setTitleEditable(true);
-                  setTimeout(() => {
-                    titleRef.current?.focus();
-                    document.execCommand("selectAll", false, null);
-                  }, 0);
-                }}
-              >
-                edit
-              </span>
-            )}
+            <small className="text-muted d-block">{categoryInfo?.description}</small>
           </div>
 
-          {titleEditable && (
+          {titleEditable ? (
             <div className="d-flex gap-2">
-              <button
-                type="button"
-                className="btn btn-sm btn-success d-flex align-items-center gap-1"
-                onClick={() => {
-                  handleUpdate();
-                  setTitleEditable(false);
-                }}
-              >
-                <span className="material-symbols-outlined">check_circle</span>
-                Save
+              <button className="btn btn-sm btn-success d-flex align-items-center gap-1" onClick={() => { handleUpdate(); setTitleEditable(false); }}>
+                <span className="material-symbols-outlined">check</span> Save
               </button>
-              <button
-                type="button"
-                className="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
-                onClick={() => {
-                  setTitleEditable(false);
-                  loadCategoryTasks(props.id); // revert changes
-                }}
-              >
-                <span className="material-symbols-outlined">close</span>
-                Cancel
+              <button className="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" onClick={() => { setTitleEditable(false); loadCategoryTasks(props.id); }}>
+                <span className="material-symbols-outlined">close</span> Cancel
               </button>
             </div>
+          ) : (
+            <button className="btn btn-sm btn-outline-secondary" onClick={() => { setTitleEditable(true); setTimeout(() => titleRef.current?.focus(), 50); }}>
+              <span className="material-symbols-outlined">edit</span>
+            </button>
           )}
         </div>
 
-        <div className="d-flex gap-2">
-          <button className="btn btn-outline-danger d-flex gap-1" onClick={handleArchive}>
+        <div className="d-flex gap-2 align-items-center">
+          
+
+          <button className="btn btn-outline-danger d-flex gap-2 align-items-center" onClick={handleArchive}>
             <span className="material-symbols-outlined me-1">archive</span> Archive
           </button>
-          <button className="btn btn-primary d-flex gap-1" onClick={openModal}>
+          <button className="btn btn-primary d-flex gap-2 align-items-center" onClick={openModal}>
             <span className="material-symbols-outlined me-1">add</span> Create Output
           </button>
         </div>
       </div>
 
-      {/* ===== CARDS ===== */}
+      {/* METRICS + CHART AREA (plain panels) */}
       <div className="row g-3 mb-4">
-        
-        <div className="col-12">
-          <div className="p-3 shadow-sm border-0">
-            <div className="card-body">
+        <div className="col-12 col-lg-4">
+          <div className="p-3 bg-white border rounded-3 h-100">
+            <div className="d-flex justify-content-between align-items-center mb-2">
+              <div>
+                <h6 className="mb-0 fw-semibold">Category Summary</h6>
+                <small className="text-muted">Quick metrics</small>
+              </div>
+            </div>
+
+            <div className="d-flex gap-2 mt-3 flex-wrap">
+              <div className="p-3 bg-light rounded-2 text-center" style={{ minWidth: 100 }}>
+                <div className="fw-bold">{categoryTasks.length}</div>
+                <small className="text-muted d-block">Outputs</small>
+              </div>
+
+              <div className="p-3 bg-light rounded-2 text-center" style={{ minWidth: 100 }}>
+                <div className="fw-bold">{parseFloat(categoryInfo?.average_score ?? 0).toFixed(2)}</div>
+                <small className="text-muted d-block">Avg Rating</small>
+              </div>
+            </div>
+
+            <div className="mt-3">
               <CategoryTaskAverages cat_id={props.id} />
             </div>
           </div>
         </div>
 
-        <div className="col-12">
-          <div className="p-3 h-100 shadow-sm border-0">
-            <div className="">
-              <CategoryPerformanceCharts categoryId={props.id} ></CategoryPerformanceCharts>
+        <div className="col-12 col-lg-8">
+          <div className="p-3 bg-white border rounded-3 h-100">
+            <div className="d-flex justify-content-between align-items-center mb-2">
+              <div>
+                <h6 className="mb-0 fw-semibold">Performance</h6>
+                <small className="text-muted">Trend charts</small>
+              </div>
+            </div>
 
+            <div className="mt-2">
+              <CategoryPerformanceCharts categoryId={props.id} />
             </div>
           </div>
         </div>
       </div>
 
-      {/* ===== TASKS LIST ===== */}
-      <div className="d-grid card">
-        <div className="card-header d-flex justify-content-between align-items-center bg-white">
+      {/* TASKS LIST (no cards) */}
+      <div className="mb-4">
+        <div className="d-flex justify-content-between align-items-center mb-2">
           <h5 className="mb-0">Outputs</h5>
           <small className="text-muted">{categoryTasks?.length ?? 0} items</small>
         </div>
 
-        <div className="p-2" >
-          {(!Array.isArray(categoryTasks) || categoryTasks.length === 0) ? (
-            <div className="text-center py-5 text-muted">
-              <span className="material-symbols-outlined fs-1 d-block mb-2">playlist_remove</span>
-              <div>There are no existing outputs.</div>
-            </div>
-          ) : (
-            <div className="row g-2">
-              {categoryTasks.map(
-                (category) =>
-                  category?.status === 1 && (
-                    <div key={category.id} className="col-12">
-                      <CategoryTask
-                        category={category}
-                        onClick={() => props.changeTaskID(category.id)}
-                      />
-                    </div>
-                  )
-              )}
-            </div>
-          )}
-        </div>
+        {(!Array.isArray(categoryTasks) || categoryTasks.length === 0) ? (
+          <div className="py-5 text-center text-muted border rounded-3 bg-light">
+            <span className="material-symbols-outlined fs-1 d-block mb-2">playlist_remove</span>
+            <div>There are no existing outputs.</div>
+          </div>
+        ) : (
+          <div className="d-flex flex-column gap-3">
+            {categoryTasks
+              .filter((t) => t?.status === 1)
+              .map((task) => (
+                <CategoryTask
+                  key={task.id}
+                  category={task}
+                  onClick={() => {
+                    // open view modal (parent expects changeTaskID)
+                    props.changeTaskID(task.id);
+                  }}
+                  onEdit={(cat) => {
+                    // populate form for editing and open modal
+                    setFormData((f) => ({
+                      ...f,
+                      task_name: cat.title ?? f.task_name,
+                      department: cat.department_id ?? cat.department ?? f.department,
+                      task_desc: cat.task_desc ?? f.task_desc,
+                      time_measurement: cat.time_measurement ?? f.time_measurement,
+                      modification: cat.modification ?? f.modification,
+                      id: cat.id ?? f.id,
+                    }));
+                    openModal();
+                  }}
+                />
+              ))}
+          </div>
+        )}
       </div>
 
-      {/* ===== MODAL (Create Output) ===== */}
+      {/* MODAL (Create Output) - keep modal content but without inner card */}
       <div
         className="modal fade"
         id="add-task"
@@ -406,9 +416,7 @@ function CategoryTasks(props) {
                   <div className="col-md-6 mb-3">
                     <label className="form-label fw-semibold">Timeliness</label>
                     <select name="time_measurement" className="form-select" onChange={handleDataChange}>
-                      {["minute","hour","day","week","month","semester","year"].map((t)=>(
-                        <option key={t} value={t}>{t[0].toUpperCase()+t.slice(1)}</option>
-                      ))}
+                      {["minute","hour","day","week","month","semester","year"].map((t)=>(<option key={t} value={t}>{t[0].toUpperCase()+t.slice(1)}</option>))}
                     </select>
                   </div>
 
@@ -419,6 +427,25 @@ function CategoryTasks(props) {
                       <option value="revision">Revision</option>
                       <option value="error">Error</option>
                     </select>
+                  </div>
+                </div>
+
+                <div className="row">
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label fw-semibold">Require Supporting Document</label>
+                    <div className="form-check form-switch">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        id="requireDocToggle"
+                        checked={requireDocument}
+                        onChange={() => setRequireDocument(!requireDocument)}
+                        style={{ cursor: "pointer", width: "3rem", height: "1.5rem" }}
+                      />
+                      <label className="form-check-label ms-2" htmlFor="requireDocToggle">
+                        {requireDocument ? "Yes, required" : "No, optional"}
+                      </label>
+                    </div>
                   </div>
                 </div>
               </form>
@@ -445,3 +472,4 @@ function CategoryTasks(props) {
 }
 
 export default CategoryTasks;
+// ...existing code...

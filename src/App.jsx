@@ -28,6 +28,7 @@ import PresidentLayout from './layout/PresidentLayout'
 import MasterOPCR from './pages/MasterOPCR'
 import Positions from './pages/Positions'
 import NotFound from './pages/NotFound'
+import SystemSettings from './pages/SystemSettings'
 
 
 
@@ -55,6 +56,7 @@ function App() {
           <Route path = "/admin/approve" element={<PresPendingApprovals></PresPendingApprovals>}></Route>
           <Route path = "/admin/master" element={<MasterOPCR></MasterOPCR>}></Route>
           <Route path = "/admin/positions" element={<Positions></Positions>}></Route>
+          <Route path = "/admin/settings" element={<SystemSettings></SystemSettings>}></Route>
         </Route>
 
         <Route element = {<PresidentLayout></PresidentLayout>}>

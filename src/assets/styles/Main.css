@@ -509,6 +509,15 @@
   border-radius: 8px;
 }
 
+.no-spinner::-webkit-outer-spin-button,
+            .no-spinner::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+            /* Firefox */
+.no-spinner {
+                -moz-appearance: textfield;
+            }
 .no-opcr-overlay .overlay-content {
   color: #444;
   max-width: 500px;

@@ -5,6 +5,7 @@ import PositionItem from "../components/PositionItem"
 import { createPosition, getPositionInfo } from "../services/positionService"
 import Slider from '@mui/material/Slider';
 import Swal from "sweetalert2";
+import { socket } from "../components/api";
 
 
 function Positions() {

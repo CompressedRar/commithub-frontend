@@ -147,6 +147,7 @@ function AdminLayout() {
               { href: "/admin/logs", icon: "article", text: "Audit Logs" },
               { href: "/admin/ipcr", icon: "assignment_ind", text: "IPCR" },
               { href: "/admin/master", icon: "assignment_globe", text: "Master OPCR" },
+              { href: "/admin/settings", icon: "settings", text: "Settings" }
             ].map((item, idx) => (
               <li key={idx}>
                 <NavLink

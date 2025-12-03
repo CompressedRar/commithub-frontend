@@ -1,625 +1,906 @@
 import { useEffect, useState } from "react"
-import { approveIPCR, assignMainIPCR, assignPresIPCR, downloadIPCR, getIPCR, reviewIPCR, updateSubTask } from "../../services/pcrServices"
+import { assignMainIPCR, getIPCR, updateSubTask } from "../../services/pcrServices"
 import { socket } from "../api"
 import { jwtDecode } from "jwt-decode"
 import { getAccountInfo } from "../../services/userService"
 import Swal from "sweetalert2"
-import ManageTask from "./ManageTask"
-import ManageSupportingDocuments from "./ManageSupportingDocuments"
+import ManageTaskSupportingDocuments from "./ManageTaskSupportingDocuments"
+import { getSettings } from "../../services/settingsService"
 
-
-//check bukas yung current user para alam sa department kung head yung nag eedit
-// para di din makapag approve si head / 
-// account settinmgs hahahah
-//yung master opcr, gawin katulad nung sa ipcr pero di na mamimili, kita nalanmg kung anong department walang opcr
-//check bukas kung gumagana pa yung g4f
 function EditIPCR(props) {
-
-    const [canSubmit, setCanSubmit] = useState(false)
-
-    const token = localStorage.getItem("token")
-    const [userinfo, setuserInfo] = useState(null)
+    // Core data states
+    const [userinfo, setUserInfo] = useState(null)
     const [ipcrInfo, setIPCRInfo] = useState(null)
-    const [arrangedSubTasks, setArrangedSubTasks] = useState({})
-    const [quantityAvg, setQuantityAvg] = useState(0)
-    const [efficiencyAvg, setEfficiencyAvg] = useState(0)
-    const [timelinessAvg, setTimelinessAvg] = useState(0)
-    const [allAvg, setAllAvg] = useState(0)
-    
+    const [currentUserInfo, setCurrentUserInfo] = useState(null)
 
+    // UI states
+    const [submitting, setSubmitting] = useState(false)
+    const [canSubmit, setCanSubmit] = useState(false)
+    const [canEval, setCanEval] = useState(false)
+
+    // Task editing states
     const [field, setField] = useState("")
     const [value, setValue] = useState(0)
     const [subTaskID, setSubTaskID] = useState(0)
-    const [downloading, setDownloading] = useState(false)
-    const [hasShownMainNotice, setHasShownMainNotice] = useState(false);
 
+    // Organized task data
+    const [arrangedSubTasks, setArrangedSubTasks] = useState({})
+    const [categoryTypes, setCategoryTypes] = useState({})
 
-    const [currentUserInfo, setCurrentUserInfo] = useState(null)
-
-    const [canEval, setCanEval] = useState(false)
-    const [submitting, setSubmitting] = useState(false)
-
-    function readTokenInformation(){
-        let payload = {}
-        try {
-            payload = jwtDecode(token)
-            console.log("token: ",payload)
-            setCurrentUserInfo(payload)
-            
-            
+    // Category statistics
+    const [stats, setStats] = useState({
+        quantity: 0,
+        efficiency: 0,
+        timeliness: 0,
+        average: 0,
+        categories: {
+            "Core Function": { count: 0, total: 0, weight: 0 },
+            "Strategic Function": { count: 0, total: 0, weight: 0 },
+            "Support Function": { count: 0, total: 0, weight: 0 }
         }
-        catch(err){
-            console.log(err)
+    })
+
+    const [ratingThresholds, setRatingThresholds] = useState(null);
+    const [currentPhase, setCurrentPhase] = useState(null)
+
+    const token = localStorage.getItem("token")
+
+    function readTokenInformation() {
+        try {
+            const payload = jwtDecode(token)
+            setCurrentUserInfo(payload)
+        } catch (err) {
+            console.error(err)
         }
     }
 
-    
-    async function loadIPCR(){
-        var res = await getIPCR(props.ipcr_id).then(data => data.data).catch(error => {
-            console.log(error.response.data.error)
+    async function loadUserInfo() {
+        if (!token) return
+
+        try {
+            const payload = jwtDecode(token)
+            const res = await getAccountInfo(payload.id).then(data => data.data)
+            setUserInfo(res)
+        } catch (error) {
             Swal.fire({
                 title: "Error",
-                text: error.response.data.error,
+                text: error.response?.data?.error,
                 icon: "error"
             })
-        })
-        console.log("USER IPCR: ", res)
-        setIPCRInfo(res)
-
-        //rearrange my tasks here
-        var sub_tasks = res.sub_tasks
-        console.log(res)
-        var all_categories = {}
-        for(const task of sub_tasks){
-            var category = task.main_task.category.name
-            all_categories = {...all_categories, [category]: []}
         }
-        var q = 0
-        var e = 0
-        var t = 0
-        var a = 0
+    }
 
-        
+    async function loadIPCR() {
+        try {
+            const res = await getIPCR(props.ipcr_id).then(data => data.data)
+            setIPCRInfo(res)
+            processIPCRData(res)
+        } catch (error) {
+            Swal.fire({
+                title: "Error",
+                text: error.response?.data?.error,
+                icon: "error"
+            })
+        }
+    }
 
-        for(const task of sub_tasks){
+    function processIPCRData(res) {
+        const sub_tasks = res.sub_tasks
+        const all_categories = {}
+        const all_category_type = {}
+        const newStats = { ...stats }
+
+        newStats.categories = {
+            "Core Function": { count: 0, total: 0, weight: res.user_info.position.core_weight },
+            "Strategic Function": { count: 0, total: 0, weight: res.user_info.position.strategic_weight },
+            "Support Function": { count: 0, total: 0, weight: res.user_info.position.support_weight }
+        }
+
+        let q = 0, e = 0, t = 0, a = 0
+
+        sub_tasks.forEach(task => {
+            const category = task.main_task.category.name
+            const type = task.main_task.category.type
+
+            all_categories[category] = all_categories[category] || []
+            all_category_type[category] = type
+
+            if (newStats.categories[type]) {
+                newStats.categories[type].count++
+                newStats.categories[type].total += task.average
+            }
+
             q += task.quantity
             e += task.efficiency
             t += task.timeliness
             a += task.average
-            all_categories[task.main_task.category.name].push(task)
+            all_categories[category].push(task)
+        })
 
-        }
+        const count = sub_tasks.length || 1
+        newStats.quantity = q / count
+        newStats.efficiency = e / count
+        newStats.timeliness = t / count
+        newStats.average = a / count
+
         setArrangedSubTasks(all_categories)
-
-        
-        setQuantityAvg(q/res.sub_tasks_count)
-        setEfficiencyAvg(e/res.sub_tasks_count)
-        setTimelinessAvg(t/res.sub_tasks_count)
-        setAllAvg(a/res.sub_tasks_count)
-
+        setCategoryTypes(all_category_type)
+        setStats(newStats)
+        console.log(all_categories)
     }
 
-    function handleDataChange(e){
+    // Update the handleRemarks function to use dynamic rating thresholds from settings
+    function handleRemarks(rating, ratingThresholds) {
+        const r = parseFloat(rating)
+
+        // Default thresholds if not provided
+        const thresholds = ratingThresholds || {
+            outstanding: { min: 4.5 },
+            very_satisfactory: { min: 3.5, max: 4.49 },
+            satisfactory: { min: 2.5, max: 3.49 },
+            unsatisfactory: { min: 1.5, max: 2.49 },
+            poor: { max: 1.49 }
+        }
+
+        // Check against each threshold
+        if (thresholds.outstanding && r >= (thresholds.outstanding.min ?? 4.5)) {
+            return "OUTSTANDING"
+        }
+        if (
+            thresholds.very_satisfactory &&
+            r >= (thresholds.very_satisfactory.min ?? 3.5) &&
+            r <= (thresholds.very_satisfactory.max ?? 4.49)
+        ) {
+            return "VERY SATISFACTORY"
+        }
+        if (
+            thresholds.satisfactory &&
+            r >= (thresholds.satisfactory.min ?? 2.5) &&
+            r <= (thresholds.satisfactory.max ?? 3.49)
+        ) {
+            return "SATISFACTORY"
+        }
+        if (
+            thresholds.unsatisfactory &&
+            r >= (thresholds.unsatisfactory.min ?? 1.5) &&
+            r <= (thresholds.unsatisfactory.max ?? 2.49)
+        ) {
+            return "UNSATISFACTORY"
+        }
+        if (thresholds.poor && r <= (thresholds.poor.max ?? 1.49)) {
+            return "POOR"
+        }
+
+        return "UNKNOWN"
+    }
+
+    function handleDataChange(e) {
         setField(e.target.name)
         setValue(e.target.value)
     }
 
-    function handleSpanChange(e){
+    function handleSpanChange(e) {
         setField(e.target.className)
         setValue(e.target.textContent)
     }
 
-    async function loadUserInfo() {
-        if (Object.keys(localStorage).includes("token")){
-            var token = localStorage.getItem("token")
-            var payload = jwtDecode(token)
-                
-            var res = await getAccountInfo(payload.id).then(data => data.data).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-    
-            setuserInfo(res)
-        }
-    }
-
-
-    async function handleAssign(){
-        setSubmitting(true)
-        var res = await assignMainIPCR(ipcrInfo.id, ipcrInfo.user).then(data => data.data.message).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-            setSubmitting(false)
-        })
-            
-        if (res == "IPCR successfully assigned."){
-            Swal.fire({
-                title:"Success",
-                text: "IPCR sucessfully submitted.",
-                icon:"success"
-            })
-            setSubmitting(false)
-        }
-        else {
-            Swal.fire({
-                title:"Error",
-                text: "Submission of IPCR failed",
-                icon:"error"
-            })
-            setSubmitting(false)
-        }
-    } 
-
-    async function submitAssign(){
-        setSubmitting(true)
-        var res = await assignMainIPCR(ipcrInfo.id, ipcrInfo.user).then(data => data.data.message).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-            setSubmitting(false)
-        })
-            
-        if (res == "IPCR successfully assigned."){
-            
-            setSubmitting(false)
-        }
-        else {
-            
-            setSubmitting(false)
-        }
-    } 
-
-    
-    async function assignIPCR(){
-        Swal.fire({
-            title:"Assign",
-            text:"Assigning this IPCR would make it legible for consolidation. Would you like to continue?",
-            showDenyButton: true,
-            confirmButtonText:"Assign",
-            denyButtonText:"No",
-            denyButtonColor:"grey",
-            icon:"question",
-            customClass: {
-                actions: 'my-actions',
-                confirmButton: 'order-2',
-                denyButton: 'order-1 right-gap',
-            },
-        }).then((result)=> {
-            if(result.isConfirmed){
-                handleAssign()                
-            }
-        }) 
-    }
-
-    useEffect(() => {
-        const modalBody = document.querySelector("#view-ipcr .modal-body"); // change selector to your modal
-        console.log(modalBody)
-        const handleScroll = () => {
-           
-            if (!modalBody) return;
-
-            const scrollTop = modalBody.scrollTop;
-            const scrollHeight = modalBody.scrollHeight;
-            const clientHeight = modalBody.clientHeight;
-
-            // Check if scrolled to bottom
-            if (scrollTop + clientHeight >= scrollHeight - 10) {
-            console.log("✅ Reached bottom of modal!");
-            }
-        };
-
-        if (modalBody) {
-            modalBody.addEventListener("scroll", handleScroll);
-        }
-
-        return () => {
-            if (modalBody) {
-            modalBody.removeEventListener("scroll", handleScroll);
-            }
-        };
-    }, []);
-
     function allTargetsFilled(ipcr) {
-        if (!ipcr || !ipcr.sub_tasks) return false;
-
-        
-
-        return ipcr.sub_tasks.every(task =>
-            task.target_acc && task.target_time && task.target_mod
-        );
+        return ipcr?.sub_tasks?.every(task => task.target_acc && task.target_time && task.target_mod) || false
     }
 
+    async function handleAssign() {
+        setSubmitting(true)
+        try {
+            const res = await assignMainIPCR(ipcrInfo.id, ipcrInfo.user).then(data => data.data.message)
 
-    useEffect(() => {
-        if (value === "") return;
-        console.log("test")
-
-        const debounce = setTimeout(() => {
-            updateSubTask(subTaskID, field, value)
-            .then(() => {
-                var result = allTargetsFilled(ipcrInfo)
-                setCanSubmit(result)
-                
-                getIPCR(props.ipcr_id).then((res) => {
-                const updatedIPCR = res.data;
-                setIPCRInfo(updatedIPCR);
-
-                // ✅ Only assign main when all targets are filled
-                if (userinfo && allTargetsFilled(updatedIPCR)) {
-                    submitAssign();
-
-                    // ✅ Show message only once
-                    if (!hasShownMainNotice) {
-                    Swal.fire({
-                        title: "IPCR Submitted",
-                        text: "All target fields are filled. This IPCR has been automatically submitted.",
-                        icon: "success",
-                        confirmButtonColor: "#198754"
-                    });
-                    setHasShownMainNotice(true);
-                    }
-                }
-                });
-                
+            if (res === "IPCR successfully assigned.") {
+                Swal.fire({
+                    title: "Success",
+                    text: "IPCR successfully submitted.",
+                    icon: "success"
+                })
+                loadIPCR()
+            } else {
+                Swal.fire({
+                    title: "Error",
+                    text: "Submission of IPCR failed",
+                    icon: "error"
+                })
+            }
+        } catch (error) {
+            Swal.fire({
+                title: "Error",
+                text: error.response?.data?.error,
+                icon: "error"
             })
-            .catch((error) => {
-                console.log(error.response?.data?.error || error);
-            });
-        }, 100);
-
-        return () => clearTimeout(debounce);
-    }, [value]);
-
-
-    useEffect(()=> {
-        if(ipcrInfo && userinfo) {
-            var ipcr_full_name = ipcrInfo.user_info.first_name + " "+ ipcrInfo.user_info.last_name
-            var visitor_full_name = userinfo.first_name + " " + userinfo.last_name
-
-            setCanEval(ipcr_full_name != visitor_full_name)
+        } finally {
+            setSubmitting(false)
         }
-    }, [ipcrInfo, userinfo])
-    
+    }
 
+    function assignIPCR() {
+        Swal.fire({
+            title: "Assign",
+            text: "Assigning this IPCR would make it eligible for consolidation. Continue?",
+            showDenyButton: true,
+            confirmButtonText: "Assign",
+            denyButtonText: "No",
+            denyButtonColor: "grey",
+            icon: "question"
+        }).then((result) => {
+            if (result.isConfirmed) handleAssign()
+        })
+    }
 
-    useEffect(()=> {
+    // Load settings/thresholds
+    async function loadRatingThresholds() {
+        try {
+            const res = await getSettings(); // import from settingsService
+
+            console.log("Settings response:", res);
+            if (res?.data?.data?.rating_thresholds) {
+                let rt = res.data.data.rating_thresholds;
+                if (typeof rt === "string") {
+                    rt = JSON.parse(rt);
+                }
+                console.log("Loaded rating thresholds:", rt);
+                setRatingThresholds(rt);
+            }
+        } catch (error) {
+            console.error("Failed to load rating thresholds:", error);
+        }
+    }
+
+    // Load current phase from settings
+    async function loadCurrentPhase() {
+        try {
+            const res = await getSettings()
+            const phase = res?.data?.data?.current_phase
+            console.log("Current phase:", phase)
+            setCurrentPhase(phase)
+        } catch (error) {
+            console.error("Failed to load current phase:", error)
+        }
+    }
+
+    // Effects
+    useEffect(() => {
         loadIPCR()
         loadUserInfo()
+        loadRatingThresholds()
+        loadCurrentPhase() // Add this
         readTokenInformation()
 
-
-        
-
-        socket.on("ipcr", ()=>{
-            loadIPCR()
-            loadUserInfo()
-            console.log("IPCR LISTENED")
-        })
-
-        socket.on("ipcr_added", ()=>{
-            loadIPCR()
-            loadUserInfo()
-            console.log("ADDED LISTENED")
-        })
-
-        socket.on("ipcr_remove", ()=>{
-            loadIPCR()
-            loadUserInfo()
-            console.log("REMOVE LISTENED")
-        })
-
-        socket.on("assign", ()=>{
-            loadIPCR()
-        })
+        socket.on("ipcr", loadIPCR)
+        socket.on("ipcr_added", loadIPCR)
+        socket.on("ipcr_remove", loadIPCR)
+        socket.on("assign", loadIPCR)
 
         return () => {
             socket.off("ipcr")
-            socket.off("document")
+            socket.off("ipcr_added")
+            socket.off("ipcr_remove")
+            socket.off("assign")
         }
     }, [])
 
+    useEffect(() => {
+        if (!value) return
+
+        const debounce = setTimeout(() => {
+            updateSubTask(subTaskID, field, value)
+                .then(() => {
+                    setCanSubmit(allTargetsFilled(ipcrInfo))
+                    getIPCR(props.ipcr_id).then(res => setIPCRInfo(res.data))
+                })
+                .catch(error => console.error(error.response?.data?.error))
+        }, 100)
+
+        return () => clearTimeout(debounce)
+    }, [value])
+
+    useEffect(() => {
+        if (!ipcrInfo || !userinfo) return
+        const ipcr_full = `${ipcrInfo.user_info.first_name} ${ipcrInfo.user_info.last_name}`
+        const visitor_full = `${userinfo.first_name} ${userinfo.last_name}`
+        setCanEval(ipcr_full !== visitor_full)
+    }, [ipcrInfo, userinfo])
+
+    useEffect(() => {
+        const modalBody = document.querySelector("#view-ipcr .modal-body")
+        if (!modalBody) return
+
+        const handleScroll = () => {
+            const { scrollTop, scrollHeight, clientHeight } = modalBody
+            if (scrollTop + clientHeight >= scrollHeight - 10) {
+                console.log("Reached bottom of modal")
+            }
+        }
+
+        modalBody.addEventListener("scroll", handleScroll)
+        return () => modalBody.removeEventListener("scroll", handleScroll)
+    }, [])
+
+    if (!ipcrInfo) {
+        return (
+            <div className="d-flex justify-content-center align-items-center p-5">
+                <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        )
+    }
+
     return (
-        <div className="edit-ipcr-container" onMouseOver={props.onMouseOver}>
-            <div className="back-container d-flex justify-content-between">
-                <div className="back"  data-bs-dismiss="modal" data-bs-target={props.mode != "dept"? "#view-ipcr":""} onClick={()=> {
-                    props.switchPage()
-                }}>
+        <div className="container-fluid py-4" onMouseOver={props.onMouseOver}>
+            <ManageTaskSupportingDocuments ipcr_id={ipcrInfo.id} batch_id={ipcrInfo.batch_id} dept_mode={false} sub_tasks={arrangedSubTasks}></ManageTaskSupportingDocuments>
+            {/* Header */}
+            
+            <div className="d-flex justify-content-between align-items-center mb-4">
+                <button
+                    className="btn btn-outline-secondary d-flex align-items-center gap-2"
+                    data-bs-dismiss="modal"
+                    onClick={props.switchPage}
+                >
                     <span className="material-symbols-outlined">undo</span>
-                    Back to IPCRs 
-                </div>
+                    Back to IPCRs
+                </button>
+                <button
+                    className="btn btn-primary btn-sm d-flex align-items-center gap-2"
+                    data-bs-toggle="modal"
+                    data-bs-target="#manage-docs"
+                    >
+                    <span className="material-symbols-outlined fs-5">attach_file</span>
+                    Documents
+                </button>
 
-                {
-                    ipcrInfo ? (ipcrInfo.form_status == "rejected" || ipcrInfo.form_status == "draft") && (props.mode != "dept" && props.mode != "check")? <button className="btn btn-primary d-flex align-items-center gap-2" disabled = {submitting} onClick={()=> {assignIPCR()}}>
-                        {submitting?<span className="spinner-border spinner-border-sm me-2"></span> :<span className="material-symbols-outlined">article_shortcut</span>}
-                        {submitting? "": <span>Submit</span>}
-                    </button>: "":
-                    ""
-                }
+                {canSubmit && props.mode === "faculty" && (
+                    <button
+                        className="btn btn-primary d-flex align-items-center gap-2"
+                        disabled={submitting}
+                        onClick={assignIPCR}
+                    >
+                        {submitting ? (
+                            <>
+                                <span className="spinner-border spinner-border-sm me-2"></span>
+                                Submitting...
+                            </>
+                        ) : (
+                            <>
+                                <span className="material-symbols-outlined">article_shortcut</span>
+                                Submit IPCR
+                            </>
+                        )}
+                    </button>
+                )}
             </div>
-            
-            
-            <div className="ipcr-form-container">
-                {
-                    props.mode != "dept" && canEval? <div className="alert alert-info d-flex align-items-center gap-2" role="alert">
-                    <span className="material-symbols-outlined">info</span>
-                    <span>Only modify the fields highlighted with a <span className="fw-semibold text-success">green background</span>.</span>
-                </div> :""
-                }
-                <div className="ipcr-header-container">
-                    <div className="ipcr-logo" style={{backgroundImage: `url('${import.meta.env.BASE_URL}municipal.png')`}}>.</div>
-                    <div className="school-info">
-                        <div>Republic of the Philippines</div>
-                        <div>Province of the Bulacan</div>
-                        <div><strong>Municipality of Norzagaray</strong></div>
-                        <div><strong>NORZAGARAY COLLEGE</strong></div>
-                    </div>
-                    <div className="ipcr-logo" style={{backgroundImage: `url('${import.meta.env.BASE_URL}LogoNC.png')`}}></div>
-                </div>  
-                <div className="ipcr-title">
-                    <span>INDIVIDUAL PERFORMANCE COMMITMENT & REVIEW FORM</span>
-                </div>
 
-                <div className="ratee-information">
-                    <div className="ratee-oath">
-                        <span className="first-oath">
-                            <i>I, <div className="ratee-name"><strong>{ipcrInfo && (ipcrInfo.user_info.first_name + " "+ ipcrInfo.user_info.last_name)}</strong></div>, <div className="ratee-position">Librarian</div> of the <strong>NORZAGARAY COLLEGE,</strong> commit to deliver and agree to be rated on the attainment of  </i>
-                        </span>
-                        <span className="second-oath">
-                            <i>the following targets in accordance with the indicated measures for the period <strong>JULY - DECEMBER 2025</strong> </i>
-                        </span>
-                    </div>
-                    <div className="ratee-signature">
-                        <span className="date">
-                            <input type="text" value={ipcrInfo && (ipcrInfo.user_info.first_name + " "+ ipcrInfo.user_info.last_name)} style={{color:"black", textAlign:"center", fontWeight:"bold"}}/>
-                            Ratee
-                        </span>
-                        <span className="date">
-                            <input type="text" />
-                            DATE
-                        </span>
-                    </div>
+            {/* Alert - Show phase restriction info */}
+            <div className="alert alert-info d-flex align-items-center gap-2 mb-4" role="alert">
+                <span className="material-symbols-outlined">info</span>
+                <span>
+                    Only modify fields with <strong className="text-success">green background</strong>.
+                    {!isMonitoringPhase(currentPhase) && (
+                        <>
+                            <br />
+                            <strong className="text-warning">Target and actual accomplishment fields are only editable during the Monitoring phase.</strong>
+                        </>
+                    )}
+                </span>
+            </div>
 
-                    <div className="individuals-top-container">
-                        <div className="involved">
-                            <div className="individual-container">
-                                <span className="type">Reviewed by:</span>
-                                <span className="name">{ipcrInfo && (ipcrInfo.review.name.toUpperCase())}</span>
-                                <span>{ipcrInfo && (ipcrInfo.review.position)}</span>
-                            </div>
-                            <div className="date-viewed">
-                                <span>Date</span>
-                            </div>
-                        </div>
-                        <div className="involved">
-                            <div className="individual-container">
-                                <span className="type">Approved by:</span>
-                                <span className="name">{ipcrInfo && (ipcrInfo.approve.name.toUpperCase())}</span>
-                                <span>{ipcrInfo && (ipcrInfo.approve.position)}</span>
-                            </div>
-                            <div className="date-viewed">
-                                <span className="type">Date</span>
-                                <span></span>
-                            </div>
-                        </div>
-                    </div>
+            {/* Main Card */}
+            <div className="card shadow-sm">
+                <div className="card-body p-4">
+                    {/* Header Section */}
+                    <HeaderSection ipcrInfo={ipcrInfo} />
 
-                    <div className="legend-container">
-                        <div className="legend">    
-                            <span>5 - OUTSTANDING</span>
-                            <span>4 - VERY SATISFACTORY</span>
-                            <span>3 - SATISFACTORY</span>
-                            <span>2 - UNSATISFACTORY</span>
-                            <span>1 - POOR</span>
-                        </div>
-                    </div>
-
-
-                    <div className="tasks-table">
-                        <div className="headers">
-                            OUTPUT
-                        </div>
-                        <div className="headers">
-                            <span>SUCCESS INDICATORS</span>
-                            <span>{"(TARGETS + MEASURES)"}</span>
-                        </div>
-                        <div className="headers">
-                            <span>ACTUAL</span>
-                            <span>ACCOMPLISHMENT</span>
-                        </div>
-                        <div className="headers rating">
-                            <span>RATING</span>
-                            <span className="rates">                                
-                                <span>Q <sup>2</sup> </span>
-                                <span>E <sup>2</sup> </span>
-                                <span>T <sup>2</sup> </span>
-                                
-                                <span>A <sup>2</sup> </span>
-                            </span>
-                        </div>
-                        <div className="headers">
-                            REMARKS
-                        </div>
-
-                        <div className="categories">
-                            CORE FUNCTION
-                        </div>
-                        {/**
-                         * dito ilagay lahat ng tasks
-                         */}
-
-                         {Object.entries(arrangedSubTasks).map(([category, tasks])=>(
-                            
-                            <div className="task-wrapper">
-                                <div className="categories">
-                                    {category}
-                                </div>
-
-                                {tasks.map(task =>(
-                                    <div className="sub-task-wrapper">
-                                        <div className="sub-task-name">
-                                            {task.title}
-                                        </div>
-                                        <div className="stats">
-                                            <input name = "target_acc" type="number" className={props.mode == "faculty"? "value editable-field": "value"}  defaultValue={task.target_acc}
-                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo && props.mode != "faculty"? props.mode != "dept": ipcrInfo.form_status == "approved"}/>
-
-                                            <span className="desc">{task.main_task.target_acc} in</span>
-                                            <input name = "target_time" type="number" className={props.mode == "faculty"? "value editable-field": "value"} defaultValue={task.target_time}
-                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo && props.mode != "faculty"? props.mode != "dept": ipcrInfo.form_status == "approved"}/>
-
-                                            <span className="desc">{task.main_task.time} with</span>
-                                            <input name = "target_mod" type="number" className={props.mode == "faculty"? "value editable-field": "value"} defaultValue={task.target_mod}
-                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo && props.mode != "faculty"? props.mode != "dept": ipcrInfo.form_status == "approved"}/>
-
-                                            <span className="desc">{task.main_task.modification}</span>
-
-                                        </div>
-
-                                        <div className="stats">
-                                            <input name = "actual_acc" type="number" className={props.mode == "faculty"? "value editable-field": "value"}  defaultValue={task.actual_acc}
-                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo && props.mode != "faculty"? props.mode != "dept": ipcrInfo.form_status == "approved"}/>
-
-                                            <span className="desc">{task.main_task.actual_acc} in</span>
-                                            <input name = "actual_time" type="number" className={props.mode == "faculty"? "value editable-field": "value"}  defaultValue={task.actual_time}
-                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo && props.mode != "faculty"? props.mode != "dept": ipcrInfo.form_status == "approved"}/>
-
-                                            <span className="desc">{task.main_task.time} with</span>
-                                            <input name = "actual_mod" type="number" className={props.mode == "faculty"? "value editable-field": "value"} defaultValue={task.actual_mod}
-                                            onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleDataChange(e)} disabled = {ipcrInfo && props.mode != "faculty"? props.mode != "dept": ipcrInfo.form_status == "approved"}/>
-
-                                            <span className="desc">{task.main_task.modification}</span>
-                                        </div>
-
-                                        <div className="sub-task-rating">
-                                            <span className = {props.mode == "check" && canEval? "quantity editable-field": "quantity"} onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleSpanChange(e)} contentEditable ={props.mode == "check" && canEval}>{parseFloat(task.quantity).toFixed(0)}</span>
-                                            <span className = {props.mode == "check" && canEval? "efficiency editable-field": "efficiency"} onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleSpanChange(e)} contentEditable ={props.mode == "check" && canEval}>{parseFloat(task.efficiency).toFixed(0)}</span>
-                                            <span className = {props.mode == "check" && canEval? "timeliness editable-field": "timeliness"} onClick={()=>{setSubTaskID(task.id)}} onInput={(e)=> handleSpanChange(e)} contentEditable ={props.mode == "check" && canEval}>{parseFloat(task.timeliness).toFixed(0)}</span>
-                                            <span className = "average" >{parseFloat(task.average).toFixed(0)}</span>
-                                        </div>
-
-                                        <div className="remarks">
-                                            
-                                        </div>
-                                    </div>
+                    {/* Oath Section */}
+                    <OathSection ipcrInfo={ipcrInfo} />
+ 
+                    {/* Tasks Table */}
+                    <div className="table-responsive mt-5 mb-4">
+                        <table className="table table-bordered table-hover">
+                            <thead className="table-light sticky-top">
+                                <tr>
+                                    <th style={{ width: "20%", textAlign:"center" }}>OUTPUT</th>
+                                    <th style={{ width: "25%", textAlign:"center"  }}>
+                                        SUCCESS INDICATORS<br />
+                                        <small className="text-muted">(TARGETS + MEASURES)</small>
+                                    </th>
+                                    <th style={{ width: "20%", textAlign:"center"  }}>ACTUAL ACCOMPLISHMENT</th>
+                                    <th style={{ width: "15%", textAlign:"center"  }}>
+                                        RATING<br />
+                                        <small className="text-muted">Q² E² T² A²</small>
+                                    </th>
+                                    <th style={{ width: "20%", textAlign:"center"  }}>REMARKS</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {Object.entries(arrangedSubTasks).map(([category, tasks]) => (
+                                    <TaskSection
+                                        key={category}
+                                        category={category}
+                                        tasks={tasks}
+                                        categoryType={categoryTypes[category]}
+                                        categoryStats={stats.categories[categoryTypes[category]]}
+                                        handleDataChange={handleDataChange}
+                                        handleSpanChange={handleSpanChange}
+                                        handleRemarks={(rating) => handleRemarks(rating, ratingThresholds)}
+                                        setSubTaskID={setSubTaskID}
+                                        mode={props.mode}
+                                        ipcrInfo={ipcrInfo}
+                                        currentPhase={currentPhase}
+                                    />
                                 ))}
-                            </div>
-                        ))}
-                        
-                        
-
+                            </tbody>
+                        </table>
                     </div>
-                    
-                    <div className="another-rating">
-                        <div className="fill-blanks">
 
-                        </div>
-                        <div className="calculated-rating">
-                        
-                            <div className="whole-rating">
-                                <span className="rating-type">Final Average Rating</span>
-                                <div className="each-rating">
-                                    <span>{parseFloat(quantityAvg).toFixed(0)}</span>
-                                    <span>{parseFloat(efficiencyAvg).toFixed(0)}</span>
-                                    <span>{parseFloat(timelinessAvg).toFixed(0)}</span>
-                                    <span>{parseFloat(allAvg).toFixed(0)}</span>
-                                </div>
-                            </div>  
-                            <div className="whole-rating">
-                                <span className="rating-type">FINAL AVERAGE RATING</span>
-                                <div className="avg-rating">
-                                    {parseFloat(allAvg).toFixed(0)}
-                                </div>
-                            </div>  
-                            <div className="whole-rating">
-                                <span className="rating-type">ADJECTIVAL RATING</span>
-                                <div className="avg-rating">
-                                    {
-                                        parseFloat(allAvg).toFixed(0) == 5? "OUTSTANDING": parseFloat(allAvg).toFixed(0) >= 4? "VERY SATISFACTORY": parseFloat(allAvg).toFixed(0) >= 3? "SATISFACTORY":parseFloat(allAvg).toFixed(0) >= 2? "UNSATISFACTORY": "POOR" 
-                                    }
-                                </div>
-                            </div>  
-                        </div>
-                    </div>
-                
+                    {/* Final Ratings */}
+                    <FinalRatingsSection 
+                        stats={stats} 
+                        ratingThresholds={ratingThresholds}
+                        handleRemarks={handleRemarks}
+                    />
 
+                    {/* Signatures */}
+                    <SignaturesSection ipcrInfo={ipcrInfo} />
                 </div>
-                <div className="individuals-bottom-container" style={{marginTop: "10px"}}>
-                    <div className="involved">
-                        <div className="individual-container">
-                            <span className="type">Discussed with:</span>
-                            
-                            <span className="name">{ipcrInfo && (ipcrInfo.discuss.name.toUpperCase())}</span>
-                                <span>{ipcrInfo && (ipcrInfo.discuss.position)}</span>
-                        </div>
-                        <div className="date-viewed">
-                            <span>Date</span>
-                        </div>
-                    </div>
-                    <div className="involved">
-                        <div className="individual-container">
-                            <span className="type">Assessed by:</span>
-                            <span style={{textAlign:"left", fontWeight:"300", fontSize:"0.9rem", padding:"10px"}}>I certified that I discussed my assessment of the performance with the employee</span>
-                            <span className="name">{ipcrInfo && (ipcrInfo.assess.name.toUpperCase())}</span>
-                                <span>{ipcrInfo && (ipcrInfo.assess.position)}</span>
-                        </div>
-                        <div className="date-viewed">
-                            <span className="type">Date</span>
-                            <span></span>
-                        </div>
-                    </div>
-
-                    <div className="involved">
-                        <div className="individual-container">
-                            <span className="type">Final Rating by:</span>
-                            <span className="name">{ipcrInfo && (ipcrInfo.final.name.toUpperCase())}</span>
-                            <span>{ipcrInfo && (ipcrInfo.final.position)}</span>
-                        </div>
-                        <div className="date-viewed">
-                            <span className="type">Date</span>
-                            <span></span>
-                        </div>
-                    </div>                    
-                        
-                </div>
-
-                <div className="individuals-bottom-container" style={{borderStyle: "none"}}>
-                    <div className="involved">
-                        
-                    </div>
-                    <div className="involved" style={{borderLeftStyle:"solid",borderBottomStyle:"solid", borderWidth: "1px", marginTop: "0px"}}>
-                        <div className="individual-container">
-                            <span className="type">Confirmed by:</span>
-                            <span className="name">{ipcrInfo && (ipcrInfo.confirm.name.toUpperCase())}</span>
-                            <span>{ipcrInfo && (ipcrInfo.confirm.position)}</span>
-                        </div>
-                        <div className="date-viewed">
-                            <span className="type">Date</span>
-                            <span></span>
-                        </div>
-                    </div>
-
-                    <div className="involved">
-                        
-                    </div>                    
-                        
-                </div>
-
-
             </div>
-            
         </div>
     )
+}
+
+
+// Sub-component: Header
+function HeaderSection({ ipcrInfo }) {
+    return (
+        <div className="text-center mb-5">
+            <div className="row align-items-center mb-3 g-2">
+                <div className="col-md-2 d-flex justify-content-center">
+                    <img
+                        src={`${import.meta.env.BASE_URL}municipal.png`}
+                        alt="Municipal Logo"
+                        style={{ height: "80px", objectFit: "contain" }}
+                    />
+                </div>
+                <div className="col-md-8">
+                    <p className="mb-1 small">Republic of the Philippines</p>
+                    <p className="mb-1 small">Province of Bulacan</p>
+                    <p className="mb-2"><strong>Municipality of Norzagaray</strong></p>
+                    <h5 className="mb-0"><strong>NORZAGARAY COLLEGE</strong></h5>
+                </div>
+                <div className="col-md-2 d-flex justify-content-center">
+                    <img
+                        src={`${import.meta.env.BASE_URL}LogoNC.png`}
+                        alt="College Logo"
+                        style={{ height: "80px", objectFit: "contain" }}
+                    />
+                </div>
+            </div>
+            <h4 className="fw-bold mt-3">INDIVIDUAL PERFORMANCE COMMITMENT & REVIEW FORM</h4>
+        </div>
+    )
+}
+
+// Sub-component: Oath Section
+function OathSection({ ipcrInfo }) {
+    return (
+        <div className="mb-4 p-3 bg-light rounded-3">
+            <p className="fst-italic mb-3">
+                I, <strong>{ipcrInfo?.user_info.first_name} {ipcrInfo?.user_info.last_name}</strong>,
+                Librarian of the <strong>NORZAGARAY COLLEGE</strong>, commit to deliver and agree to be rated on
+                the attainment of the following targets in accordance with the indicated measures for the period
+                <strong> JULY - DECEMBER 2025</strong>
+            </p>
+
+            <div className="row g-3">
+                <div className="col-md-12">
+                    <div className="form-group">
+                        <label className="form-label fw-semibold">Ratee</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={`${ipcrInfo?.user_info.first_name} ${ipcrInfo?.user_info.last_name}`}
+                            readOnly
+                        />
+                    </div>
+                </div>
+            </div>
+
+            {/* Legend */}
+            <div className="row mt-3">
+                <div className="col-12">
+                    <div className="ps-3 border-start border-3 border-primary">
+                        <small className="d-block">5 - OUTSTANDING</small>
+                        <small className="d-block">4 - VERY SATISFACTORY</small>
+                        <small className="d-block">3 - SATISFACTORY</small>
+                        <small className="d-block">2 - UNSATISFACTORY</small>
+                        <small className="d-block">1 - POOR</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+// Sub-component: Task Section (replaces Core/Strategic/Support repetition)
+function TaskSection({
+    category,
+    tasks,
+    categoryType,
+    categoryStats,
+    handleDataChange,
+    handleSpanChange,
+    handleRemarks,
+    setSubTaskID,
+    mode,
+    ipcrInfo,
+    currentPhase
+}) {
+    if (!categoryStats || categoryStats.count === 0) return null
+
+    const rawAvg = categoryStats.total / categoryStats.count
+    const weightedAvg = categoryStats.weight * rawAvg
+
+    return (
+        <>
+            <tr className="table-secondary fw-bold">
+                <td colSpan="5">{categoryType}</td>
+            </tr>
+            <tr className="table-light small">
+                <td colSpan="5" className="text-muted">{category}</td>
+            </tr>
+
+            {tasks.map((task) => (
+                <TaskRow
+                    key={task.id}
+                    task={task}
+                    handleDataChange={handleDataChange}
+                    handleSpanChange={handleSpanChange}
+                    handleRemarks={handleRemarks}
+                    setSubTaskID={setSubTaskID}
+                    mode={mode}
+                    ipcrInfo={ipcrInfo}
+                    currentPhase={currentPhase}
+                />
+            ))}
+
+            <tr className="table-light">
+                <td colSpan="3" className="fw-semibold">Raw Average</td>
+                <td className="fw-semibold text-end">{rawAvg.toFixed(2)}</td>
+                <td colSpan="3" className="text-center">{handleRemarks(rawAvg.toFixed(2))}</td>
+            </tr>
+            <tr className="table-light">
+                <td colSpan="3" className="fw-semibold">Weighted Average ({(categoryStats.weight * 100).toFixed(0)}%)</td>
+                <td className="fw-semibold text-end">{weightedAvg.toFixed(2)}</td>
+                <td colSpan="3" className="text-center">{handleRemarks(weightedAvg.toFixed(2))}</td>
+            </tr>
+        </>
+    )
+}
+
+function RatingBadges({ task }) {
+    return (
+        <div style = {{
+            display:"grid",
+            gridTemplateColumns:"repeat(4, 1fr)",
+        }}>
+            <div className="text-center" style={{fontSize:"1.5rem", borderStyle:"solid", borderWidth:"0 1px 0 0", borderColor:"grey", height: "100%"}}>
+                <div>{parseFloat(task.quantity).toFixed(0)}</div>
+            </div>
+            <div className="text-center" style={{fontSize:"1.5rem", borderStyle:"solid", borderWidth:"0 1px 0 0", borderColor:"grey", height: "100%"}}>
+                <div>{parseFloat(task.efficiency).toFixed(0)}</div>
+            </div>
+            <div className="text-center" style={{fontSize:"1.5rem", borderStyle:"solid", borderWidth:"0 1px 0 0", borderColor:"grey", height: "100%"}}>
+                <div>{parseFloat(task.timeliness).toFixed(0)}</div>
+            </div>
+            <div className="text-center" style={{fontSize:"1.5rem"}}>
+                <div>{parseFloat(task.average).toFixed(0)}</div>
+            </div>
+        </div>
+    )
+}
+function numericKeyDown(e) {
+    const allowed = [
+        "Backspace","Tab","ArrowLeft","ArrowRight","Delete","Enter","Home","End"
+    ]
+    if (allowed.includes(e.key)) return
+    // allow digits and single dot
+    const isDigit = /^[0-9]$/.test(e.key)
+    const isDot = e.key === "."
+    if (!isDigit && !isDot) {
+        e.preventDefault()
+        return
+    }
+    // prevent multiple dots
+    if (isDot && e.target.value.includes(".")) {
+        e.preventDefault()
+    }
+}
+
+function handlePasteNumeric(e) {
+    e.preventDefault()
+    const pasted = (e.clipboardData || window.clipboardData).getData("text")
+    const sanitized = pasted.replace(/[^0-9.]/g, "")
+    if (!sanitized) return
+    // insert sanitized text at cursor
+    const start = e.target.selectionStart
+    const end = e.target.selectionEnd
+    const value = e.target.value
+    e.target.value = value.slice(0, start) + sanitized + value.slice(end)
+    // dispatch input event so React picks up change
+    const evt = new Event("input", { bubbles: true })
+    e.target.dispatchEvent(evt)
+}
+
+function sanitizeNumberInput(e) {
+    // remove any non-digit/non-dot characters and trim multiple dots
+    let v = e.target.value.replace(/[^0-9.]/g, "")
+    const parts = v.split(".")
+    if (parts.length > 2) v = parts.shift() + "." + parts.join("")
+    if (v !== e.target.value) {
+        e.target.value = v
+    }
+}
+// Sub-component: Task Row
+function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setSubTaskID, mode, ipcrInfo, currentPhase }) {
+    const isEditable = mode === "faculty" && ipcrInfo?.form_status !== "approved"
+    const isEditableMode = mode === "faculty" && ipcrInfo?.form_status !== "approved"
+    const isEditableDuringMonitoring = isMonitoringPhase(currentPhase)
+    
+    // Target fields only editable during monitoring phase
+    const isTargetEditable = isEditableMode && isEditableDuringMonitoring
+    // Actual fields only editable during monitoring phase
+    const isActualEditable = isEditableMode && isEditableDuringMonitoring
+
+    const onNumberInput = (e) => {
+        sanitizeNumberInput(e)
+        handleDataChange(e)
+    }
+
+    return (
+        <>
+            <tr className="align-middle">
+                <td className="fw-semibold small">{task.title}</td>
+                <td className>
+                    <div className="d-grid gap-2">
+                        <div>
+                            <span className="text-muted small d-block">{task.main_task.target_acc} in</span>
+                            <input
+                                type="number"
+                                inputMode="decimal"
+                                pattern="[0-9]*"
+                                name="target_acc"
+                                defaultValue={task.target_acc}
+                                className={`form-control form-control-sm no-spinner ${isTargetEditable ? "bg-success bg-opacity-25" : ""}`}
+                                onClick={() => isTargetEditable && setSubTaskID(task.id)}
+                                onKeyDown={numericKeyDown}
+                                onPaste={handlePasteNumeric}
+                                onInput={onNumberInput}
+                                disabled={!isTargetEditable}
+                                title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
+                            />
+                        </div>
+                        <div>
+                            <span className="text-muted small d-block">{task.main_task.time} with</span>
+                            <input
+                                type="number"
+                                inputMode="decimal"
+                                pattern="[0-9]*"
+                                name="target_time"
+                                defaultValue={task.target_time}
+                                className={`form-control form-control-sm no-spinner ${isTargetEditable ? "bg-success bg-opacity-25" : ""}`}
+                                onClick={() => isTargetEditable && setSubTaskID(task.id)}
+                                onKeyDown={numericKeyDown}
+                                onPaste={handlePasteNumeric}
+                                onInput={onNumberInput}
+                                disabled={!isTargetEditable}
+                                title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
+                            />
+                        </div>
+                        <div>
+                            <span className="text-muted small d-block">{task.main_task.modification}</span>
+                            <input
+                                type="number"
+                                inputMode="decimal"
+                                pattern="[0-9]*"
+                                name="target_mod"
+                                defaultValue={task.target_mod}
+                                className={`form-control form-control-sm no-spinner ${isTargetEditable ? "bg-success bg-opacity-25" : ""}`}
+                                onClick={() => isTargetEditable && setSubTaskID(task.id)}
+                                onKeyDown={numericKeyDown}
+                                onPaste={handlePasteNumeric}
+                                onInput={onNumberInput}
+                                disabled={!isTargetEditable}
+                                title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
+                            />
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div className="d-grid gap-2">
+                        <div>
+                            <span className="text-muted small d-block">{task.main_task.actual_acc} in</span>
+                            <input
+                                type="number"
+                                inputMode="decimal"
+                                pattern="[0-9]*"
+                                name="actual_acc"
+                                defaultValue={task.actual_acc}
+                                className={`form-control form-control-sm no-spinner ${isActualEditable ? "bg-success bg-opacity-25" : ""}`}
+                                onClick={() => isActualEditable && setSubTaskID(task.id)}
+                                onKeyDown={numericKeyDown}
+                                onPaste={handlePasteNumeric}
+                                onInput={onNumberInput}
+                                disabled={!isActualEditable}
+                                title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
+                            />
+                        </div>
+                        <div>
+                            <span className="text-muted small d-block">{task.main_task.time} with</span>
+                            <input
+                                type="number"
+                                inputMode="decimal"
+                                pattern="[0-9]*"
+                                name="actual_time"
+                                defaultValue={task.actual_time}
+                                className={`form-control form-control-sm no-spinner ${isActualEditable ? "bg-success bg-opacity-25" : ""}`}
+                                onClick={() => isActualEditable && setSubTaskID(task.id)}
+                                onKeyDown={numericKeyDown}
+                                onPaste={handlePasteNumeric}
+                                onInput={onNumberInput}
+                                disabled={!isActualEditable}
+                                title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
+                            />
+                        </div>
+                        <div>
+                            <span className="text-muted small d-block">{task.main_task.modification}</span>
+                            <input
+                                type="number"
+                                inputMode="decimal"
+                                pattern="[0-9]*"
+                                name="actual_mod"
+                                defaultValue={task.actual_mod}
+                                className={`form-control form-control-sm no-spinner ${isActualEditable ? "bg-success bg-opacity-25" : ""}`}
+                                onClick={() => isActualEditable && setSubTaskID(task.id)}
+                                onKeyDown={numericKeyDown}
+                                onPaste={handlePasteNumeric}
+                                onInput={onNumberInput}
+                                disabled={!isActualEditable}
+                                title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
+                            />
+                        </div>
+                    </div>
+                </td>
+                <td className="small text-center">
+                    <RatingBadges task={task} />
+                </td>
+                <td className="small text-center fw-semibold">{handleRemarks(task.average)}</td>
+            </tr>
+        </>
+    )
+}
+
+// Sub-component: Final Ratings
+function FinalRatingsSection({ stats, ratingThresholds, handleRemarks }) {
+    const categories = stats?.categories || {}
+    const core = categories["Core Function"] || { count: 0, total: 0, weight: 0 }
+    const strategic = categories["Strategic Function"] || { count: 0, total: 0, weight: 0 }
+    const support = categories["Support Function"] || { count: 0, total: 0, weight: 0 }
+
+    const calcRaw = (c) => (c.count ? c.total / c.count : 0)
+    const coreRaw = calcRaw(core)
+    const strategicRaw = calcRaw(strategic)
+    const supportRaw = calcRaw(support)
+
+    const coreWeighted = coreRaw * (core.weight ?? 0)
+    const strategicWeighted = strategicRaw * (strategic.weight ?? 0)
+    const supportWeighted = supportRaw * (support.weight ?? 0)
+
+    const overallWeighted = coreWeighted + strategicWeighted + supportWeighted
+
+    return (
+        <div className="row g-3 my-4">
+            <div className="col-md-4">
+                <div className="card h-100 border">
+                    <div className="card-body">
+                        <h6 className="card-title fw-bold">Final Average Rating</h6>
+                        <div className="d-grid gap-2 small">
+                            <div className="d-flex justify-content-between">
+                                <span>Quantity (Q):</span>
+                                <strong>{parseFloat(stats.quantity).toFixed(2)}</strong>
+                            </div>
+                            <div className="d-flex justify-content-between">
+                                <span>Efficiency (E):</span>
+                                <strong>{parseFloat(stats.efficiency).toFixed(2)}</strong>
+                            </div>
+                            <div className="d-flex justify-content-between">
+                                <span>Timeliness (T):</span>
+                                <strong>{parseFloat(stats.timeliness).toFixed(2)}</strong>
+                            </div>
+                            <div className="d-flex justify-content-between border-top pt-2">
+                                <span>Average (A):</span>
+                                <strong>{parseFloat(stats.average).toFixed(2)}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="col-md-4">
+                <div className="card h-100 border">
+                    <div className="card-body">
+                        <h6 className="card-title fw-bold">Weighted Ratings</h6>
+                        <div className="small gap-2 d-flex flex-column">
+                            <div className="d-flex justify-content-between">
+                                <span>Core ({(core.weight ?? 0) * 100}%):</span>
+                                <strong>{coreWeighted ? coreWeighted.toFixed(2) : "0.00"}</strong>
+                            </div>
+                            <div className="d-flex justify-content-between">
+                                <span>Strategic ({(strategic.weight ?? 0) * 100}%):</span>
+                                <strong>{strategicWeighted ? strategicWeighted.toFixed(2) : "0.00"}</strong>
+                            </div>
+                            <div className="d-flex justify-content-between">
+                                <span>Support ({(support.weight ?? 0) * 100}%):</span>
+                                <strong>{supportWeighted ? supportWeighted.toFixed(2) : "0.00"}</strong>
+                            </div>
+                            <div className="d-flex justify-content-between fw-bold border-top pt-2">
+                                <span>Overall Weighted</span>
+                                <strong>{overallWeighted.toFixed(2)}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="col-md-4">
+                <div className="card h-100 border text-center">
+                    <div className="card-body d-flex flex-column justify-content-center">
+                        <h6 className="card-title fw-bold">Adjectival Rating</h6>
+                        <p className="mb-0 fs-6 fw-bold text-warning">
+                            {handleRemarks(overallWeighted.toFixed(2), ratingThresholds)}
+                        </p>
+                        <small className="text mt-2">Overall Weighted: {overallWeighted.toFixed(2)}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+// Sub-component: Signatures
+function SignaturesSection({ ipcrInfo }) {
+    const people = [
+        { label: "Reviewed by", ...ipcrInfo?.review },
+        { label: "Approved by", ...ipcrInfo?.approve },
+        { label: "Discussed with", ...ipcrInfo?.discuss },
+        { label: "Assessed by", ...ipcrInfo?.assess },
+        { label: "Final Rating by", ...ipcrInfo?.final },
+        { label: "Confirmed by", ...ipcrInfo?.confirm }
+    ]
+
+    return (
+        <div className="mt-5">
+            <div className="row g-3">
+                {people.map((person, idx) => (
+                    <div key={idx} className="col-md-6">
+                        <div className="border-top pt-3">
+                            <p className="small mb-1 fw-semibold">{person.label}:</p>
+                            <p className="mb-0 fw-bold">{person?.name?.toUpperCase()}</p>
+                            <p className="small text-muted mb-3">{person?.position}</p>                            
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    )
+}
+
+// Add this function near the top of the component, after other helper functions
+function isMonitoringPhase(currentPhase) {
+  return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("monitoring")
 }
 
 export default EditIPCR

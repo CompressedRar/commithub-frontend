@@ -6,19 +6,31 @@ import {
   updateMainTaskInfo,
 } from "../../services/taskService";
 import { objectToFormData } from "../api";
+import { getDepartments } from "../../services/departmentService";
 
-function TaskInfo({ id, backAfterArchive }) {
+function TaskInfo({ id, backAfterArchive, backToPage }) {
   const [taskInfo, setTaskInfo] = useState({});
   const [formData, setFormData] = useState({});
+  const [allDepartments, setAllDepartments] = useState([]);
   const [isDirty, setIsDirty] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [titleEditable, setTitleEditable] = useState(false);
 
   const handleChange = (e) => {
-    const { id, value } = e.target;
-    setFormData((prev) => ({ ...prev, [id]: value }));
+    const { id: fieldId, value } = e.target;
+    setFormData((prev) => ({ ...prev, [fieldId]: value }));
 
     // detect changes
-    if (taskInfo[id] !== value) setIsDirty(true);
+    if (taskInfo[fieldId] !== value) setIsDirty(true);
+  };
+
+  const loadDepartments = async () => {
+    try {
+      const res = await getDepartments();
+      setAllDepartments(res.data ?? []);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const loadTaskInfo = async () => {
@@ -38,6 +50,11 @@ function TaskInfo({ id, backAfterArchive }) {
   };
 
   const handleUpdate = async () => {
+    if (!formData.name || !formData.target_accomplishment || !formData.actual_accomplishment) {
+      Swal.fire("Validation", "Please fill all required fields", "warning");
+      return;
+    }
+
     setLoading(true);
     const newFormData = objectToFormData(formData);
     try {
@@ -48,6 +65,7 @@ function TaskInfo({ id, backAfterArchive }) {
         icon: "success",
       });
       setIsDirty(false);
+      setTitleEditable(false);
       loadTaskInfo();
     } catch (error) {
       console.error(error);
@@ -73,7 +91,7 @@ function TaskInfo({ id, backAfterArchive }) {
         try {
           const res = await archiveMainTask(id);
           Swal.fire("Archived!", res.data.message, "success");
-          backAfterArchive();
+          backAfterArchive?.();
         } catch (error) {
           Swal.fire("Error", error.response?.data?.error, "error");
         }
@@ -82,87 +100,200 @@ function TaskInfo({ id, backAfterArchive }) {
   };
 
   useEffect(() => {
-    if (id) loadTaskInfo();
+    if (id) {
+      loadTaskInfo();
+      loadDepartments();
+    }
   }, [id]);
 
   return (
-    <div className="p-2">
-        <div className="card-header d-flex justify-content-between align-items-center">
-          <h1></h1>
-          <button className="btn btn-danger btn-sm d-flex align-items-center gap-2" onClick={handleArchive}>
-            <span className="material-symbols-outlined">archive</span> Archive Output
-          </button>
+    <div className="py-2">
+      {/* Header */}
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 mb-4">
+        <div>
+          <h5 className="mb-0 fw-semibold d-flex align-items-center gap-2">
+            <span className="material-symbols-outlined">task_alt</span>
+            {formData.name || "Output"}
+          </h5>
+          <small className="text-muted d-block">View and manage output details</small>
         </div>
 
-        <div className="card-body">
-          <div className="mb-3">
-            <label className="form-label fw-bold">Output</label>
-            <input
-              id="name"
-              type="text"
-              className="form-control"
-              value={formData.name || ""}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="row">
-            <div className="col-md-6 mb-3">
-              <label className="form-label fw-bold">Target Quantity</label>
-              <textarea
-                id="target_accomplishment"
-                className="form-control"
-                rows="3"
-                value={formData.target_accomplishment || ""}
-                onChange={handleChange}
-              ></textarea>
-            </div>
-            <div className="col-md-6 mb-3">
-              <label className="form-label fw-bold">Actual Quantity</label>
-              <textarea
-                id="actual_accomplishment"
-                className="form-control"
-                rows="3"
-                value={formData.actual_accomplishment || ""}
-                onChange={handleChange}
-              ></textarea>
-            </div>
-          </div>
-
-          <div className="row">
-            <div className="col-md-6 mb-3">
-              <label className="form-label fw-bold">Timeliness</label>
-              <input
-                id="time_measurement"
-                type="text"
-                className="form-control"
-                value={formData.time_measurement || ""}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="col-md-6 mb-3">
-              <label className="form-label fw-bold">Efficiency</label>
-              <input
-                id="modifications"
-                type="text"
-                className="form-control"
-                value={formData.modifications || ""}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
-
-          <div className="d-flex justify-content-end">
-            <button
-              className="btn btn-primary"
-              disabled={!isDirty || loading}
-              onClick={handleUpdate}
-            >
-              {loading ? "Saving..." : "Save Changes"}
+        <div className="d-flex gap-2">
+          <button className="btn btn-outline-danger" onClick={handleArchive}>
+            <span className="material-symbols-outlined me-1">archive</span> Archive
+          </button>
+          {backToPage && (
+            <button className="btn btn-outline-secondary" onClick={backToPage}>
+              <span className="material-symbols-outlined me-1">close</span> Close
             </button>
-          </div>
+          )}
         </div>
       </div>
+
+      {/* Form */}
+      <form noValidate className="mb-4">
+        {/* Output Name */}
+        <div className="mb-3">
+          <label className="form-label fw-semibold">Output Name <span className="text-danger">*</span></label>
+          <input
+            id="name"
+            type="text"
+            className="form-control"
+            placeholder="e.g., Board Trustees Meeting"
+            value={formData.name || ""}
+            onChange={handleChange}
+          />
+          <small className="text-muted d-block mt-1">The main title of this output</small>
+        </div>
+
+        {/* Office/Department */}
+        <div className="mb-3">
+          <label className="form-label fw-semibold">Office</label>
+          <select
+            id="department"
+            className="form-select"
+            value={formData.department || ""}
+            onChange={handleChange}
+          >
+            <option value="">Select Department</option>
+            {allDepartments.map((dept) => (
+              <option key={dept.id} value={dept.id}>{dept.name}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Target & Actual Accomplishment */}
+        <h6 className="fw-semibold mt-4 mb-3">Success Indicators</h6>
+
+        <div className="row">
+          <div className="col-md-6 mb-3">
+            <label className="form-label fw-semibold">Target Quantity <span className="text-danger">*</span></label>
+            <textarea
+              id="target_accomplishment"
+              className="form-control"
+              rows="4"
+              placeholder="Define the target quantity/measure..."
+              value={formData.target_accomplishment || ""}
+              onChange={handleChange}
+            ></textarea>
+            <small className="text-muted d-block mt-1">What is the expected outcome?</small>
+          </div>
+
+          <div className="col-md-6 mb-3">
+            <label className="form-label fw-semibold">Actual Quantity <span className="text-danger">*</span></label>
+            <textarea
+              id="actual_accomplishment"
+              className="form-control"
+              rows="4"
+              placeholder="Record the actual accomplishment..."
+              value={formData.actual_accomplishment || ""}
+              onChange={handleChange}
+            ></textarea>
+            <small className="text-muted d-block mt-1">What was actually achieved?</small>
+          </div>
+        </div>
+
+        {/* Timeliness & Efficiency */}
+        <h6 className="fw-semibold mt-4 mb-3">Performance Metrics</h6>
+
+        <div className="row">
+          <div className="col-md-6 mb-3">
+            <label className="form-label fw-semibold">Timeliness</label>
+            <select
+              id="time_measurement"
+              className="form-select"
+              value={formData.time_measurement || ""}
+              onChange={handleChange}
+            >
+              <option value="">Select timeframe</option>
+              <option value="minute">Minute</option>
+              <option value="hour">Hour</option>
+              <option value="day">Day</option>
+              <option value="week">Week</option>
+              <option value="month">Month</option>
+              <option value="semester">Semester</option>
+              <option value="year">Year</option>
+            </select>
+            <small className="text-muted d-block mt-1">How often is this output produced?</small>
+          </div>
+
+          <div className="col-md-6 mb-3">
+            <label className="form-label fw-semibold">Efficiency</label>
+            <select
+              id="modifications"
+              className="form-select"
+              value={formData.modifications || ""}
+              onChange={handleChange}
+            >
+              <option value="">Select type</option>
+              <option value="correction">Correction</option>
+              <option value="revision">Revision</option>
+              <option value="error">Error</option>
+            </select>
+            <small className="text-muted d-block mt-1">Type of modification allowed</small>
+          </div>
+        </div>
+
+        {/* Additional Info */}
+        <h6 className="fw-semibold mt-4 mb-3">Additional Information</h6>
+
+        <div className="mb-3">
+          <label className="form-label fw-semibold">Description/Notes</label>
+          <textarea
+            id="description"
+            className="form-control"
+            rows="3"
+            placeholder="Any additional notes about this output..."
+            value={formData.description || ""}
+            onChange={handleChange}
+          ></textarea>
+        </div>
+
+        {/* Status */}
+        <div className="mb-3">
+          <label className="form-label fw-semibold">Status</label>
+          <div className="p-3 bg-light rounded">
+            <small className="text-muted d-block">
+              Created: <span className="fw-semibold">{formData.created_at ? new Date(formData.created_at).toLocaleDateString() : "N/A"}</span>
+            </small>
+            <small className="text-muted d-block">
+              Last Updated: <span className="fw-semibold">{formData.updated_at ? new Date(formData.updated_at).toLocaleDateString() : "N/A"}</span>
+            </small>
+          </div>
+        </div>
+      </form>
+
+      {/* Save/Cancel Buttons */}
+      <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+        <button
+          className="btn btn-outline-secondary"
+          onClick={() => {
+            setFormData(taskInfo);
+            setIsDirty(false);
+          }}
+          disabled={!isDirty || loading}
+        >
+          <span className="material-symbols-outlined me-1">close</span> Cancel
+        </button>
+        <button
+          className="btn btn-primary"
+          disabled={!isDirty || loading}
+          onClick={handleUpdate}
+        >
+          {loading ? (
+            <>
+              <span className="spinner-border spinner-border-sm me-2"></span>
+              Saving...
+            </>
+          ) : (
+            <>
+              <span className="material-symbols-outlined me-1">save</span>
+              Save Changes
+            </>
+          )}
+        </button>
+      </div>
+    </div>
   );
 }
 

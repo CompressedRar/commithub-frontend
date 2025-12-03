@@ -1,227 +1,290 @@
-import { useEffect, useState } from "react";
-import "../assets/styles/CategoryAndTask.css"
+// ...existing code...
+import { useEffect, useMemo, useState } from "react";
+import "../assets/styles/CategoryAndTask.css";
 import { getCategories, registerCategory } from "../services/categoryService";
 import { objectToFormData, socket } from "../components/api";
 import CategoryTasks from "../components/CategoryAndTaskComponents/CategoryTasks";
-
+import TaskInfo from "../components/CategoryAndTaskComponents/TaskInfo";
 import Swal from "sweetalert2";
 import { Modal } from "bootstrap";
-import TaskInfo from "../components/CategoryAndTaskComponents/TaskInfo";
-function CategoryAndTask(){
-    const [allCategory, setAllCategory] = useState([])
-    const [submitting, setSubmission] = useState(false)
-    const [formData, setFormData] = useState({"category_name": "", "category_type":"Core Function"})
 
-    const [pageNumber, setPageNumber] = useState(null)
-    const [firstCategoryID, setFirst] = useState(null)
+export default function CategoryAndTask() {
+  const [allCategory, setAllCategory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
-    const [currentTaskID, setCurrentTaskID] = useState()
+  const [formData, setFormData] = useState({
+    category_name: "",
+    category_type: "Core Function",
+  });
 
-    
+  const [selectedCategoryId, setSelectedCategoryId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeRightTab, setActiveRightTab] = useState("items"); // items | info
+  const [currentTaskID, setCurrentTaskID] = useState(null);
 
-    async function loadCategories(){
-        var res = await getCategories().then(data => data.data).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-        setAllCategory(res)
-        
-        return res
+  // Load categories
+  async function loadCategories() {
+    setLoading(true);
+    try {
+      const res = await getCategories();
+      const data = res?.data ?? [];
+      setAllCategory(data);
+      if (!selectedCategoryId && data.length > 0) setSelectedCategoryId(data[0].id);
+      if (data.length === 0) setSelectedCategoryId(null);
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", error?.response?.data?.error || "Failed to load categories", "error");
+    } finally {
+      setLoading(false);
     }
+  }
 
-    function reloadAllCategories(){
-        loadCategories().then(data => {
-            if(data.length == 0) return;
+  useEffect(() => {
+    loadCategories();
+    socket.on("category", loadCategories);
+    return () => socket.off("category", loadCategories);
+  }, []);
 
-            setFirst(data[0].id)
-            console.log(data[0].id)
-        })
+  // Search + filtered list (memoized)
+  const filteredCategories = useMemo(() => {
+    const q = String(searchQuery || "").trim().toLowerCase();
+    if (!q) return allCategory;
+    return allCategory.filter((c) => (c.name || "").toLowerCase().includes(q));
+  }, [allCategory, searchQuery]);
+
+  // Create category handlers
+  const handleDataChange = (e) => setFormData((p) => ({ ...p, [e.target.name]: e.target.value }));
+
+  const handleSubmission = async () => {
+    if (!formData.category_name || formData.category_name.trim() === "") {
+      return Swal.fire("Validation", "Category name is required", "warning");
     }
-
-    const handleDataChange = (e) => {
-        setFormData({...formData, [e.target.name]: e.target.value})        
+    setSubmitting(true);
+    try {
+      const payload = objectToFormData(formData);
+      const res = await registerCategory(payload);
+      if (res?.data?.message) {
+        Swal.fire("Success", res.data.message, "success");
+        loadCategories();
+        // close modal
+        const el = document.getElementById("add-category");
+        const m = Modal.getInstance(el);
+        if (m) m.hide();
+      } else {
+        Swal.fire("Error", res?.data?.message || "Failed to create category", "error");
+      }
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", error?.response?.data?.error || "Request failed", "error");
+    } finally {
+      setSubmitting(false);
+      setFormData({ category_name: "", category_type: "Core Function" });
     }
+  };
 
-    const handleSubmission = async () =>{
-        var converted_data = objectToFormData(formData)
-        setSubmission(true)
-        console.log(converted_data)
+  // UX helpers
+  function openCreateModal() {
+    const el = document.getElementById("add-category");
+    const m = new Modal(el);
+    m.show();
+  }
 
-
-        var res = await registerCategory(converted_data).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
-            })
-        })
-
-        if(res.data.message) {
-                    Swal.fire({
-                        title:"Success",
-                        text: res.data.message,
-                        icon:"success"
-                    })
-                }
-                else {
-                    Swal.fire({
-                        title:"Error",
-                        text: res.data.message,
-                        icon:"error"
-                    })
-                }
-       
-        setSubmission(false)
-        loadCategories()
+  // When categories change, ensure selected id stays valid
+  useEffect(() => {
+    if (selectedCategoryId && !allCategory.find((c) => c.id === selectedCategoryId)) {
+      setSelectedCategoryId(allCategory.length ? allCategory[0].id : null);
     }
+  }, [allCategory, selectedCategoryId]);
 
-    const closeModal = () => {
-        const modalEl = document.getElementById("add-category");
-        const modal = Modal.getInstance(modalEl);
-        if (modal) modal.hide();
-
-        // Remove leftover backdrop after short delay
-        setTimeout(() => {
-            const backdrops = document.querySelectorAll(".modal-backdrop");
-            backdrops.forEach(bd => bd.remove());
-            document.body.classList.remove("modal-open");
-            document.body.style.removeProperty("padding-right");
-        }, 200);
-    };
-
-
-
-
-    useEffect(()=>{
-        console.log(formData)
-
-        
-    }, [formData])
-
-    useEffect(()=>{
-        loadCategories().then(data => {
-            if(data.length == 0) return;
-
-            setFirst(data[0].id)
-            console.log(data[0].id)
-        })
-
-        socket.on("category", ()=> {
-            loadCategories()
-        })
-    }, [])
-
-    return (
-        <div className="category-task-container">
-            <div className="modal fade" id="add-category" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="addCategoryLabel" aria-hidden="true">
-                <div className="modal-dialog modal-dialog-centered">
-                    <div className="modal-content">
-
-                    <div className="modal-header">
-                        <h5 className="modal-title" id="addCategoryLabel">Create Major Final Output</h5>
-                        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-
-                    <div className="modal-body">
-
-                        <div className="mb-3">
-                        <label htmlFor="category_name" className="form-label">
-                            Major Final Output <span className="text-danger">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            id="category_name"
-                            name="category_name"
-                            className="form-control"
-                            placeholder="Eg. Research Services"
-                            onInput={handleDataChange}
-                            required
-                        />
-                        </div>
-
-                        <div className="mb-3">
-                        <label htmlFor="category_type" className="form-label">
-                            Function <span className="text-danger">*</span>
-                        </label>
-                        <select
-                            id="category_type"
-                            name="category_type"
-                            className="form-select"
-                            onChange={handleDataChange}
-                            required
-                        >
-                            <option value="Core Function">Core Function</option>
-                            <option value="Strategic Function">Strategic Function</option>
-                            <option value="Support Function">Support Function</option>
-                        </select>
-                        </div>
-
-                    </div>
-
-                    <div className="modal-footer">
-                        <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" className="btn btn-primary" onClick={handleSubmission} disabled = {submitting || formData["category_name"].length == 0}>
-                        {submitting ? (
-                            <span className="material-symbols-outlined loading">progress_activity</span>
-                        ) : (
-                            <span>Create Major Final Output</span>
-                        )}
-                        </button>
-                    </div>
-
-                    </div>
+  return (
+    <div className="container-fluid py-4">
+      <div className="row g-3">
+        {/* LEFT: categories list */}
+        <div className="col-12 col-md-4 col-lg-3">
+          <div className="card shadow-sm sticky-top" style={{ top: "1rem" }}>
+            <div className="card-body">
+              <div className="d-flex align-items-center justify-content-between mb-3">
+                <div>
+                  <h5 className="mb-0 fw-bold">Major Final Outputs</h5>
+                  <small className="text-muted">Select a category to manage outputs</small>
                 </div>
+                <button className="btn btn-sm btn-primary d-flex gap-2 align-items-center" onClick={openCreateModal} title="Create category">
+                  <span className="material-symbols-outlined">add</span>
+                </button>
+              </div>
+
+              <div className="mb-3">
+                <input
+                  className="form-control form-control-sm"
+                  placeholder="Search categories..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+
+              <div className="list-group list-group-flush">
+                {loading ? (
+                  <div className="text-center py-3">
+                    <div className="spinner-border text-primary" role="status" />
+                  </div>
+                ) : filteredCategories.length === 0 ? (
+                  <div className="text-center text-muted py-3">No categories found</div>
+                ) : (
+                  filteredCategories.map((cat) => {
+                    const active = cat.id === selectedCategoryId;
+                    return (
+                      <button
+                        key={cat.id}
+                        className={`list-group-item list-group-item-action d-flex justify-content-between align-items-center ${active ? "active" : ""}`}
+                        onClick={() => {
+                          setSelectedCategoryId(cat.id);
+                          setActiveRightTab("items");
+                        }}
+                        title={cat.name}
+                      >
+                        <div className="d-flex align-items-center gap-2">
+                          <span className="material-symbols-outlined">folder</span>
+                          <div className="text-start">
+                            <div className="fw-semibold small mb-0 text-truncate" style={{ maxWidth: 180 }}>{cat.name}</div>
+                            <small className="text">{cat.category_type ?? cat.type}</small>
+                          </div>
+                        </div>
+                        <span className="badge bg-light text-dark">{cat.task_count ?? 0}</span>
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+
+              <div className="mt-3 text-muted small">Showing {filteredCategories.length} categories</div>
             </div>
-
-
-            <div className="modal fade" id="view-task-info" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                <div className="modal-dialog modal-dialog-centered modal-xl" >
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title" id="staticBackdropLabel">Output Information</h5>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div className="modal-body">
-                            <TaskInfo id = {currentTaskID} key = {currentTaskID} backAfterArchive = {()=> {setFirst(firstCategoryID); setPageNumber(1)}} backToPage = {()=>{setPageNumber(1)}}></TaskInfo>                                                        
-                        </div>
-                        
-                    </div>
-                </div>
-            </div>
-
-            <div className="all-categories-container scrollable" style={{height:"91vh"}}>
-                <div className="sidebar-title " style={{textWrap:"nowrap", fontSize:"1.5rem"}}>
-                    Major Final Outputs
-                </div>
-                <div className="add-category-container">
-                    <button className="add-category btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-category">
-                        <span className="material-symbols-outlined">add</span>
-                        <span>Create Major Final Output</span>
-                    </button>
-                </div>
-                <div className="all-categories ">
-                    {allCategory.map((category) => (
-                        <div
-                        key={category.id}
-                        className="department"
-                        onClick={() => setFirst(category.id)}
-                        >
-                        <span className="material-symbols-outlined"></span>
-                        <span>{category.name}</span>
-                        </div>
-                    ))}
-                </div>
-
-            </div>
-
-            <CategoryTasks id = {firstCategoryID} key={firstCategoryID} changeTaskID = {(id)=>{setCurrentTaskID(id); setPageNumber(2)}} reloadAll = {()=>{reloadAllCategories()}} reloadCategory = {(id)=>{setFirst(id);}}></CategoryTasks>        
+          </div>
         </div>
-    )
-}
 
-export default CategoryAndTask
+        {/* RIGHT: content with tabs */}
+        <div className="col-12 col-md-8 col-lg-9">
+          <div className="p-2 border roundedshadow-sm">
+            <div className="header d-flex justify-content-between align-items-center">
+              <div className="d-flex gap-3 align-items-center">
+                <h5 className="mb-0 fw-semibold">
+                  <span className="material-symbols-outlined me-2">folder_open</span>
+                  {allCategory.find((c) => c.id === selectedCategoryId)?.name ?? "Select a category"}
+                </h5>
+                <small className="text">{allCategory.find((c) => c.id === selectedCategoryId)?.category_type}</small>
+              </div>
+
+              <div className="btn-group" role="tablist">
+                <button className={`btn btn-sm ${activeRightTab === "items" ? "btn-primary" : "btn-outline-secondary"}`} onClick={() => setActiveRightTab("items")}>Items</button>
+                <button className={`btn btn-sm ${activeRightTab === "info" ? "btn-primary" : "btn-outline-secondary"}`} onClick={() => setActiveRightTab("info")}>Info</button>
+              </div>
+            </div>
+
+            <div className="body">
+              {selectedCategoryId ? (
+                activeRightTab === "items" ? (
+                  <CategoryTasks
+                    id={selectedCategoryId}
+                    key={selectedCategoryId}
+                    changeTaskID={(id) => {
+                      setCurrentTaskID(id);
+                      // open detail modal
+                      const el = document.getElementById("view-task-info");
+                      const m = new Modal(el);
+                      m.show();
+                    }}
+                    reloadAll={() => loadCategories()}
+                    reloadCategory={(id) => setSelectedCategoryId(id)}
+                  />
+                ) : (
+                  <div className="row">
+                    <div className="col-12 col-lg-6">
+                      <div className="mb-3">
+                        <h6 className="fw-semibold">Category Details</h6>
+                        <p className="text-muted small mb-1">{allCategory.find((c) => c.id === selectedCategoryId)?.description ?? "No description"}</p>
+                        <div className="d-flex gap-2 mt-2">
+                          <button className="btn btn-sm btn-outline-primary" onClick={() => setActiveRightTab("items")}>
+                            Manage Items
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-12 col-lg-6">
+                      <div className="mb-3">
+                        <h6 className="fw-semibold">Meta</h6>
+                        <div className="small text-muted">
+                          <div>Tasks: {allCategory.find((c) => c.id === selectedCategoryId)?.task_count ?? 0}</div>
+                          <div>Type: {allCategory.find((c) => c.id === selectedCategoryId)?.category_type}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    
+                  </div>
+                )
+              ) : (
+                <div className="text-center py-5 text-muted">
+                  <div className="mb-3"><span className="material-symbols-outlined fs-1">folder_open</span></div>
+                  <div className="fw-semibold mb-1">No category selected</div>
+                  <div className="mb-3">Create or select a category from the left panel.</div>
+                  <div><button className="btn btn-primary" onClick={openCreateModal}><span className="material-symbols-outlined me-1">add</span>Create Category</button></div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Create Category Modal */}
+      <div className="modal fade" id="add-category" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="addCategoryLabel" aria-hidden="true">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content rounded-3 shadow-sm">
+            <div className="modal-header bg-primary text-white ">
+              <h5 className="modal-title  d-flex gap-2 align-items-center" id="addCategoryLabel"><span className="material-symbols-outlined me-2">add</span>Create Major Final Output</h5>
+              <button type="button" className="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div className="modal-body">
+              <div className="mb-3">
+                <label className="form-label">Major Final Output <span className="text-danger">*</span></label>
+                <input name="category_name" className="form-control" value={formData.category_name} onChange={handleDataChange} placeholder="Eg. Research Services" />
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label">Function <span className="text-danger">*</span></label>
+                <select name="category_type" className="form-select" value={formData.category_type} onChange={handleDataChange}>
+                  <option value="Core Function">Core Function</option>
+                  <option value="Strategic Function">Strategic Function</option>
+                  <option value="Support Function">Support Function</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button className="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+              <button className="btn btn-primary d-flex gap-2 align-items-center" onClick={handleSubmission} disabled={submitting || !formData.category_name}>
+                {submitting ? <span className="spinner-border spinner-border-sm me-2"></span> : <span className="material-symbols-outlined me-2">check</span>}
+                {submitting ? "Creating..." : "Create Category"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* View Task Info Modal */}
+      <div className="modal fade" id="view-task-info" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="taskInfoLabel" aria-hidden="true">
+        <div className="modal-dialog modal-dialog-centered modal-xl">
+          <div className="modal-content rounded-3 shadow-sm">
+            <div className="modal-header">
+              <h5 className="modal-title" id="taskInfoLabel">Output Information</h5>
+              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div className="modal-body">
+              <TaskInfo id={currentTaskID} key={currentTaskID} backAfterArchive={() => { loadCategories(); }} backToPage={() => { setActiveRightTab("items"); }} />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+// ...existing code...
