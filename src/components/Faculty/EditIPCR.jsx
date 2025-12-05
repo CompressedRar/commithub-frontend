@@ -660,6 +660,31 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
         handleDataChange(e)
     }
 
+    // submit datetime values immediately to server for a sub-task
+    async function submitDateTimeChange(subTaskId, fieldName, datetimeLocal) {
+      if (!subTaskId || !fieldName) return;
+      if (!datetimeLocal) {
+        Swal.fire("Validation", "Please provide a valid date/time.", "warning");
+        return;
+      }
+  
+      const d = new Date(datetimeLocal);
+      if (isNaN(d.getTime())) {
+        Swal.fire("Error", "Invalid date/time value.", "error");
+        return;
+      }
+  
+      const iso = d.toISOString();
+  
+      try {
+        await updateSubTask(subTaskId, fieldName, iso);
+        // refresh IPCR data so UI shows updated value
+      } catch (error) {
+        console.error("Failed to save datetime:", error);
+        Swal.fire("Error", error.response?.data?.error || "Failed to save date/time", "error");
+      }
+    }
+
     return (
         <>
             <tr className="align-middle">
@@ -674,31 +699,47 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                 pattern="[0-9]*"
                                 name="target_acc"
                                 defaultValue={task.target_acc}
-                                className={`form-control form-control-sm no-spinner ${isTargetEditable ? "bg-success bg-opacity-25" : ""}`}
+                                className={`form-control form-control-sm no-spinner`}
                                 onClick={() => isTargetEditable && setSubTaskID(task.id)}
                                 onKeyDown={numericKeyDown}
                                 onPaste={handlePasteNumeric}
                                 onInput={onNumberInput}
-                                disabled={!isTargetEditable}
+                                disabled={true}
                                 title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
                             />
                         </div>
                         <div>
-                            <span className="text-muted small d-block">{task.main_task.time} with</span>
-                            <input
-                                type="number"
-                                inputMode="decimal"
-                                pattern="[0-9]*"
-                                name="target_time"
-                                defaultValue={task.target_time}
-                                className={`form-control form-control-sm no-spinner ${isTargetEditable ? "bg-success bg-opacity-25" : ""}`}
-                                onClick={() => isTargetEditable && setSubTaskID(task.id)}
-                                onKeyDown={numericKeyDown}
-                                onPaste={handlePasteNumeric}
-                                onInput={onNumberInput}
-                                disabled={!isTargetEditable}
-                                title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
-                            />
+                            {task.main_task.timeliness_mode == "timeframe"? 
+                            <>
+                                <span className="text-muted small d-block">{task.main_task.time} with</span>
+                                <input
+                                    type="number"
+                                    inputMode="decimal"
+                                    pattern="[0-9]*"
+                                    name="target_time"
+                                    defaultValue={task.main_task.target_timeframe}
+                                    className={`form-control form-control-sm no-spinner `}
+                                    onClick={() => isTargetEditable && setSubTaskID(task.id)}
+                                    onKeyDown={numericKeyDown}
+                                    onPaste={handlePasteNumeric}
+                                    onInput={onNumberInput}
+                                    disabled={true}
+                                    title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
+                                />
+                            </>:
+                            <>
+                                <span className="text-muted small d-block">on set deadline with</span>
+                                <input 
+                                    type="date" 
+                                    name="target_deadline"
+                                    className={`form-control form-control-sm no-spinner`}
+                                    value={formatDateForInput(task.main_task.target_deadline)}
+                                    onChange={(e) => submitDateTimeChange(task.id, "target_deadline", e.target.value)}
+                                    disabled={!isTargetEditable}
+                                    title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
+                                />
+
+                            </>}
                         </div>
                         <div>
                             <span className="text-muted small d-block">{task.main_task.modification}</span>
@@ -707,13 +748,13 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                 inputMode="decimal"
                                 pattern="[0-9]*"
                                 name="target_mod"
-                                defaultValue={task.target_mod}
-                                className={`form-control form-control-sm no-spinner ${isTargetEditable ? "bg-success bg-opacity-25" : ""}`}
+                                defaultValue={task.main_task.target_efficiency}
+                                className={`form-control form-control-sm no-spinner `}
                                 onClick={() => isTargetEditable && setSubTaskID(task.id)}
                                 onKeyDown={numericKeyDown}
                                 onPaste={handlePasteNumeric}
                                 onInput={onNumberInput}
-                                disabled={!isTargetEditable}
+                                disabled={true}
                                 title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
                             />
                         </div>
@@ -739,21 +780,37 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                             />
                         </div>
                         <div>
-                            <span className="text-muted small d-block">{task.main_task.time} with</span>
-                            <input
-                                type="number"
-                                inputMode="decimal"
-                                pattern="[0-9]*"
-                                name="actual_time"
-                                defaultValue={task.actual_time}
-                                className={`form-control form-control-sm no-spinner ${isActualEditable ? "bg-success bg-opacity-25" : ""}`}
-                                onClick={() => isActualEditable && setSubTaskID(task.id)}
-                                onKeyDown={numericKeyDown}
-                                onPaste={handlePasteNumeric}
-                                onInput={onNumberInput}
-                                disabled={!isActualEditable}
-                                title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
-                            />
+                            {task.main_task.timeliness_mode == "timeframe"? 
+                            <>
+                                <span className="text-muted small d-block">{task.main_task.time} with</span>
+                                <input
+                                    type="number"
+                                    inputMode="decimal"
+                                    pattern="[0-9]*"
+                                    name="actual_time"
+                                    defaultValue={task.actual_time}
+                                    
+                                    className={`form-control form-control-sm no-spinner ${isActualEditable ? "bg-success bg-opacity-25" : ""}`}
+                                    onClick={() => isTargetEditable && setSubTaskID(task.id)}
+                                    onKeyDown={numericKeyDown}
+                                    onPaste={handlePasteNumeric}
+                                    onInput={onNumberInput}
+                                    title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
+                                />
+                            </>:
+                            <>
+                                <span className="text-muted small d-block">on set deadline with</span>
+                                <input 
+                                    type="date" 
+                                    name = "actual_deadline"
+                                    className={`form-control form-control-sm no-spinner ${isActualEditable ? "bg-success bg-opacity-25" : ""}`}
+                                    value={formatDateForInput(task.actual_deadline)}
+                                    onChange={(e) => submitDateTimeChange(task.id, "actual_deadline", e.target.value)}
+                                    disabled={!isActualEditable}
+                                    title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
+                                />
+
+                            </>}
                         </div>
                         <div>
                             <span className="text-muted small d-block">{task.main_task.modification}</span>
@@ -901,6 +958,32 @@ function SignaturesSection({ ipcrInfo }) {
 // Add this function near the top of the component, after other helper functions
 function isMonitoringPhase(currentPhase) {
   return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("monitoring")
+}
+
+// Add this helper function near the top with other helper functions
+function formatDateForInput(dateString) {
+  if (!dateString) return "";
+  
+  try {
+    // Handle both ISO 8601 and other date formats
+    const date = new Date(dateString);
+    
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+      console.warn("Invalid date:", dateString);
+      return "";
+    }
+    
+    // Convert to YYYY-MM-DD format (required by date input)
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    
+    return `${year}-${month}-${day}`;
+  } catch (error) {
+    console.error("Error formatting date:", error);
+    return "";
+  }
 }
 
 export default EditIPCR

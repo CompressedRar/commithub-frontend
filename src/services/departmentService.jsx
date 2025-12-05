@@ -91,9 +91,9 @@ export async function getGeneralAssignedUsers(task_id) {
     return api.get(`/api/v1/department/assigned/general/${task_id}`)
 }
 
-export async function assignUsers(user_id, task_id) {
+export async function assignUsers(user_id, task_id, assigned_quantity) {
     console.log("fetching assigned users ")
-    return api.post(`/api/v1/department/assigned/${user_id}&${task_id}`)
+    return api.post(`/api/v1/department/assigned/${user_id}&${task_id}&${assigned_quantity}`)
 }
 
 export async function unAssignUsers(user_id, task_id) {

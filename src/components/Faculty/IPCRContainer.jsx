@@ -116,6 +116,7 @@ function IPCRContainer({ switchPage }) {
 
 
   async function createTasks() {
+    return;
     setCreating(true)
     if (allAssignedID.length === 0) {
       //Swal.fire("Empty Output", "You must have at least one assigned output for IPCR.");

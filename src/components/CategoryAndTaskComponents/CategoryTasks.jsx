@@ -39,6 +39,7 @@ function CategoryTasks(props) {
   const [isEmpty, setEmpty] = useState(true);
 
   const titleRef = useRef(null);
+  const formRef = useRef(null);
 
   // --- API Loaders
   async function loadDepartments() {
@@ -116,7 +117,11 @@ function CategoryTasks(props) {
   }, [pastTense]);
 
   // --- Handlers
-  const handleDataChange = (e) => setFormData((p) => ({ ...p, [e.target.name]: e.target.value }));
+  const handleDataChange = (e) => {
+    setFormData((p) => ({ ...p, [e.target.name]: e.target.value }))
+    console.log(e.target.name, e.target.value)
+    console.log(formData)
+  };
 
   const handleTitleChange = (e) => {
     setUpdateData((prev) => ({ ...prev, [e.target.id]: e.target.textContent }));
@@ -181,7 +186,31 @@ function CategoryTasks(props) {
       return;
     }
 
-    const newFormData = objectToFormData(formData);
+    // sync current DOM values to avoid losing the last edited input
+    const syncFromForm = () => {
+      if (!formRef.current) return formData;
+      const fd = new FormData(formRef.current);
+      const parseIntOr0 = (v) => {
+        const n = parseInt(v, 10);
+        return Number.isFinite(n) ? n : 0;
+      };
+      return {
+        ...formData,
+        task_name: fd.get("task_name") || formData.task_name,
+        department: fd.get("department") || formData.department,
+        task_desc: fd.get("task_desc") || formData.task_desc,
+        target_quantity: parseIntOr0(fd.get("target_quantity") ?? formData.target_quantity),
+        target_efficiency: parseIntOr0(fd.get("target_efficiency") ?? formData.target_efficiency),
+        timeliness_mode: fd.get("timeliness_mode") || formData.timeliness_mode,
+        target_timeframe: parseIntOr0(fd.get("target_timeframe") ?? formData.target_timeframe),
+        time_measurement: fd.get("time_measurement") || formData.time_measurement,
+        target_deadline: fd.get("target_deadline") || formData.target_deadline,
+        modification: fd.get("modification") || formData.modification,
+      };
+    };
+
+    const synced = syncFromForm();
+    const newFormData = objectToFormData(synced);
     newFormData.append("past_task_desc", converted_tense);
 
     if (!formData.task_name || !formData.task_desc) {
@@ -388,7 +417,7 @@ function CategoryTasks(props) {
             </div>
 
             <div className="modal-body px-4 py-3">
-              <form noValidate>
+              <form noValidate ref={formRef}>
                 <div className="mb-3">
                   <label className="form-label fw-semibold">Output <span className="text-danger">*</span></label>
                   <input type="text" name="task_name" className="form-control"
@@ -498,7 +527,7 @@ function CategoryTasks(props) {
                         name="target_deadline"
                         className="form-control form-control-sm"
                         onChange={handleDataChange}
-                        value={formData.target_deadline || ""}
+                        value={formData.target_deadline}
                       />
                       <small className="text-muted">Specify exact date/time for completion</small>
                     </div>
