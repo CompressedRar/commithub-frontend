@@ -149,7 +149,7 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
       </div>
 
       {/* ✅ ─── Scrollable Container starts here ─── */}
-      <div className="container-fluid py-3 overflow-auto bg-light" style={{ maxHeight: "calc(100vh - 110px)" }}>
+      <div className="container-fluid py-3 overflow-auto bg-light" >
         {/* Banner */}
         <div
           className="rounded-4 shadow-sm mb-4 position-relative overflow-hidden"

@@ -49,7 +49,7 @@ function PerformanceReviews(props){
             filtArray.push(i.ipcr.id)
         }
         
-        console.log("PReview",res)
+        console.log("Department IPCRS",res)
         
         setFilteredID(filtArray)
 

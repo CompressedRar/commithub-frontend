@@ -11,6 +11,9 @@ import Swal from "sweetalert2"
 import { jwtDecode } from "jwt-decode"
 import { getAccountInfo } from "../../services/userService"
 import { getSettings } from "../../services/settingsService"
+import { getCategories } from "../../services/categoryService"
+
+
 
 function EditOPCR(props) {
   const [opcrInfo, setOPCRInfo] = useState(null)
@@ -41,6 +44,8 @@ function EditOPCR(props) {
   const [canEval, setCanEval] = useState(false)
   const [ratingThresholds, setRatingThresholds] = useState(null)
 
+  const [categoriesTypes, setCategoryTypes] = useState({})
+
   const token = localStorage.getItem("token")
 
   async function loadOPCR() {
@@ -52,10 +57,30 @@ function EditOPCR(props) {
       })
 
     if (!res) return
+    console.log("OPCR Data: ", res)
     setOPCRInfo(res.ipcr_data)
     setFormStatus(res.form_status?.toUpperCase())
     setAssignedData(res.assigned)
     setHeadData(res.admin_data)
+  }
+
+  async function loadCategoryTypes() {
+    try{
+      const res = await getCategories()
+
+      if(!res) return
+      const data = res.data.reduce((acc, category) => {
+        acc[category.name] = category.type
+        return acc
+      }, {})
+      console.log("Category Types: ", data)
+      setCategoryTypes(data)
+
+
+    }
+    catch (e) {
+      console.log("failed load category types", e)
+    }
   }
 
   async function loadUserInfo() {
@@ -146,6 +171,7 @@ function EditOPCR(props) {
     loadOPCR()
     loadUserInfo()
     loadFormulas()
+    loadCategoryTypes()
 
     socket.on("ipcr", loadOPCR)
     socket.on("ipcr_added", loadOPCR)
@@ -163,6 +189,8 @@ function EditOPCR(props) {
 
   useEffect(() => {
     if (!opcrInfo) return
+
+    console.log("opcr info loaded: ", opcrInfo)
 
     const evalExpression = (expr, ctx = {}) => {
       if (!expr || typeof expr !== "string") return null
@@ -191,6 +219,7 @@ function EditOPCR(props) {
       const qExpr = typeof quantityFormula === "string" ? quantityFormula : quantityFormula?.expression
       const eExpr = typeof efficiencyFormula === "string" ? efficiencyFormula : efficiencyFormula?.expression
       const tExpr = typeof timelinessFormula === "string" ? timelinessFormula : timelinessFormula?.expression
+
       const q = evalExpression(qExpr, ctx)
       const e = evalExpression(eExpr, ctx)
       const t = evalExpression(tExpr, ctx)
@@ -225,7 +254,7 @@ function EditOPCR(props) {
           allSum += computed._computed.average
           count++
 
-          const type = task.main_task?.category?.type || (typeof category === "string" && /core/i.test(category) ? "Core Function" : typeof category === "string" && /strategic/i.test(category) ? "Strategic Function" : typeof category === "string" && /support/i.test(category) ? "Support Function" : null)
+          const type = categoriesTypes[category]
 
           if (type && funcSums[type]) {
             funcSums[type].sum += computed._computed.average
@@ -244,6 +273,7 @@ function EditOPCR(props) {
     const cAvg = funcSums["Core Function"].count ? funcSums["Core Function"].sum / funcSums["Core Function"].count : 0
     const sAvg = funcSums["Strategic Function"].count ? funcSums["Strategic Function"].sum / funcSums["Strategic Function"].count : 0
     const supAvg = funcSums["Support Function"].count ? funcSums["Support Function"].sum / funcSums["Support Function"].count : 0
+
     setCoreRawAvg(cAvg)
     setStrategicRawAvg(sAvg)
     setSupportRawAvg(supAvg)
@@ -319,9 +349,12 @@ function EditOPCR(props) {
               <thead className="table-light sticky-top">
                 <tr>
                   <th style={{ width: "20%", textAlign: "center" }}>OUTPUT</th>
-                  <th style={{ width: "25%", textAlign: "center" }}>
+                  <th style={{ width: "20%", textAlign: "center" }}>
                     SUCCESS INDICATORS<br />
                     <small className="text-muted">(TARGETS + MEASURES)</small>
+                  </th>
+                  <th style={{ width: "15%", textAlign: "center" }}>
+                    INDIVIDUALS ACCOUNTABLE<br />
                   </th>
                   <th style={{ width: "20%", textAlign: "center" }}>ACTUAL ACCOMPLISHMENT</th>
                   <th style={{ width: "15%", textAlign: "center" }}>
@@ -337,6 +370,7 @@ function EditOPCR(props) {
                     <TaskSection
                       key={`${idx}-${category}`}
                       category={category}
+                      categoryType={categoriesTypes[category]}
                       tasks={tasks}
                       assignedData={assignedData}
                       handleRemarks={handleRemarks}
@@ -440,20 +474,24 @@ function OfficerInfoSection({ headData, assignedData }) {
 }
 
 // Sub-component: Task Section
-function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThresholds, setField, setValue, setRatingID, canEval }) {
+function TaskSection({ category, categoryType, tasks, assignedData, handleRemarks, ratingThresholds, setField, setValue, setRatingID, canEval }) {
   if (!tasks || tasks.length === 0) return null
 
   return (
     <>
       <tr className="table-secondary fw-bold">
-        <td colSpan="5">{category}</td>
+        <td colSpan="5">{categoryType}</td>
+      </tr>
+    
+      <tr className="table-light small">
+        <td colSpan="5" className="text-muted">{category}</td>
       </tr>
 
       {tasks.map((task, idx) => (
         <tr key={idx} className="align-middle">
           <td className="fw-semibold small" style={{ minWidth: 220 }}>{task.title}</td>
           <td>
-            <div className="d-flex gap-2">
+            <div className="d-grid gap-2">
               <div>
                 <input disabled className="form-control form-control-sm" defaultValue={task.summary?.target} />
                 <small className="text-muted d-block">{task.description?.target} in</small>
@@ -469,7 +507,12 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
             </div>
           </td>
           <td>
-            <div className="d-flex gap-2">
+            <div className="d-flex justify-content-center">
+              {assignedData[task.title]}
+            </div>
+          </td>
+          <td>
+            <div className="d-grid gap-2">
               <div>
                 <input disabled className="form-control form-control-sm" defaultValue={task.summary?.actual} />
                 <small className="text-muted d-block">{task.description?.actual} in</small>

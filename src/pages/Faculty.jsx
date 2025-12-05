@@ -10,10 +10,14 @@ function Faculty(){
     return(
         <div className="faculty-container">
             {currentPage == 0? <IPCRContainer switchPage={(ipcr_id, dept_id)=>{
-                setCurrentPage(1)
-                setCurrentIPCRID(ipcr_id)
-                setDepartmentID(dept_id)
-                console.log("switching dept id: ", dept_id)
+
+                setTimeout(()=> {
+                    setCurrentPage(1)
+                    setCurrentIPCRID(ipcr_id)
+                    setDepartmentID(dept_id)
+                    console.log("switching dept id: ", dept_id)
+                }, 500)
+                
             }}></IPCRContainer>: 
             <EditIPCR 
                 dept_id = {departmentID} mode = {"faculty"} ipcr_id = {currentIPCRID} 

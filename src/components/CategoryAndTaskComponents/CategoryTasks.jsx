@@ -66,6 +66,12 @@ function CategoryTasks(props) {
         accomplishment_editable: 0,
         time_editable: 0,
         modification_editable: 0,
+        // new target fields
+        target_quantity: 0,
+        target_efficiency: 0,
+        target_deadline: "",       // will hold datetime-local string
+        target_timeframe: 0,       // numeric value for timeframe (units in time_measurement)
+        timeliness_mode: "timeframe",
         id,
       });
       setUpdateData({ title: res.name, id });
@@ -209,7 +215,6 @@ function CategoryTasks(props) {
     <div
       className="category-main-container container-fluid py-3"
       style={{
-        height: "100vh",
         overflowY: "auto",
         overflowX: "hidden",
         paddingBottom: "2.5rem",
@@ -241,7 +246,6 @@ function CategoryTasks(props) {
               className={`mb-0 fw-semibold d-flex align-items-center gap-2 ${titleEditable ? "border border-primary bg-white rounded px-2 py-1" : "text-primary"}`}
               style={{ outline: "none", cursor: titleEditable ? "text" : "default" }}
             >
-              <span className="material-symbols-outlined">folder</span>
               <span>{categoryInfo?.name || "Category"}</span>
             </h4>
             <small className="text-muted d-block">{categoryInfo?.description}</small>
@@ -402,8 +406,18 @@ function CategoryTasks(props) {
                 </div>
 
                 <h6 className="mt-3">Success Indicators (Targets + Measures)</h6>
+                <div className="col-md-12 mb-3">
+                    <label className="form-label fw-semibold">Target Quantity</label>
+                    <input
+                      type="number"
+                      name="target_quantity"
+                      className="form-control form-control"
+                      onInput={handleDataChange}
+                      defaultValue={formData.target_quantity ?? 0}
+                      min={1}
+                    />
+                  </div>
                 <div className="mb-3">
-                  <label className="form-label fw-semibold">Quantity</label>
                   <textarea name="task_desc" className="form-control" rows={5}
                     placeholder="Describe the measurable aspect of the output..."
                     onInput={(e) => {
@@ -412,16 +426,21 @@ function CategoryTasks(props) {
                     }} required />
                 </div>
 
-                <div className="row">
+                <div className="row g-2">
                   <div className="col-md-6 mb-3">
-                    <label className="form-label fw-semibold">Timeliness</label>
-                    <select name="time_measurement" className="form-select" onChange={handleDataChange}>
-                      {["minute","hour","day","week","month","semester","year"].map((t)=>(<option key={t} value={t}>{t[0].toUpperCase()+t.slice(1)}</option>))}
-                    </select>
+                    <label className="form-label fw-semibold">Target Efficiency</label>
+                    <input
+                      type="number"
+                      name="target_efficiency"
+                      className="form-control form-control"
+                      onInput={handleDataChange}
+                      defaultValue={formData.target_efficiency ?? 0}
+                      
+                    />
                   </div>
-
+                
                   <div className="col-md-6 mb-3">
-                    <label className="form-label fw-semibold">Efficiency</label>
+                    <label className="form-label fw-semibold">Efficiency Unit</label>
                     <select name="modification" className="form-select" onChange={handleDataChange}>
                       <option value="correction">Correction</option>
                       <option value="revision">Revision</option>
@@ -429,6 +448,62 @@ function CategoryTasks(props) {
                     </select>
                   </div>
                 </div>
+
+                <div className="col-md-12 mb-3">
+                    <label className="form-label fw-semibold">Timeliness Mode</label>
+                    <select name="timeliness_mode" className="form-select form-select" onChange={handleDataChange} value={formData.timeliness_mode || "timeframe"}>
+                      <option value="timeframe">Timeframe (number + unit)</option>
+                      <option value="deadline">Deadline (specific date/time)</option>
+                    </select>
+                  </div>
+
+
+                {/* timeframe or deadline inputs - show depending on timeliness_mode */}
+                { (formData.timeliness_mode || "timeframe") === "timeframe" ? (
+                  <div className="row g-2">
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label fw-semibold">Timeframe (units)</label>
+                      <input
+                        type="number"
+                        name="target_timeframe"
+                        className="form-control form-control-sm"
+                        onInput={handleDataChange}
+                        value={formData.target_timeframe ?? 0}
+                      />
+                      <small className="text-muted">Use with unit selector above</small>
+                    </div>
+
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label fw-semibold">Time Unit</label>
+                      <select
+                        name="time_measurement"
+                        className="form-select form-select-sm"
+                        onChange={handleDataChange}
+                        value={formData.time_measurement || "minute"}
+                      >
+                        {["minute","hour","day","week","month","semester","year"].map((t) => (
+                          <option key={t} value={t}>
+                            {t[0].toUpperCase() + t.slice(1)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="row g-2">
+                    <div className="col-12 mb-3">
+                      <label className="form-label fw-semibold">Deadline</label>
+                      <input
+                        type="datetime-local"
+                        name="target_deadline"
+                        className="form-control form-control-sm"
+                        onChange={handleDataChange}
+                        value={formData.target_deadline || ""}
+                      />
+                      <small className="text-muted">Specify exact date/time for completion</small>
+                    </div>
+                  </div>
+                )}
 
                 <div className="row">
                   <div className="col-md-6 mb-3">

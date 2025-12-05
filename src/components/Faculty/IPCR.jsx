@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { archiveIprc, downloadIPCR } from "../../services/pcrServices";
 import Swal from "sweetalert2";
 import ManageSupportingDocuments from "./ManageSupportingDocuments";
 
-function IPCR({ ipcr, dept_mode, onClick, onMouseOver }) {
+function IPCR({ ipcr, dept_mode, onClick, onMouseOver, onLoad }) {
   const [downloading, setDownloading] = useState(false);
   const [archiving, setArchiving] = useState(false);
 
@@ -57,6 +57,10 @@ function IPCR({ ipcr, dept_mode, onClick, onMouseOver }) {
       setDownloading(false);
     }
   }
+
+  useEffect(()=> {
+    if(onLoad) onLoad()
+  }, [])
 
   return (
     <div

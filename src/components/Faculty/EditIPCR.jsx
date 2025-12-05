@@ -338,7 +338,7 @@ function EditIPCR(props) {
             
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <button
-                    className="btn btn-outline-secondary d-flex align-items-center gap-2"
+                    className="btn btn-outline-secondary d-none align-items-center gap-2"
                     data-bs-dismiss="modal"
                     onClick={props.switchPage}
                 >

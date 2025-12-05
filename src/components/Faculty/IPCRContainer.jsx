@@ -118,25 +118,30 @@ function IPCRContainer({ switchPage }) {
   async function createTasks() {
     setCreating(true)
     if (allAssignedID.length === 0) {
-      Swal.fire("Empty Output", "You must have at least one assigned output for IPCR.");
+      //Swal.fire("Empty Output", "You must have at least one assigned output for IPCR.");
       setCreating(false)
+      console.log("No assigned outputs");
       return;
       
     }
 
-
-
     const res = await createUserTasks(userinfo.id, allAssignedID)
       .then((data) => data.data.message)
       .catch((error) => {
-        Swal.fire("Error", error.response.data.error, "error")
+        //Swal.fire("Error", error.response.data.error, "error")
         setCreating(false)
       });
-
+      
+    
     if (res === "IPCR successfully created") {
-      Swal.fire("Success", res, "success");
+      //Swal.fire("Success", res, "success");
       setCreating(false)
-    } else {
+    }
+    else if(res === "An IPCR for the current period already exists."){
+      setCreating(false)
+    }
+    else {
+      console.log(res)
       Swal.fire("Error", "There was an error while creating IPCR", "error");
       setCreating(false)
     }
@@ -149,6 +154,7 @@ function IPCRContainer({ switchPage }) {
     document.body.classList.remove("modal-open");
     document.body.style.overflow = "";
     setCreating(false)
+
   }
 
   useEffect(() => {}, [accountTasks]);
@@ -157,17 +163,20 @@ function IPCRContainer({ switchPage }) {
     if (userinfo.department) {
       //loadAllTasks(userinfo.department.id);
       //loadDepartmentInfo(userinfo.department.id);
+      createTasks()
     }
   }, [allAssignedID]);
 
   useEffect(() => {
     if (userinfo.id) {
       loadUserTasks(userinfo.id);
+      
     }
   }, [userinfo]);
 
   useEffect(() => {
     loadUserInfo();
+    
     socket.on("ipcr_create", () => loadUserInfo());
   }, []);
 
@@ -203,7 +212,7 @@ function IPCRContainer({ switchPage }) {
             <div className="modal-header">
               <div>
                 <h4 className="modal-title" id="createIpcrLabel">
-                  Create IPCR
+                  Create IPCR 
                 </h4>
                 <small className="text-muted">
                   These are the Outputs assigned to you by the Office Head.
@@ -312,7 +321,7 @@ function IPCRContainer({ switchPage }) {
               >
                 Cancel
               </button>
-              <button className="btn btn-primary d-flex gap-2" onClick={createTasks} disabled = {creating}>
+              <button className="btn btn-primary d-flex gap-2"  onClick={createTasks} disabled = {creating}>
                 {creating? <span className="material-symbols-outlined spin">refresh</span>:"Create IPCR"}
               </button>
             </div>
@@ -334,10 +343,10 @@ function IPCRContainer({ switchPage }) {
             </small>
           </div>
           <button
-            className="btn btn-primary d-flex gap-2"
+            className="btn btn-primary d-none gap-2"
             data-bs-toggle="modal"
             data-bs-target="#create-ipcr"
-            disabled = {creating}
+            disabled = {creating}            
           >
             {creating ?<span className="material-symbols-outlined">refresh</span>: <span className="material-symbols-outlined">add</span>}
             {creating? "":"Create IPCR"}
@@ -355,7 +364,10 @@ function IPCRContainer({ switchPage }) {
                   <div className="col-md-6" key={ipcr.id}>
                     <IPCR
                       ipcr={ipcr}
-                      onClick={() =>
+                      onClick={()=> {
+                        switchPage(ipcr.id, userinfo.department.id)
+                      }}
+                      onLoad={() =>
                         switchPage(ipcr.id, userinfo.department.id)
                       }
                       onMouseOver={()=> {
