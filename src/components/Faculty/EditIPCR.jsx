@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { assignMainIPCR, getIPCR, updateSubTask } from "../../services/pcrServices"
+import { assignMainIPCR, downloadIPCR, getIPCR, updateSubTask } from "../../services/pcrServices"
 import { socket } from "../api"
 import { jwtDecode } from "jwt-decode"
 import { getAccountInfo } from "../../services/userService"
@@ -23,6 +23,8 @@ function EditIPCR(props) {
     const [value, setValue] = useState(0)
     const [subTaskID, setSubTaskID] = useState(0)
 
+    const [downloading, setDownloading] = useState(false);
+
     // Organized task data
     const [arrangedSubTasks, setArrangedSubTasks] = useState({})
     const [categoryTypes, setCategoryTypes] = useState({})
@@ -39,6 +41,22 @@ function EditIPCR(props) {
             "Support Function": { count: 0, total: 0, weight: 0 }
         }
     })
+
+    async function download() {
+        setDownloading(true);
+        try {
+          const res = await downloadIPCR(props.ipcr_id);
+          window.open(res.data.link, "_blank", "noopener,noreferrer");
+        } catch (error) {
+          Swal.fire({
+            title: "Error",
+            text: error.response?.data?.error || "Download failed.",
+            icon: "error",
+          });
+        } finally {
+          setDownloading(false);
+        }
+    }
 
     const [ratingThresholds, setRatingThresholds] = useState(null);
     const [currentPhase, setCurrentPhase] = useState(null)
@@ -352,6 +370,22 @@ function EditIPCR(props) {
                     >
                     <span className="material-symbols-outlined fs-5">attach_file</span>
                     Documents
+                </button>
+                <button
+                    className="btn btn-outline-primary btn-sm d-flex align-items-center gap-2"
+                    onClick={()=> {
+                        download()
+                    }}
+                    disabled={downloading}
+                    >
+                    {downloading ? 
+                    <>
+                        <span className="spinner-border spinner-border-sm me-2"></span>
+                    </>: 
+                    <>
+                        <span className="material-symbols-outlined fs-5">upload</span>
+                        Export
+                    </>}
                 </button>
 
                 {canSubmit && props.mode === "faculty" && (

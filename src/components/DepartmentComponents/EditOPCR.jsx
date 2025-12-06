@@ -494,12 +494,21 @@ function TaskSection({ category, categoryType, tasks, assignedData, handleRemark
             <div className="d-grid gap-2">
               <div>
                 <input disabled className="form-control form-control-sm" defaultValue={task.summary?.target} />
-                <small className="text-muted d-block">{task.description?.target} in</small>
+                <small className="text-muted d-block">{task.description?.target} {task.description?.timeliness_mode == "timeframe" ? "in" : ""}</small>
               </div>
-              <div>
-                <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.target} />
-                <small className="text-muted d-block">{task.description?.time} with</small>
-              </div>
+              {task.description?.timeliness_mode == "timeframe" ? (
+                <div>
+                  <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.target} />
+                  <small className="text-muted d-block">{task.description?.time} with</small>
+                </div>
+              ):
+              (
+                <div>
+                  <input disabled className="form-control form-control-sm"  value={""}/>
+                  <small className="text-muted d-block">on the set deadline with</small>
+                </div>
+              )
+              }
               <div>
                 <input disabled className="form-control form-control-sm" defaultValue={task.corrections?.target} />
                 <small className="text-muted d-block">{task.description?.alterations}</small>
@@ -514,16 +523,38 @@ function TaskSection({ category, categoryType, tasks, assignedData, handleRemark
           <td>
             <div className="d-grid gap-2">
               <div>
-                <input disabled className="form-control form-control-sm" defaultValue={task.summary?.actual} />
-                <small className="text-muted d-block">{task.description?.actual} in</small>
+                <input disabled className="form-control form-control-sm" defaultValue={String(task.summary?.actual).replace(".", "")} />
+                <small className="text-muted d-block">{task.description?.actual} {task.description?.timeliness_mode == "timeframe" ? "in" : ""}</small>
               </div>
+              {task.description?.timeliness_mode == "timeframe" ? (
+                <div>
+                  <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.target} />
+                  <small className="text-muted d-block">{task.description?.time} with</small>
+                </div>
+              ):
+              (
+                <div>
+                  {parseFloat(task.working_days?.actual / task.frequency).toFixed(0) == 0 ? (
+                    <input disabled className="form-control form-control-sm" value = ""/>
+                  ) : (
+                    <input disabled className="form-control form-control-sm" defaultValue={Math.abs(parseFloat(task.working_days?.actual / task.frequency).toFixed(0))} />
+                  )}
+                  {parseFloat(task.working_days?.actual / task.frequency) == 0 ? (
+                    <small className="text-muted d-block">on the set deadline with</small>
+                  ) : 
+                    parseFloat(task.working_days?.actual / task.frequency) < 0? (
+                      <small className="text-muted d-block">day/s early in average with</small>
+                    ) :
+                    (
+                      <small className="text-muted d-block">day/s late in average with</small>
+                    )
+                  }
+                </div>
+              )
+              }
               <div>
-                <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.actual} />
-                <small className="text-muted d-block">{task.description?.time} with</small>
-              </div>
-              <div>
-                <input disabled className="form-control form-control-sm" defaultValue={task.corrections?.actual} />
-                <small className="text-muted d-block">{task.description?.alterations}</small>
+                <input disabled className="form-control form-control-sm" defaultValue={parseFloat(task.corrections?.actual / task.frequency).toFixed(0)} />
+                <small className="text-muted d-block">{task.description?.alterations}/s in average</small>
               </div>
             </div>
           </td>
