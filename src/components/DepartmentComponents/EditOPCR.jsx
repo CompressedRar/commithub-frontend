@@ -37,6 +37,9 @@ function EditOPCR(props) {
   const [downloading, setDownloading] = useState(false)
   const [userInfo, setUserInfo] = useState(null)
 
+  // new state: whether current system settings allow rating now
+  const [isRatingPeriod, setIsRatingPeriod] = useState(true)
+
   const [field, setField] = useState("")
   const [value, setValue] = useState(0)
   const [ratingID, setRatingID] = useState(0)
@@ -106,6 +109,64 @@ function EditOPCR(props) {
         if (typeof rt === "string") rt = JSON.parse(rt)
         setRatingThresholds(rt)
       }
+
+      // determine rating period state (check explicit dates first, then fallbacks)
+      try {
+        let ratingOpen = true
+
+        // prefer explicit start/end fields if present
+        console.log("THE SETTINGS DATA: ",data)
+        const startField = data.rating_start_date ?? data.ratingStartDate ?? data.rating_start
+        const endField = data.rating_end_date ?? data.ratingEndDate ?? data.rating_end
+
+        if (startField || endField) {
+          console.log("Evaluating rating period from explicit start/end fields", startField, endField)
+          try {
+            const now = new Date()
+            const start = startField ? new Date(startField) : null
+            const end = endField ? new Date(endField) : null
+
+            console.log(ratingOpen = now >= start && now <= end)
+
+            if (start && end ) {
+              ratingOpen = now >= start && now <= end
+            } 
+            else if (start && !end) {
+              ratingOpen = now >= start
+            }
+            else {
+              ratingOpen = false
+            }
+          } catch (e) {
+            console.warn("rating start/end parse error", e)
+          }
+        } else {
+
+          const rp = data.rating_period ?? data.ratingPeriod ?? data.rating_window
+          if (rp) {
+            let period = rp
+            if (typeof rp === "string") {
+              try { period = JSON.parse(rp) } catch {}
+            }
+            if (period && period.start && period.end) {
+              const now = new Date()
+              const start = new Date(period.start)
+              const end = new Date(period.end)
+              if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+                ratingOpen = now >= start && now <= end
+              }
+            } else if (typeof period === "boolean") {
+              ratingOpen = period
+            }
+          }
+        }
+
+        setIsRatingPeriod(!!ratingOpen)
+      } catch (e) {
+        console.warn("Failed to evaluate rating period from settings", e)
+        setIsRatingPeriod(true)
+      }
+
     } catch (e) {
       console.warn("failed load formulas", e)
     }
@@ -305,6 +366,25 @@ function EditOPCR(props) {
 
   return (
     <div className="container-fluid py-4">
+
+      {/* Overlay when rating period is closed in system settings */}
+      {!isRatingPeriod && (
+        <div className="overlay-container position-absolute" style={{ zIndex: 1050 }}>
+          <div className="overlay-content text-center p-4">
+            <img
+              src={`${import.meta.env.BASE_URL}calendar_blocked.png`}
+              alt="Rating Closed"
+              className="overlay-icon"
+              style={{ maxWidth: 120 }}
+            />
+            <h2>Rating Period Closed</h2>
+            <p className="mb-0 text-muted">
+              Rating is currently disabled by system settings. You will not be able to submit or modify ratings until the rating period opens.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <button className="btn btn-outline-secondary d-flex align-items-center gap-2" data-bs-dismiss="modal" onClick={() => props.switchPage()}>

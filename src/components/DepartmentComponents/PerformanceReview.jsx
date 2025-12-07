@@ -12,6 +12,7 @@ import DeptIPCR from "./DeptIPCR"
 import DeptOPCR from "./DeptOPCR"
 import OPCRSupportingDocuments from "./OPCRSupportingDocuments"
 import { createOPCR } from "../../services/pcrServices"
+import { getSettings } from "../../services/settingsService"
 
 
 function PerformanceReviews(props){
@@ -24,6 +25,18 @@ function PerformanceReviews(props){
     const [filteredID, setFilteredID] = useState(null)
 
     const [consolidating, setConsolidating] = useState(false)
+    const [currentPhase, setCurrentPhase] = useState(null) //monitoring, rating, planning
+
+    async function loadCurrentPhase() {
+        try {
+            const res = await getSettings()
+            const phase = res?.data?.data?.current_phase
+            console.log("Current phase:", phase)
+            setCurrentPhase(phase) //monitoring, rating, planning
+        } catch (error) {
+            console.error("Failed to load current phase:", error)
+        }
+    }
 
     async function loadIPCR() {
       setAllIPCR(null)
@@ -128,6 +141,9 @@ function PerformanceReviews(props){
     useEffect(()=> {
         loadIPCR()
 
+        // load current phase so we can control availability of OPCR / IPCR
+        loadCurrentPhase()
+
         socket.on("ipcr_create", ()=>{
             loadIPCR()
 
@@ -147,14 +163,26 @@ function PerformanceReviews(props){
         })
 
     }, [])
+    
+    function isMonitoringPhase() {
+        return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("monitoring")
+    }
+
+    function isRatingPhase() {
+        return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("rating")
+    }
+
+    function isPlanningPhase() {
+        return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("planning")
+    }
 
     //gawin yung highest performing deparmtent
     return (
         <div className="performance-reviews-container">
 
 
-            {currentOPCRID? <OPCRSupportingDocuments key = {currentOPCRID} opcr_id = {currentOPCRID}></OPCRSupportingDocuments>:""}
-            {batchID && currentIPCRID? <ManageSupportingDocuments  dept_mode = {true} key={currentIPCRID} ipcr_id = {currentIPCRID} batch_id = {batchID}></ManageSupportingDocuments>:""}
+            {currentOPCRID && isRatingPhase() ? <OPCRSupportingDocuments key = {currentOPCRID} opcr_id = {currentOPCRID}></OPCRSupportingDocuments> : ""}
+            {batchID && currentIPCRID && (isMonitoringPhase() || isRatingPhase()) ? <ManageSupportingDocuments  dept_mode = {true} key={currentIPCRID} ipcr_id = {currentIPCRID} batch_id = {batchID}></ManageSupportingDocuments> : ""}
             <div className="modal fade" id="view-ipcr" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                 <div className="modal-dialog modal-dialog-scrollable modal-fullscreen" >
                     <div className="modal-content">
@@ -162,7 +190,7 @@ function PerformanceReviews(props){
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
-                            {currentIPCRID && <EditIPCR dept_id = {props.deptid} key={currentIPCRID} ipcr_id = {currentIPCRID} mode = {"check"} switchPage={()=>{
+                            {currentIPCRID && (isMonitoringPhase() || isRatingPhase()) && <EditIPCR dept_id = {props.deptid} key={currentIPCRID} ipcr_id = {currentIPCRID} mode = {"check"} switchPage={()=>{
 
                             }}></EditIPCR>}
                         </div>
@@ -177,7 +205,7 @@ function PerformanceReviews(props){
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
-                            {currentOPCRID && <EditOPCR key={currentOPCRID} dept_id = {props.deptid} opcr_id = {currentOPCRID} mode = {"dept"}></EditOPCR>}
+                            {currentOPCRID && isRatingPhase() && <EditOPCR key={currentOPCRID} dept_id = {props.deptid} opcr_id = {currentOPCRID} mode = {"dept"}></EditOPCR>}
                         </div>
                     </div>
                 </div>
@@ -185,7 +213,7 @@ function PerformanceReviews(props){
 
             
             <h3 className="d-flex align-items-center gap-3">
-                Office Performance Review and Commitment Form 
+                Office Performance Review and Commitment Form
                 <button className="btn btn-primary d-none" onClick={()=>{handleSubmission()}} disabled = {consolidating}>
                     {!consolidating ? <span className="d-flex gap-2">
                         <span className="material-symbols-outlined">compare_arrows</span>
@@ -193,42 +221,49 @@ function PerformanceReviews(props){
                     </span> : <span className="spinner-border spinner-border-sm me-2"></span>}
                 </button>
             </h3>
-            <div className="all-ipcr-container" style={{display:"flex", flexDirection:"column", gap:"10px"}}>
-                
+            {/* OPCR is available only during Rating phase */}
+            { isRatingPhase() ? (
+              <div className="all-ipcr-container" style={{display:"flex", flexDirection:"column", gap:"10px"}}>
                 {allOPCR && allOPCR.map(opcr => (
-                    <DeptOPCR opcr = {opcr} onClick={()=>{
-                        setCurrentOPCRID(opcr.id)
-                        console.log("CURRENT OPCR ID",opcr.id)
-                        
-                    }} onMouseOver = {()=>{setCurrentOPCRID(opcr.id)}}></DeptOPCR>
+                    <DeptOPCR opcr = {opcr} onClick={()=>{ setCurrentOPCRID(opcr.id) }} onMouseOver = {()=>{setCurrentOPCRID(opcr.id)}} key={opcr.id}></DeptOPCR>
                 ))}
-            </div>
-            {allOPCR && allOPCR.length == 0?
-                    <div className="empty-symbols">
-                        <span className="material-symbols-outlined">file_copy_off</span>    
-                        <span className="desc">No OPCRs Found</span>
-                    </div>:""} 
+                {allOPCR && allOPCR.length === 0 && (
+                  <div className="empty-symbols">
+                    <span className="material-symbols-outlined">file_copy_off</span>    
+                    <span className="desc">No OPCRs Found</span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="empty-symbols text-muted opacity-75 fs-6">
+                <span className="material-symbols-outlined">lock</span>
+                <span className="desc">OPCRs are only available during the Rating phase.</span>
+              </div>
+            )}
 
-            <h3>Individual Performance Review and Commitment Forms</h3>
-            <div className="all-ipcr-container" style={{display:"flex", flexDirection:"column", gap:"10px"}}>
+             <h3>Individual Performance Review and Commitment Forms</h3>
+            {/* IPCRs available during Monitoring and Rating phases */}
+            { (isMonitoringPhase() || isRatingPhase()) ? (
+              <div className="all-ipcr-container" style={{display:"flex", flexDirection:"column", gap:"10px"}}>
                 
                 {allIPCR && allIPCR.map(ipcr => (
-                    <DeptIPCR onMouseOver = {()=>{
-                        console.log(ipcr.ipcr.batch_id)
-                        setBatchID(ipcr.ipcr.batch_id)
-                        setCurrentIPCRID(ipcr.ipcr.id)
-                    }} onClick={()=>{
-                        setCurrentIPCRID(ipcr.ipcr.id)
-                    }} ipcr = {ipcr} dept_mode = {true}></DeptIPCR>
+                    <DeptIPCR key={ipcr.ipcr?.id || ipcr.id} onMouseOver ={()=>{ setBatchID(ipcr.ipcr?.batch_id); setCurrentIPCRID(ipcr.ipcr?.id); }} onClick={()=>{ setCurrentIPCRID(ipcr.ipcr?.id) }} ipcr = {ipcr} dept_mode = {true}></DeptIPCR>
                 ))}
 
-                 
-            </div>
-            {allIPCR && allIPCR.length == 0?
-                    <div className="empty-symbols">
-                        <span className="material-symbols-outlined">file_copy_off</span>    
-                        <span className="desc">No IPCR Found</span>
-            </div>:""} 
+                {allIPCR && allIPCR.length === 0 && (
+                  <div className="empty-symbols">
+                    <span className="material-symbols-outlined">file_copy_off</span>    
+                    <span className="desc">No IPCR Found</span>
+                  </div>
+                )}
+
+              </div>
+            ) : (
+              <div className="empty-symbols text-muted opacity-75 fs-6">
+                <span className="material-symbols-outlined">lock</span>
+                <span className="desc">IPCRs are available during Monitoring and Rating phases only.</span>
+              </div>
+            )}
         </div>
     )
 }

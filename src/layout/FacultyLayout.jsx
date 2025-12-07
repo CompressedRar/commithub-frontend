@@ -7,6 +7,9 @@ import { getAccountInfo, getAccountNotification, readNotification } from "../ser
 import AccountSettings from "../components/UsersComponents/AccountSettings";
 import NotificationModal from "../components/NotificationModal";
 import { socket } from "../components/api";
+import { getSettings } from "../services/settingsService";
+
+
 function FacultyLayout() {
   const token = localStorage.getItem("token");
   const [role, setRole] = useState(null);

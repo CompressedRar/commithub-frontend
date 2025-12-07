@@ -142,7 +142,6 @@ function AdminLayout() {
               { href: "/admin/dashboard", icon: "dashboard", text: "Dashboard" },
               { href: "/admin/department", icon: "apartment", text: "Offices" },
               { href: "/admin/tasks", icon: "task", text: "Major Final Outputs" },
-              { href: "/admin/positions", icon: "co_present", text: "Positions and Weights"},
               { href: "/admin/users", icon: "group", text: "User Management" },
               { href: "/admin/logs", icon: "article", text: "Audit Logs" },
               { href: "/admin/ipcr", icon: "assignment_ind", text: "IPCR" },

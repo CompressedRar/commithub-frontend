@@ -6,7 +6,7 @@ import DepartmentTask from "./DepartmentTask";
 import DepartmentAssignTask from "./DepartmentAssignTask";
 import AddDepartmentTask from "./AddDepartmentTask";
 
-function DepartmentTasksTable({ id, admin_mode }) {
+function DepartmentTasksTable({ id, admin_mode, currentPhase }) {
   const [allMembers, setAllMembers] = useState([]);
   const [filteredMembers, setFilteredMembers] = useState([]);
   const [tenMembers, setTenMembers] = useState([]);
@@ -102,6 +102,21 @@ function DepartmentTasksTable({ id, admin_mode }) {
     };
   }, []);
 
+  function isMonitoringPhase(currentPhase) {
+    
+    return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("monitoring");
+  }
+
+  function isRatingPhase(currentPhase) {
+    
+    return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("rating");
+  }
+
+  function isPlanningPhase(currentPhase) {
+    
+    return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("planning");
+  }
+
   return (
     <div className="container-fluid py-3 bg-white ">
       {/* === Add Task Modal === */}
@@ -163,6 +178,7 @@ function DepartmentTasksTable({ id, admin_mode }) {
                   key={currentUserID}
                   task_id={currentUserID}
                   dept_id={id}
+                  currentPhase={currentPhase}
                 />
               ) : (
                 <p className="text-center text-muted">
@@ -212,6 +228,7 @@ function DepartmentTasksTable({ id, admin_mode }) {
                   key={mems.id}
                   mems={mems}
                   switchMember={(id) => setCurrentUserID(id)}
+                  currentPhase={currentPhase}
                 />
               ))
             ) : (

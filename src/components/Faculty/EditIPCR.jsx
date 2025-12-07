@@ -58,6 +58,115 @@ function EditIPCR(props) {
         }
     }
 
+    const [isRatingPeriod, setIsRatingPeriod] = useState(true)
+    const [isMonitoringPeriod, setIsMonitoringPeriod] = useState(true)
+
+    async function checkRatingPeriod() {
+        try {
+        const res = await getSettings()
+        const data = res?.data?.data ?? res?.data ?? {}
+        
+
+        // determine rating period state (check explicit dates first, then fallbacks)
+        try {
+            let ratingOpen = true
+
+            // prefer explicit start/end fields if present
+            console.log("THE SETTINGS DATA: ",data)
+            const startField = data.rating_start_date ?? data.ratingStartDate ?? data.rating_start
+            const endField = data.rating_end_date ?? data.ratingEndDate ?? data.rating_end
+
+            if (startField || endField) {
+            console.log("Evaluating rating period from explicit start/end fields", startField, endField)
+            try {
+                const now = new Date()
+                const start = startField ? new Date(startField) : null
+                const end = endField ? new Date(endField) : null
+
+                console.log(ratingOpen = now >= start && now <= end)
+
+                if (start && end ) {
+                ratingOpen = now >= start && now <= end
+                } 
+                else if (start && !end) {
+                ratingOpen = now >= start
+                }
+                else {
+                ratingOpen = false
+                }
+            } catch (e) {
+                console.warn("rating start/end parse error", e)
+            }
+            } else {
+
+            
+                ratingOpen = false
+            }
+
+            setIsRatingPeriod(!!ratingOpen)
+        } catch (e) {
+            console.warn("Failed to evaluate rating period from settings", e)
+            setIsRatingPeriod(true)
+        }
+
+        } catch (e) {
+        console.warn("failed load formulas", e)
+        }
+    }
+
+    async function checkMonitoringPeriod() {
+        try {
+        const res = await getSettings()
+        const data = res?.data?.data ?? res?.data ?? {}
+        
+
+        // determine rating period state (check explicit dates first, then fallbacks)
+        try {
+            let ratingOpen = true
+
+            // prefer explicit start/end fields if present
+            console.log("THE SETTINGS DATA: ",data)
+            const startField = data.monitoring_start_date
+            const endField = data.monitoring_end_date 
+
+            if (startField || endField) {
+            console.log("Evaluating rating period from explicit start/end fields", startField, endField)
+            try {
+                const now = new Date()
+                const start = startField ? new Date(startField) : null
+                const end = endField ? new Date(endField) : null
+
+                console.log(ratingOpen = now >= start && now <= end)
+
+                if (start && end ) {
+                ratingOpen = now >= start && now <= end
+                } 
+                else if (start && !end) {
+                ratingOpen = now >= start
+                }
+                else {
+                ratingOpen = false
+                }
+            } catch (e) {
+                console.warn("rating start/end parse error", e)
+            }
+            } else {
+
+            
+                ratingOpen = false
+            }
+
+            setIsMonitoringPeriod(!!ratingOpen)
+        } catch (e) {
+            console.warn("Failed to evaluate rating period from settings", e)
+            setIsMonitoringPeriod(true)
+        }
+
+        } catch (e) {
+        console.warn("failed load formulas", e)
+        }
+    }
+
     const [ratingThresholds, setRatingThresholds] = useState(null);
     const [currentPhase, setCurrentPhase] = useState(null)
 
@@ -371,10 +480,13 @@ function EditIPCR(props) {
                     <span className="material-symbols-outlined fs-5">attach_file</span>
                     Documents
                 </button>
-                <button className="btn btn-outline-primary d-flex" onClick={download} disabled={downloading}>
-                    {downloading ? <span className="spinner-border spinner-border-sm me-2"></span> : <span className="material-symbols-outlined me-1">download</span>}
-                    Export
-                </button>
+                {
+                    isRatingPhase(currentPhase) && 
+                    <button className="btn btn-outline-primary d-flex" onClick={download} disabled={downloading}>
+                        {downloading ? <span className="spinner-border spinner-border-sm me-2"></span> : <span className="material-symbols-outlined me-1">download</span>}
+                        Export
+                    </button>
+                }
 
                 {canSubmit && props.mode === "faculty" && (
                     <button
@@ -431,11 +543,15 @@ function EditIPCR(props) {
                                         <small className="text-muted">(TARGETS + MEASURES)</small>
                                     </th>
                                     <th style={{ width: "20%", textAlign:"center"  }}>ACTUAL ACCOMPLISHMENT</th>
-                                    <th style={{ width: "15%", textAlign:"center"  }}>
-                                        RATING<br />
-                                        <small className="text-muted">Q² E² T² A²</small>
-                                    </th>
-                                    <th style={{ width: "20%", textAlign:"center"  }}>REMARKS</th>
+                                    {
+                                        isRatingPhase(currentPhase) && <>
+                                            <th style={{ width: "15%", textAlign:"center"  }}>
+                                                RATING<br />
+                                                <small className="text-muted">Q² E² T² A²</small>
+                                            </th>
+                                            <th style={{ width: "20%", textAlign:"center"  }}>REMARKS</th>
+                                        </>
+                                    }
                                 </tr>
                             </thead>
                             <tbody>
@@ -460,11 +576,15 @@ function EditIPCR(props) {
                     </div>
 
                     {/* Final Ratings */}
-                    <FinalRatingsSection 
-                        stats={stats} 
-                        ratingThresholds={ratingThresholds}
-                        handleRemarks={handleRemarks}
-                    />
+                    {
+                        isRatingPhase(currentPhase) && 
+                        <FinalRatingsSection 
+                            stats={stats} 
+                            ratingThresholds={ratingThresholds}
+                            handleRemarks={handleRemarks}
+                            currentPhase={currentPhase}
+                        />
+                    }
 
                     {/* Signatures */}
                     <SignaturesSection ipcrInfo={ipcrInfo} />
@@ -589,37 +709,43 @@ function TaskSection({
                 />
             ))}
 
-            <tr className="table-light">
-                <td colSpan="3" className="fw-semibold">Raw Average</td>
-                <td className="fw-semibold text-end">{rawAvg.toFixed(2)}</td>
-                <td colSpan="3" className="text-center">{handleRemarks(rawAvg.toFixed(2))}</td>
-            </tr>
-            <tr className="table-light">
-                <td colSpan="3" className="fw-semibold">Weighted Average ({(categoryStats.weight * 100).toFixed(0)}%)</td>
-                <td className="fw-semibold text-end">{weightedAvg.toFixed(2)}</td>
-                <td colSpan="3" className="text-center">{handleRemarks(weightedAvg.toFixed(2))}</td>
-            </tr>
+            {
+                isRatingPhase(currentPhase) && <>
+                <tr className="table-light">
+                    <td colSpan="3" className="fw-semibold">Raw Average</td>
+                    <td className="fw-semibold text-end">{rawAvg.toFixed(2)}</td>
+                    <td colSpan="3" className="text-center">{handleRemarks(rawAvg.toFixed(2))}</td>
+                </tr>
+                <tr className="table-light">
+                    <td colSpan="3" className="fw-semibold">Weighted Average ({(categoryStats.weight * 100).toFixed(0)}%)</td>
+                    <td className="fw-semibold text-end">{weightedAvg.toFixed(2)}</td>
+                    <td colSpan="3" className="text-center">{handleRemarks(weightedAvg.toFixed(2))}</td>
+                </tr>
+                </>
+            }
+
+            
         </>
     )
 }
 
-function RatingBadges({ task }) {
+function RatingBadges({ task, currentPhase }) {
     return (
         <div style = {{
             display:"grid",
             gridTemplateColumns:"repeat(4, 1fr)",
         }}>
             <div className="text-center" style={{fontSize:"1.5rem", borderStyle:"solid", borderWidth:"0 1px 0 0", borderColor:"grey", height: "100%"}}>
-                <div>{parseFloat(task.quantity).toFixed(0)}</div>
+                <div>{isRatingPhase(currentPhase) && parseFloat(task.quantity).toFixed(0)}</div>
             </div>
             <div className="text-center" style={{fontSize:"1.5rem", borderStyle:"solid", borderWidth:"0 1px 0 0", borderColor:"grey", height: "100%"}}>
-                <div>{parseFloat(task.efficiency).toFixed(0)}</div>
+                <div>{isRatingPhase(currentPhase) && parseFloat(task.efficiency).toFixed(0)}</div>
             </div>
             <div className="text-center" style={{fontSize:"1.5rem", borderStyle:"solid", borderWidth:"0 1px 0 0", borderColor:"grey", height: "100%"}}>
-                <div>{parseFloat(task.timeliness).toFixed(0)}</div>
+                <div>{isRatingPhase(currentPhase) && parseFloat(task.timeliness).toFixed(0)}</div>
             </div>
             <div className="text-center" style={{fontSize:"1.5rem"}}>
-                <div>{parseFloat(task.average).toFixed(0)}</div>
+                <div>{isRatingPhase(currentPhase) && parseFloat(task.average).toFixed(0)}</div>
             </div>
         </div>
     )
@@ -757,7 +883,7 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                     className={`form-control form-control-sm no-spinner`}
                                     value={formatDateForInput(task.main_task.target_deadline)}
                                     onChange={(e) => submitDateTimeChange(task.id, "target_deadline", e.target.value)}
-                                    disabled={!isTargetEditable}
+                                    disabled={true}
                                     title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
                                 />
 
@@ -826,7 +952,7 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                     type="date" 
                                     name = "actual_deadline"
                                     className={`form-control form-control-sm no-spinner ${isActualEditable ? "bg-success bg-opacity-25" : ""}`}
-                                    value={formatDateForInput(task.actual_deadline)}
+                                    value={formatDateForInput(task.actual_deadline) }
                                     onChange={(e) => submitDateTimeChange(task.id, "actual_deadline", e.target.value)}
                                     disabled={!isActualEditable}
                                     title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
@@ -853,17 +979,19 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                         </div>
                     </div>
                 </td>
-                <td className="small text-center">
-                    <RatingBadges task={task} />
-                </td>
-                <td className="small text-center fw-semibold">{handleRemarks(task.average)}</td>
+                {isRatingPhase(currentPhase) && <>  
+                    <td className="small text-center">
+                        <RatingBadges task={task} currentPhase = {currentPhase} />
+                    </td>
+                    <td className="small text-center fw-semibold">{handleRemarks(task.average)}</td>
+                </>}
             </tr>
         </>
     )
 }
 
 // Sub-component: Final Ratings
-function FinalRatingsSection({ stats, ratingThresholds, handleRemarks }) {
+function FinalRatingsSection({ stats, ratingThresholds, handleRemarks, currentPhase }) {
     const categories = stats?.categories || {}
     const core = categories["Core Function"] || { count: 0, total: 0, weight: 0 }
     const strategic = categories["Strategic Function"] || { count: 0, total: 0, weight: 0 }
@@ -889,19 +1017,19 @@ function FinalRatingsSection({ stats, ratingThresholds, handleRemarks }) {
                         <div className="d-grid gap-2 small">
                             <div className="d-flex justify-content-between">
                                 <span>Quantity (Q):</span>
-                                <strong>{parseFloat(stats.quantity).toFixed(2)}</strong>
+                                <strong>{isRatingPhase(currentPhase) && parseFloat(stats.quantity).toFixed(2)}</strong>
                             </div>
                             <div className="d-flex justify-content-between">
                                 <span>Efficiency (E):</span>
-                                <strong>{parseFloat(stats.efficiency).toFixed(2)}</strong>
+                                <strong>{isRatingPhase(currentPhase) && parseFloat(stats.efficiency).toFixed(2)}</strong>
                             </div>
                             <div className="d-flex justify-content-between">
                                 <span>Timeliness (T):</span>
-                                <strong>{parseFloat(stats.timeliness).toFixed(2)}</strong>
+                                <strong>{isRatingPhase(currentPhase) && parseFloat(stats.timeliness).toFixed(2)}</strong>
                             </div>
                             <div className="d-flex justify-content-between border-top pt-2">
                                 <span>Average (A):</span>
-                                <strong>{parseFloat(stats.average).toFixed(2)}</strong>
+                                <strong>{isRatingPhase(currentPhase) && parseFloat(stats.average).toFixed(2)}</strong>
                             </div>
                         </div>
                     </div>
@@ -980,6 +1108,10 @@ function SignaturesSection({ ipcrInfo }) {
 // Add this function near the top of the component, after other helper functions
 function isMonitoringPhase(currentPhase) {
   return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("monitoring")
+}
+
+function isRatingPhase(currentPhase) {
+  return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("rating")
 }
 
 // Add this helper function near the top with other helper functions

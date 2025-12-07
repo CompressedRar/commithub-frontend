@@ -35,7 +35,6 @@ function HeadDepartment(){
             
 
             
-            
             {currentDepartment && <HeadDepartmentInfo key = {currentDepartment} id = {currentDepartment} ></HeadDepartmentInfo>}
         </div>
     )

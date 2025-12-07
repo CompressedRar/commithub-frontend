@@ -15,6 +15,8 @@ import { socket } from "../api";
 import { Modal } from "bootstrap";
 import IPCR from "./IPCR";
 import ManageSupportingDocuments from "./ManageSupportingDocuments";
+import { getSettings } from "../../services/settingsService";
+
 
 function IPCRContainer({ switchPage }) {
   const [userinfo, setUserInfo] = useState({});
@@ -28,6 +30,33 @@ function IPCRContainer({ switchPage }) {
 
   const [currentIPCRID, setCurrentIPCRID] = useState(null)
   const [batchID, setBatchID] = useState(null)
+
+  const [currentPhase, setCurrentPhase] = useState(null) //monitoring, rating, planning
+
+    async function loadCurrentPhase() {
+        try {
+            const res = await getSettings()
+            const phase = res?.data?.data?.current_phase
+            console.log("Current phase:", phase)
+            setCurrentPhase(phase) //monitoring, rating, planning
+        } catch (error) {
+            console.error("Failed to load current phase:", error)
+        }
+    }
+
+    
+    function isMonitoringPhase() {
+        console.log("CHECKING MONITORING PHASE:", currentPhase)
+        return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("monitoring")
+    }
+
+    function isRatingPhase() {
+        return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("rating")
+    }
+
+    function isPlanningPhase() {
+        return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("planning")
+    }
 
   async function loadUserTasks(user_id) {
     setAllAssignedID([]);
@@ -158,6 +187,61 @@ function IPCRContainer({ switchPage }) {
 
   }
 
+  async function checkPeriod() {
+      try {
+        const res = await getSettings()
+        const data = res?.data?.data ?? res?.data ?? {}
+        
+  
+        // determine rating period state (check explicit dates first, then fallbacks)
+        try {
+          let ratingOpen = true
+  
+          // prefer explicit start/end fields if present
+          console.log("THE SETTINGS DATA: ",data)
+          const startField = data.monitoring_start_date
+          const endField = data.monitoring_end_date
+  
+          if (startField || endField) {
+            console.log("Evaluating monitoring period from explicit start/end fields", startField, endField)
+            try {
+              const now = new Date()
+              const start = startField ? new Date(startField) : null
+              const end = endField ? new Date(endField) : null
+  
+              console.log("IS MONITORING PERIOD OPEN: ",ratingOpen = now >= start && now <= end)
+  
+              if (start && end ) {
+                ratingOpen = now >= start && now <= end
+              } 
+              else if (start && !end) {
+                ratingOpen = now >= start
+              }
+              else if (!start && end) {
+                ratingOpen = now <= end
+              }
+              else {
+                ratingOpen = false
+              }
+            } catch (e) {
+              console.warn("Monitoring start/end parse error", e)
+            }
+          } else {
+  
+            ratingOpen = false
+          }
+  
+          setIsRatingPeriod(!!ratingOpen)
+        } catch (e) {
+          console.warn("Failed to evaluate rating period from settings", e)
+          setIsRatingPeriod(true)
+        }
+  
+      } catch (e) {
+        console.warn("failed load formulas", e)
+      }
+    }
+
   useEffect(() => {}, [accountTasks]);
 
   useEffect(() => {
@@ -171,12 +255,14 @@ function IPCRContainer({ switchPage }) {
   useEffect(() => {
     if (userinfo.id) {
       loadUserTasks(userinfo.id);
+      checkPeriod();
       
     }
   }, [userinfo]);
 
   useEffect(() => {
     loadUserInfo();
+    loadCurrentPhase()
     
     socket.on("ipcr_create", () => loadUserInfo());
   }, []);
@@ -194,9 +280,12 @@ function IPCRContainer({ switchPage }) {
 
   const groupedAssigned = groupTasksByCategory(accountTasks);
   const groupedAvailable = groupTasksByCategory(availableTasks);
+  const [isRatingPeriod, setIsRatingPeriod] = useState(true)
 
   return (
     <div className="container-fluid w-100 h-auto px-4">
+
+      
 
       {/* Create IPCR Modal */}
       <div
@@ -334,6 +423,23 @@ function IPCRContainer({ switchPage }) {
 
       <div className="bg-white shadow-md p-4 rounded-3 mx-auto" style={{ maxWidth: "1600px", height:"85vh" }}>
 
+        {!isMonitoringPhase() && (
+          <div  style={{ zIndex: 1050, width:"80%", height:"80%", position:"absolute", backgroundColor:"rgba(255,255,255,0.8)"}} className="d-flex justify-content-center align-items-center flex-column">
+            <div className="overlay-content text-center p-4">
+              <img
+                src={`${import.meta.env.BASE_URL}calendar_blocked.png`}
+                alt="Monitoring Closed"
+                className="overlay-icon"
+                style={{ maxWidth: 120 }}
+              />
+              <h2>Monitoring Period Closed</h2>
+              <p className="mb-0 text-muted">
+                Submitting IPCR is currently disabled by system settings. You will not be able to submit or modify IPCR until the monitoring period opens.
+              </p>
+            </div>
+          </div>
+        )}
+
         <div className="d-flex justify-content-between align-items-center mb-3">
           <div>
             <h5 className="fw-semibold mb-0">
@@ -358,7 +464,7 @@ function IPCRContainer({ switchPage }) {
         }
 
         <div className="row g-3">
-          {allIPCR && allIPCR.length > 0 ? (
+          {allIPCR && allIPCR.length > 0 && isRatingPeriod? (
             allIPCR.map(
               (ipcr) =>
                 ipcr.status === 1 && (
@@ -368,8 +474,9 @@ function IPCRContainer({ switchPage }) {
                       onClick={()=> {
                         switchPage(ipcr.id, userinfo.department.id)
                       }}
-                      onLoad={() =>
-                        switchPage(ipcr.id, userinfo.department.id)
+                      onLoad={() => {
+                         switchPage(ipcr.id, userinfo.department.id)
+                        }                                                
                       }
                       onMouseOver={()=> {
                         setBatchID(ipcr.batch_id)

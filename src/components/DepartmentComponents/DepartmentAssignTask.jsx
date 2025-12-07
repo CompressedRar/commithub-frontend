@@ -158,10 +158,27 @@ function DepartmentAssignTask(props) {
     setArchiving(false);
   }
 
+  function isMonitoringPhase() {
+    
+    return props.currentPhase && Array.isArray(props.currentPhase) && props.currentPhase.includes("monitoring");
+  }
+
+  function isRatingPhase() {
+    
+    return props.currentPhase && Array.isArray(props.currentPhase) && props.currentPhase.includes("rating");
+  }
+
+  function isPlanningPhase() {
+    console.log("Current Phase in deptassign:", props.currentPhase && Array.isArray(props.currentPhase) && props.currentPhase.includes("planning"));
+    
+    return props.currentPhase && Array.isArray(props.currentPhase) && props.currentPhase.includes("planning");
+  }
+
   useEffect(() => {
     loadAssignedMembers();
     loadMembers();
     loadMainTask();
+    console.log("Current Phase in deptassign:", isPlanningPhase());
 
     socket.on("user_assigned", () => {
       loadMembers();
@@ -220,27 +237,34 @@ function DepartmentAssignTask(props) {
                     </div>
                   </div>
 
-                  {checkIfAssigned(member.id) ? (
-                    <button
-                      className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 px-2 py-1"
-                      onClick={() => handleUnassign(member.id)}
-                    >
-                      <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
-                        remove
-                      </span>
-                      Remove
-                    </button>
-                  ) : (
-                    <button
-                      className="btn btn-outline-success btn-sm d-flex align-items-center gap-1 px-2 py-1"
-                      onClick={() => openAssignModal(member)}
-                    >
-                      <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
-                        add
-                      </span>
-                      Assign
-                    </button>
-                  )}
+                  {
+                    
+                      checkIfAssigned(member.id) ? (
+                        
+                        <button
+                          className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 px-2 py-1"
+                          onClick={() => handleUnassign(member.id)}
+                          disabled={!isPlanningPhase()}
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
+                            remove
+                          </span>
+                          Remove
+                        </button>
+                      ) : (
+                        
+                        <button
+                          className="btn btn-outline-success btn-sm d-flex align-items-center gap-1 px-2 py-1"
+                          onClick={() => openAssignModal(member)}
+                          disabled={!isPlanningPhase()}
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
+                            add
+                          </span>
+                          Assign
+                        </button>
+                      )
+                  }
                 </div>
               </div>
             ))}

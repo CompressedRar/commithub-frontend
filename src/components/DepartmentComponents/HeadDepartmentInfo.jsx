@@ -10,6 +10,7 @@ import PerformanceReviews from "./PerformanceReview";
 import CreateOPCRModal from "./CreateOPCRModal";
 import GeneralTasksTable from "./GeneralTasksTable";
 import UserPerformanceInDepartment from "../Charts/UserPerformanceInDepartment";
+import { getSettings } from "../../services/settingsService";
 
 function HeadDepartmentInfo({ id, firstLoad }) {
   const [deptInfo, setDeptinfo] = useState({});
@@ -19,6 +20,22 @@ function HeadDepartmentInfo({ id, firstLoad }) {
   const [submitting, setSubmitting] = useState(false);
   const [archiving, setArchiving] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
+
+  const [currentPhase, setCurrentPhase] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  async function loadCurrentPhase() {
+    try {
+      const res = await getSettings();
+      const phase = res?.data?.data?.current_phase;
+      console.log("Current phase:", phase);
+      setCurrentPhase(phase);
+    } catch (error) {
+      console.error("Failed to load current phase:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   // === Load Department ===
   async function loadDepartmentInfo(deptId) {
@@ -34,6 +51,7 @@ function HeadDepartmentInfo({ id, firstLoad }) {
 
   useEffect(() => {
     loadDepartmentInfo(id);
+    loadCurrentPhase();
   }, [id]);
 
   useEffect(() => {
@@ -82,6 +100,61 @@ function HeadDepartmentInfo({ id, firstLoad }) {
     }
     setArchiving(false);
   };
+
+  function isMonitoringPhase() {
+    
+    return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("monitoring");
+  }
+
+  function isRatingPhase() {
+    
+    return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("rating");
+  }
+
+  function isPlanningPhase() {
+    
+    return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("planning");
+  }
+
+  function getPhaseLabel() {
+    if (isPlanningPhase()) return { label: "Planning Phase", color: "info", icon: "calendar_month" };
+    if (isMonitoringPhase()) return { label: "Monitoring Phase", color: "warning", icon: "timeline" };
+    if (isRatingPhase()) return { label: "Rating Phase", color: "success", icon: "star_rate" };
+    return { label: "Inactive", color: "secondary", icon: "block" };
+  }
+
+  const phaseInfo = getPhaseLabel();
+
+  // Determine available tabs based on phase
+  const getTabs = () => {
+    const allTabs = [
+      { label: "Performance Reviews", index: 0, icon: "assessment", phases: ["monitoring", "rating"] },
+      { label: "Outputs", index: 1, icon: "task_alt", phases: ["planning", "monitoring", "rating"] },
+      { label: "Members", index: 2, icon: "group", phases: ["planning", "monitoring", "rating"] },
+    ];
+
+    return allTabs.filter((tab) => tab.phases.some((phase) => currentPhase?.includes(phase)));
+  };
+
+  // set default visible tab when phase is loaded/changed
+  useEffect(() => {
+    const tabs = getTabs();
+    if (!tabs || tabs.length === 0) return;
+    const availableIndexes = tabs.map((t) => t.index);
+    if (!availableIndexes.includes(currentPage)) {
+      setCurrentPage(tabs[0].index);
+    }
+  }, [currentPhase]);
+
+  if (isLoading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center p-5">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
 
   // === Layout ===
   return (
@@ -154,100 +227,128 @@ function HeadDepartmentInfo({ id, firstLoad }) {
         </div>
       </div>
 
-      {/* ─── Header / Banner ──────────────────────────────── */}
-      <div
-  className="rounded-4 shadow-sm mb-4 position-relative overflow-hidden"
-  style={{
-    backgroundImage: `url('${import.meta.env.BASE_URL}nc-splash-new.jpg')`,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    height: "240px",
-  }}
->
-  {/* Dark overlay for contrast */}
-  <div className="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-50"></div>
-
-  {/* Foreground content */}
-  <div className="position-relative text-white p-4 h-100 d-flex flex-column justify-content-between">
-    <div>
-      <h3 className="fw-bold mb-1 text-shadow-sm">{deptInfo.name || "Loading..."}</h3>
-      <p className="mb-0">
-        Office Head:{" "}
-        {managerInfo ? (
-          <span className="fw-semibold text-info">
-            {managerInfo.first_name + " " + managerInfo.last_name}
-          </span>
-        ) : (
-          <span className="text-warning">None</span>
-        )}
-      </p>
-    </div>
-
-  </div>
-</div>
-
-
-      {/* ─── Stats Cards ──────────────────────────────── */}
-      <div className="row g-3 mb-4 d-none" >
-        {[
-          { icon: "assignment_globe", label: "OPCR", value: deptInfo.opcr_count },
-          { icon: "article_person", label: "IPCR", value: deptInfo.ipcr_count },
-          { icon: "group", label: "Members", value: deptInfo.user_count },
-          { icon: "task", label: "Outputs", value: deptInfo.main_tasks_count },
-        ].map((stat, i) => (
-          <div className="col-6 col-md-3" key={i}>
-            <div className="card text-center h-100 border-0 shadow-sm">
-              <div className="card-body">
-                <span className="material-symbols-outlined text-primary fs-2">{stat.icon}</span>
-                <h4 className="fw-bold mt-2">{stat.value || 0}</h4>
-                <small className="text-muted">{stat.label}</small>
-              </div>
-            </div>
+      {/* Phase Banner */}
+      <div className="alert alert-soft-primary d-flex justify-content-between align-items-center mb-4 border-0 rounded-3 shadow-sm" 
+        style={{ backgroundColor: `#e7f1ff`, borderLeft: `5px solid #0d6efd` }}>
+        <div className="d-flex align-items-center justify-content-center gap-3">
+          <div className={`rounded-circle p-3 bg-${phaseInfo.color}`} style={{ width: 50, height: 50 }}>
+            <span className="material-symbols-outlined text-white d-flex align-items-center justify-content-center" 
+              style={{ fontSize: 24 }}>{phaseInfo.icon}</span>
           </div>
-        ))}
+          <div>
+            <h6 className="mb-0 fw-bold text-dark">Current Phase</h6>
+            <p className="mb-0 text-muted small">{phaseInfo.label}</p>
+          </div>
+        </div>
+        {isPlanningPhase() && (
+          <span className="badge bg-info">Plan outputs and assign to staff</span>
+        )}
+        {isMonitoringPhase() && (
+          <span className="badge bg-warning">Monitor progress and actual accomplishments</span>
+        )}
+        {isRatingPhase() && (
+          <span className="badge bg-success">Rate performance and consolidate results</span>
+        )}
       </div>
 
-      {/* ─── Tabs ──────────────────────────────── */}
-      <ul className="nav nav-tabs mb-3 border-bottom">
-        {["Performance Reviews","Outputs", "Members"].map((label, index) => (
-            <li className="nav-item" key={index}>
-            <button
-                onClick={() => setCurrentPage(index)}
-                className="nav-link border-0"
+      {/* ─── Header / Banner ──────────────────────────────── */}
+      <div
+        className="rounded-4 shadow-sm mb-4 position-relative overflow-hidden"
+        style={{
+          backgroundImage: `url('${import.meta.env.BASE_URL}nc-splash-new.jpg')`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          height: "240px",
+        }}
+      >
+        {/* Dark overlay for contrast */}
+        <div className="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-50"></div>
+
+        {/* Foreground content */}
+        <div className="position-relative text-white p-4 h-100 d-flex flex-column justify-content-between">
+          <div>
+            <h3 className="fw-bold mb-1 text-shadow-sm">{deptInfo.name || "Loading..."}</h3>
+            <p className="mb-0">
+              Office Head:{" "}
+              {managerInfo ? (
+                <span className="fw-semibold text-info">
+                  {managerInfo.first_name + " " + managerInfo.last_name}
+                </span>
+              ) : (
+                <span className="text-warning">None</span>
+              )}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-3 border-bottom">
+        <ul className="nav nav-tabs">
+          {getTabs().map((tab) => (
+            <li className="nav-item" key={tab.index}>
+              <button
+                onClick={() => setCurrentPage(tab.index)}
+                className="nav-link border-0 d-flex align-items-center gap-2"
                 style={{
-                borderBottom: currentPage === index ? "3px solid #0d6efd" : "3px solid transparent",
-                color: currentPage === index ? "#0d6efd" : "#6c757d",
-                fontWeight: currentPage === index ? "600" : "400",
-                backgroundColor: "transparent",
-                transition: "all 0.2s ease-in-out",
+                  borderBottom: currentPage === tab.index ? "3px solid #0d6efd" : "3px solid transparent",
+                  color: currentPage === tab.index ? "#0d6efd" : "#6c757d",
+                  fontWeight: currentPage === tab.index ? "600" : "400",
+                  backgroundColor: "transparent",
+                  transition: "all 0.2s ease-in-out",
                 }}
-            >
-                {label}
-            </button>
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: 20 }}>{tab.icon}</span>
+                {tab.label}
+              </button>
             </li>
-        ))}
-    </ul>
+          ))}
+        </ul>
+      </div>
 
       {/* ─── Content ──────────────────────────────── */}
       <div>
-          {currentPage === 1 && (
+          {currentPage === 1 && isPlanningPhase() && (
             <>
-              <DepartmentTasksTable id={id} admin_mode={true} />
-              <GeneralTasksTable id={id} />
-            </>
-          )}
-          {currentPage === 2 && (
-            <>
-              <div className="bg-white p-3 mb-3 rounded shadow-sm">
-                <UserPerformanceInDepartment dept_id={id} />
+              <div className="alert alert-info d-flex mb-3">
+                <span className="material-symbols-outlined me-2">info</span>
+                During Planning Phase: Outputs are created and assigned to staff members.
               </div>
-              <DepartmentMemberTable deptid={id} />
+              <DepartmentTasksTable id={id} admin_mode={false} currentPhase = {currentPhase} />
+              <GeneralTasksTable id={id}  currentPhase = {currentPhase}/>
             </>
           )}
-          {currentPage === 0 && <PerformanceReviews deptid={id} />}
-        </div>
-      </div>
-  );
+
+          {currentPage === 1 && isMonitoringPhase() && (
+             <>
+               <DepartmentTasksTable id={id} admin_mode={false}  currentPhase = {currentPhase}/>
+               <GeneralTasksTable id={id}  currentPhase = {currentPhase}/>
+             </>
+           )}
+
+           {currentPage === 2 && (
+             <>
+               <div className="bg-white p-3 mb-3 rounded shadow-sm">
+                 <UserPerformanceInDepartment dept_id={id} />
+               </div>
+               <DepartmentMemberTable deptid={id} />
+             </>
+           )}
+
+          {currentPage === 0 && (isMonitoringPhase() || isRatingPhase()) && (
+            <PerformanceReviews deptid={id} />
+          )}
+
+          {/* Empty state when tab not available */}
+          {getTabs().length === 0 && (
+            <div className="text-center py-5 text-muted">
+              <span className="material-symbols-outlined fs-1 mb-2 d-block">lock</span>
+              <h5>No Tabs Available</h5>
+             <p>Check back when the phase changes.</p>
+           </div>
+          )}
+         </div>
+       </div>
+   );
 }
 
 export default HeadDepartmentInfo;

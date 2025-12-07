@@ -92,6 +92,43 @@ const Periods = forwardRef(function Periods({ initialData = {} }, ref) {
     return phases.length > 0 ? phases : null
   }
 
+  // check for overlapping date ranges
+  function checkDateOverlap() {
+    const phases = [
+      { name: "Planning", start: planningStartDate, end: planningEndDate },
+      { name: "Monitoring", start: monitoringStartDate, end: monitoringEndDate },
+      { name: "Rating", start: ratingStartDate, end: ratingEndDate }
+    ]
+
+    // filter out phases with incomplete date ranges
+    const activePhasesWithDates = phases.filter(p => p.start && p.end)
+
+    // check each pair for overlaps
+    for (let i = 0; i < activePhasesWithDates.length; i++) {
+      for (let j = i + 1; j < activePhasesWithDates.length; j++) {
+        const phase1 = activePhasesWithDates[i]
+        const phase2 = activePhasesWithDates[j]
+
+        const start1 = parseDateString(phase1.start)
+        const end1 = parseDateString(phase1.end)
+        const start2 = parseDateString(phase2.start)
+        const end2 = parseDateString(phase2.end)
+
+        // check if ranges overlap: start1 <= end2 AND start2 <= end1
+        if (start1 <= end2 && start2 <= end1) {
+          return {
+            hasOverlap: true,
+            phase1: phase1.name,
+            phase2: phase2.name,
+            message: `${phase1.name} phase (${phase1.start} to ${phase1.end}) overlaps with ${phase2.name} phase (${phase2.start} to ${phase2.end})`
+          }
+        }
+      }
+    }
+
+    return { hasOverlap: false, message: "" }
+  }
+
   function validatePeriodDates(periodLabel) {
     const pairs = [
       { s: planningStartDate, e: planningEndDate, label: "Planning" },
@@ -117,6 +154,18 @@ const Periods = forwardRef(function Periods({ initialData = {} }, ref) {
         }
       }
     }
+
+    // check for overlapping phases
+    const overlapCheck = checkDateOverlap()
+    if (overlapCheck.hasOverlap) {
+      Swal.fire(
+        "Validation Error",
+        overlapCheck.message,
+        "warning"
+      )
+      return false
+    }
+
     return true
   }
 
@@ -199,6 +248,19 @@ const Periods = forwardRef(function Periods({ initialData = {} }, ref) {
           </div>
         </div>
       </div>
+
+      {/* Overlap Warning */}
+      {checkDateOverlap().hasOverlap && (
+        <div className="col-12">
+          <div className="alert alert-warning d-flex align-items-center gap-2" role="alert">
+            <span className="material-symbols-outlined">warning</span>
+            <div>
+              <strong>Date Overlap Detected:</strong>
+              <p className="mb-0 mt-1">{checkDateOverlap().message}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="col-12 col-md-6 d-none">
         <label className="form-label fw-semibold">Current Period ID</label>

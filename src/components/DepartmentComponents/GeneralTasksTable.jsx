@@ -93,6 +93,22 @@ function GeneralTasksTable(props) {
     };
   }, []);
 
+  function isMonitoringPhase() {
+    
+    return props.currentPhase && Array.isArray(props.currentPhase) && props.currentPhase.includes("monitoring");
+  }
+
+  function isRatingPhase() {
+    
+    return props.currentPhase && Array.isArray(props.currentPhase) && props.currentPhase.includes("rating");
+  }
+
+  function isPlanningPhase() {
+    
+    
+    return props.currentPhase && Array.isArray(props.currentPhase) && props.currentPhase.includes("planning");
+  }
+
   return (
     <div className="container-fluid py-3 bg-white rounded-3 shadow-sm">
       {/* === Add Task Modal === */}
@@ -137,7 +153,7 @@ function GeneralTasksTable(props) {
       >
         <div className="modal-dialog modal-dialog-centered modal-lg">
           <div className="modal-content">
-            <div className="modal-header bg-secondary text-white">
+            <div className="modal-header bg-primary text-white">
               <h5 className="modal-title" id="assignModalLabel">
                 <i className="bi bi-person-plus me-2"></i> Assign Members
               </h5>
@@ -154,6 +170,7 @@ function GeneralTasksTable(props) {
                   key={currentUserID}
                   task_id={currentUserID}
                   dept_id={props.id}
+                  currentPhase={props.currentPhase}
                 />
               ) : (
                 <p className="text-center text-muted">

@@ -157,21 +157,7 @@ function GeneralTask({ mems, switchMember }) {
               Assign
             </button>
 
-            <button
-              className="btn btn-sm btn-outline-danger d-flex align-items-center gap-2 px-3 py-1"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleRemove();
-              }}
-            >
-              <span
-                className="material-symbols-outlined"
-                style={{ fontSize: "18px" }}
-              >
-                delete
-              </span>
-              Remove
-            </button>
+            
           </div>
         </div>
       </div>
