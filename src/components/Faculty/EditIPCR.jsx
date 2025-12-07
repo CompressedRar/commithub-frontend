@@ -371,21 +371,9 @@ function EditIPCR(props) {
                     <span className="material-symbols-outlined fs-5">attach_file</span>
                     Documents
                 </button>
-                <button
-                    className="btn btn-outline-primary btn-sm d-flex align-items-center gap-2"
-                    onClick={()=> {
-                        download()
-                    }}
-                    disabled={downloading}
-                    >
-                    {downloading ? 
-                    <>
-                        <span className="spinner-border spinner-border-sm me-2"></span>
-                    </>: 
-                    <>
-                        <span className="material-symbols-outlined fs-5">upload</span>
-                        Export
-                    </>}
+                <button className="btn btn-outline-primary d-flex" onClick={download} disabled={downloading}>
+                    {downloading ? <span className="spinner-border spinner-border-sm me-2"></span> : <span className="material-symbols-outlined me-1">download</span>}
+                    Export
                 </button>
 
                 {canSubmit && props.mode === "faculty" && (
