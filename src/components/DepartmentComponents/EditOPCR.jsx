@@ -305,22 +305,24 @@ function EditOPCR(props) {
       "Support Function": { sum: 0, count: 0 }
     }
 
-    opcrInfo.forEach((categoryObj) => {
-      Object.entries(categoryObj).forEach(([category, tasks]) => {
-        tasks.forEach((task) => {
-          const computed = applyToTask(task)
-          qSum += computed._computed.quantity
-          eSum += computed._computed.efficiency
-          tSum += computed._computed.timeliness
-          allSum += computed._computed.average
-          count++
+    // Iterate through new nested structure: functionObj > categoryObj > tasks
+    opcrInfo.forEach((functionObj) => {
+      Object.entries(functionObj).forEach(([functionType, categoryObj]) => {
+        Object.entries(categoryObj).forEach(([category, tasks]) => {
+          tasks.forEach((task) => {
+            const computed = applyToTask(task)
+            qSum += computed._computed.quantity
+            eSum += computed._computed.efficiency
+            tSum += computed._computed.timeliness
+            allSum += computed._computed.average
+            count++
 
-          const type = categoriesTypes[category]
-
-          if (type && funcSums[type]) {
-            funcSums[type].sum += computed._computed.average
-            funcSums[type].count += 1
-          }
+            // Use functionType directly instead of looking up category
+            if (funcSums[functionType]) {
+              funcSums[functionType].sum += computed._computed.average
+              funcSums[functionType].count += 1
+            }
+          })
         })
       })
     })
@@ -445,22 +447,25 @@ function EditOPCR(props) {
                 </tr>
               </thead>
               <tbody>
-                {opcrInfo.map((categoryObj, idx) =>
-                  Object.entries(categoryObj).map(([category, tasks]) => (
-                    <TaskSection
-                      key={`${idx}-${category}`}
-                      category={category}
-                      categoryType={categoriesTypes[category]}
-                      tasks={tasks}
-                      assignedData={assignedData}
-                      handleRemarks={handleRemarks}
-                      ratingThresholds={ratingThresholds}
-                      setField={setField}
-                      setValue={setValue}
-                      setRatingID={setRatingID}
-                      canEval={canEval}
-                    />
-                  ))
+                {opcrInfo.map((functionObj, idx) =>
+                  Object.entries(functionObj).map(([functionType, categoryObj]) =>
+                   Object.entries(categoryObj).map(([category, tasks]) => (
+                     <TaskSection
+                       key={`${idx}-${functionType}-${category}`}
+                       category={category}
+                       categoryType={category}
+                       functionType={functionType}
+                       tasks={tasks}
+                       assignedData={assignedData}
+                       handleRemarks={handleRemarks}
+                       ratingThresholds={ratingThresholds}
+                       setField={setField}
+                       setValue={setValue}
+                       setRatingID={setRatingID}
+                       canEval={canEval}
+                     />
+                   ))
+                  )
                 )}
               </tbody>
             </table>
@@ -554,17 +559,17 @@ function OfficerInfoSection({ headData, assignedData }) {
 }
 
 // Sub-component: Task Section
-function TaskSection({ category, categoryType, tasks, assignedData, handleRemarks, ratingThresholds, setField, setValue, setRatingID, canEval }) {
+function TaskSection({ category, categoryType, functionType, tasks, assignedData, handleRemarks, ratingThresholds, setField, setValue, setRatingID, canEval }) {
   if (!tasks || tasks.length === 0) return null
 
   return (
     <>
       <tr className="table-secondary fw-bold">
-        <td colSpan="5">{categoryType}</td>
+        <td colSpan="6">{functionType}</td>
       </tr>
     
       <tr className="table-light small">
-        <td colSpan="5" className="text-muted">{category}</td>
+        <td colSpan="6" className="text-muted">{category}</td>
       </tr>
 
       {tasks.map((task, idx) => (

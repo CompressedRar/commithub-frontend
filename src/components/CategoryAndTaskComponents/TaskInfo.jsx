@@ -16,12 +16,26 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
   const [loading, setLoading] = useState(false);
   const [titleEditable, setTitleEditable] = useState(false);
 
+  // helper: convert server datetime to input-friendly "yyyy-MM-ddTHH:mm" (local)
+  const formatDateForInput = (dt) => {
+    if (!dt) return "";
+    try {
+      const d = new Date(dt);
+      if (isNaN(d.getTime())) return "";
+      const tzOffset = d.getTimezoneOffset() * 60000;
+      const local = new Date(d.getTime() - tzOffset);
+      return local.toISOString().slice(0, 16); // "YYYY-MM-DDTHH:mm"
+    } catch {
+      return "";
+    }
+  };
+
   const handleChange = (e) => {
-    const { id: fieldId, value } = e.target;
-    setFormData((prev) => ({ ...prev, [fieldId]: value }));
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
 
     // detect changes
-    if (taskInfo[fieldId] !== value) setIsDirty(true);
+    if (taskInfo[name] !== value) setIsDirty(true);
   };
 
   const loadDepartments = async () => {
@@ -36,8 +50,12 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
   const loadTaskInfo = async () => {
     try {
       const res = await getMainTask(id);
+      console.log("MAIN TASK DATA", res.data);
       setTaskInfo(res.data);
-      setFormData(res.data);
+      setFormData({
+        ...res.data,
+        target_deadline: res.data.target_deadline ? formatDateForInput(res.data.target_deadline) : ""
+      });
       setIsDirty(false);
     } catch (error) {
       console.error(error);
@@ -50,7 +68,7 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
   };
 
   const handleUpdate = async () => {
-    if (!formData.name || !formData.target_accomplishment || !formData.actual_accomplishment) {
+    if (!formData.name || !formData.task_desc) {
       Swal.fire("Validation", "Please fill all required fields", "warning");
       return;
     }
@@ -119,14 +137,9 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
         </div>
 
         <div className="d-flex gap-2">
-          <button className="btn btn-outline-danger" onClick={handleArchive}>
+          <button className="btn btn-outline-danger d-flex" onClick={handleArchive}>
             <span className="material-symbols-outlined me-1">archive</span> Archive
           </button>
-          {backToPage && (
-            <button className="btn btn-outline-secondary" onClick={backToPage}>
-              <span className="material-symbols-outlined me-1">close</span> Close
-            </button>
-          )}
         </div>
       </div>
 
@@ -136,7 +149,7 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
         <div className="mb-3">
           <label className="form-label fw-semibold">Output Name <span className="text-danger">*</span></label>
           <input
-            id="name"
+            name="name"
             type="text"
             className="form-control"
             placeholder="e.g., Board Trustees Meeting"
@@ -150,21 +163,21 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
         <div className="mb-3">
           <label className="form-label fw-semibold">Office</label>
           <select
-            id="department"
+            name="department"
             className="form-select"
             value={formData.department || ""}
             onChange={handleChange}
           >
             <option value="">Select Department</option>
+            <option key="" value="General">General</option>
             {allDepartments.map((dept) => (
               <option key={dept.id} value={dept.id}>{dept.name}</option>
             ))}
           </select>
         </div>
 
-        {/* Target & Actual Accomplishment */}
+        {/* Description */}
         <h6 className="fw-semibold mt-4 mb-3">Success Indicators</h6>
-
         <div className="row">
           <div className="col-md-6 mb-3">
             <label className="form-label fw-semibold">Target Quantity <span className="text-danger">*</span></label>
@@ -193,61 +206,115 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
           </div>
         </div>
 
-        {/* Timeliness & Efficiency */}
-        <h6 className="fw-semibold mt-4 mb-3">Performance Metrics</h6>
-
-        <div className="row">
-          <div className="col-md-6 mb-3">
-            <label className="form-label fw-semibold">Timeliness</label>
-            <select
-              id="time_measurement"
-              className="form-select"
-              value={formData.time_measurement || ""}
-              onChange={handleChange}
-            >
-              <option value="">Select timeframe</option>
-              <option value="minute">Minute</option>
-              <option value="hour">Hour</option>
-              <option value="day">Day</option>
-              <option value="week">Week</option>
-              <option value="month">Month</option>
-              <option value="semester">Semester</option>
-              <option value="year">Year</option>
-            </select>
-            <small className="text-muted d-block mt-1">How often is this output produced?</small>
-          </div>
-
-          <div className="col-md-6 mb-3">
-            <label className="form-label fw-semibold">Efficiency</label>
-            <select
-              id="modifications"
-              className="form-select"
-              value={formData.modifications || ""}
-              onChange={handleChange}
-            >
-              <option value="">Select type</option>
-              <option value="correction">Correction</option>
-              <option value="revision">Revision</option>
-              <option value="error">Error</option>
-            </select>
-            <small className="text-muted d-block mt-1">Type of modification allowed</small>
-          </div>
-        </div>
-
-        {/* Additional Info */}
-        <h6 className="fw-semibold mt-4 mb-3">Additional Information</h6>
-
+        {/* Target Quantity */}
         <div className="mb-3">
-          <label className="form-label fw-semibold">Description/Notes</label>
-          <textarea
-            id="description"
+          <label className="form-label fw-semibold">Target Quantity</label>
+          <input
+            name="target_quantity"
+            type="number"
             className="form-control"
-            rows="3"
-            placeholder="Any additional notes about this output..."
-            value={formData.description || ""}
+            placeholder="Enter target quantity"
+            value={formData.target_quantity || ""}
             onChange={handleChange}
-          ></textarea>
+            min="1"
+          />
+          <small className="text-muted d-block mt-1">The target number to be achieved</small>
         </div>
+
+        {/* Target Efficiency */}
+        <div className="mb-3">
+          <label className="form-label fw-semibold">Target Efficiency</label>
+          <input
+            name="target_efficiency"
+            type="number"
+            className="form-control"
+            placeholder="Enter target efficiency"
+            value={formData.target_efficiency}
+            onChange={handleChange}
+          />
+          <small className="text-muted d-block mt-1">The efficiency measure or goal</small>
+        </div>
+
+        {/* Efficiency Unit */}
+        <div className="mb-3">
+          <label className="form-label fw-semibold">Efficiency Unit</label>
+          <select
+            name="modification"
+            className="form-select"
+            value={formData.modification || "correction"}
+            onChange={handleChange}
+          >
+            <option value="correction">Correction</option>
+            <option value="revision">Revision</option>
+            <option value="error">Error</option>
+          </select>
+          <small className="text-muted d-block mt-1">Type of modification allowed</small>
+        </div>
+
+        {/* Timeliness Mode */}
+        <div className="mb-3">
+          <label className="form-label fw-semibold">Timeliness Mode</label>
+          <select
+            name="timeliness_mode"
+            className="form-select"
+            value={formData.timeliness_mode || "timeframe"}
+            onChange={handleChange}
+          >
+            <option value="timeframe">Timeframe (number + unit)</option>
+            <option value="deadline">Deadline (specific date/time)</option>
+          </select>
+          <small className="text-muted d-block mt-1">How to measure timeliness</small>
+        </div>
+
+        {/* Conditional: Timeframe or Deadline */}
+        {(formData.timeliness_mode || "timeframe") === "timeframe" ? (
+          <div className="row g-2">
+            <div className="col-md-6 mb-3">
+              <label className="form-label fw-semibold">Target Timeframe (units)</label>
+              <input
+                type="number"
+                name="target_timeframe"
+                className="form-control"
+                placeholder="Enter number of units"
+                value={formData.target_timeframe || ""}
+                onChange={handleChange}
+                min="1"
+              />
+              <small className="text-muted d-block mt-1">Use with unit selector below</small>
+            </div>
+
+            <div className="col-md-6 mb-3">
+              <label className="form-label fw-semibold">Time Unit</label>
+              <select
+                name="time_measurement"
+                className="form-select"
+                value={formData.time_measurement || "day"}
+                onChange={handleChange}
+              >
+                <option value="minute">Minute</option>
+                <option value="hour">Hour</option>
+                <option value="day">Day</option>
+                <option value="week">Week</option>
+                <option value="month">Month</option>
+                <option value="semester">Semester</option>
+                <option value="year">Year</option>
+              </select>
+              <small className="text-muted d-block mt-1">Unit for the timeframe</small>
+            </div>
+          </div>
+        ) : (
+          <div className="mb-3">
+            <label className="form-label fw-semibold">Target Deadline</label>
+            <input
+              type="datetime-local"
+              name="target_deadline"
+              className="form-control"
+              value={formData.target_deadline || ""}
+              onChange={handleChange}
+            />
+            <small className="text-muted d-block mt-1">Specify exact date/time for completion</small>
+          </div>
+        )}
 
         {/* Status */}
         <div className="mb-3">
@@ -256,9 +323,11 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
             <small className="text-muted d-block">
               Created: <span className="fw-semibold">{formData.created_at ? new Date(formData.created_at).toLocaleDateString() : "N/A"}</span>
             </small>
-            <small className="text-muted d-block">
+            { false && 
+              <small className="text-muted d-block">
               Last Updated: <span className="fw-semibold">{formData.updated_at ? new Date(formData.updated_at).toLocaleDateString() : "N/A"}</span>
             </small>
+            }
           </div>
         </div>
       </form>
@@ -266,9 +335,12 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
       {/* Save/Cancel Buttons */}
       <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
         <button
-          className="btn btn-outline-secondary"
+          className="btn btn-outline-secondary d-flex"
           onClick={() => {
-            setFormData(taskInfo);
+            setFormData({
+              ...taskInfo,
+              target_deadline: taskInfo.target_deadline ? formatDateForInput(taskInfo.target_deadline) : ""
+            });
             setIsDirty(false);
           }}
           disabled={!isDirty || loading}
@@ -276,7 +348,7 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
           <span className="material-symbols-outlined me-1">close</span> Cancel
         </button>
         <button
-          className="btn btn-primary"
+          className="btn btn-primary d-flex"
           disabled={!isDirty || loading}
           onClick={handleUpdate}
         >
