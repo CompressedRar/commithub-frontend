@@ -5,6 +5,7 @@ import {
 import Swal from "sweetalert2";
 import { getCategoryTaskAverage } from "../../services/tableServices";
 import { socket } from "../api";
+import CHART_COLORS from "./chartColors";
 
 export default function CategoryTaskAverages({ cat_id }) {
   const [data, setData] = useState([]);
@@ -111,10 +112,10 @@ export default function CategoryTaskAverages({ cat_id }) {
                   paddingTop: "10px",
                 }}
               />
-              <Bar dataKey="average_quantity" fill="#36A2EB" name="Quantity" radius={[6, 6, 0, 0]} />
-              <Bar dataKey="average_efficiency" fill="#FF6384" name="Efficiency" radius={[6, 6, 0, 0]} />
-              <Bar dataKey="average_timeliness" fill="#FFCE56" name="Timeliness" radius={[6, 6, 0, 0]} />
-              <Bar dataKey="overall_average" fill="#4CAF50" name="Overall Avg" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="average_quantity" fill={CHART_COLORS.QUANTITY} name="Quantity" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="average_efficiency" fill={CHART_COLORS.EFFICIENCY} name="Efficiency" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="average_timeliness" fill={CHART_COLORS.TIMELINESS} name="Timeliness" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="overall_average" fill={CHART_COLORS.AVERAGE} name="Overall Avg" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

@@ -2,6 +2,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { getPopulationCount } from "../../services/tableServices";
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
+import CHART_COLORS from "./chartColors";
 
 export default function PopulationPerDepartment() {
   const [data, setData] = useState([]);
@@ -84,7 +85,7 @@ export default function PopulationPerDepartment() {
               <XAxis dataKey="name" />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="value" fill="#3c70ff" name="Population" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="value" fill={CHART_COLORS.PRIMARY} name="Population" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

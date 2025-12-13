@@ -10,6 +10,7 @@ import {
 import { getPerformancePerDepartment } from "../../services/tableServices";
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
+import CHART_COLORS from "./chartColors";
 
 export default function PerformancePerDepartment() {
   const [data, setData] = useState([]);
@@ -102,7 +103,7 @@ export default function PerformancePerDepartment() {
               <Tooltip />
               <Bar
                 dataKey="value"
-                fill="#8884d8"
+                fill={CHART_COLORS.AVERAGE}
                 name="Average Performance"
                 radius={[6, 6, 6, 6]}
               />

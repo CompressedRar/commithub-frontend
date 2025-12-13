@@ -4,6 +4,7 @@ import {
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { getUserTaskAverage } from "../../services/tableServices";
+import CHART_COLORS from "./chartColors";
 
 export default function TaskUserAverageBar({ taskId }) {
   const [data, setData] = useState([]);
@@ -42,7 +43,7 @@ export default function TaskUserAverageBar({ taskId }) {
           <XAxis dataKey="name" type="category" display={"none"} />
           <Tooltip />
           <Legend />
-          <Bar dataKey="average" fill="#4f46e5" name="Overall Average" barSize={20}/>
+          <Bar dataKey="average" fill={CHART_COLORS.PRIMARY} name="Overall Average" barSize={20}/>
         </BarChart>
       </ResponsiveContainer>
     </div>

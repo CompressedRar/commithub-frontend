@@ -2,6 +2,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { getPopulationCount, getUserPerformanceInDepartment } from "../../services/tableServices";
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
+import CHART_COLORS from "./chartColors";
 
 export default function UserPerformanceInDepartment(props) {
   const [data, setData] = useState(null)
@@ -38,7 +39,7 @@ export default function UserPerformanceInDepartment(props) {
             <XAxis dataKey="name" />
             <YAxis domain={[0, 5]} />
             <Tooltip />
-            <Bar dataKey="value" fill="#36a2eb" name="Average Performance" />
+            <Bar dataKey="value" fill={CHART_COLORS.SECONDARY} name="Average Performance" />
           </BarChart>
         </ResponsiveContainer>
 

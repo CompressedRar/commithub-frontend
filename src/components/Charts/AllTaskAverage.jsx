@@ -12,6 +12,7 @@ import {
 import Swal from "sweetalert2";
 import { getAllTaskAverage } from "../../services/tableServices";
 import { socket } from "../api";
+import CHART_COLORS from "./chartColors";
 
 export default function AllTaskAverages() {
   const [data, setData] = useState([]);
@@ -116,25 +117,25 @@ export default function AllTaskAverages() {
               <Legend />
               <Bar
                 dataKey="average_quantity"
-                fill="#36A2EB"
+                fill={CHART_COLORS.QUANTITY}
                 name="Quantity"
                 radius={[6, 6, 0, 0]}
               />
               <Bar
                 dataKey="average_efficiency"
-                fill="#FF6384"
+                fill={CHART_COLORS.EFFICIENCY}
                 name="Efficiency"
                 radius={[6, 6, 0, 0]}
               />
               <Bar
                 dataKey="average_timeliness"
-                fill="#FFCE56"
+                fill={CHART_COLORS.TIMELINESS}
                 name="Timeliness"
                 radius={[6, 6, 0, 0]}
               />
               <Bar
                 dataKey="overall_average"
-                fill="#4CAF50"
+                fill={CHART_COLORS.AVERAGE}
                 name="Overall Avg"
                 radius={[6, 6, 0, 0]}
               />

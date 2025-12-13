@@ -105,7 +105,7 @@ function AdminLayout() {
   if (role && role !== "administrator") return <Navigate to="/unauthorized" replace />;
 
   return (
-    <div className="d-flex flex-column flex-md-row vh-100 overflow-hidden bg-light">
+    <div className="d-flex flex-column flex-md-row vh-100 overflow-scroll bg-light">
       {/* 🔹 Sidebar */}
       <nav
         className={`sidebar bg-white border-end shadow-sm d-flex flex-column justify-content-between position-fixed ${
@@ -174,20 +174,20 @@ function AdminLayout() {
       {isMobile && !sidebarCollapsed && (
         <div
           className="position-fixed top-0 start-0 w-100 h-100 bg-white bg-opacity-25"
-          style={{ zIndex: 1040 }}
+          style={!sidebarCollapsed ? { zIndex: 1040 }: { zIndex: 0 }}
           onClick={() => setSidebarCollapsed(true)}
         ></div>
       )}
 
       {/* 🔹 Main Content */}
       <div
-        className="flex-grow-1 d-flex flex-column"
+        className="flex-grow-1 d-flex flex-column "
         style={{
           marginLeft: !isMobile ? (sidebarCollapsed ? "70px" : "250px") : "0",
           transition: "margin 0.3s ease",
         }}
       >
-        <header className="d-flex justify-content-between align-items-center px-4 py-2 bg-white border-bottom shadow-sm">
+        <header className="d-flex justify-content-between align-items-center px-4 py-2 bg-white border-bottom w-100 shadow-sm position-fixed" style={{zIndex:1000}}>
           <div className="d-flex align-items-center gap-3">
             <button
               className="btn btn-outline-primary btn-sm"
@@ -308,8 +308,8 @@ function AdminLayout() {
 
         {/* 🔹 Content */}
         <main
-          className="flex-grow-1 overflow-auto p-2"
-          style={{ backgroundColor: "#ffffffff" }}
+          className="flex-grow-1 p-2"
+          style={{ backgroundColor: "#ffffffff", marginTop:"5vh", zIndex:700}}
         >
           <Outlet />
         </main>
@@ -342,6 +342,7 @@ function AdminLayout() {
           </div>
         </div>
       </div>
+
       <NotificationModal
         notifications={notifications}
         setNotifications={setNotifications}

@@ -7,6 +7,8 @@ import CategoryTasks from "../components/CategoryAndTaskComponents/CategoryTasks
 import TaskInfo from "../components/CategoryAndTaskComponents/TaskInfo";
 import Swal from "sweetalert2";
 import { Modal } from "bootstrap";
+import CategoryPerformanceCharts from "../components/Charts/CategoryPerformance";
+import CategoryTaskAverages from "../components/Charts/CategoryTaskAverage";
 
 export default function CategoryAndTask() {
   const [allCategory, setAllCategory] = useState([]);
@@ -100,14 +102,13 @@ export default function CategoryAndTask() {
   return (
     <div className="container-fluid py-4">
       <div className="row g-3">
-        {/* LEFT: categories list */}
         <div className="col-12 col-md-12 col-lg-3">
           <div className="card shadow-sm sticky-top" style={{ top: "1rem" }}>
             <div className="card-body">
               <div className="d-flex align-items-center justify-content-between mb-3">
                 <div>
                   <h5 className="mb-0 fw-bold">Major Final Outputs</h5>
-                  <small className="text-muted">Select a category to manage outputs</small>
+                  <small className="text-muted">Select MFO to manage tasks</small>
                 </div>
                 <button className="btn btn-sm btn-primary d-flex gap-2 align-items-center" onClick={openCreateModal} title="Create category">
                   <span className="material-symbols-outlined">add</span>
@@ -129,7 +130,7 @@ export default function CategoryAndTask() {
                     <div className="spinner-border text-primary" role="status" />
                   </div>
                 ) : filteredCategories.length === 0 ? (
-                  <div className="text-center text-muted py-3">No categories found</div>
+                  <div className="text-center text-muted py-3">No MFOs found</div>
                 ) : (
                   filteredCategories.map((cat) => {
                     const active = cat.id === selectedCategoryId;
@@ -157,7 +158,7 @@ export default function CategoryAndTask() {
                 )}
               </div>
 
-              <div className="mt-3 text-muted small">Showing {filteredCategories.length} categories</div>
+              <div className="mt-3 text-muted small">Showing {filteredCategories.length} Major Final Outputs</div>
             </div>
           </div>
         </div>
@@ -196,10 +197,10 @@ export default function CategoryAndTask() {
                     reloadCategory={(id) => setSelectedCategoryId(id)}
                   />
                 ) : (
-                  <div className="row">
+                  <div className="row p-4">
                     <div className="col-12 col-lg-6">
                       <div className="mb-3">
-                        <h6 className="fw-semibold">Category Details</h6>
+                        <h6 className="fw-semibold">Output Details</h6>
                         <p className="text-muted small mb-1">{allCategory.find((c) => c.id === selectedCategoryId)?.description ?? "No description"}</p>
                         <div className="d-flex gap-2 mt-2">
                           <button className="btn btn-sm btn-outline-primary" onClick={() => setActiveRightTab("items")}>
@@ -208,12 +209,52 @@ export default function CategoryAndTask() {
                         </div>
                       </div>
                     </div>
-                    <div className="col-12 col-lg-6">
-                      <div className="mb-3">
-                        <h6 className="fw-semibold">Meta</h6>
-                        <div className="small text-muted">
-                          <div>Tasks: {allCategory.find((c) => c.id === selectedCategoryId)?.task_count ?? 0}</div>
-                          <div>Type: {allCategory.find((c) => c.id === selectedCategoryId)?.category_type}</div>
+                    <div className="col-12 col-lg-12">
+                              <div className="p-3 bg-white border rounded-3 h-100">
+                                <div className="d-flex justify-content-between align-items-center mb-2">
+                                  <div>
+                                    <h6 className="mb-0 fw-semibold">Category Summary</h6>
+                                    <small className="text-muted">Quick metrics</small>
+                                  </div>
+                                </div>
+                    
+                                <div className="d-flex gap-2 mt-3 flex-wrap">
+
+                                  <div className="p-3 bg-light rounded-2 text-center" style={{ minWidth: 100 }}>
+                                    <div className="fw-bold">{allCategory.find((c) => c.id === selectedCategoryId)?.type}</div>
+                                    <small className="text-muted d-block">Type</small>
+                                  </div>
+
+                                  <div className="p-3 bg-light rounded-2 text-center" style={{ minWidth: 100 }}>
+                                    <div className="fw-bold">{allCategory.find((c) => c.id === selectedCategoryId)?.task_count ?? 0}</div>
+                                    <small className="text-muted d-block">Outputs</small>
+                                  </div>
+                    
+                                  <div className="p-3 bg-light rounded-2 text-center" style={{ minWidth: 100 }}>
+                                    <div className="fw-bold">{allCategory.find((c) => c.id === selectedCategoryId)?.average_rating ?? 0}</div>
+                                    <small className="text-muted d-block">Avg Rating</small>
+                                  </div>
+                                </div>
+                    
+                                <div className="mt-3">
+                                  <CategoryTaskAverages cat_id={selectedCategoryId} />
+                                </div>
+                              </div>
+                            </div>
+
+
+
+                    <div className="col-12 col-lg-12">
+                      <div className="p-3 bg-white border rounded-3 h-100">
+                        <div className="d-flex justify-content-between align-items-center mb-2">
+                          <div>
+                            <h6 className="mb-0 fw-semibold">Performance</h6>
+                            <small className="text-muted">Trend charts</small>
+                          </div>
+                        </div>
+
+                        <div className="mt-2">
+                          <CategoryPerformanceCharts categoryId={selectedCategoryId} />
                         </div>
                       </div>
                     </div>
@@ -224,8 +265,8 @@ export default function CategoryAndTask() {
               ) : (
                 <div className="text-center py-5 text-muted">
                   <div className="mb-3"><span className="material-symbols-outlined fs-1">folder_open</span></div>
-                  <div className="fw-semibold mb-1">No category selected</div>
-                  <div className="mb-3">Create or select a category from the left panel.</div>
+                  <div className="fw-semibold mb-1">No MFO selected</div>
+                  <div className="mb-3">Create or select a MFO from the left panel.</div>
                   <div><button className="btn btn-primary" onClick={openCreateModal}><span className="material-symbols-outlined me-1">add</span>Create Category</button></div>
                 </div>
               )}
@@ -255,6 +296,11 @@ export default function CategoryAndTask() {
                   <option value="Strategic Function">Strategic Function</option>
                   <option value="Support Function">Support Function</option>
                 </select>
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label">Description <span className="text-danger">*</span></label>
+                <textarea rows={5} name="description" className="form-control" value={formData.category_name} onChange={handleDataChange} placeholder="Describe this major final output..." />
               </div>
             </div>
 

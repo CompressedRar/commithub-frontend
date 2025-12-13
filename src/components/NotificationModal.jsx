@@ -2,21 +2,26 @@ import { useEffect } from "react";
 import { readNotification } from "../services/userService";
 
 function NotificationModal({ notifications, setNotifications }) {
-  // 🔹 Mark unread notifications as read when modal opens
+  // mark unread notifications as read only when the modal is actually shown
   useEffect(() => {
-    const unreadIds = notifications.filter(n => !n.read).map(n => n.id);
+    const modalEl = document.getElementById("notification-modal");
+    if (!modalEl) return;
 
-    if (unreadIds.length > 0) {
+    const handler = () => {
+      const unreadIds = (notifications || []).filter(n => !n.read).map(n => n.id);
+      if (!unreadIds || unreadIds.length === 0) return;
+
       readNotification(unreadIds)
         .then(() => {
           setNotifications(prev =>
-            prev.map(n =>
-              unreadIds.includes(n.id) ? { ...n, read: true } : n
-            )
+            prev.map(n => (unreadIds.includes(n.id) ? { ...n, read: true } : n))
           );
         })
         .catch(err => console.error("Failed to read notifications:", err));
-    }
+    };
+
+    modalEl.addEventListener("shown.bs.modal", handler);
+    return () => modalEl.removeEventListener("shown.bs.modal", handler);
   }, [notifications, setNotifications]);
 
   return (

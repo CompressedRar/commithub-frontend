@@ -307,52 +307,6 @@ function CategoryTasks(props) {
           </button>
         </div>
       </div>
-
-      {/* METRICS + CHART AREA (plain panels) */}
-      <div className="row g-3 mb-4">
-        <div className="col-12 col-lg-4">
-          <div className="p-3 bg-white border rounded-3 h-100">
-            <div className="d-flex justify-content-between align-items-center mb-2">
-              <div>
-                <h6 className="mb-0 fw-semibold">Category Summary</h6>
-                <small className="text-muted">Quick metrics</small>
-              </div>
-            </div>
-
-            <div className="d-flex gap-2 mt-3 flex-wrap">
-              <div className="p-3 bg-light rounded-2 text-center" style={{ minWidth: 100 }}>
-                <div className="fw-bold">{categoryTasks.length}</div>
-                <small className="text-muted d-block">Outputs</small>
-              </div>
-
-              <div className="p-3 bg-light rounded-2 text-center" style={{ minWidth: 100 }}>
-                <div className="fw-bold">{parseFloat(categoryInfo?.average_score ?? 0).toFixed(2)}</div>
-                <small className="text-muted d-block">Avg Rating</small>
-              </div>
-            </div>
-
-            <div className="mt-3">
-              <CategoryTaskAverages cat_id={props.id} />
-            </div>
-          </div>
-        </div>
-
-        <div className="col-12 col-lg-8">
-          <div className="p-3 bg-white border rounded-3 h-100">
-            <div className="d-flex justify-content-between align-items-center mb-2">
-              <div>
-                <h6 className="mb-0 fw-semibold">Performance</h6>
-                <small className="text-muted">Trend charts</small>
-              </div>
-            </div>
-
-            <div className="mt-2">
-              <CategoryPerformanceCharts categoryId={props.id} />
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* TASKS LIST (no cards) */}
       <div className="mb-4">
         <div className="d-flex justify-content-between align-items-center mb-2">

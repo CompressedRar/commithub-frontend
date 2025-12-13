@@ -11,6 +11,7 @@ import {
 import { getPerformanceSummary } from "../../services/tableServices";
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
+import CHART_COLORS from "./chartColors";
 
 export default function PerformanceSummaryPerDepartment() {
   const [data, setData] = useState([]);
@@ -107,10 +108,10 @@ export default function PerformanceSummaryPerDepartment() {
               <YAxis domain={[0, 5]} />
               <Tooltip />
               <Legend />
-              <Bar dataKey="Quantity" fill="#82ca9d" name="Quantity" radius={[6, 6, 0, 0]} />
-              <Bar dataKey="Efficiency" fill="#8884d8" name="Efficiency" radius={[6, 6, 0, 0]} />
-              <Bar dataKey="Timeliness" fill="#ffc658" name="Timeliness" radius={[6, 6, 0, 0]} />
-              <Bar dataKey="Average" fill="#36a2eb" name="Average" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="Quantity" fill={CHART_COLORS.QUANTITY} name="Quantity" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="Efficiency" fill={CHART_COLORS.EFFICIENCY} name="Efficiency" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="Timeliness" fill={CHART_COLORS.TIMELINESS} name="Timeliness" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="Average" fill={CHART_COLORS.AVERAGE} name="Average" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

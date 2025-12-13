@@ -33,8 +33,22 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    
 
     // detect changes
+
+    console.log(name, value)
+    if (taskInfo[name] !== value) setIsDirty(true);
+  };
+
+  const handleCheckbox = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: e.target.checked }));
+    
+
+    // detect changes
+
+    console.log(name, e.target.checked)
     if (taskInfo[name] !== value) setIsDirty(true);
   };
 
@@ -56,6 +70,8 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
         ...res.data,
         target_deadline: res.data.target_deadline ? formatDateForInput(res.data.target_deadline) : ""
       });
+
+      console.log("OUTPUt INFO",  formData)
       setIsDirty(false);
     } catch (error) {
       console.error(error);
@@ -68,7 +84,7 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
   };
 
   const handleUpdate = async () => {
-    if (!formData.name || !formData.task_desc) {
+    if (!formData.name) {
       Swal.fire("Validation", "Please fill all required fields", "warning");
       return;
     }
@@ -180,9 +196,10 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
         <h6 className="fw-semibold mt-4 mb-3">Success Indicators</h6>
         <div className="row">
           <div className="col-md-6 mb-3">
-            <label className="form-label fw-semibold">Target Quantity <span className="text-danger">*</span></label>
+            <label className="form-label fw-semibold">Target Accomplisment <span className="text-danger">*</span></label>
             <textarea
               id="target_accomplishment"
+              name="target_accomplishment"
               className="form-control"
               rows="4"
               placeholder="Define the target quantity/measure..."
@@ -193,9 +210,10 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
           </div>
 
           <div className="col-md-6 mb-3">
-            <label className="form-label fw-semibold">Actual Quantity <span className="text-danger">*</span></label>
+            <label className="form-label fw-semibold">Actual Accomplisment <span className="text-danger">*</span></label>
             <textarea
               id="actual_accomplishment"
+              name="actual_accomplishment"
               className="form-control"
               rows="4"
               placeholder="Record the actual accomplishment..."
@@ -315,6 +333,23 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
             <small className="text-muted d-block mt-1">Specify exact date/time for completion</small>
           </div>
         )}
+
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold">Require Supporting Document</label>
+                    <div className="form-check form-switch">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        name="require_documents"
+                        onChange={handleCheckbox}
+                        style={{ cursor: "pointer", width: "3rem", height: "1.5rem" }}
+                        value={formData.require_documents}
+                      />
+                      <label className="form-check-label ms-2" htmlFor="requireDocToggle">
+                        {formData.require_documents ? "Yes, required" : "No, optional"}
+                      </label>
+                    </div>
+                  </div>
 
         {/* Status */}
         <div className="mb-3">

@@ -4,6 +4,7 @@ import {
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { getActivityScatter } from "../../services/tableServices";
+import CHART_COLORS from "./chartColors";
 
 
 export default function ActivityScatter() {
@@ -73,7 +74,7 @@ export default function ActivityScatter() {
             }}
             labelFormatter={(label) => `Hour ${label}`}
           />
-          <Scatter name="User Activity" data={data? data: []} fill="#8884d8" />
+          <Scatter name="User Activity" data={data? data: []} fill={CHART_COLORS.SCATTER} />
         </ScatterChart>
       </ResponsiveContainer>
     </div>

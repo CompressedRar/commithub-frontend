@@ -124,7 +124,7 @@ function PresidentLayout() {
   if (role && role !== "president") return <Navigate to="/unauthorized" replace />;
 
   return (
-    <div className="d-flex flex-column flex-md-row vh-100 overflow-hidden bg-light">
+    <div className="d-flex flex-column flex-md-row vh-100 overflow-scroll bg-light">
       {/* Sidebar */}
       <nav
         className={`sidebar bg-white border-end shadow-sm d-flex flex-column justify-content-between position-fixed ${
@@ -204,7 +204,7 @@ function PresidentLayout() {
         }}
       >
         {/* Header */}
-        <header className="d-flex justify-content-between align-items-center px-4 py-2 bg-white border-bottom shadow-sm">
+        <header className="d-flex justify-content-between align-items-center px-4 py-2 bg-white border-bottom shadow-sm position-fixed" style={{zIndex:1000}}>
           <div className="d-flex align-items-center gap-3">
             <button
               className="btn btn-outline-primary btn-sm"
@@ -326,7 +326,7 @@ function PresidentLayout() {
         </header>
 
         {/* Main Content */}
-        <main className="flex-grow-1 overflow-auto p-2" style={{ backgroundColor: "#ffffffff" }}>
+        <main className="flex-grow-1 overflow-auto p-2" style={{ backgroundColor: "#ffffffff", marginTop:"5vh", zIndex:700 }}>
           <Outlet />
         </main>
       </div>

@@ -2,8 +2,9 @@ import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recha
 import { getPopulationCount } from "../../services/tableServices";
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
+import CHART_COLORS from "./chartColors";
 
-const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff7f50", "#8dd1e1"];
+const COLORS = CHART_COLORS.PIE_PALETTE;
 
 export default function RatioDepartment() {
 

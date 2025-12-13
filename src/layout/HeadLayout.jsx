@@ -124,7 +124,7 @@ function HeadLayout() {
   if (!token) return <Navigate to="/" replace />;
     if (role && role !== "head") return <Navigate to="/unauthorized" replace />;
   return (
-    <div className="d-flex flex-column flex-md-row vh-100 overflow-hidden bg-light">
+    <div className="d-flex flex-column flex-md-row vh-100 overflow-scroll bg-light">
       {/* 🔹 Sidebar */}
       <nav
         className={`sidebar bg-white border-end shadow-sm d-flex flex-column justify-content-between position-fixed ${
@@ -207,7 +207,7 @@ function HeadLayout() {
         }}
       >
         {/* Header */}
-        <header className="d-flex justify-content-between align-items-center px-4 py-2 bg-white border-bottom shadow-sm">
+        <header className="d-flex justify-content-between align-items-center px-4 py-2 bg-white border-bottom shadow-sm position-fixed" style={{zIndex:1000}}>
           <div className="d-flex align-items-center gap-3">
             <button
               className="btn btn-outline-primary btn-sm"
@@ -337,7 +337,7 @@ function HeadLayout() {
         {/* Main content area */}
         <main
           className="flex-grow-1 overflow-auto p-2"
-          style={{ backgroundColor: "#ffffffff" }}
+          style={{ backgroundColor: "#ffffffff", marginTop:"5vh", zIndex:700 }}
         >
           <Outlet />
         </main>

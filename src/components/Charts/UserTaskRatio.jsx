@@ -12,9 +12,9 @@ import {
   ResponsiveContainer
 } from "recharts";
 import { getUserTaskRatio } from "../../services/tableServices";
+import CHART_COLORS from "./chartColors";
 
-// Optional colors for Pie chart
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+const COLORS = CHART_COLORS.PIE_PALETTE;
 
 const DepartmentChart = ({ mainTaskId }) => {
   const [data, setData] = useState([]);
@@ -35,7 +35,6 @@ const DepartmentChart = ({ mainTaskId }) => {
 
   return (
     <div className="graph">
-
       <ResponsiveContainer width="100%" height="100%">
         {/* PIE CHART */}
         <PieChart>

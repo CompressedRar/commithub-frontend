@@ -245,7 +245,7 @@ function AccountSettings(props) {
             }}
           ></div>
           <div>
-            <label htmlFor="profile-image" className="btn btn-outline-primary btn-sm">
+            <label htmlFor="profile-image" className="btn btn-outline-primary btn-sm d-flex">
               <span className="material-symbols-outlined me-1">upload</span> Change Photo
             </label>
             <input type="file" id="profile-image" ref={fileInput} onChange={handleImageChange} accept="image/*" hidden />

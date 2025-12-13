@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { LineChart, Line, Tooltip, ResponsiveContainer } from "recharts";
 import Swal from "sweetalert2";
 import { getActivityTrend } from "../../services/tableServices";
+import CHART_COLORS from "./chartColors";
 
 export default function ActivityTrendChart() {
   const [data, setData] = useState([]);
@@ -59,7 +60,7 @@ export default function ActivityTrendChart() {
               <Line
                 type="monotone"
                 dataKey="value"
-                stroke="#36a2eb"
+                stroke={CHART_COLORS.LINE}
                 strokeWidth={2}
                 dot={{ r: 3 }}
                 activeDot={{ r: 5 }}

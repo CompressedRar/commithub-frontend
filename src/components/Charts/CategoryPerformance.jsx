@@ -7,6 +7,7 @@ import {
   getTopPerformingDepartment,
 } from "../../services/tableServices";
 import { socket } from "../api";
+import CHART_COLORS from "./chartColors";
 
 // Utility: dynamic color based on rating value
 function pickColor(value) {
@@ -40,7 +41,7 @@ const DonutChart = ({ title, value }) => {
             endAngle={-270}
           >
             {data.map((entry, i) => (
-              <Cell key={i} fill={i === 0 ? pickColor(entry.value) : "#f3f3f3"} />
+              <Cell key={i} fill={i === 0 ? CHART_COLORS.AVERAGE : "#f3f3f3"} />
             ))}
           </Pie>
           <Tooltip formatter={(value) => `${value.toFixed(2)} / 5`} />
