@@ -71,7 +71,7 @@ function Administrator() {
   }, []);
 
   return (
-    <div className="container-fluid bg-light">
+    <div className="container-fluid">
       {/* Header Section */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h3 className="fw-bold d-flex align-items-center gap-2">
@@ -114,14 +114,14 @@ function Administrator() {
       </div>
 
       {/* Summary Stats */}
-      <div className="row g-3 mb-4">
+      <div className="row g-3">
         {[
           { icon: "group", label: "Total Users", count: allCount, color: "primary" },
           { icon: "task", label: "Total Outputs", count: taskCount, color: "success" },
           { icon: "category", label: "Total Major Final Outputs", count: categoryCount, color: "warning" },
         ].map((stat, idx) => (
           <div className="col-md-4" key={idx}>
-            <div className="card border-0 shadow-sm text-center rounded-4">
+            <div className="card border text-center rounded-4">
               <div className="card-body">
                 <span className={`material-symbols-outlined text-${stat.color} fs-1 mb-2`}>
                   {stat.icon}
@@ -135,7 +135,7 @@ function Administrator() {
       </div>
 
       {/* Quick Links */}
-      <div className="d-flex flex-wrap gap-3 mb-5">
+      <div className="d-flex flex-wrap gap-3 my-3">
         {[
           { href: "/admin/users", icon: "manage_accounts", label: "Manage Accounts" },
           { href: "/admin/department", icon: "apartment", label: "Manage Offices" },
@@ -156,24 +156,24 @@ function Administrator() {
       <div className="row g-4">
         
         <div className="col-md-6">
-          <div className="card border-0 shadow-sm rounded-4 p-3">
+          <div className="border rounded-4 p-3">
             <PopulationPerDepartment />
           </div>
         </div>
 
         <div className="col-md-6">
-          <div className="card border-0 shadow-sm rounded-4 p-3">
+          <div className="border rounded-4 p-3">
             <PerformancePerDepartment />
           </div>
         </div>
         <div className="col-md-6">
-          <div className="card border-0 shadow-sm rounded-4 p-3">
+          <div className="border rounded-4 p-3">
             <PerformanceSummaryPerDepartment />
           </div>
         </div>
 
         <div className="col-md-6">
-          <div className="card border-0 shadow-sm rounded-4 p-3">
+          <div className="border rounded-4 p-3">
             <AllTaskAverages />
           </div>
         </div>

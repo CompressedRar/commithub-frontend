@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import Swal from "sweetalert2"
-import { getSettings, updateSettings } from "../services/settingsService"
+import { getSettings, updateSettings, validateFormula } from "../services/settingsService"
 import Positions from "./Positions"
 import Periods from "../components/SystemSettings/Periods"
 
@@ -23,8 +23,13 @@ export default function SystemSettings() {
 
   // Formula states
   const [quantityFormula, setQuantityFormula] = useState({})
+  const [quantityFormulaValid, setQuantityFormulaValid] = useState(false)
+  
   const [efficiencyFormula, setEfficiencyFormula] = useState({})
+  const [efficiencyFormulaValid, setEfficiencyFormulaValid] = useState(false)
+
   const [timelinessFormula, setTimelinessFormula] = useState({})
+  const [timelinessFormulaValid, setTimelinessFormulaValid] = useState(false)
 
   // Officers (kept in parent)
   const [currentPresidentFullname, setCurrentPresidentFullname] = useState("")
@@ -69,6 +74,21 @@ export default function SystemSettings() {
       }
       const valid = periodsRef.current.validate()
       if (!valid) return
+
+      console.log(quantityFormulaValid, efficiencyFormulaValid, timelinessFormulaValid)
+
+      if(!quantityFormulaValid) {
+        Swal.fire("Error", "Invalid Quantity Formula", "error")
+        return
+      }
+      if(!efficiencyFormulaValid) {
+        Swal.fire("Error", "Invalid Efficiency Formula", "error")
+        return
+      }
+      if(!timelinessFormula) {
+        Swal.fire("Error", "Invalid Timeliness Formula", "error")
+        return
+      }
 
       setSaving(true)
 
@@ -291,6 +311,7 @@ export default function SystemSettings() {
             icon="inventory_2"
             formula={quantityFormula}
             onChange={setQuantityFormula}
+            isValid={setQuantityFormulaValid}
             description="Define how quantity metrics are calculated"
           />
           <FormulaCard
@@ -299,6 +320,7 @@ export default function SystemSettings() {
             formula={efficiencyFormula}
             onChange={setEfficiencyFormula}
             description="Define how efficiency metrics are calculated"
+            isValid={setEfficiencyFormulaValid}
           />
           <FormulaCard
             title="Timeliness Formula"
@@ -306,6 +328,7 @@ export default function SystemSettings() {
             formula={timelinessFormula}
             onChange={setTimelinessFormula}
             description="Define how timeliness metrics are calculated"
+            isValid={setTimelinessFormulaValid}
           />
         </div>
       )}
@@ -401,26 +424,54 @@ function RatingRow({ level, ratingKey, thresholds, onUpdate, color, description 
 }
 
 // Formula Card Component
-function FormulaCard({ title, icon, formula, onChange, description }) {
+function FormulaCard({ title, icon, formula, onChange, description, isValid }) {
   const [jsonInput, setJsonInput] = useState(JSON.stringify(formula, null, 2))
+  const [jsonResult, setJsonResult] = useState("Valid JSON")
 
   useEffect(() => {
     setJsonInput(JSON.stringify(formula, null, 2))
+    var valid = validate(formula)    
   }, [formula])
+
+  async function validate(value) {
+    try {
+      const res = await validateFormula(
+        {
+          "formula": JSON.stringify(value, null, 2)
+        }
+      )
+
+      const message = res.data.message      
+      console.log("Validation REsult: ",message)
+
+      setJsonResult(message)
+      isValid(message == "Valid JSON")
+      console.log(message, message == "Valid JSON")
+
+      return message
+
+    }
+    catch(e){
+      console.log(e)
+      return e
+    }
+  }
 
   function handleJsonChange(e) {
     const value = e.target.value
     setJsonInput(value)
     try {
-      const parsed = JSON.parse(value)
+      
+      const parsed = JSON.parse(value)  
       onChange(parsed)
     } catch (error) {
       // Invalid JSON, don't update
+      console.log("Invalid JSON")
     }
   }
 
   return (
-    <div className="col-12 col-lg-6">
+    <div className="col-12 col-md-12 col-lg-6">
       <div className="card border-0 shadow-sm rounded-3 h-100">
         <div className="card-header bg-light border-bottom">
           <h5 className="mb-0 fw-semibold">
@@ -439,9 +490,9 @@ function FormulaCard({ title, icon, formula, onChange, description }) {
             placeholder="Enter JSON configuration"
             style={{ fontSize: "0.875rem" }}
           />
-          <small className="text-muted mt-2 d-block">
-            <span className="material-symbols-outlined" style={{ fontSize: "1rem", verticalAlign: "middle" }}>info</span>
-            Enter valid JSON format
+          <small className="mt-2 d-block d-flex align-items-center gap-1">
+            <span className={`material-symbols-outlined`} style={{ fontSize: "1rem", verticalAlign: "middle" }}>info</span>
+            <span className={` ${jsonResult == "Valid JSON"? "text-success": "text-danger"}`}>{jsonResult}</span>
           </small>
         </div>
       </div>

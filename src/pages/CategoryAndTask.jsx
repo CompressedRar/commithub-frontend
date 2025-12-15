@@ -102,7 +102,7 @@ export default function CategoryAndTask() {
   return (
     <div className="container-fluid py-4">
       <div className="row g-3">
-        <div className="col-12 col-md-12 col-lg-3">
+        <div className="col-12 col-md-12 col-lg-5">
           <div className="card shadow-sm sticky-top" style={{ top: "1rem" }}>
             <div className="card-body">
               <div className="d-flex align-items-center justify-content-between mb-3">
@@ -164,7 +164,7 @@ export default function CategoryAndTask() {
         </div>
 
         {/* RIGHT: content with tabs */}
-        <div className="col-12 col-md-12 col-lg-9">
+        <div className="col-12 col-md-12 col-lg-7">
           <div className="p-2 border roundedshadow-sm">
             <div className="header d-flex justify-content-between align-items-center">
               <div className="d-flex gap-3 align-items-center">

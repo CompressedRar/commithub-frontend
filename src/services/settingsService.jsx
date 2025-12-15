@@ -11,3 +11,8 @@ export async function updateSettings(data) {
     console.log("updating settings")
     return api.patch("/api/v1/settings/", data)
 }
+
+export async function validateFormula(data) {
+    console.log("validating formula")
+    return api.post("/api/v1/settings/validate-formula", data)
+}

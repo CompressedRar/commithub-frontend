@@ -41,7 +41,7 @@ export default function PopulationPerDepartment() {
   }, []);
 
   return (
-    <div className="card shadow-sm border-0" style={{ borderRadius: "1rem" }}>
+    <div className="card border-0" style={{ borderRadius: "1rem" }}>
       <div className="card-body">
         <div className="d-flex justify-content-between align-items-center mb-3">
           <div>
