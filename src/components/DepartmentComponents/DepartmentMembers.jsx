@@ -66,9 +66,6 @@ function DepartmentMembers({ mems }) {
       <td className="text-nowrap">{getPerformanceBadge()}</td>
 
       {/* Email */}
-      <td className="text-truncate" style={{ maxWidth: "180px" }}>
-        <small className="text-muted">{mems.email}</small>
-      </td>
 
       {/* Position */}
       <td className="text-nowrap">{mems.position.name}</td>
@@ -76,13 +73,6 @@ function DepartmentMembers({ mems }) {
       {/* Tasks Count */}
 
       {/* Status */}
-      <td className="text-center">
-        {mems.account_status === 0 ? (
-          <span className="badge bg-secondary px-3 py-2">Deactivated</span>
-        ) : (
-          <span className="badge bg-success px-3 py-2">Active</span>
-        )}
-      </td>
 
       {/* Actions (Dropdown) */}
       <td className="text-end position-relative">

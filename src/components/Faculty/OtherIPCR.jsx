@@ -6,10 +6,20 @@ import { getAccountInfo } from "../../services/userService"
 import Swal from "sweetalert2"
 import ManageTaskSupportingDocuments from "./ManageTaskSupportingDocuments"
 import { getSettings } from "../../services/settingsService"
+import { useParams, useSearchParams } from "react-router-dom"
 
-function EditIPCR(props) {
+function OtherIPCR(props) {
     // Core data states
     const [userinfo, setUserInfo] = useState(null)
+
+    const [searchParams] = useSearchParams()
+
+    const { ipcr_id } = useParams()
+    const dept_id = searchParams.get("dept_id")
+    const mode = searchParams.get("mode")
+
+
+
     const [ipcrInfo, setIPCRInfo] = useState(null)
     const [currentUserInfo, setCurrentUserInfo] = useState(null)
 
@@ -45,7 +55,7 @@ function EditIPCR(props) {
     async function download() {
         setDownloading(true);
         try {
-          const res = await downloadIPCR(props.ipcr_id);
+          const res = await downloadIPCR(ipcr_id);
           window.open(res.data.link, "_blank", "noopener,noreferrer");
         } catch (error) {
           Swal.fire({
@@ -198,8 +208,10 @@ function EditIPCR(props) {
     }
 
     async function loadIPCR() {
+
+        console.log(ipcr_id)
         try {
-            const res = await getIPCR(props.ipcr_id).then(data => data.data)
+            const res = await getIPCR(ipcr_id).then(data => data.data)
             setIPCRInfo(res)
             processIPCRData(res)
         } catch (error) {
@@ -418,7 +430,7 @@ function EditIPCR(props) {
             updateSubTask(subTaskID, field, value)
                 .then(() => {
                     setCanSubmit(allTargetsFilled(ipcrInfo))
-                    getIPCR(props.ipcr_id).then(res => setIPCRInfo(res.data))
+                    getIPCR(ipcr_id).then(res => setIPCRInfo(res.data))
                 })
                 .catch(error => console.error(error.response?.data?.error))
         }, 100)
@@ -460,20 +472,21 @@ function EditIPCR(props) {
 
     return (
         <div className="container-fluid py-4" onMouseOver={props.onMouseOver}>
-            <ManageTaskSupportingDocuments ipcr_id={ipcrInfo.id} batch_id={ipcrInfo.batch_id} dept_mode={false} sub_tasks={arrangedSubTasks}></ManageTaskSupportingDocuments>
+            <ManageTaskSupportingDocuments ipcr_id={ipcr_id} batch_id={ipcrInfo.batch_id} dept_mode={true} sub_tasks={arrangedSubTasks}></ManageTaskSupportingDocuments>
             {/* Header */}
             
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <button
-                    className="btn btn-outline-secondary d-none align-items-center gap-2"
-                    data-bs-dismiss="modal"
-                    onClick={props.switchPage}
+                    className="btn btn-outline-secondary d-flex align-items-center gap-2"
+                    onClick={()=> {
+                        window.history.back()
+                    }}
                 >
                     <span className="material-symbols-outlined">undo</span>
-                    Back to IPCRs
+                    Back
                 </button>
                 <button
-                    className="btn btn-primary btn-sm d-flex align-items-center gap-2"
+                    className="btn btn-primary btn-sm d-flex align-items-center gap-2 p-2 rounded"
                     data-bs-toggle="modal"
                     data-bs-target="#manage-docs"
                     >
@@ -484,7 +497,7 @@ function EditIPCR(props) {
                     isRatingPhase(currentPhase) && 
                     <button className="btn btn-outline-primary d-flex" onClick={download} disabled={downloading}>
                         {downloading ? <span className="spinner-border spinner-border-sm me-2"></span> : <span className="material-symbols-outlined me-1">download</span>}
-                        Download
+                        Export
                     </button>
                 }
 
@@ -729,23 +742,60 @@ function TaskSection({
     )
 }
 
-function RatingBadges({ task, currentPhase }) {
+function RatingBadges({ task, currentPhase, handleDataChange, setSubTaskID }) {
+
+     const onNumberInput = (e) => {
+        sanitizeNumberInput(e)
+        handleDataChange(e)
+    }
     return (
         <div style = {{
-            display:"grid",
-            gridTemplateColumns:"repeat(4, 1fr)",
+            display:"flex",
+            height:"150px"
         }}>
-            <div className="text-center" style={{fontSize:"1.5rem", borderStyle:"solid", borderWidth:"0 1px 0 0", borderColor:"grey", height: "100%"}}>
-                <div>{isRatingPhase(currentPhase) && parseFloat(task.quantity).toFixed(0)}</div>
+            <div className="text-center">
+                <input 
+                    type="number" className="form-control form-control-sm no-spinner text-center" 
+                    defaultValue = {isRatingPhase(currentPhase) && parseFloat(task.quantity).toFixed(0)} 
+                    style={{width:"100%", height:"100%"}}
+                    onClick={() => setSubTaskID(task.id)}
+                    onKeyDown={numericKeyDown}
+                    onPaste={handlePasteNumeric}
+                    onInput={onNumberInput}
+                    name="quantity"                    
+                />
             </div>
-            <div className="text-center" style={{fontSize:"1.5rem", borderStyle:"solid", borderWidth:"0 1px 0 0", borderColor:"grey", height: "100%"}}>
-                <div>{isRatingPhase(currentPhase) && parseFloat(task.efficiency).toFixed(0)}</div>
+            <div className="text-center">
+                <input 
+                    type="number" className="form-control form-control-sm no-spinner text-center" 
+                    defaultValue = {isRatingPhase(currentPhase) && parseFloat(task.efficiency).toFixed(0)} 
+                    style={{width:"100%", height:"100%"}}
+                    onClick={() => setSubTaskID(task.id)}
+                    onKeyDown={numericKeyDown}
+                    onPaste={handlePasteNumeric}
+                    onInput={onNumberInput}
+                    name="efficiency"
+                />
             </div>
-            <div className="text-center" style={{fontSize:"1.5rem", borderStyle:"solid", borderWidth:"0 1px 0 0", borderColor:"grey", height: "100%"}}>
-                <div>{isRatingPhase(currentPhase) && parseFloat(task.timeliness).toFixed(0)}</div>
+            <div className="text-center" >
+                <input 
+                    type="number" className="form-control form-control-sm no-spinner text-center" 
+                    defaultValue = {isRatingPhase(currentPhase) && parseFloat(task.timeliness).toFixed(0)} 
+                    style={{width:"100%", height:"100%"}}
+                    onClick={() => setSubTaskID(task.id)}
+                    onKeyDown={numericKeyDown}
+                    onPaste={handlePasteNumeric}
+                    onInput={onNumberInput}
+                    name="timeliness"
+                />
             </div>
-            <div className="text-center" style={{fontSize:"1.5rem"}}>
-                <div>{isRatingPhase(currentPhase) && parseFloat(task.average).toFixed(0)}</div>
+            <div className="text-center" >
+                <input 
+                    type="number" className="form-control form-control-sm no-spinner text-center" 
+                    value = {isRatingPhase(currentPhase) && parseFloat(task.quantity).toFixed(0)} 
+                    style={{width:"100%", height:"100%"}}
+                    disabled={true}
+                />
             </div>
         </div>
     )
@@ -981,8 +1031,8 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                     </div>
                 </td>
                 {isRatingPhase(currentPhase) && <>  
-                    <td className="small text-center">
-                        <RatingBadges task={task} currentPhase = {currentPhase} />
+                    <td className="small text-center" style={{maxWidth:"200px"}}>
+                        <RatingBadges task={task} setSubTaskID={setSubTaskID} handleDataChange={handleDataChange} currentPhase = {currentPhase} style = {{height:"100%"}}/>
                     </td>
                     <td className="small text-center fw-semibold">{handleRemarks(task.average)}</td>
                 </>}
@@ -1141,4 +1191,4 @@ function formatDateForInput(dateString) {
   }
 }
 
-export default EditIPCR
+export default OtherIPCR

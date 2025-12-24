@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { removeTask } from "../../services/departmentService";
 import { socket } from "../api";
-
+import { getSettings } from "../../services/settingsService"
 function DepartmentTask({ mems, switchMember }) {
   const [assigned, setAssigned] = useState([]);
+  const [currentPhase, setCurrentPhase] = useState(null) //monitoring, rating, planning
 
   function filterAssigned() {
     const seen = new Set();
@@ -43,11 +44,34 @@ function DepartmentTask({ mems, switchMember }) {
     });
   };
 
+  async function loadCurrentPhase() {
+          try {
+              const res = await getSettings()
+              const phase = res?.data?.data?.current_phase
+              console.log("Current phase:", phase)
+              setCurrentPhase(phase) //monitoring, rating, planning
+          } catch (error) {
+              console.error("Failed to load current phase:", error)
+          }
+      }
+  function isMonitoringPhase() {
+        return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("monitoring")
+    }
+
+    function isRatingPhase() {
+        return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("rating")
+    }
+
+    function isPlanningPhase() {
+        return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("planning")
+    }
+
   useEffect(() => {
     filterAssigned();
   }, [mems]);
 
   useEffect(() => {
+    loadCurrentPhase()
     socket.on("user_assigned", filterAssigned);
     socket.on("task_modified", filterAssigned);
     socket.on("department_assigned", filterAssigned);
@@ -136,39 +160,45 @@ function DepartmentTask({ mems, switchMember }) {
 
           {/* Action Buttons */}
           <div className="d-flex gap-2 ms-auto">
-            <button
-              className="btn btn-sm btn-outline-primary d-flex align-items-center gap-2 px-3 py-1"
-              onClick={(e) => {
-                e.stopPropagation();
-                switchMember(mems.id);
-              }}
-              data-bs-toggle="modal"
-              data-bs-target="#user-profile"
-            >
-              <span
-                className="material-symbols-outlined"
-                style={{ fontSize: "18px" }}
+            {isPlanningPhase() ? <>
+              <button
+                className="btn btn-sm btn-outline-primary d-flex align-items-center gap-2 px-3 py-1"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  switchMember(mems.id);
+                }}
+                data-bs-toggle="modal"
+                data-bs-target="#user-profile"
               >
-                group_add
-              </span>
-              Assign
-            </button>
+                <span
+                  className="material-symbols-outlined"
+                  style={{ fontSize: "18px" }}
+                >
+                  group_add
+                </span>
+                Assign
+              </button>
 
-            <button
-              className="btn btn-sm btn-outline-danger d-flex align-items-center gap-2 px-3 py-1"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleRemove();
-              }}
-            >
-              <span
-                className="material-symbols-outlined"
-                style={{ fontSize: "18px" }}
+              <button
+                className="btn btn-sm btn-outline-danger d-flex align-items-center gap-2 px-3 py-1"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRemove();
+                }}
               >
-                delete
-              </span>
-              Remove
-            </button>
+                <span
+                  className="material-symbols-outlined"
+                  style={{ fontSize: "18px" }}
+                >
+                  delete
+                </span>
+                Remove
+              </button>
+            </>:
+              <small className="text-muted">
+                Outputs can only be assigned during Planning Period
+              </small>
+            }
           </div>
         </div>
       </div>

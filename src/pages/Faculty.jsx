@@ -103,7 +103,8 @@ function Faculty(){
         <div className="faculty-container">
             {currentPage == 0? <IPCRContainer switchPage={(ipcr_id, dept_id)=>{
 
-                if (isMonitoringPhase()) {
+                if (isMonitoringPhase() || isRatingPhase()) {
+                  console.log("CURRENT RATING")
                     setTimeout(()=> {
                         setCurrentPage(1)
                         setCurrentIPCRID(ipcr_id)

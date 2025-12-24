@@ -263,8 +263,10 @@ function CategoryTasks(props) {
       )}
 
       {/* TOP: title + actions */}
-      <div className="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 mb-3">
-        <div className="d-flex align-items-center gap-3">
+      <div className="d-flex flex-column justify-content-between align-items-start gap-5 my-4">
+        {
+          false && 
+          <div className="d-flex align-items-center gap-3">
           <div style={{ minWidth: 220 }}>
             <h4
               ref={titleRef}
@@ -295,19 +297,23 @@ function CategoryTasks(props) {
             </button>
           )}
         </div>
+        }
 
-        <div className="d-flex gap-2 align-items-center">
+        <div className="d-flex justify-content-between w-100 gap-2 align-items-center">
           
 
           <button className="btn btn-outline-danger d-flex gap-2 align-items-center" onClick={handleArchive}>
             <span className="material-symbols-outlined me-1">archive</span> Archive
           </button>
+
           <button className="btn btn-primary d-flex gap-2 align-items-center" onClick={openModal}>
             <span className="material-symbols-outlined me-1">add</span> Create Output
           </button>
+
+          
         </div>
       </div>
-      {/* TASKS LIST (no cards) */}
+      
       <div className="mb-4">
         <div className="d-flex justify-content-between align-items-center mb-2">
           <h5 className="mb-0">Outputs</h5>

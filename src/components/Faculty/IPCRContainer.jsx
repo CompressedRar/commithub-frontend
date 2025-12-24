@@ -423,7 +423,7 @@ function IPCRContainer({ switchPage }) {
 
       <div className="bg-white shadow-md p-4 rounded-3 mx-auto" style={{ maxWidth: "1600px", height:"85vh" }}>
 
-        {!isMonitoringPhase() && (
+        {!isMonitoringPhase() || !isRatingPhase() && (
           <div  style={{ zIndex: 1050, width:"80%", height:"80%", position:"absolute", backgroundColor:"rgba(255,255,255,0.8)"}} className="d-flex justify-content-center align-items-center flex-column">
             <div className="overlay-content text-center p-4">
               <img

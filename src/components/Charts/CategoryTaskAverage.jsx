@@ -45,7 +45,7 @@ export default function CategoryTaskAverages({ cat_id }) {
   }, []);
 
   return (
-    <div className="border-0" style={{ borderRadius: "1rem" }}>
+    <div className="border-0 m-3" style={{ borderRadius: "1rem" }}>
       <div className="card-body">
         {/* Header + Stats */}
         <div className="d-flex justify-content-between align-items-center mb-3">
@@ -87,16 +87,15 @@ export default function CategoryTaskAverages({ cat_id }) {
 
         {/* Chart */}
         <h6 className="fw-semibold text-secondary mb-2">
-          Task Rating Summary per Category
+          Outputs Rating Summary
         </h6>
         <div style={{ width: "100%", height: 300 }}>
           <ResponsiveContainer>
             <BarChart
               data={data}
-              margin={{ top: 20, right: 30, left: 20, bottom: 50 }}
             >
               <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-              
+              <XAxis dataKey={"task_name"}></XAxis>
               <YAxis domain={[0, 5]} tick={{ fontSize: 12 }} />
               <Tooltip
                 contentStyle={{

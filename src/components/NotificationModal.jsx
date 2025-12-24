@@ -48,7 +48,6 @@ function NotificationModal({ notifications, setNotifications }) {
             style={{
               width: "36px",
               height: "36px",
-              zIndex: 10,
             }}
           >
             <span className="material-symbols-outlined">close</span>

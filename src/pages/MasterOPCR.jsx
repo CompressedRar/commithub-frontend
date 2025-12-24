@@ -2,6 +2,8 @@ import { useEffect, useState } from "react"
 import Swal from "sweetalert2"
 import { downloadMasterOPCR, getMasterOPCR } from "../services/pcrServices"
 import { socket } from "../components/api"
+import { getSettings } from "../services/settingsService"
+
 
 function MasterOPCR(){
     const [opcrInfo, setOPCRInfo] = useState(null)
@@ -19,6 +21,30 @@ function MasterOPCR(){
 
     const [downloading, setDownloading] = useState(false)
     const [ratingThresholds, setRatingThresholds] = useState(null)
+
+    const [currentPhase, setCurrentPhase] = useState(null) //monitoring, rating, planning
+
+    async function loadCurrentPhase() {
+              try {
+                  const res = await getSettings()
+                  const phase = res?.data?.data?.current_phase
+                  console.log("Current phase:", phase)
+                  setCurrentPhase(phase) //monitoring, rating, planning
+              } catch (error) {
+                  console.error("Failed to load current phase:", error)
+              }
+          }
+      function isMonitoringPhase() {
+            return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("monitoring")
+        }
+    
+        function isRatingPhase() {
+            return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("rating")
+        }
+    
+        function isPlanningPhase() {
+            return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("planning")
+        }
 
     async function loadOPCR(){
         var res = await getMasterOPCR().then(data => data.data).catch(error => {
@@ -149,6 +175,7 @@ function MasterOPCR(){
 
     useEffect(()=> {
         loadOPCR()
+        loadCurrentPhase()
 
         socket.on("ipcr", ()=>{
             loadOPCR()
@@ -243,6 +270,40 @@ function MasterOPCR(){
     return (
         <div className="container-fluid py-4">
             {/* Header */}
+
+            {!isRatingPhase() && (
+            <div className="d-flex justify-content-center align-items-center flex-column" style={{ zIndex: 1050,marginTop:"-5%", width:"80%", height:"100%", position:"absolute", backgroundColor:"rgba(255,255,255,0.8)"}}>
+                <div className="overlay-content text-center p-4">
+                <img
+                    src={`${import.meta.env.BASE_URL}calendar_blocked.png`}
+                    alt="Master OPCR Closed"
+                    className="overlay-icon"
+                    style={{ maxWidth: 120 }}
+                />
+                <h2>Rating Period Closed</h2>
+                <p className="mb-0 text-muted">
+                    Master OPCR can only be viewed in Rating Period. This is to ensure that all data from OPCR are properly consolidated.
+                </p>
+                </div>
+            </div>
+            )}
+
+            {opcrInfo && (
+                <div className="d-flex justify-content-center align-items-center flex-column" style={{ zIndex: 1050,marginTop:"-5%", width:"80%", height:"100%", position:"absolute", backgroundColor:"rgba(255,255,255,0.8)"}}>
+                    <div className="overlay-content text-center p-4">
+                        <img
+                        src={`${import.meta.env.BASE_URL}calendar_blocked.png`}
+                        alt="OPCR Closed"
+                        className="overlay-icon"
+                        style={{ maxWidth: 120 }}
+                        />
+                        <h2>OPCR Closed</h2>
+                        <p className="mb-0 text-muted">
+                        OPCR does not have any data to compile yet. You will be able to view it once there are IPCR to consolidate.
+                        </p>
+                    </div>
+                </div>
+            )}
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h4 className="fw-bold mb-0">Master OPCR - Consolidated Results</h4>
                 <button

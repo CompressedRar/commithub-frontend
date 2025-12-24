@@ -79,7 +79,7 @@ function PendingReviews(props){
     return (
         <div className="performance-reviews-container">
             {batchID && currentIPCRID? <ManageSupportingDocuments  dept_mode = {true} key={currentIPCRID} ipcr_id = {currentIPCRID} batch_id = {batchID}></ManageSupportingDocuments>:""}
-            <div className="modal fade" id="view-ipcr" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div className="modal fade" id="view-ipcr" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true" style={{zIndex:2000}}>
                 <div className="modal-dialog modal-dialog-scrollable modal-fullscreen" >
                     <div className="modal-content">
                         <div className="modal-header">

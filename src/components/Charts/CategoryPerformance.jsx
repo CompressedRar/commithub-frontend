@@ -70,7 +70,7 @@ const PerformanceCard = ({ title, performance }) => {
   const diff = ((top.value - avg) / avg) * 100;
 
   return (
-    <div className="py-5 border-0" style={{ borderRadius: "1rem" }}>
+    <div className="border-0 m-3 py-5" style={{ borderRadius: "1rem" }}>
       <div className="">
         {/* Header & Insights */}
         <div className="d-flex justify-content-between align-items-center mb-3">

@@ -247,7 +247,7 @@ function PerformanceReviews(props){
               <div className="all-ipcr-container" style={{display:"flex", flexDirection:"column", gap:"10px"}}>
                 
                 {allIPCR && allIPCR.map(ipcr => (
-                    <DeptIPCR key={ipcr.ipcr?.id || ipcr.id} onMouseOver ={()=>{ setBatchID(ipcr.ipcr?.batch_id); setCurrentIPCRID(ipcr.ipcr?.id); }} onClick={()=>{ setCurrentIPCRID(ipcr.ipcr?.id) }} ipcr = {ipcr} dept_mode = {true}></DeptIPCR>
+                    <DeptIPCR key={ipcr.ipcr?.id || ipcr.id} onMouseOver ={()=>{ setBatchID(ipcr.ipcr?.batch_id); setCurrentIPCRID(ipcr.ipcr?.id); }} dept_id = {props.deptid} onClick={()=>{ setCurrentIPCRID(ipcr.ipcr?.id) }} ipcr = {ipcr} dept_mode = {true}></DeptIPCR>
                 ))}
 
                 {allIPCR && allIPCR.length === 0 && (

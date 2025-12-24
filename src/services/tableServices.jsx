@@ -72,6 +72,11 @@ export async function getCategoryPerformance(cat_id) {
     return api.get(`/api/v1/chart/pie/category-performance/${cat_id}`)
 }
 
+export async function getCategoryPerformanceByDept(cat_id) {
+    console.log("fetching category performance")
+    return api.get(`/api/v1/chart/bar/category-performance-dept/${cat_id}`)
+}
+
 export async function getMainTaskPerformance(main_task_id) {
     console.log("fetching maint tasl performance")
     return api.get(`/api/v1/chart/pie/main-task-performance/${main_task_id}`)

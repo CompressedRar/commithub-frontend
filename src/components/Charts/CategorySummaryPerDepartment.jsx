@@ -8,40 +8,44 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { getPerformanceSummary } from "../../services/tableServices";
+import { getCategoryPerformanceByDept } from "../../services/tableServices";
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
 import CHART_COLORS from "./chartColors";
 
-export default function PerformanceSummaryPerDepartment() {
+export default function CategorySummaryPerDepartment({ category_id }) {
   const [data, setData] = useState([]);
   const [stats, setStats] = useState(null);
 
   async function loadPerformance() {
     try {
-      const res = await getPerformanceSummary();
-      const summaryData = res.data;
+      const res = await getCategoryPerformanceByDept(category_id);
+      const summaryData = res.data || [];
       setData(summaryData);
 
-      console.log("CHART PERFORMANCE SUMARTY DATA", summaryData)
-
-      if (summaryData && summaryData.length > 0) {
-        // Compute which department has the highest average
-        const totalAvg = summaryData.reduce((sum, d) => sum + d.Average, 0);
-        const avgAll = totalAvg / summaryData.length;
-        const highest = summaryData.reduce((max, d) =>
-          d.Average > max.Average ? d : max
+      if (summaryData.length > 0) {
+        const totalAvg = summaryData.reduce(
+          (sum, d) => sum + (d.average || 0),
+          0
         );
-        const diffPercent = ((highest.Average - avgAll) / avgAll) * 100;
+        const avgAll = totalAvg / summaryData.length;
+
+        const highest = summaryData.reduce((max, d) =>
+          d.average > max.average ? d : max
+        );
+
+        const diffPercent =
+          avgAll > 0 ? ((highest.average - avgAll) / avgAll) * 100 : 0;
 
         setStats({
           department: highest.name,
-          value: parseFloat(highest.Average).toFixed(2),
+          value: highest.average.toFixed(2),
           diff: diffPercent.toFixed(2),
         });
+      } else {
+        setStats(null);
       }
     } catch (error) {
-      console.log(error.response?.data?.error || error.message);
       Swal.fire({
         title: "Error",
         text: error.response?.data?.error || "Failed to load performance data",
@@ -52,26 +56,29 @@ export default function PerformanceSummaryPerDepartment() {
 
   useEffect(() => {
     loadPerformance();
-  }, []);
+  }, [category_id]);
 
   return (
-    <div className="card border-0" style={{ borderRadius: "1rem" }}>
+    <div className="border-0 m-3" style={{ borderRadius: "1rem" }}>
       <div className="card-body">
         {/* Header + Stats */}
         <div className="d-flex justify-content-between align-items-center mb-3">
           <div>
             <small className="text-muted text-uppercase fw-semibold">
-              Top Performing Department
+              Average Performance Per Department
             </small>
+
             {stats ? (
-              <>
-                {stats.value != 0 ? <>
+              stats.value !== "0.00" ? (
+                <>
                   <h4 className="fw-bold mb-0">{stats.department}</h4>
                   <p className="mb-0 fs-5 fw-semibold text-secondary">
                     {stats.value} / 5 average
                   </p>
-                </> : <p className="fw-bold mb-0">No Data Loaded</p>}
-              </>
+                </>
+              ) : (
+                <p className="fw-bold mb-0">No Data Loaded</p>
+              )
             ) : (
               <p className="text-muted mb-0">Loading...</p>
             )}
@@ -86,7 +93,7 @@ export default function PerformanceSummaryPerDepartment() {
               >
                 <span
                   className="material-symbols-outlined me-1"
-                  style={{ fontSize: "1rem", verticalAlign: "middle" }}
+                  style={{ fontSize: "1rem" }}
                 >
                   {stats.diff >= 0 ? "arrow_upward" : "arrow_downward"}
                 </span>
@@ -101,21 +108,40 @@ export default function PerformanceSummaryPerDepartment() {
         <h6 className="fw-semibold text-secondary mb-2">
           Performance Summary per Department
         </h6>
+
         <div style={{ width: "100%", height: 300 }}>
           <ResponsiveContainer>
-            <BarChart
-              data={data}
-              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-            >
+            <BarChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" fontSize={0} />
+              <XAxis dataKey="name" />
               <YAxis domain={[0, 5]} />
               <Tooltip />
               <Legend />
-              <Bar dataKey="Quantity" fill={CHART_COLORS.QUANTITY} name="Quantity" radius={[6, 6, 0, 0]} />
-              <Bar dataKey="Efficiency" fill={CHART_COLORS.EFFICIENCY} name="Efficiency" radius={[6, 6, 0, 0]} />
-              <Bar dataKey="Timeliness" fill={CHART_COLORS.TIMELINESS} name="Timeliness" radius={[6, 6, 0, 0]} />
-              <Bar dataKey="Average" fill={CHART_COLORS.AVERAGE} name="Average" radius={[6, 6, 0, 0]} />
+
+              <Bar
+                dataKey="quantity"
+                fill={CHART_COLORS.QUANTITY}
+                name="Quantity"
+                radius={[6, 6, 0, 0]}
+              />
+              <Bar
+                dataKey="efficiency"
+                fill={CHART_COLORS.EFFICIENCY}
+                name="Efficiency"
+                radius={[6, 6, 0, 0]}
+              />
+              <Bar
+                dataKey="timeliness"
+                fill={CHART_COLORS.TIMELINESS}
+                name="Timeliness"
+                radius={[6, 6, 0, 0]}
+              />
+              <Bar
+                dataKey="average"
+                fill={CHART_COLORS.AVERAGE}
+                name="Average"
+                radius={[6, 6, 0, 0]}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>

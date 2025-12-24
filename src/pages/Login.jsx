@@ -98,6 +98,7 @@ function Login() {
                   placeholder="Enter your email"
                   required
                   onChange={handleDataChange}
+                  maxLength={30}
                 />
               </div>
             </div>
@@ -119,6 +120,7 @@ function Login() {
                   placeholder="Enter your password"
                   required
                   onChange={handleDataChange}
+                  maxLength={30}
                 />
                 <button
                   type="button"

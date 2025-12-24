@@ -60,7 +60,7 @@ function EditOPCR(props) {
       })
 
     if (!res) return
-    console.log("OPCR Data: ", res)
+    console.log("OPCR Data: ", res.ipcr_data)
     setOPCRInfo(res.ipcr_data)
     setFormStatus(res.form_status?.toUpperCase())
     setAssignedData(res.assigned)
@@ -367,7 +367,7 @@ function EditOPCR(props) {
   }
 
   return (
-    <div className="container-fluid py-4">
+    <div className="container-fluid py-4" >
 
       {/* Overlay when rating period is closed in system settings */}
       {!isRatingPeriod && (
@@ -382,6 +382,24 @@ function EditOPCR(props) {
             <h2>Rating Period Closed</h2>
             <p className="mb-0 text-muted">
               Rating is currently disabled by system settings. You will not be able to submit or modify ratings until the rating period opens.
+            </p>
+          </div>
+        </div>
+      )}
+
+
+      {opcrInfo && (
+        <div className="overlay-container position-absolute" style={{ zIndex: 1050 }}>
+          <div className="overlay-content text-center p-4">
+            <img
+              src={`${import.meta.env.BASE_URL}calendar_blocked.png`}
+              alt="OPCR Closed"
+              className="overlay-icon"
+              style={{ maxWidth: 120 }}
+            />
+            <h2>OPCR Closed</h2>
+            <p className="mb-0 text-muted">
+              OPCR does not have any data to compile yet. You will be able to view it once there are IPCR to consolidate.
             </p>
           </div>
         </div>

@@ -61,10 +61,12 @@ export default function PerformancePerDepartment() {
             </small>
             {stats ? (
               <>
-                <h4 className="fw-bold mb-0">{stats.department}</h4>
-                <p className="mb-0 fs-5 fw-semibold text-secondary">
-                  {stats.value} / 5 average
-                </p>
+                {stats.value != 0 ? <>
+                  <h4 className="fw-bold mb-0">{stats.department}</h4>
+                  <p className="mb-0 fs-5 fw-semibold text-secondary">
+                    {stats.value} / 5 average
+                  </p>
+                </> : <p className="fw-bold mb-0">No Data Loaded</p>}
               </>
             ) : (
               <p className="text-muted mb-0">Loading...</p>
@@ -90,6 +92,10 @@ export default function PerformancePerDepartment() {
             </div>
           )}
         </div>
+
+        <h6 className="fw-semibold text-secondary mb-2">
+          Average Summary per Department
+        </h6>
 
         <div style={{ width: "100%", height: 300 }}>
           <ResponsiveContainer>

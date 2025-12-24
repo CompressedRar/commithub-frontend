@@ -73,7 +73,7 @@ export default function AllTaskAverages() {
                 </p>
               </>
             ) : (
-              <p className="text-muted mb-0">Loading...</p>
+              <p className="fw-bold mb-0">No Data Loaded</p>
             )}
           </div>
 

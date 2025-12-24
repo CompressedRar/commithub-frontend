@@ -29,7 +29,7 @@ import MasterOPCR from './pages/MasterOPCR'
 import Positions from './pages/Positions'
 import NotFound from './pages/NotFound'
 import SystemSettings from './pages/SystemSettings'
-
+import OtherIPCR from './components/Faculty/OtherIPCR'
 
 
 function App() {
@@ -52,6 +52,7 @@ function App() {
           <Route path = "/admin/tasks" element={<CategoryAndTask></CategoryAndTask>}></Route>
           <Route path = "/admin/logs" element={<AuditLogs></AuditLogs>}></Route>
           <Route path = "/admin/ipcr" element={<Faculty></Faculty>}></Route>
+          <Route path = "/admin/ipcr/:ipcr_id" element={<OtherIPCR></OtherIPCR>}></Route>
           <Route path = "/admin/review" element={<PresPendingReviews></PresPendingReviews>}></Route>
           <Route path = "/admin/approve" element={<PresPendingApprovals></PresPendingApprovals>}></Route>
           <Route path = "/admin/master" element={<MasterOPCR></MasterOPCR>}></Route>

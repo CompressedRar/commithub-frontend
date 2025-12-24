@@ -323,9 +323,9 @@ function FacultyLayout() {
         {/* 🔹 Content */}
         <main
           className="flex-grow-1"
-          style={{ backgroundColor: "#ffffffff", zIndex:700}}
+          style={{ backgroundColor: "#ffffffff", padding:"5vw"}}
         >
-          <div style={{scale:"0.9" }}>
+          <div style={{zoom:"0.9" }}>
             <Outlet />
           </div>
         </main>

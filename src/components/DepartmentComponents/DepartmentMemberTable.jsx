@@ -103,14 +103,12 @@ function DepartmentMemberTable({ deptid }) {
 
       {/* Table */}
       <div className="table-responsive">
-        <table className="table table-striped table-hover align-middle text-center">
-          <thead className="table-primary">
+        <table className="table table-hover align-middle text-center">
+          <thead className="table">
             <tr>
               <th>FULL NAME</th>
               <th>PERFORMANCE</th>
-              <th>EMAIL ADDRESS</th>
               <th>POSITION</th>
-              <th>STATUS</th>
               <th></th>
             </tr>
           </thead>

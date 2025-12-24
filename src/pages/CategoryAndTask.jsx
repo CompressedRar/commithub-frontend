@@ -9,6 +9,7 @@ import Swal from "sweetalert2";
 import { Modal } from "bootstrap";
 import CategoryPerformanceCharts from "../components/Charts/CategoryPerformance";
 import CategoryTaskAverages from "../components/Charts/CategoryTaskAverage";
+import CategorySummaryPerDepartment from "../components/Charts/CategorySummaryPerDepartment";
 
 export default function CategoryAndTask() {
   const [allCategory, setAllCategory] = useState([]);
@@ -235,29 +236,26 @@ export default function CategoryAndTask() {
                                     <small className="text-muted d-block">Avg Rating</small>
                                   </div>
                                 </div>
+
+                                <div className="mt-2">
+                                  <CategoryPerformanceCharts categoryId={selectedCategoryId} />
+                                </div>
                     
                                 <div className="mt-3">
                                   <CategoryTaskAverages cat_id={selectedCategoryId} />
                                 </div>
+
+                                <div className="">
+                                  <CategorySummaryPerDepartment category_id={selectedCategoryId}></CategorySummaryPerDepartment>
+                                </div>
+
+                                
+                                
+
                               </div>
-                            </div>
-
-
-
-                    <div className="col-12 col-lg-12">
-                      <div className="p-3 bg-white border rounded-3 h-100">
-                        <div className="d-flex justify-content-between align-items-center mb-2">
-                          <div>
-                            <h6 className="mb-0 fw-semibold">Performance</h6>
-                            <small className="text-muted">Trend charts</small>
-                          </div>
-                        </div>
-
-                        <div className="mt-2">
-                          <CategoryPerformanceCharts categoryId={selectedCategoryId} />
-                        </div>
                       </div>
-                    </div>
+
+
 
                     
                   </div>
@@ -267,7 +265,14 @@ export default function CategoryAndTask() {
                   <div className="mb-3"><span className="material-symbols-outlined fs-1">folder_open</span></div>
                   <div className="fw-semibold mb-1">No MFO selected</div>
                   <div className="mb-3">Create or select a MFO from the left panel.</div>
-                  <div><button className="btn btn-primary" onClick={openCreateModal}><span className="material-symbols-outlined me-1">add</span>Create Category</button></div>
+                  <div>
+                      <button className="btn btn-primary " onClick={openCreateModal}>
+                        <span className = "d-flex">
+                          <span className="material-symbols-outlined me-1">add</span>
+                          Create Category
+                        </span>
+                      </button>
+                    </div>
                 </div>
               )}
             </div>

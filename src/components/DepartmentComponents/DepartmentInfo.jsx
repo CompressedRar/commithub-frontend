@@ -330,7 +330,7 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
 
         {/* Tab Content */}
         <div>
-          {currentPage === 1 && isPlanningPhase() && (
+          {currentPage === 1 && (
             <>
               <div className="alert alert-info d-flex mb-3">
                 <span className="material-symbols-outlined me-2">info</span>
@@ -341,12 +341,19 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
             </>
           )}
           {currentPage === 2 && (
-            <>
-              <div className="bg-white p-3 mb-3 rounded shadow-sm">
-                <UserPerformanceInDepartment dept_id={id} currentPhase={currentPhase}/>
+            <div className="d-grid" style={{display:"grid", backgroundColor:"white"}}>
+              <div className="row">
+                <div className="col-lg-12 col-md-12" >
+                  <UserPerformanceInDepartment dept_id={id} currentPhase={currentPhase}/>
+                </div>
+                <div className="col-lg-12 col-md-12">
+                  <DepartmentMemberTable deptid={id} currentPhase={currentPhase}/>
+                </div>
+                
               </div>
-              <DepartmentMemberTable deptid={id} currentPhase={currentPhase}/>
-            </>
+              
+              
+            </div>
           )}
           {currentPage === 0 && (isMonitoringPhase() || isRatingPhase()) && (
             <PerformanceReviews deptid={id} />

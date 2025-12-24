@@ -142,10 +142,10 @@ function AdminLayout() {
               { href: "/admin/dashboard", icon: "dashboard", text: "Dashboard" },
               { href: "/admin/department", icon: "apartment", text: "Offices" },
               { href: "/admin/tasks", icon: "task", text: "Major Final Outputs" },
-              { href: "/admin/users", icon: "group", text: "User Management" },
-              { href: "/admin/logs", icon: "article", text: "Audit Logs" },
               { href: "/admin/ipcr", icon: "assignment_ind", text: "IPCR" },
               { href: "/admin/master", icon: "assignment_globe", text: "Master OPCR" },
+              { href: "/admin/users", icon: "group", text: "User Management" },
+              { href: "/admin/logs", icon: "article", text: "Audit Logs" },              
               { href: "/admin/settings", icon: "settings", text: "Settings" }
             ].map((item, idx) => (
               <li key={idx}>
@@ -310,9 +310,9 @@ function AdminLayout() {
         {/* 🔹 Content */}
         <main
           className="flex-grow-1"
-          style={{ backgroundColor: "#ffffffff", zIndex:700}}
+          style={{ backgroundColor: "#ffffffff"}}
         >
-          <div style={{scale:"0.9" }}>
+          <div style={{zoom:"0.9", padding:"2vw"}}>
             <Outlet />
           </div>
         </main>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { archiveIprc, downloadIPCR } from "../../services/pcrServices";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 
 function DeptIPCR(props) {
@@ -14,6 +15,7 @@ function DeptIPCR(props) {
     const [optionsOpen, setOpen] = useState(false)
     const [downloading, setDownloading] = useState(false)
     const [archiving, setArchiving] = useState(false)
+    const navigate = useNavigate()
     
 
     async function handleArchive(){
@@ -87,9 +89,7 @@ function DeptIPCR(props) {
                 <div className="choices"  data-bs-toggle="modal" data-bs-target={props.dept_mode? "#manage-docs":""}>
                     <span className="material-symbols-outlined">attach_file</span>
                     <span>Documents</span>
-                </div>
-
-                
+                </div>                
             </div>}
             
 
@@ -113,7 +113,9 @@ function DeptIPCR(props) {
                             <span className="material-symbols-outlined">attach_file</span>
                             <span>Documents</span>
                         </button>
-                        <button className="choices btn btn-success" onClick={props.onClick}  data-bs-toggle="modal" data-bs-target="#view-ipcr">
+                        <button className="choices btn btn-success" onClick={()=> {
+                            navigate(`/admin/ipcr/${props.ipcr.ipcr.id}?dept_id=${props.dept_id}&mode=check`)
+                        }} >
                             <span className="material-symbols-outlined">view_list</span>
                             <span>View</span>
                         </button>                      
