@@ -14,6 +14,8 @@ function DepartmentTask({ mems, switchMember }) {
       seen.add(user.id);
       return true;
     });
+
+    
     setAssigned(filtered || []);
   }
 
@@ -68,6 +70,7 @@ function DepartmentTask({ mems, switchMember }) {
 
   useEffect(() => {
     filterAssigned();
+    console.log(mems)
   }, [mems]);
 
   useEffect(() => {
@@ -120,18 +123,14 @@ function DepartmentTask({ mems, switchMember }) {
         </div>
 
 
-        <div className="d-flex flex-wrap gap-3 small text-secondary mb-3">
-          <div>
-            <span className="text-muted">Target:</span>{" "}
-            <span className="fw-medium">
-              {mems.target_accomplishment || "N/A"}
-            </span>
-          </div>
-          <div>
-            <span className="text-muted">Actual:</span>{" "}
-            <span className="fw-medium">
-              {mems.actual_accomplishment || "N/A"}
-            </span>
+        <div className="d-flex flex-wrap gap-3 small m-3">
+          <div className="d-flex flex-column">
+            <label className="form-label fw-semibold mb-1">
+                Description
+            </label>
+            <div className="text-secondary">             
+                {mems.description ?? "N/A"}
+            </div>
           </div>
         </div>
 

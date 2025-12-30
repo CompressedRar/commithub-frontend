@@ -103,7 +103,7 @@ export default function CategoryAndTask() {
   return (
     <div className="container-fluid py-4">
       <div className="row g-3">
-        <div className="col-12 col-md-12 col-lg-5">
+        <div className="col-12 col-md-12 col-lg-5 col-xl-4">
           <div className="card shadow-sm sticky-top" style={{ top: "1rem" }}>
             <div className="card-body">
               <div className="d-flex align-items-center justify-content-between mb-3">
@@ -138,7 +138,7 @@ export default function CategoryAndTask() {
                     return (
                       <button
                         key={cat.id}
-                        className={`list-group-item list-group-item-action d-flex justify-content-between align-items-center ${active ? "active" : ""}`}
+                        className={`list-group-item list-group-item-action p-2 d-flex justify-content-between align-items-center ${active ? "active" : ""}`}
                         onClick={() => {
                           setSelectedCategoryId(cat.id);
                           setActiveRightTab("items");
@@ -149,7 +149,6 @@ export default function CategoryAndTask() {
                           <span className="material-symbols-outlined">folder</span>
                           <div className="text-start">
                             <div className="fw-semibold small mb-0 text-truncate" style={{ maxWidth: 180 }}>{cat.name}</div>
-                            <small className="text">{cat.category_type ?? cat.type}</small>
                           </div>
                         </div>
                         <span className="badge bg-light text-dark">{cat.task_count ?? 0}</span>
@@ -165,7 +164,7 @@ export default function CategoryAndTask() {
         </div>
 
         {/* RIGHT: content with tabs */}
-        <div className="col-12 col-md-12 col-lg-7">
+        <div className="col-12 col-md-12 col-lg-7 col-xl-8">
           <div className="p-2 border roundedshadow-sm">
             <div className="header d-flex justify-content-between align-items-center">
               <div className="d-flex gap-3 align-items-center">
@@ -248,16 +247,9 @@ export default function CategoryAndTask() {
                                 <div className="">
                                   <CategorySummaryPerDepartment category_id={selectedCategoryId}></CategorySummaryPerDepartment>
                                 </div>
-
-                                
-                                
-
                               </div>
                       </div>
 
-
-
-                    
                   </div>
                 )
               ) : (

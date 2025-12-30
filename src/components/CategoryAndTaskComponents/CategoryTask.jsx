@@ -19,6 +19,7 @@ function CategoryTask({ category = {}, onClick, onEdit }) {
 
   useEffect(() => {
     filterAssigned();
+    console.log(category)
   }, [category]);
 
   const formatDate = (d) => {
@@ -35,7 +36,7 @@ function CategoryTask({ category = {}, onClick, onEdit }) {
   return (
     <div
       key={category.id}
-      className="border rounded-3 shadow-sm bg-white mb-3 p-3 d-flex flex-column position-relative"
+      className="border rounded-3 shadow-sm bg-white mb-3 p-3 col-lg-6 col-md-12 d-flex flex-column position-relative"
       style={{
         cursor: "pointer",
         transition: "box-shadow 0.2s ease, transform 0.2s ease",
@@ -66,111 +67,46 @@ function CategoryTask({ category = {}, onClick, onEdit }) {
       {/* Main content */}
       <div className="ms-3">
         <div className="d-flex flex-wrap align-items-center gap-2 mb-1">
-          <span className="material-symbols-outlined text-primary fs-5">
-            task_alt
-          </span>
+          
 
           <div className="flex-grow-1">
-            <h6 className="mb-0 fw-semibold text-truncate">
-              {category.name || category.title || "Untitled"}
+            <h6 className="mb-2 fw-bold text-truncate d-flex gap-2">
+              <span className="material-symbols-outlined text-primary fs-5">
+                task_alt
+              </span>
+              {category.name || category.title || "Untitled"}              
             </h6>
             <small className="text-muted d-block">
-              {category.type || category.department || ""}
+              {
+                category.departments.map((dept) => (
+                  <>
+                    {dept.department_name}  <br/>
+                  </>
+                ))
+              }
             </small>
           </div>
 
-          <div className="text-end">
-            <small className="text-muted d-block">Created</small>
-            <small className="fw-semibold d-block">
-              {formatDate(category.created_at)}
-            </small>
-          </div>
+          
         </div>
 
         <div className="row gx-3 gy-2 mt-2">
           <div className="col-12">
-            <label className="form-label small text-muted mb-1">
+            <label className="form-label fw-semibold mb-1">
               Description
             </label>
             <div className="small text-secondary">
               
-                {category.summary?.actual ?? category.actual_accomplishment ?? "N/A"}
-            </div>
-          </div>
-
-          <div className="col-6">
-            <label className="form-label small text-muted mb-1">
-              Target Quantity
-            </label>
-            <div className="fw-medium">
-              {category.target_quantity ?? category.summary?.target ?? "N/A"}
+                {category.description ?? "N/A"}
             </div>
           </div>
 
           
 
-          <div className="col-6">
-            <label className="form-label small text-muted mb-1">
-              Target Efficiency
-            </label>
-            <div className="fw-medium">
-              {category.target_efficiency ?? "N/A"}
-            </div>
-          </div>
-
-          <div className="col-6">
-            <label className="form-label small text-muted mb-1">
-              Modification
-            </label>
-            <div className="fw-medium">
-              {category.modification ||
-                category.modifications ||
-                category.description?.alterations ||
-                "N/A"}
-            </div>
-          </div>
-
-          <div className="col-6">
-            <label className="form-label small text-muted mb-1">
-              Timeliness Mode
-            </label>
-            <div className="fw-medium">
-              {(category.timeliness_mode ||
-                category.description?.timeliness_mode ||
-                "timeframe").toString()}
-            </div>
-          </div>
-
-          {(category.timeliness_mode || category.description?.timeliness_mode) ===
-          "timeframe" ? (
-            <>
-              <div className="col-6">
-                <label className="form-label small text-muted mb-1">
-                  Timeframe
-                </label>
-                <div className="fw-medium">
-                  {category.target_timeframe ??
-                    category.working_days?.target ??
-                    "N/A"}{" "}
-                  {category.time_measurement || category.description?.time || ""}
-                </div>
-              </div>
-            </>
-          ) : (
-            <div className="col-6">
-              <label className="form-label small text-muted mb-1">
-                Target Deadline
-              </label>
-              <div className="fw-medium">
-                {category.target_deadline
-                  ? formatDate(category.target_deadline)
-                  : "N/A"}
-              </div>
-            </div>
-          )}
+          
 
           <div className="col-12">
-            <label className="form-label small text-muted mb-1">Assigned</label>
+            <label className="form-label fw-semibold mb-1">Assigned</label>
             <div className="d-flex flex-wrap gap-2">
               {assigned.length > 0 ? (
                 assigned.map((user) => (

@@ -205,7 +205,7 @@ function PerformanceReviews(props){
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
-                            {currentOPCRID && isRatingPhase() && <EditOPCR key={currentOPCRID} dept_id = {props.deptid} opcr_id = {currentOPCRID} mode = {"dept"}></EditOPCR>}
+                            {currentOPCRID && <EditOPCR key={currentOPCRID} dept_id = {props.deptid} opcr_id = {currentOPCRID} mode = {"dept"}></EditOPCR>}
                         </div>
                     </div>
                 </div>
@@ -221,9 +221,8 @@ function PerformanceReviews(props){
                     </span> : <span className="spinner-border spinner-border-sm me-2"></span>}
                 </button>
             </h3>
-            {/* OPCR is available only during Rating phase */}
-            { isRatingPhase() ? (
-              <div className="all-ipcr-container" style={{display:"flex", flexDirection:"column", gap:"10px"}}>
+
+            <div className="all-ipcr-container" style={{display:"flex", flexDirection:"column", gap:"10px"}}>
                 {allOPCR && allOPCR.map(opcr => (
                     <DeptOPCR opcr = {opcr} onClick={()=>{ setCurrentOPCRID(opcr.id) }} onMouseOver = {()=>{setCurrentOPCRID(opcr.id)}} key={opcr.id}></DeptOPCR>
                 ))}
@@ -234,12 +233,6 @@ function PerformanceReviews(props){
                   </div>
                 )}
               </div>
-            ) : (
-              <div className="empty-symbols text-muted opacity-75 fs-6">
-                <span className="material-symbols-outlined">lock</span>
-                <span className="desc">OPCRs are only available during the Rating phase.</span>
-              </div>
-            )}
 
              <h3>Individual Performance Review and Commitment Forms</h3>
             {/* IPCRs available during Monitoring and Rating phases */}

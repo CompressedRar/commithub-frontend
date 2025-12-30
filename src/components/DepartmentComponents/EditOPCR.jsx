@@ -388,23 +388,6 @@ function EditOPCR(props) {
       )}
 
 
-      {opcrInfo && (
-        <div className="overlay-container position-absolute" style={{ zIndex: 1050 }}>
-          <div className="overlay-content text-center p-4">
-            <img
-              src={`${import.meta.env.BASE_URL}calendar_blocked.png`}
-              alt="OPCR Closed"
-              className="overlay-icon"
-              style={{ maxWidth: 120 }}
-            />
-            <h2>OPCR Closed</h2>
-            <p className="mb-0 text-muted">
-              OPCR does not have any data to compile yet. You will be able to view it once there are IPCR to consolidate.
-            </p>
-          </div>
-        </div>
-      )}
-
       {/* Header */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <button className="btn btn-outline-secondary d-flex align-items-center gap-2" data-bs-dismiss="modal" onClick={() => props.switchPage()}>

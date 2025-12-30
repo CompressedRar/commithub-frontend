@@ -95,105 +95,6 @@ export default function PositionItem({position}){
                                     <input type="text" name="task_name" className="form-control"
                                         placeholder="e.g., Instructor I" value={positionName} onInput={(e) => {setPositionName(e.target.value)}}  required />
                                 </div>
-
-                                <div className="mb-3">
-                                    <label className="form-label fw-semibold d-flex justify-content-between">
-                                        <span>Core Function Weight <span className="text-danger">*</span></span>
-
-                                        <input 
-                                            type="number"
-                                            className="form-control"
-                                            style={{ width: "20%" }}
-                                            min={0}
-                                            step={0.01}
-                                            max={1}
-                                            value={coreWeight}
-                                            onChange={(e) => {
-                                                let value = e.target.value;
-
-                                                // Prevent empty string from becoming uncontrolled
-                                                if (value === "") {
-                                                setCoreWeight(0);
-                                                return;
-                                                }
-
-                                                setCoreWeight(Number(value));
-                                            }}
-                                        />
-                                    </label>
-
-                                    <Slider
-                                        value={coreWeight}
-                                        min={0}
-                                        step={0.01}
-                                        max={1}
-                                        onChange={(e, newValue) => setCoreWeight(newValue)}
-                                    />
-                                </div>
-
-                                <div className="mb-3">
-                                    <label className="form-label fw-semibold d-flex justify-content-between">
-                                        <span>Strategic Function Weight <span className="text-danger">*</span></span>
-
-                                        <input 
-                                            type="number"
-                                            className="form-control"
-                                            style={{ width: "20%" }}
-                                            min={0}
-                                            step={0.01}
-                                            max={1}
-                                            value={strategicWeight}
-                                            onChange={(e) => {
-                                                let value = e.target.value;
-
-                                                // Prevent empty string from becoming uncontrolled
-                                                if (value === "") {
-                                                setStrategicWeight(0);
-                                                return;
-                                                }
-
-                                                setStrategicWeight(Number(value));
-                                            }}
-                                        />
-                                    </label>
-
-                                    <Slider
-                                        value={strategicWeight}
-                                        min={0}
-                                        step={0.01}
-                                        max={1}
-                                        onChange={(e, newValue) => setStrategicWeight(newValue)}
-                                    />
-                                </div>
-
-                                <div className="mb-3">
-                                    <label className="form-label fw-semibold d-flex justify-content-between">
-                                        <span>Support Function Weight <span className="text-danger">*</span></span>
-
-                                        <input 
-                                            type="number"
-                                            className="form-control"
-                                            style={{ width: "20%" }}
-                                            min={0}
-                                            step={0.01}
-                                            max={1}
-                                            value={supportWeight}
-                                            onChange={(e) => {
-                                                let value = e.target.value;
-
-                                                // Prevent empty string from becoming uncontrolled
-                                                if (value === "") {
-                                                setSupportWeight(0);
-                                                return;
-                                                }
-
-                                                setSupportWeight(Number(value));
-                                            }}
-                                        />
-                                    </label>
-
-                                    <Slider value={supportWeight} in={0} step={0.01} max={1} onChange={(e, newValue) => setSupportWeight(newValue)}/>
-                                </div>
                             </form>
                         </div>
                         <div className="modal-footer">
@@ -211,26 +112,11 @@ export default function PositionItem({position}){
                 </div>
             </div>
 
-            <div className="position-name fw-semibold fs-5">
+            <div className="position-name d-flex fw-semibold fs-5">
                 {position.name}
             </div>
 
             <div className="weights d-flex gap-3 align-items-center">
-
-                <div className="weight-pair d-flex flex-column text-end">
-                    <span className="weight-name text-muted small">Core Function</span>
-                    <span className="fw-semibold">{position.core_weight}</span>
-                </div>
-
-                <div className="weight-pair d-flex flex-column text-end">
-                    <span className="weight-name text-muted small">Strategic Function</span>
-                    <span className="fw-semibold">{position.strategic_weight}</span>
-                </div>
-
-                <div className="weight-pair d-flex flex-column text-end">
-                    <span className="weight-name text-muted small">Support Function</span>
-                    <span className="fw-semibold">{position.support_weight}</span>
-                </div>
 
                 <button className="btn btn-primary d-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target={`#${position.id}`}>
                     <span className="material-symbols-outlined">edit</span>

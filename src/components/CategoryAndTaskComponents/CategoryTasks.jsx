@@ -7,7 +7,7 @@ import { archiveCategory, getCategory, updateCategory } from "../../services/cat
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 import { getDepartments } from "../../services/departmentService";
-import { convert_tense } from "../../services/tenseConverted";
+import { convert_tense, create_description } from "../../services/tenseConverted";
 import CategoryTask from "./CategoryTask";
 import CategoryTaskAverages from "../Charts/CategoryTaskAverage";
 import CategoryPerformanceCharts from "../Charts/CategoryPerformance";
@@ -101,6 +101,7 @@ function CategoryTasks(props) {
   }, [props.id]);
 
   useEffect(() => {
+    return
     if (!pastTense) return;
     const deb = setTimeout(async () => {
       setTranslating(true);
@@ -122,6 +123,23 @@ function CategoryTasks(props) {
     console.log(e.target.name, e.target.value)
     console.log(formData)
   };
+
+  const [selectedDepartments, setSelectedDepartments] = useState([])
+
+  const handleDepartmentAppend = (e) => {
+    var departments = selectedDepartments
+
+    if(e.target.checked){
+      departments.push(e.target.value)
+      setSelectedDepartments(departments)
+    }
+    else {
+      departments = departments.filter((r) => r != e.target.value)
+      setSelectedDepartments(departments.filter((r) => r != e.target.value))
+    }
+    console.log(departments)
+    setFormData((p) => ({ ...p, [e.target.name]: departments }))
+  }
 
   const handleTitleChange = (e) => {
     setUpdateData((prev) => ({ ...prev, [e.target.id]: e.target.textContent }));
@@ -177,9 +195,14 @@ function CategoryTasks(props) {
   const handleSubmission = async () => {
     setSubmission(true);
     let converted_tense = "";
+    let short_descrtiption = "";
+    console.log(formData)
+    
 
     try {
       converted_tense = await convert_tense(String(pastTense));
+
+      short_descrtiption = await create_description(JSON.stringify(formData));
     } catch {
       Swal.fire("Error", "There is an error while processing description.", "error");
       setSubmission(false);
@@ -197,7 +220,7 @@ function CategoryTasks(props) {
       return {
         ...formData,
         task_name: fd.get("task_name") || formData.task_name,
-        department: fd.get("department") || formData.department,
+        department: selectedDepartments,
         task_desc: fd.get("task_desc") || formData.task_desc,
         target_quantity: parseIntOr0(fd.get("target_quantity") ?? formData.target_quantity),
         target_efficiency: parseIntOr0(fd.get("target_efficiency") ?? formData.target_efficiency),
@@ -206,10 +229,15 @@ function CategoryTasks(props) {
         time_measurement: fd.get("time_measurement") || formData.time_measurement,
         target_deadline: fd.get("target_deadline") || formData.target_deadline,
         modification: fd.get("modification") || formData.modification,
+        description:short_descrtiption
       };
     };
 
+    
+
     const synced = syncFromForm();
+    console.log("SYNCED", synced)
+
     const newFormData = objectToFormData(synced);
     newFormData.append("past_task_desc", converted_tense);
 
@@ -255,8 +283,8 @@ function CategoryTasks(props) {
           <div className="d-flex align-items-start gap-3">
             <span className="material-symbols-outlined fs-2 text-muted">info</span>
             <div>
-              <h5 className="mb-1">No MFO Data</h5>
-              <p className="mb-0 text-muted">There are no information about this major final output.</p>
+              <h5 className="mb-1">No KRA Data</h5>
+              <p className="mb-0 text-muted">There are no information about this key result area.</p>
             </div>
           </div>
         </div>
@@ -326,7 +354,7 @@ function CategoryTasks(props) {
             <div>There are no existing outputs.</div>
           </div>
         ) : (
-          <div className="d-flex flex-column gap-3">
+          <div className="d-grid">
             {categoryTasks
               .filter((t) => t?.status === 1)
               .map((task) => (
@@ -366,7 +394,7 @@ function CategoryTasks(props) {
         aria-labelledby="createTaskLabel"
         aria-hidden="true"
       >
-        <div className="modal-dialog modal-dialog-centered modal-lg">
+        <div className="modal-dialog modal-dialog-centered modal-xl">
           <div className="modal-content shadow-lg border-0 rounded-3">
             <div className="modal-header bg-primary text-white">
               <h5 className="modal-title fw-semibold">
@@ -384,14 +412,15 @@ function CategoryTasks(props) {
                     placeholder="e.g., Board Trustees Meeting" onInput={handleDataChange} required />
                 </div>
 
-                <div className="mb-3">
-                  <label className="form-label fw-semibold">Office <span className="text-danger">*</span></label>
-                  <select name="department" className="form-select" onChange={handleDataChange}>
-                    <option value={0}>General</option>
+                <div className="mb-3 p-2">
+                  <label className="form-label fw-semibold">Offices <span className="text-danger">*</span></label>
+                  <div style={{display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:"7px"}}>
                     {allDepartments.map((dept) => (
-                      <option key={dept.id} value={dept.id}>{dept.name}</option>
+                      <label key ={dept.id} htmlFor = {dept.name}>
+                        <input name="department" type="checkbox" id = {dept.name} value = {dept.id} onChange={handleDepartmentAppend}></input> {dept.name}
+                      </label>
                     ))}
-                  </select>
+                  </div>
                 </div>
 
                 <h6 className="mt-3">Success Indicators (Targets + Measures)</h6>

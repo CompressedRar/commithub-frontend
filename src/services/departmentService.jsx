@@ -113,7 +113,21 @@ export async function removeDepartmentHead(user_id){
     return api.delete(`/api/v1/users/head/${user_id}`)
 }
 
-export async function removeTask(task_id) {
+export async function removeTask(task_id, dept_id) {
     console.log("removing task")
-    return api.delete(`/api/v1/department/remove/${task_id}`)
+    return api.delete(`/api/v1/department/remove/${task_id}&deptid=${dept_id}`)
+}
+
+export async function getAssignedDepartmentTask(dept_id) {
+    console.log("get assigned department task")
+    return api.get(`/api/v1/task/assigned_department/${dept_id}`)
+}
+
+export async function updateAssignedDepartmentTask(data) {
+    console.log("updating assigned department task")
+    return api.patch(`/api/v1/task/assigned_department/`, data, {
+        headers: {
+            "Content-type": "application/json"
+        }
+    })
 }

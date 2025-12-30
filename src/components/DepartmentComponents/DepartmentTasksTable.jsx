@@ -19,6 +19,7 @@ function DepartmentTasksTable({ id, admin_mode, currentPhase }) {
   async function loadAllMembers() {
     try {
       const res = await getDepartmentTasks(id);
+      console.log("DEPARTMENTTASK",res.data)
       setAllMembers(res.data);
       setFilteredMembers(res.data);
       generatePagination(res.data);

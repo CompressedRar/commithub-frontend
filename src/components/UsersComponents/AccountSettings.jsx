@@ -301,7 +301,7 @@ function AccountSettings(props) {
           <button className="btn btn-secondary" onClick={() => window.location.reload()}>
             Cancel
           </button>
-          <button className="btn btn-success" onClick={handleUpdate} disabled={updating}>
+          <button className="btn btn-success d-flex" onClick={handleUpdate} disabled={updating}>
             <span className="material-symbols-outlined me-1">save</span> {updating ? "Saving..." : "Save Changes"}
           </button>
         </div>

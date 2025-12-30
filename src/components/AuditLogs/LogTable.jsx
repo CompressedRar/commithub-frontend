@@ -3,6 +3,9 @@ import { getLogs } from "../../services/logService";
 import { getDepartments } from "../../services/departmentService";
 import Logs from "./Logs";
 import Swal from "sweetalert2";
+import ActivityTrendChart from "../Charts/ActivityTrendChart";
+import SystemLogsDistribution from "../Charts/SystemLogsDistribution";
+import SystemLogsByDepartment from "../Charts/SystemLogsByDepartment";
 
 function LogTable() {
   const [allLogs, setAllLogs] = useState([]);
@@ -33,6 +36,7 @@ function LogTable() {
   async function loadAllLogs() {
     try {
       const res = await getLogs();
+      console.log("LOG DATA", res.data)
       setAllLogs(res.data);
       setFilteredLogs(res.data);
       generatePagination(res.data);
@@ -61,7 +65,7 @@ function LogTable() {
 
   // 🔹 Filter logic
   function applyFilters() {
-    if (!allLogs || allLogs.length === 0) return; // ✅ don't run before load
+    if (!allLogs || allLogs.length === 0) return; 
 
     let filtered = [...allLogs];
 
@@ -78,7 +82,7 @@ function LogTable() {
     }
 
     if (selectedTarget !== "All") {
-      filtered = filtered.filter((log) => log.target_type === selectedTarget);
+      filtered = filtered.filter((log) => log.target === selectedTarget);
     }
 
     if (searchQuery.trim() !== "") {
@@ -98,7 +102,7 @@ function LogTable() {
     setFilteredLogs(filtered);
     generatePagination(filtered);
     setPageLimit({ offset: 0, limit: 10 });
-    setVisibleLogs(filtered.slice(0, 10)); // ✅ immediately display results
+    setVisibleLogs(filtered.slice(0, 10));
   }
 
   // 🔹 Hooks
@@ -129,6 +133,22 @@ function LogTable() {
         <h4 className="fw-bold text-primary mb-2 mb-md-0 d-flex align-items-center gap-2">
           <span className="material-symbols-outlined">history</span> System Logs
         </h4>
+      </div>
+
+      
+
+      <div className="row">
+        <ActivityTrendChart></ActivityTrendChart>
+        
+      </div>
+
+      <div className="row">
+        <div className="col-lg-6 col-md-12">
+          <SystemLogsDistribution></SystemLogsDistribution>
+        </div>
+        <div className="col-lg-6 col-md-12">
+          <SystemLogsByDepartment></SystemLogsByDepartment>
+        </div>
       </div>
 
       {/* Filters */}
@@ -180,6 +200,7 @@ function LogTable() {
             <option value="USER">User</option>
             <option value="IPCR">IPCR</option>
             <option value="OPCR">OPCR</option>
+            <option value="RATING">Rating</option>
             <option value="SUPPORTING_DOCS">Supporting Documents</option>
           </select>
         </div>

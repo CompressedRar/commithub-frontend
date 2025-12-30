@@ -41,6 +41,11 @@ export async function getActivityTrend() {
     return api.get(`/api/v1/chart/line/activity/`)
 }
 
+export async function getSystemLogsTrend() {
+    console.log("fetching activity trend")
+    return api.get(`/api/v1/chart/bar/logs/`)
+}
+
 export async function getLogsByHour() {
     console.log("fetching activity trend")
     return api.get(`/api/v1/chart/line/logs-by-hour/`)

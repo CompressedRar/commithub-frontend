@@ -23,6 +23,8 @@ function AddDepartmentTask(props) {
           icon: "error",
         });
       });
+      
+    console.log("categoru ",res)
     setAllCategories(res);
   }
 
@@ -36,11 +38,12 @@ function AddDepartmentTask(props) {
           icon: "error",
         });
       });
+
     setDepartmentInfo(res);
   }
 
   const Remove = async (task_id) => {
-    const res = await removeTask(task_id)
+    const res = await removeTask(task_id, props.dept_id)
       .then((data) => data.data.message)
       .catch((error) => {
         Swal.fire({
@@ -50,7 +53,7 @@ function AddDepartmentTask(props) {
         });
       });
 
-    if (res === "Office successfully removed.") {
+    if (res === "Output successfully removed.") {
       Swal.fire({ title: "Success", text: res, icon: "success" });
       loadAllCategories();
     } else {
@@ -137,11 +140,12 @@ function AddDepartmentTask(props) {
             </h6>
 
             {activeTasks.length > 0 ? (
-              <div className="d-flex flex-column gap-2">
+              <div className="d-grid gap-2">
                 {activeTasks.map((task, tidx) => (
+                  <div className="row">
                   <div
                     key={tidx}
-                    className="border rounded p-3 bg-white shadow-sm d-flex justify-content-between align-items-center"
+                    className="border col-xl-4 col-lg-6 col-md-12 rounded p-3 bg-white shadow-sm d-flex justify-content-between align-items-center"
                   >
                     {/* Task Info */}
                     <div className="d-flex align-items-center gap-2 flex-wrap">
@@ -154,13 +158,12 @@ function AddDepartmentTask(props) {
                             : "bg-light text-muted border"
                         }`}
                       >
-                        {task.department}
+                        
                       </span>
                     </div>
-
                     {/* Actions */}
                     <div>
-                      {task.department !== departmentInfo.name ? (
+                      {!task.department_ids.includes(departmentInfo.id) ? (
                         <button
                           className="btn btn-sm btn-outline-primary px-3"
                           onClick={() => handleAssign(task.id)}
@@ -176,6 +179,9 @@ function AddDepartmentTask(props) {
                         </button>
                       )}
                     </div>
+                  </div>
+
+
                   </div>
                 ))}
               </div>

@@ -10,6 +10,7 @@ import { getDepartments } from "../../services/departmentService";
 
 function TaskInfo({ id, backAfterArchive, backToPage }) {
   const [taskInfo, setTaskInfo] = useState({});
+  const [selectedDepartments, setSelectedDepartments] = useState([])
   const [formData, setFormData] = useState({});
   const [allDepartments, setAllDepartments] = useState([]);
   const [isDirty, setIsDirty] = useState(false);
@@ -66,6 +67,7 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
       const res = await getMainTask(id);
       console.log("MAIN TASK DATA", res.data);
       setTaskInfo(res.data);
+      setSelectedDepartments(res.data.department_ids)
       setFormData({
         ...res.data,
         target_deadline: res.data.target_deadline ? formatDateForInput(res.data.target_deadline) : ""
@@ -77,11 +79,28 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
       console.error(error);
       Swal.fire({
         title: "Error",
-        text: error.response?.data?.error || "Failed to load output info.",
+        text: error.response?.data?.error || "Failed to load task info.",
         icon: "error",
       });
     }
   };
+
+  
+
+  const handleDepartmentAppend = (e) => {
+    const id = Number(e.target.value)
+
+    setFormData(prev => ({
+      ...prev,
+      department: e.target.checked
+        ? [...prev.department, id]
+        : prev.department.filter(d => d !== id)
+    }))
+
+    if (selectedDepartments !== formData.department) setIsDirty(true);
+
+    console.log("UPDATED FORM DATA", formData.department)
+  }
 
   const handleUpdate = async () => {
     if (!formData.name) {
@@ -95,7 +114,7 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
       const res = await updateMainTaskInfo(newFormData);
       Swal.fire({
         title: "Success",
-        text: res.data.message || "Output successfully updated.",
+        text: res.data.message || "Task successfully updated.",
         icon: "success",
       });
       setIsDirty(false);
@@ -115,7 +134,7 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
 
   const handleArchive = () => {
     Swal.fire({
-      title: "Do you want to archive this output?",
+      title: "Do you want to archive this task?",
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Yes, archive it",
@@ -147,9 +166,9 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
         <div>
           <h5 className="mb-0 fw-semibold d-flex align-items-center gap-2">
             <span className="material-symbols-outlined">task_alt</span>
-            {formData.name || "Output"}
+            {formData.name || "Task"}
           </h5>
-          <small className="text-muted d-block">View and manage output details</small>
+          <small className="text-muted d-block">View and manage task details</small>
         </div>
 
         <div className="d-flex gap-2">
@@ -163,7 +182,7 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
       <form noValidate className="mb-4">
         {/* Output Name */}
         <div className="mb-3">
-          <label className="form-label fw-semibold">Output Name <span className="text-danger">*</span></label>
+          <label className="form-label fw-semibold">Task Name <span className="text-danger">*</span></label>
           <input
             name="name"
             type="text"
@@ -172,31 +191,39 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
             value={formData.name || ""}
             onChange={handleChange}
           />
-          <small className="text-muted d-block mt-1">The main title of this output</small>
+          <small className="text-muted d-block mt-1">The main title of this task</small>
         </div>
 
         {/* Office/Department */}
-        <div className="mb-3">
+
+        <div className="mb-3 p-2">
           <label className="form-label fw-semibold">Office</label>
-          <select
-            name="department"
-            className="form-select"
-            value={formData.department || ""}
-            onChange={handleChange}
-          >
-            <option value="">Select Department</option>
-            <option key="" value="General">General</option>
+          <div style={{display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:"5px"}}>
             {allDepartments.map((dept) => (
-              <option key={dept.id} value={dept.id}>{dept.name}</option>
+               
+              <div className="d-flex gap-2">
+                <input  name="department" type="checkbox" id = {`dept-${dept.name}`} value = {dept.id} onChange={handleDepartmentAppend} checked = {formData.department.includes(dept.id)}/>
+                
+                <label htmlFor={`dept-${dept.name}`}>
+                  {dept.name}
+                </label>
+                
+              </div>
+              
             ))}
-          </select>
+          </div>          
+        </div>
+
+        <div className="mb-3 p-2">
+          <label className="form-label fw-semibold">Description</label>
+          <textarea className="form-control" rows={5} name="description" placeholder="Define what the task entails..." onChange={handleChange} value={formData.description || ""} id=""></textarea>        
         </div>
 
         {/* Description */}
         <h6 className="fw-semibold mt-4 mb-3">Success Indicators</h6>
         <div className="row">
           <div className="col-md-6 mb-3">
-            <label className="form-label fw-semibold">Target Accomplisment <span className="text-danger">*</span></label>
+            <label className="form-label fw-semibold">Target Accomplishment <span className="text-danger">*</span></label>
             <textarea
               id="target_accomplishment"
               name="target_accomplishment"

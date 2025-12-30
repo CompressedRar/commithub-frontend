@@ -384,7 +384,7 @@ export default function SystemSettings() {
                 type="button"
               >
                 <span className="material-symbols-outlined">people</span>
-                Positions and Weights
+                Positions
               </button>
             </li>
 

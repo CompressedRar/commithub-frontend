@@ -11,6 +11,7 @@ import CreateOPCRModal from "./CreateOPCRModal";
 import GeneralTasksTable from "./GeneralTasksTable";
 import UserPerformanceInDepartment from "../Charts/UserPerformanceInDepartment";
 import { getSettings } from "../../services/settingsService";
+import TaskWeights from "./Tasks/TaskWeights";
 
 function DepartmentInfo({ id, firstLoad, loadDepts }) {
   const [deptInfo, setDeptinfo] = useState({});
@@ -123,8 +124,9 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
   const getTabs = () => {
     const allTabs = [
       { label: "Performance Reviews", index: 0, icon: "assessment", phases: ["monitoring", "rating"] },
-      { label: "Outputs", index: 1, icon: "task_alt", phases: ["planning", "monitoring", "rating"] },
-      { label: "Members", index: 2, icon: "group", phases: ["planning", "monitoring", "rating"] },
+      { label: "Tasks", index: 1, icon: "task_alt", phases: ["planning", "monitoring", "rating"] },
+      { label: "Weights", index: 2, icon: "weight", phases: ["planning", "monitoring", "rating"] },
+      { label: "Members", index: 3, icon: "group", phases: ["planning", "monitoring", "rating"] },
     ];
 
     return allTabs.filter((tab) => tab.phases.some((phase) => currentPhase?.includes(phase)));
@@ -330,17 +332,33 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
 
         {/* Tab Content */}
         <div>
+
+          {currentPage === 0 && (isMonitoringPhase() || isRatingPhase()) && (
+            <PerformanceReviews deptid={id} />
+          )}
+
           {currentPage === 1 && (
             <>
               <div className="alert alert-info d-flex mb-3">
                 <span className="material-symbols-outlined me-2">info</span>
-                During Planning Phase: Outputs are created and assigned to staff members.
+                During Planning Phase: Tasks are created and assigned to staff members.
               </div>
               <DepartmentTasksTable id={id} admin_mode={true} currentPhase={currentPhase}/>
-              <GeneralTasksTable id={id} currentPhase={currentPhase}/>
             </>
           )}
+          
           {currentPage === 2 && (
+            <>
+              <div className="alert alert-info d-flex mb-3">
+                <span className="material-symbols-outlined me-2">info</span>
+                During Planning Phase: Tasks are also weighted based on priority, scope and difficulty.
+              </div>
+              <TaskWeights dept_id={id}></TaskWeights>
+            </>
+          )}
+          
+
+          {currentPage === 3 && (
             <div className="d-grid" style={{display:"grid", backgroundColor:"white"}}>
               <div className="row">
                 <div className="col-lg-12 col-md-12" >
@@ -354,9 +372,6 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
               
               
             </div>
-          )}
-          {currentPage === 0 && (isMonitoringPhase() || isRatingPhase()) && (
-            <PerformanceReviews deptid={id} />
           )}
 
           {/* Empty state when tab not available */}
