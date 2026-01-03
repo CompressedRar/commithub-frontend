@@ -102,6 +102,19 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
     console.log("UPDATED FORM DATA", formData.department)
   }
 
+  function formatDate(date) {
+        const year = date.getFullYear();
+        let month = date.getMonth() + 1; // getMonth() returns 0-11
+        let day = date.getDate();
+
+        // Pad single-digit month and day with a leading zero
+        if (month < 10) month = `0${month}`;
+        if (day < 10) day = `0${day}`;
+
+        return `${year}-${month}-${day}`;
+    }
+
+
   const handleUpdate = async () => {
     if (!formData.name) {
       Swal.fire("Validation", "Please fill all required fields", "warning");
@@ -351,10 +364,10 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
           <div className="mb-3">
             <label className="form-label fw-semibold">Target Deadline</label>
             <input
-              type="datetime-local"
+              type="date"
               name="target_deadline"
               className="form-control"
-              value={formData.target_deadline || ""}
+              value={formatDate(new Date(formData.target_deadline))}
               onChange={handleChange}
             />
             <small className="text-muted d-block mt-1">Specify exact date/time for completion</small>

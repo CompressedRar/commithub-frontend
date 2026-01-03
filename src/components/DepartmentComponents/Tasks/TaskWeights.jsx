@@ -86,7 +86,7 @@ function TaskWeights({dept_id}) {
         setUpdating(true)
         try {
             var res = await updateAssignedDepartmentTask(taskData);
-            Swal.fire("Success", res.data.message, "error")
+            Swal.fire("Success", res.data.message, "success")
             setUpdating(false)
         }
         catch(error){
@@ -99,6 +99,11 @@ function TaskWeights({dept_id}) {
 
     useEffect(()=> {
         loadAssignedTasks()
+
+        socket.on("weight", ()=> {
+            setDirty(false)
+            loadAssignedTasks();
+        })
     }, [])
 
     useEffect(()=> {
@@ -175,8 +180,8 @@ function TaskWeights({dept_id}) {
                                     type="number"
                                     className="form-control w-25 no-spinner"
                                     min={0}
-                                    step={0.01}
-                                    max={1}
+                                    step={0.1}
+                                    max={100}
                                     id = {task.id}
                                     onKeyDown={numericKeyDown}
                                     onPaste={handlePasteNumeric}
@@ -192,14 +197,14 @@ function TaskWeights({dept_id}) {
                                     <span> Total Weight</span>
                                 </label>
 
-                                <span className="col-3">{totalWeight}</span>                            
+                                <span className="col-3">{totalWeight}%</span>                            
                             </div>
                     </div>
                     
                 </div>
 
-                <button className="btn btn-success" disabled={totalWeight != 1 || updating || !isDirty} onClick={()=>{handleUpdate()}}>
-                    {updating ? <span className="spinner-border spinner-border-sm me-2"></span> : totalWeight != 1 ? "Weights need to add up to 100%" : "Save Changes"}                    
+                <button className="btn btn-success" disabled={totalWeight != 100 || updating || !isDirty} onClick={()=>{handleUpdate()}}>
+                    {updating ? <span className="spinner-border spinner-border-sm me-2"></span> : totalWeight != 100 ? "Weights need to add up to 100%" : "Save Changes"}                    
                 </button>
             </div>
         </div>

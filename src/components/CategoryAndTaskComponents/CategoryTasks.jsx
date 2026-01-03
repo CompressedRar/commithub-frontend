@@ -250,11 +250,11 @@ function CategoryTasks(props) {
     try {
       const a = await createMainTask(newFormData);
       const msg = a.data?.message;
-      msg === "Output successfully created."
+      msg === "Task successfully created."
         ? Swal.fire("Success", msg, "success")
         : Swal.fire("Error", msg || "Failed to create", "error");
     } catch (error) {
-      Swal.fire("Error", error.response?.data?.error || "Failed to create output", "error");
+      Swal.fire("Error", error.response?.data?.error || "Failed to create task", "error");
     } finally {
       setSubmission(false);
     }
@@ -335,7 +335,7 @@ function CategoryTasks(props) {
           </button>
 
           <button className="btn btn-primary d-flex gap-2 align-items-center" onClick={openModal}>
-            <span className="material-symbols-outlined me-1">add</span> Create Output
+            <span className="material-symbols-outlined me-1">add</span> Create Task
           </button>
 
           
@@ -344,18 +344,19 @@ function CategoryTasks(props) {
       
       <div className="mb-4">
         <div className="d-flex justify-content-between align-items-center mb-2">
-          <h5 className="mb-0">Outputs</h5>
+          <h5 className="mb-0">Tasks</h5>
           <small className="text-muted">{categoryTasks?.length ?? 0} items</small>
         </div>
 
         {(!Array.isArray(categoryTasks) || categoryTasks.length === 0) ? (
           <div className="py-5 text-center text-muted border rounded-3 bg-light">
             <span className="material-symbols-outlined fs-1 d-block mb-2">playlist_remove</span>
-            <div>There are no existing outputs.</div>
+            <div>There are no existing tasks.</div>
           </div>
         ) : (
-          <div className="d-grid">
-            {categoryTasks
+          <div className="d-grid place-items-center no-wrap">
+            <div className="row gap-3">
+              {categoryTasks
               .filter((t) => t?.status === 1)
               .map((task) => (
                 <CategoryTask
@@ -380,6 +381,7 @@ function CategoryTasks(props) {
                   }}
                 />
               ))}
+            </div>
           </div>
         )}
       </div>
@@ -399,7 +401,7 @@ function CategoryTasks(props) {
             <div className="modal-header bg-primary text-white">
               <h5 className="modal-title fw-semibold">
                 <span className="material-symbols-outlined me-2 align-middle">add_task</span>
-                Create Output
+                Create Task
               </h5>
               <button type="button" className="btn-close btn-close-white" data-bs-dismiss="modal" />
             </div>
@@ -407,7 +409,7 @@ function CategoryTasks(props) {
             <div className="modal-body px-4 py-3">
               <form noValidate ref={formRef}>
                 <div className="mb-3">
-                  <label className="form-label fw-semibold">Output <span className="text-danger">*</span></label>
+                  <label className="form-label fw-semibold">Task <span className="text-danger">*</span></label>
                   <input type="text" name="task_name" className="form-control"
                     placeholder="e.g., Board Trustees Meeting" onInput={handleDataChange} required />
                 </div>

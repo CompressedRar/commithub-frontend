@@ -61,7 +61,7 @@ export default function CategoryAndTask() {
 
   const handleSubmission = async () => {
     if (!formData.category_name || formData.category_name.trim() === "") {
-      return Swal.fire("Validation", "Category name is required", "warning");
+      return Swal.fire("Validation", "KRA name is required", "warning");
     }
     setSubmitting(true);
     try {
@@ -75,7 +75,7 @@ export default function CategoryAndTask() {
         const m = Modal.getInstance(el);
         if (m) m.hide();
       } else {
-        Swal.fire("Error", res?.data?.message || "Failed to create category", "error");
+        Swal.fire("Error", res?.data?.message || "Failed to create KRA", "error");
       }
     } catch (error) {
       console.error(error);
@@ -108,8 +108,8 @@ export default function CategoryAndTask() {
             <div className="card-body">
               <div className="d-flex align-items-center justify-content-between mb-3">
                 <div>
-                  <h5 className="mb-0 fw-bold">Major Final Outputs</h5>
-                  <small className="text-muted">Select MFO to manage tasks</small>
+                  <h5 className="mb-0 fw-bold">Key Result Areas</h5>
+                  <small className="text-muted">Select KRA to manage tasks</small>
                 </div>
                 <button className="btn btn-sm btn-primary d-flex gap-2 align-items-center" onClick={openCreateModal} title="Create category">
                   <span className="material-symbols-outlined">add</span>
@@ -131,7 +131,7 @@ export default function CategoryAndTask() {
                     <div className="spinner-border text-primary" role="status" />
                   </div>
                 ) : filteredCategories.length === 0 ? (
-                  <div className="text-center text-muted py-3">No MFOs found</div>
+                  <div className="text-center text-muted py-3">No KRAs found</div>
                 ) : (
                   filteredCategories.map((cat) => {
                     const active = cat.id === selectedCategoryId;
@@ -158,14 +158,14 @@ export default function CategoryAndTask() {
                 )}
               </div>
 
-              <div className="mt-3 text-muted small">Showing {filteredCategories.length} Major Final Outputs</div>
+              <div className="mt-3 text-muted small">Showing {filteredCategories.length} Key Result Areas</div>
             </div>
           </div>
         </div>
 
         {/* RIGHT: content with tabs */}
         <div className="col-12 col-md-12 col-lg-7 col-xl-8">
-          <div className="p-2 border roundedshadow-sm">
+          <div className="p-3 border roundedshadow-sm rounded">
             <div className="header d-flex justify-content-between align-items-center">
               <div className="d-flex gap-3 align-items-center">
                 <h5 className="mb-0 fw-semibold">
@@ -200,7 +200,7 @@ export default function CategoryAndTask() {
                   <div className="row p-4">
                     <div className="col-12 col-lg-6">
                       <div className="mb-3">
-                        <h6 className="fw-semibold">Output Details</h6>
+                        <h6 className="fw-semibold">Task Details</h6>
                         <p className="text-muted small mb-1">{allCategory.find((c) => c.id === selectedCategoryId)?.description ?? "No description"}</p>
                         <div className="d-flex gap-2 mt-2">
                           <button className="btn btn-sm btn-outline-primary" onClick={() => setActiveRightTab("items")}>
@@ -213,7 +213,7 @@ export default function CategoryAndTask() {
                               <div className="p-3 bg-white border rounded-3 h-100">
                                 <div className="d-flex justify-content-between align-items-center mb-2">
                                   <div>
-                                    <h6 className="mb-0 fw-semibold">Category Summary</h6>
+                                    <h6 className="mb-0 fw-semibold">KRA Summary</h6>
                                     <small className="text-muted">Quick metrics</small>
                                   </div>
                                 </div>
@@ -255,13 +255,13 @@ export default function CategoryAndTask() {
               ) : (
                 <div className="text-center py-5 text-muted">
                   <div className="mb-3"><span className="material-symbols-outlined fs-1">folder_open</span></div>
-                  <div className="fw-semibold mb-1">No MFO selected</div>
-                  <div className="mb-3">Create or select a MFO from the left panel.</div>
+                  <div className="fw-semibold mb-1">No KRA selected</div>
+                  <div className="mb-3">Create or select a KRA from the left panel.</div>
                   <div>
                       <button className="btn btn-primary " onClick={openCreateModal}>
                         <span className = "d-flex">
                           <span className="material-symbols-outlined me-1">add</span>
-                          Create Category
+                          Create KRA
                         </span>
                       </button>
                     </div>
@@ -277,16 +277,16 @@ export default function CategoryAndTask() {
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content rounded-3 shadow-sm">
             <div className="modal-header bg-primary text-white ">
-              <h5 className="modal-title  d-flex gap-2 align-items-center" id="addCategoryLabel"><span className="material-symbols-outlined me-2">add</span>Create Major Final Output</h5>
+              <h5 className="modal-title  d-flex gap-2 align-items-center" id="addCategoryLabel"><span className="material-symbols-outlined me-2">add</span>Create Key Result Area</h5>
               <button type="button" className="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div className="modal-body">
               <div className="mb-3">
-                <label className="form-label">Major Final Output <span className="text-danger">*</span></label>
+                <label className="form-label">Key Result Area <span className="text-danger">*</span></label>
                 <input name="category_name" className="form-control" value={formData.category_name} onChange={handleDataChange} placeholder="Eg. Research Services" />
               </div>
 
-              <div className="mb-3">
+              <div className="mb-3 d-none">
                 <label className="form-label">Function <span className="text-danger">*</span></label>
                 <select name="category_type" className="form-select" value={formData.category_type} onChange={handleDataChange}>
                   <option value="Core Function">Core Function</option>
@@ -297,7 +297,7 @@ export default function CategoryAndTask() {
 
               <div className="mb-3">
                 <label className="form-label">Description <span className="text-danger">*</span></label>
-                <textarea rows={5} name="description" className="form-control" value={formData.category_name} onChange={handleDataChange} placeholder="Describe this major final output..." />
+                <textarea rows={5} name="description" className="form-control" value={formData.category_name} onChange={handleDataChange} placeholder="Describe this key result area..." />
               </div>
             </div>
 
@@ -317,7 +317,7 @@ export default function CategoryAndTask() {
         <div className="modal-dialog modal-dialog-centered modal-xl">
           <div className="modal-content rounded-3 shadow-sm">
             <div className="modal-header bg-primary text-white ">
-              <h5 className="modal-title" id="taskInfoLabel">Output Information</h5>
+              <h5 className="modal-title" id="taskInfoLabel">Task Information</h5>
               <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div className="modal-body">

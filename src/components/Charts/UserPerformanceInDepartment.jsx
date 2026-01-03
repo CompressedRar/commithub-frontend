@@ -107,7 +107,7 @@ export default function TopUserPerformanceInDepartment({ dept_id }) {
                 type="category"
                 dataKey="name"
                 width={120}
-                fontSize={12}
+                fontSize={13}
               />
               <Tooltip />
               <Bar
@@ -115,6 +115,7 @@ export default function TopUserPerformanceInDepartment({ dept_id }) {
                 fill={CHART_COLORS.SECONDARY}
                 name="Average Performance"
                 radius={[6, 6, 6, 6]}
+                barSize={20}
               />
             </BarChart>
           </ResponsiveContainer>

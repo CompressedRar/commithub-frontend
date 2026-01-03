@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { archiveIprc, archiveOprc, downloadIPCR, downloadOPCR, updateRating } from "../../services/pcrServices";
+import { useEffect, useState } from "react";
+import { archiveIprc, archiveOprc, downloadIPCR, downloadOPCR, downloadPlannedOPCR, updateRating } from "../../services/pcrServices";
 import Swal from "sweetalert2";
+import { getSettings } from "../../services/settingsService";
 
 
 function DeptOPCR(props) {
@@ -14,7 +15,31 @@ function DeptOPCR(props) {
     const [optionsOpen, setOpen] = useState(false)
     const [downloading, setDownloading] = useState(false)
     const [archiving, setArchiving] = useState(false)
+    const [currentPhase, setCurrentPhase] = useState(null) //monitoring, rating, planning
     
+    async function loadCurrentPhase() {
+        try {
+          const res = await getSettings()
+          const phase = res?.data?.data?.current_phase
+          console.log("Current phase:", phase)
+          setCurrentPhase(phase) //monitoring, rating, planning
+        } catch (error) {
+          console.error("Failed to load current phase:", error)
+        }
+    }
+
+    function isMonitoringPhase() {
+            return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("monitoring")
+        }
+    
+    function isRatingPhase() {
+            return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("rating")
+        }
+    
+    function isPlanningPhase() {
+            return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("planning")
+        }
+
 
     async function handleArchive(){
             setArchiving(true)
@@ -68,7 +93,8 @@ function DeptOPCR(props) {
     
         async function download() {
             setDownloading(true)
-            var res = await downloadOPCR(props.opcr.id).then(data => data.data.link).catch(error => {
+            console.log("OPCR ID",props.opcr_id)
+            var res = await downloadOPCR(props.opcr_id).then(data => data.data.link).catch(error => {
                 console.log(error.response.data.error)
                 Swal.fire({
                     title: "Error",
@@ -80,18 +106,37 @@ function DeptOPCR(props) {
                 setDownloading(false)
             }
 
+        async function downloadPlanned() {
+            setDownloading(true)
+            var res = await downloadPlannedOPCR(props.dept_id).then(data => data.data.link).catch(error => {
+                console.log(error.response.data.error)
+                Swal.fire({
+                    title: "Error",
+                    text: error.response.data.error,
+                    icon: "error"
+                })
+            })
+                window.open(res, "_blank", "noopener,noreferrer");
+                setDownloading(false)
+            }
+
+        useEffect(()=> {
+            console.log(props.opcr_id)
+            loadCurrentPhase()
+        }, [])
+
         
             
     return (
         <div className="ipcr-wrapper "> 
             {optionsOpen && <div className="popup" onMouseLeave={()=>{setOpen(false)}}>
-                <div className="choices" onClick={()=> {download()}} style={{justifyContent:"center"}}>
+                <div className="choices" onClick={()=> {download()}} style={{justifyContent:"center"}} >
                     <span className="material-symbols-outlined">{downloading ? "refresh": "download"}</span>
                     {!downloading && <span>Download</span>}
                 </div>
                 <div className="choices" onClick={()=>{archiveIPCR()}}>
                     <span className="material-symbols-outlined">archive</span>
-                    {!archiving && <span>Archive</span>}
+                    {!archiving && <span>Archive</span>} 
                 </div>
 
                 <div className="choices"  data-bs-toggle="modal" data-bs-target={props.dept_mode? "#manage-docs":""}>
@@ -115,10 +160,20 @@ function DeptOPCR(props) {
                 {
                     props.opcr ?
                     <div className="status-container">                                                 
-                        <button className="choices btn btn-primary" onClick={()=> {download()}} style={{justifyContent:"center"}}>
+                        <button disabled = {downloading} className="choices btn btn-primary" onClick={()=> {
+                            if (isPlanningPhase()){
+                                console.log("DOWNLOADING PLANNED OPCR")
+                                downloadPlanned()
+                            }
+                            else {
+                                console.log("DOWNLOADING OPCR HEHE")
+                                download()
+                            }
+                        }} style={{justifyContent:"center"}}>
                             <span className="material-symbols-outlined">{downloading ? "refresh": "download"}</span>
                             {!downloading && <span>Download</span>}
                         </button>
+                        
                         <button className="choices btn btn-success" onClick={props.onClick} data-bs-toggle="modal" data-bs-target="#view-opcr" onMouseOver={props.dept_mode? props.onMouseOver:null}>
                             <span className="material-symbols-outlined">view_list</span>
                             <span>View</span>

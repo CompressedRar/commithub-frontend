@@ -105,7 +105,7 @@ function DeptIPCR(props) {
                 {
                     props.ipcr.ipcr ?
                     <div className="status-container">                                                 
-                        <button className="choices btn btn-primary" onClick={()=> {download()}} style={{justifyContent:"center"}}>
+                        <button className="choices btn btn-primary" onClick={()=> {download()}} style={{justifyContent:"center"}} disabled={downloading}>
                             <span className="material-symbols-outlined">{downloading ? "refresh": "download"}</span>
                             {!downloading && <span>Download</span>}
                         </button>

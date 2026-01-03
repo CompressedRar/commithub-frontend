@@ -102,6 +102,13 @@ function MasterOPCR(){
         return "UNKNOWN"
     }
 
+    function calculateAverage(quantity, efficiency, timeliness) {
+        let calculations = quantity + efficiency + timeliness;
+        let result = calculations / 3;
+
+        return result;
+    }
+
     useEffect(() => {
         if (!opcrInfo) return;
 
@@ -109,65 +116,27 @@ function MasterOPCR(){
           let qSum = 0, eSum = 0, tSum = 0, allSum = 0;
           let count = 0;
 
-          const funcSums = {};
+          opcrInfo.forEach(categoryObj => {
+            Object.entries(categoryObj).forEach(([category, tasks]) => {
+                tasks.forEach(task => {
+                    let q = task.rating.quantity;
+                    let e = task.rating.efficiency;
+                    let t = task.rating.timeliness;
+                    
+                    let avg = calculateAverage(q, e, t);
 
-          const processTasks = (tasks, functionType) => {
-            if (!Array.isArray(tasks)) return;
-            // ensure funcSums entry exists
-            if (!funcSums[functionType]) funcSums[functionType] = { sum: 0, count: 0 };
-
-            tasks.forEach(task => {
-              const q = Number(task.rating?.quantity ?? 0) || 0;
-              const e = Number(task.rating?.efficiency ?? 0) || 0;
-              const t = Number(task.rating?.timeliness ?? 0) || 0;
-              const avg = (q + e + t) / 3;
-
-              qSum += q;
-              eSum += e;
-              tSum += t;
-              allSum += avg;
-              count++;
-
-              funcSums[functionType].sum += avg;
-              funcSums[functionType].count += 1;
+                    qSum += q; eSum += e; tSum += t; allSum += avg;
+                    count++;
+                    });
+                });
             });
-          };
 
-          // support both array-of-objects and object keyed by function type
-          if (Array.isArray(opcrInfo)) {
-            opcrInfo.forEach(functionObj => {
-              if (!functionObj || typeof functionObj !== "object") return;
-              Object.entries(functionObj).forEach(([functionType, categoryObj]) => {
-                if (!categoryObj || typeof categoryObj !== "object") return;
-                Object.entries(categoryObj).forEach(([category, tasks]) => processTasks(tasks, functionType));
-              });
-            });
-          } else if (typeof opcrInfo === "object") {
-            Object.entries(opcrInfo).forEach(([functionType, categoryObj]) => {
-              if (!categoryObj || typeof categoryObj !== "object") return;
-              Object.entries(categoryObj).forEach(([category, tasks]) => processTasks(tasks, functionType));
-            });
-          }
-
-          if (count === 0) {
-            setQuantity(0); setEfficiency(0); setTimeliness(0); setAllAvg(0);
-            setCoreRawAvg(0); setStrategicRawAvg(0); setSupportRawAvg(0);
-            return;
-          }
 
           setQuantity(qSum / count);
           setEfficiency(eSum / count);
           setTimeliness(tSum / count);
           setAllAvg(allSum / count);
 
-          const cAvg = funcSums["Core Function"]?.count ? funcSums["Core Function"].sum / funcSums["Core Function"].count : 0;
-          const sAvg = funcSums["Strategic Function"]?.count ? funcSums["Strategic Function"].sum / funcSums["Strategic Function"].count : 0;
-          const supAvg = funcSums["Support Function"]?.count ? funcSums["Support Function"].sum / funcSums["Support Function"].count : 0;
-
-          setCoreRawAvg(cAvg);
-          setStrategicRawAvg(sAvg);
-          setSupportRawAvg(supAvg);
-          console.log("Master OPCR Calculated:", { quantityAvg: qSum/count, efficiencyAvg: eSum/count, timelinessAvg: tSum/count, allAvg: allSum/count })
         } catch (err) {
           console.error("Error computing Master OPCR averages", err);
         }
@@ -205,23 +174,7 @@ function MasterOPCR(){
         }
     }, [])
 
-    if (!opcrInfo || opcrInfo.length === 0) {
-        return (
-            <div className="edit-ipcr-container" style={{ position: "relative" }}>
-                <div className="overlay-container">
-                    <div className="overlay-content">
-                        <img 
-                            src={`${import.meta.env.BASE_URL}empty-folder.png`} 
-                            alt="No Data" 
-                            className="overlay-icon"
-                        />
-                        <h2>No Consolidated OPCR Data</h2>
-                        <p>There are currently no IPCRs assigned or consolidated into the Master OPCR.</p>
-                    </div>
-                </div>
-            </div>
-        )
-    }
+    
 
     // helper to render task sections supporting both array and object ipcr_data shapes
     function renderTaskSections() {
@@ -249,29 +202,49 @@ function MasterOPCR(){
       // when opcrInfo is an object keyed by function type:
       // { "Core Function": { "Category": [tasks] }, "Support Function": { ... } }
       if (typeof opcrInfo === "object") {
-        return Object.entries(opcrInfo).map(([functionType, categoryObj], idx) =>
-          Object.entries(categoryObj || {}).map(([category, tasks]) => (
-            <TaskSection
-              key={`${idx}-${functionType}-${category}`}
-              category={category}
-              functionType={functionType}
-              tasks={tasks}
-              assignedData={assignedData}
-              handleRemarks={handleRemarks}
-              ratingThresholds={ratingThresholds}
-            />
-          ))
-        )
-      }
+        return opcrInfo.map((categoryObj, i) =>
+                  Object.entries(categoryObj).map(([category, tasks]) => (
+                     <TaskSection
+                       key={`${i}-${category}`}
+                       category={category}
+                       tasks={tasks}
+                       assignedData={assignedData}
+                       handleRemarks={handleRemarks}
+                       ratingThresholds={ratingThresholds}
+                       setField={setField}
+                       setValue={setValue}
+                       setRatingID={setRatingID}
+                       canEval={canEval}
+                     />
+                   ))
+                )
+            }
 
       return null
     }
 
-    return (
-        <div className="container-fluid py-4">
-            {/* Header */}
+    if (!opcrInfo ) {
+        return (
+            <div className="edit-ipcr-container" style={{ position: "relative" }}>
+                <div className="overlay-container">
+                    <div className="overlay-content">
+                        <img 
+                            src={`${import.meta.env.BASE_URL}empty-folder.png`} 
+                            alt="No Data" 
+                            className="overlay-icon"
+                        />
+                        <h2>No Consolidated OPCR Data</h2>
+                        <p>There are currently no IPCRs assigned or consolidated into the Master OPCR.</p>
+                    </div>
+                </div>
+            </div>
+        )
+    }
 
-            {!isRatingPhase() && (
+    return (
+        <div className="py-4" style={{minWidth:"1200px"}}>
+            {/* Header */}
+            {isRatingPhase() && (
             <div className="d-flex justify-content-center align-items-center flex-column" style={{ zIndex: 1050,marginTop:"-5%", width:"80%", height:"100%", position:"absolute", backgroundColor:"rgba(255,255,255,0.8)"}}>
                 <div className="overlay-content text-center p-4">
                 <img
@@ -319,7 +292,7 @@ function MasterOPCR(){
             </div>
 
             {/* Main Card */}
-            <div className="card shadow-sm">
+            <div className="container-fluid border rounded">
                 <div className="card-body p-4">
                     {/* Header Section */}
                     <HeaderSection headData={headData} />
@@ -349,8 +322,18 @@ function MasterOPCR(){
                                 </tr>
                             </thead>
                             <tbody>
-                                
-                                {renderTaskSections()}
+                            {opcrInfo.map((categoryObj, i) =>
+                                Object.entries(categoryObj).map(([category, tasks]) => (
+                                    <TaskSection
+                                    key={`${i}-${category}`}
+                                    category={category}
+                                    tasks={tasks}
+                                    assignedData={assignedData}
+                                    handleRemarks={handleRemarks}
+                                    ratingThresholds={ratingThresholds}
+                                    />
+                                ))
+                            )}
                             </tbody>
                         </table>
                     </div>
@@ -361,9 +344,6 @@ function MasterOPCR(){
                         efficiencyAvg={efficiencyAvg}
                         timelinessAvg={timelinessAvg}
                         allAvg={allAvg}
-                        coreRawAvg={coreRawAvg}
-                        strategicRawAvg={strategicRawAvg}
-                        supportRawAvg={supportRawAvg}
                         handleRemarks={handleRemarks}
                         ratingThresholds={ratingThresholds}
                     />
@@ -444,98 +424,96 @@ function OfficerInfoSection({ headData }) {
 }
 
 // Sub-component: Task Section
-function TaskSection({ category, functionType, tasks, assignedData, handleRemarks, ratingThresholds }) {
+function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThresholds }) {
     if (!tasks || tasks.length === 0) return null
 
-    return (
-        <>
-            <tr className="table-secondary fw-bold">
-                <td colSpan="6">{functionType}</td>
-            </tr>
-            
-            <tr className="table-light small">
-                <td colSpan="6" className="text-muted">{category}</td>
-            </tr>
+  return (
+    <>
+      
+    
+      <tr className="table-light small">
+        <td colSpan="6" className="text-muted">{category}</td>
+      </tr>
 
-            {tasks.map((task, idx) => (
-                <tr key={idx} className="align-middle">
-                <td className="fw-semibold small" style={{ minWidth: 220 }}>{task.title}</td>
-                <td>
-                    <div className="d-grid gap-2">
-                    <div>
-                        <input disabled className="form-control form-control-sm" defaultValue={task.summary?.target} />
-                        <small className="text-muted d-block">{task.description?.target} {task.description?.timeliness_mode == "timeframe" ? "in" : ""}</small>
-                    </div>
-                    {task.description?.timeliness_mode == "timeframe" ? (
-                        <div>
-                        <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.target} />
-                        <small className="text-muted d-block">{task.description?.time} with</small>
-                        </div>
-                    ):
+      {tasks.map((task, idx) => (
+        <tr key={idx} className="align-middle">
+          <td className="fw-semibold small" style={{ minWidth: 220 }}>{task.title}</td>
+          <td>
+            <div className="d-grid gap-2">
+              <div>
+                <input disabled className="form-control form-control-sm" defaultValue={task.summary?.target} />
+                <small className="text-muted d-block">{task.description?.target} {task.description?.timeliness_mode == "timeframe" ? "in" : ""}</small>
+              </div>
+              {task.description?.timeliness_mode == "timeframe" ? (
+                <div>
+                  <input disabled className="form-control form-control-sm" defaultValue={task.description?.target_timeframe} />
+                  <small className="text-muted d-block">{task.description?.time} with</small>
+                </div>
+              ):
+              (
+                <div>
+                  <input disabled className="form-control form-control-sm"  value={""}/>
+                  <small className="text-muted d-block">on the set deadline with</small>
+                </div>
+              )
+              }
+              <div>
+                <input disabled className="form-control form-control-sm" defaultValue={task.corrections?.target} />
+                <small className="text-muted d-block">{task.description?.alterations}</small>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div className="d-flex justify-content-center">
+              {assignedData[task.title]}
+            </div>
+          </td>
+          <td>
+            <div className="d-grid gap-2">
+              <div>
+                <input disabled className="form-control form-control-sm" defaultValue={String(task.summary?.actual).replace(".", "")} />
+                <small className="text-muted d-block">{task.description?.actual} {task.description?.timeliness_mode == "timeframe" ? "in" : ""}</small>
+              </div>
+              {task.description?.timeliness_mode == "timeframe" ? (
+                <div>
+                  <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.actual} />
+                  <small className="text-muted d-block">{task.description?.time} with</small>
+                </div>
+              ):
+              (
+                <div>
+                  {parseFloat(task.working_days?.actual / task.frequency).toFixed(0) == 0 ? (
+                    <input disabled className="form-control form-control-sm" value = ""/>
+                  ) : (
+                    <input disabled className="form-control form-control-sm" defaultValue={Math.abs(parseFloat(task.working_days?.actual / task.frequency).toFixed(0))} />
+                  )}
+                  {parseFloat(task.working_days?.actual / task.frequency) == 0 ? (
+                    <small className="text-muted d-block">on the set deadline with</small>
+                  ) : 
+                    parseFloat(task.working_days?.actual / task.frequency) < 0? (
+                      <small className="text-muted d-block">day/s early in average with</small>
+                    ) :
                     (
-                        <div>
-                        <input disabled className="form-control form-control-sm"  value={""}/>
-                        <small className="text-muted d-block">on the set deadline with</small>
-                        </div>
+                      <small className="text-muted d-block">day/s late in average with</small>
                     )
-                    }
-                    <div>
-                        <input disabled className="form-control form-control-sm" defaultValue={task.corrections?.target} />
-                        <small className="text-muted d-block">{task.description?.alterations}</small>
-                    </div>
-                    </div>
-                </td>
-                <td>
-                    <div className="d-flex justify-content-center">
-                    {assignedData[task.title]}
-                    </div>
-                </td>
-                <td>
-                    <div className="d-grid gap-2">
-                    <div>
-                        <input disabled className="form-control form-control-sm" defaultValue={String(task.summary?.actual).replace(".", "")} />
-                        <small className="text-muted d-block">{task.description?.actual} {task.description?.timeliness_mode == "timeframe" ? "in" : ""}</small>
-                    </div>
-                    {task.description?.timeliness_mode == "timeframe" ? (
-                        <div>
-                        <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.target} />
-                        <small className="text-muted d-block">{task.description?.time} with</small>
-                        </div>
-                    ):
-                    (
-                        <div>
-                        {parseFloat(task.working_days?.actual / task.frequency).toFixed(0) == 0 ? (
-                            <input disabled className="form-control form-control-sm" value = ""/>
-                        ) : (
-                            <input disabled className="form-control form-control-sm" defaultValue={Math.abs(parseFloat(task.working_days?.actual / task.frequency).toFixed(0))} />
-                        )}
-                        {parseFloat(task.working_days?.actual / task.frequency) == 0 ? (
-                            <small className="text-muted d-block">on the set deadline with</small>
-                        ) : 
-                            parseFloat(task.working_days?.actual / task.frequency) < 0? (
-                            <small className="text-muted d-block">day/s early in average with</small>
-                            ) :
-                            (
-                            <small className="text-muted d-block">day/s late in average with</small>
-                            )
-                        }
-                        </div>
-                    )
-                    }
-                    <div>
-                        <input disabled className="form-control form-control-sm" defaultValue={parseFloat(task.corrections?.actual / task.frequency).toFixed(0)} />
-                        <small className="text-muted d-block">{task.description?.alterations}/s in average</small>
-                    </div>
-                    </div>
-                </td>
-                <td className="text-center">
-                    <RatingBadges task={task}  />
-                </td>
-                <td className="small text-center fw-semibold">{handleRemarks(task.rating?.average, ratingThresholds)}</td>
-                </tr>
-            ))}
-        </>
-    )
+                  }
+                </div>
+              )
+              }
+              <div>
+                <input disabled className="form-control form-control-sm" defaultValue={parseFloat(task.corrections?.actual / task.frequency).toFixed(0)} />
+                <small className="text-muted d-block">{task.description?.alterations}/s in average</small>
+              </div>
+            </div>
+          </td>
+          <td className="text-center">
+            <RatingBadges task={task} />
+          </td>
+          <td className="small text-center fw-semibold">{handleRemarks(task.rating?.average, ratingThresholds)}</td>
+        </tr>
+      ))}
+    </>
+  )
 }
 
 function RatingBadges({ task }) {
@@ -567,7 +545,7 @@ function RatingBadges({ task }) {
 }
 
 // Sub-component: Final Ratings
-function FinalRatingsSection({ quantityAvg, efficiencyAvg, timelinessAvg, allAvg, coreRawAvg, strategicRawAvg, supportRawAvg, handleRemarks, ratingThresholds }) {
+function FinalRatingsSection({ quantityAvg, efficiencyAvg, timelinessAvg, allAvg, handleRemarks, ratingThresholds }) {
     return (
         <div className="row g-3 my-4">
             <div className="col-md-4">
@@ -590,28 +568,6 @@ function FinalRatingsSection({ quantityAvg, efficiencyAvg, timelinessAvg, allAvg
                             <div className="d-flex justify-content-between border-top pt-2">
                                 <span>Average (A):</span>
                                 <strong>{parseFloat(allAvg || 0).toFixed(2)}</strong>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div className="col-md-4">
-                <div className="card h-100 border">
-                    <div className="card-body">
-                        <h6 className="card-title fw-bold">Raw Average by Function</h6>
-                        <div className="d-grid gap-2 small">
-                            <div className="d-flex justify-content-between">
-                                <span>Core:</span>
-                                <strong>{parseFloat(coreRawAvg || 0).toFixed(2)}</strong>
-                            </div>
-                            <div className="d-flex justify-content-between">
-                                <span>Strategic:</span>
-                                <strong>{parseFloat(strategicRawAvg || 0).toFixed(2)}</strong>
-                            </div>
-                            <div className="d-flex justify-content-between">
-                                <span>Support:</span>
-                                <strong>{parseFloat(supportRawAvg || 0).toFixed(2)}</strong>
                             </div>
                         </div>
                     </div>

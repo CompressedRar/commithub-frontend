@@ -14,16 +14,24 @@ import { Modal } from "bootstrap";
 function DepartmentAssignTask(props) {
   const [members, setMembers] = useState([]);
   const [assignedMembers, setAssignedMembers] = useState([]);
+  const [currentMembers, setCurrentMembers] = useState([]);
+
+  const [selectedUserIds, setSelectedUserIds] = useState([])
   const [archiving, setArchiving] = useState(false);
   const [mainTask, setMainTask] = useState(null);
+
   const [selectedUser, setSelectedUser] = useState(null);
+  
   const [assignedQuantity, setAssignedQuantity] = useState(0);
   const [submitting, setSubmitting] = useState(false);
 
   async function loadAssignedMembers() {
     try {
       const res = await getAssignedUsers(props.dept_id, props.task_id);
+
+      console.log(res.data)
       setAssignedMembers(res.data);
+      setCurrentMembers(res.data);
     } catch (error) {
       Swal.fire({
         title: "Error",
@@ -59,6 +67,13 @@ function DepartmentAssignTask(props) {
     return assignedMembers.some((m) => m.id === user_id);
   }
 
+  function  getAssignedQuantity(user_id) {
+    
+    var res = assignedMembers.filter((m) => m.id === user_id)
+    
+    return res.length == 1 ? res[0] : null;
+  }
+
   async function AssignUser(userid, quantity) {
     try {
       const res = await assignUsers(userid, props.task_id, quantity);
@@ -82,11 +97,40 @@ function DepartmentAssignTask(props) {
     }
   }
 
+  async function handleAssign() {
+    if (!selectedUser) {
+      Swal.fire("No user selected", "Please select a user.", "warning");
+      return;
+    }
+
+    if (assignedQuantity <= 0) {
+      Swal.fire("Invalid quantity", "Enter a valid quantity.", "warning");
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      await assignUsers(selectedUser.id, props.task_id, assignedQuantity);
+
+      Swal.fire("Success", "User assigned successfully.", "success");
+
+      setSelectedUser(null);
+      setAssignedQuantity(0);
+
+      loadAssignedMembers();
+      loadMembers();
+    } catch (err) {
+      Swal.fire("Error", "Assignment failed.", "error");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+
   function openAssignModal(user) {
     setSelectedUser(user);
-    setAssignedQuantity(mainTask?.target_quantity || 0);
-    const modal = new Modal(document.getElementById("assign-quantity-modal"));
-    modal.show();
+    setAssignedQuantity(mainTask?.target_quantity || 0);    
   }
 
   async function handleConfirmAssign() {
@@ -135,7 +179,7 @@ function DepartmentAssignTask(props) {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const res = await unAssignUsers(userid, props.task_id);
+          const res = await unAssignUsers(selectedUser.id, props.task_id);
           const msg = res.data.message;
 
           Swal.fire({
@@ -174,6 +218,84 @@ function DepartmentAssignTask(props) {
     return props.currentPhase && Array.isArray(props.currentPhase) && props.currentPhase.includes("planning");
   }
 
+  
+  async function handleBulkAssign() {
+    if (selectedUserIds.length === 0) {
+      Swal.fire("No users selected", "Please select at least one user.", "warning");
+      return;
+    }
+
+    if (assignedQuantity <= 0) {
+      Swal.fire("Invalid quantity", "Enter a valid quantity.", "warning");
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      await Promise.all(
+        selectedUserIds.map(userId =>
+          assignUsers(userId, props.task_id, assignedQuantity)
+        )
+      );
+
+      Swal.fire("Success", "Users assigned successfully.", "success");
+
+      loadAssignedMembers();
+      loadMembers();
+    } catch (err) {
+      Swal.fire("Error", "Assignment failed.", "error");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleBulkUnassign() {
+    const toRemove = assignedMembers
+      .map(m => m.id)
+      .filter(id => !selectedUserIds.includes(id));
+
+    if (toRemove.length === 0) return;
+
+    await Promise.all(
+      toRemove.map(id => unAssignUsers(id, props.task_id))
+    );
+  }
+
+  /*function toggleUser(userId) {
+    //if (!isPlanningPhase()) return;
+
+    console.log("TROGGLING")
+
+    setSelectedUserIds(prev =>
+      prev.includes(userId)
+        ? prev.filter(id => id !== userId)
+        : [...prev, userId]
+    );
+  }*/
+
+  function selectUser(member) {
+    //if (!isPlanningPhase()) return;
+    console.log(member)
+    setSelectedUser(prev =>
+      prev?.id === member.id ? null : member
+    );
+
+    var res = getAssignedQuantity(member.id)
+    if(res) {
+      
+      setAssignedQuantity(res?.assigned_quantity || 0);
+    }
+    else {
+      setAssignedQuantity(mainTask?.target_quantity || 0);
+    }
+
+  }
+
+
+
+
+
   useEffect(() => {
     loadAssignedMembers();
     loadMembers();
@@ -205,70 +327,146 @@ function DepartmentAssignTask(props) {
             <div>No members found in this office.</div>
           </div>
         ) : (
-          <div className="d-flex flex-column gap-2">
-            {members.map((member) => (
-              <div
-                key={member.id}
-                className="card border-0 shadow-sm px-3 py-2"
-                style={{
-                  borderRadius: "8px",
-                  minHeight: "60px",
-                }}
-              >
-                <div className="d-flex align-items-center justify-content-between">
-                  <div className="d-flex align-items-center">
-                    <img
-                      src={member.profile_picture_link}
-                      alt="profile"
-                      className="rounded-circle me-3 border"
-                      style={{
-                        width: "45px",
-                        height: "45px",
-                        objectFit: "cover",
-                      }}
-                    />
-                    <div className="d-flex flex-column lh-sm">
-                      <span className="fw-semibold small">
-                        {member.first_name} {member.last_name}
-                      </span>
-                      <span className="text-muted xsmall">
-                        {member.department_name}
-                      </span>
+          
+          <div className="d-grid">
+
+            <div className="row">
+              
+              <div className="col-7 card d-flex gap-2">
+                {members.map((member) => (
+
+                  <label
+                  key={member.id}
+                  className={`px-3 py-2 border rounded ${
+                    selectedUser?.id === member.id
+                      ? "border-primary bg-light"
+                      : "border-secondary"
+                  }`}
+                  style={{ minHeight: "60px", cursor: "pointer" }}
+                  
+                >
+                  <div className="d-flex align-items-center justify-content-between">
+                    <div className="d-flex align-items-center gap-2">
+                      <img
+                        src={member.profile_picture_link}
+                        alt="profile"
+                        className="rounded-circle border me-3"
+                        style={{ width: "45px", height: "45px", objectFit: "cover" }}
+                      />
+                      <div className="d-flex flex-column lh-sm">
+                        <span className="fw-semibold small">
+                          {member.first_name} {member.last_name}
+                        </span>
+                        <span className="text-muted xsmall">
+                          {member.position.name}
+                        </span>
+                      </div>
+                        {checkIfAssigned(member.id) && 
+                        <div className="badge rounded-pill bg-primary mx-2">
+                          Assigned
+                        </div>
+                      }
                     </div>
+
+                    <input
+                      type="radio"
+                      checked={selectedUser?.id === member.id}
+                      onChange={() => {
+                        selectUser(member)
+                        console.log(getAssignedQuantity(member.id))
+                      }}
+                      className="d-none"
+                      readOnly
+                    />
+                  </div>
+                </label>
+
+
+                ))}
+              </div>
+
+              <div className="col-5 card ">
+                {
+                  selectedUser ? 
+                  <>
+                  <div className="">
+                    <h5 className=" fw-semibold" id="assignQuantityLabel">
+                      <span className="material-symbols-outlined me-2 align-middle">check_circle</span>
+                      Assign Quantity
+                    </h5>
+                </div>
+
+                <div className="modal-body px-4 py-3">
+                  <div className="mb-3">
+                    
+
                   </div>
 
-                  {
-                    
-                      checkIfAssigned(member.id) ? (
-                        
-                        <button
-                          className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 px-2 py-1"
-                          onClick={() => handleUnassign(member.id)}
-                          disabled={!isPlanningPhase()}
-                        >
-                          <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
-                            remove
-                          </span>
-                          Remove
-                        </button>
-                      ) : (
-                        
-                        <button
-                          className="btn btn-outline-success btn-sm d-flex align-items-center gap-1 px-2 py-1"
-                          onClick={() => openAssignModal(member)}
-                          disabled={!isPlanningPhase()}
-                        >
-                          <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
-                            add
-                          </span>
-                          Assign
-                        </button>
-                      )
-                  }
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold">
+                      Assigned Quantity <span className="text-danger">*</span>
+                    </label>
+                    <div className="input-group">
+                      <span className="input-group-text bg-light border-0">
+                        <span className="material-symbols-outlined">counter_5</span>
+                      </span>
+                      <input
+                        type="number"
+                        className="form-control"
+                        min="1"
+                        max={mainTask?.target_quantity || 0}
+                        value={assignedQuantity}
+                        onChange={(e) => setAssignedQuantity(parseInt(e.target.value) || 0)}
+                      />
+                    </div>
+                    <small className="text-muted d-block mt-2">
+                      Target Quantity: <strong>{mainTask?.target_quantity || 0}</strong>
+                    </small>
+                  </div>
+
+                  <div className="alert alert-info d-flex gap-2 align-items-start mb-0">
+                    <span className="material-symbols-outlined flex-shrink-0 mt-1">info</span>
+                    <div className="small">
+                      <strong>Note:</strong> The assigned quantity should not exceed the target quantity of {mainTask?.target_quantity || 0}.
+                    </div>
+                  </div>
                 </div>
+
+                  <div className="modal-footer">
+                    {
+                      checkIfAssigned(selectedUser.id) &&
+                      <button
+                        type="button"
+                        className="btn btn-outline-danger"
+                        disabled={!isPlanningPhase() || !selectedUser || submitting}
+                        onClick={handleUnassign}
+                      >
+                        Remove
+                      </button>
+                    }
+                    <button
+                      className="btn btn-primary"
+                      onClick={handleAssign}
+                      disabled={!isPlanningPhase() || !selectedUser || submitting}
+                    >
+                      Assign
+                    </button>
+
+
+                  </div></>:
+                  <div className="d-flex justify-content-center align-items-center">
+                    <span className="text-muted">Choose a member to assign.</span>
+                  </div>
+                }
               </div>
-            ))}
+
+
+            </div>
           </div>
+
+
+
+
         )}
       </div>
 
@@ -284,92 +482,7 @@ function DepartmentAssignTask(props) {
       >
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content shadow-lg border-0 rounded-3">
-            <div className="modal-header bg-primary text-white">
-              <h5 className="modal-title fw-semibold" id="assignQuantityLabel">
-                <span className="material-symbols-outlined me-2 align-middle">check_circle</span>
-                Assign Output Quantity
-              </h5>
-              <button
-                type="button"
-                className="btn-close btn-close-white"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-
-            <div className="modal-body px-4 py-3">
-              <div className="mb-3">
-                <label className="form-label fw-semibold">User</label>
-                <div className="input-group">
-                  <span className="input-group-text bg-light border-0">
-                    <span className="material-symbols-outlined">person</span>
-                  </span>
-                  <input
-                    type="text"
-                    className="form-control border-0 bg-light"
-                    value={selectedUser ? `${selectedUser.first_name} ${selectedUser.last_name}` : ""}
-                    disabled
-                  />
-                </div>
-              </div>
-
-              <div className="mb-3">
-                <label className="form-label fw-semibold">
-                  Assigned Quantity <span className="text-danger">*</span>
-                </label>
-                <div className="input-group">
-                  <span className="input-group-text bg-light border-0">
-                    <span className="material-symbols-outlined">counter_5</span>
-                  </span>
-                  <input
-                    type="number"
-                    className="form-control"
-                    min="1"
-                    max={mainTask?.target_quantity || 0}
-                    value={assignedQuantity}
-                    onChange={(e) => setAssignedQuantity(parseInt(e.target.value) || 0)}
-                  />
-                </div>
-                <small className="text-muted d-block mt-2">
-                  Target Quantity: <strong>{mainTask?.target_quantity || 0}</strong>
-                </small>
-              </div>
-
-              <div className="alert alert-info d-flex gap-2 align-items-start mb-0">
-                <span className="material-symbols-outlined flex-shrink-0 mt-1">info</span>
-                <div className="small">
-                  <strong>Note:</strong> The assigned quantity should not exceed the target quantity of {mainTask?.target_quantity || 0}.
-                </div>
-              </div>
-            </div>
-
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-outline-secondary"
-                data-bs-dismiss="modal"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary d-flex gap-2 align-items-center"
-                onClick={handleConfirmAssign}
-                disabled={submitting}
-              >
-                {submitting ? (
-                  <>
-                    <span className="spinner-border spinner-border-sm"></span>
-                    Assigning...
-                  </>
-                ) : (
-                  <>
-                    <span className="material-symbols-outlined">done</span>
-                    Confirm Assign
-                  </>
-                )}
-              </button>
-            </div>
+            
           </div>
         </div>
       </div>

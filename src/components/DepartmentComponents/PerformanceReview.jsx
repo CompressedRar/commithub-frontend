@@ -13,6 +13,7 @@ import DeptOPCR from "./DeptOPCR"
 import OPCRSupportingDocuments from "./OPCRSupportingDocuments"
 import { createOPCR } from "../../services/pcrServices"
 import { getSettings } from "../../services/settingsService"
+import DraftedOPCR from "./DraftedOPCR"
 
 
 function PerformanceReviews(props){
@@ -205,8 +206,11 @@ function PerformanceReviews(props){
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
-                            {currentOPCRID && <EditOPCR key={currentOPCRID} dept_id = {props.deptid} opcr_id = {currentOPCRID} mode = {"dept"}></EditOPCR>}
+                            {currentOPCRID && (
+                                isPlanningPhase() ?<DraftedOPCR key={currentOPCRID} dept_id = {props.deptid} opcr_id = {currentOPCRID} mode = {"dept"}></DraftedOPCR>  :<EditOPCR key={currentOPCRID} dept_id = {props.deptid} opcr_id = {currentOPCRID} mode = {"dept"}></EditOPCR>
+                            )}
                         </div>
+                        
                     </div>
                 </div>
             </div>
@@ -224,7 +228,7 @@ function PerformanceReviews(props){
 
             <div className="all-ipcr-container" style={{display:"flex", flexDirection:"column", gap:"10px"}}>
                 {allOPCR && allOPCR.map(opcr => (
-                    <DeptOPCR opcr = {opcr} onClick={()=>{ setCurrentOPCRID(opcr.id) }} onMouseOver = {()=>{setCurrentOPCRID(opcr.id)}} key={opcr.id}></DeptOPCR>
+                    <DeptOPCR opcr = {opcr} onClick={()=>{ setCurrentOPCRID(opcr.id) }} dept_id = {props.deptid} onMouseOver = {()=>{setCurrentOPCRID(opcr.id)}} opcr_id = {opcr.id} key={opcr.id}></DeptOPCR>
                 ))}
                 {allOPCR && allOPCR.length === 0 && (
                   <div className="empty-symbols">

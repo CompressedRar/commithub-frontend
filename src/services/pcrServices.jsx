@@ -13,6 +13,11 @@ export async function getOPCR(opcr_id) {
     return api.get(`/api/v1/pcr/opcr/${opcr_id}`)
 }
 
+export async function getPlannedOPCR(dept_id) {
+    console.log("fetching planned opcr")
+    return api.get(`/api/v1/pcr/planned-opcr/${dept_id}`)
+}
+
 export async function getMasterOPCR() {
     console.log("fetching master opcr")
     return api.get(`/api/v1/pcr/master-opcr/`)
@@ -27,6 +32,17 @@ export async function downloadOPCR(opcr_id) {
     console.log("fetching opcr")
     return api.get(`/api/v1/pcr/opcr/download/${opcr_id}`)
 }
+
+export async function downloadPlannedOPCR(dept_id) {
+    console.log("fetching opcr")
+    return api.get(`/api/v1/pcr/planned-opcr/download/${dept_id}`)
+}
+
+export async function downloadWeightedOPCR(opcr_id) {
+    console.log("fetching opcr")
+    return api.get(`/api/v1/pcr/weighted-opcr/download/${opcr_id}`)
+}
+
 
 export async function downloadMasterOPCR() {
     console.log("fetching opcr")

@@ -93,14 +93,6 @@ function DepartmentTasksTable({ id, admin_mode, currentPhase }) {
     socket.on("task_modified", loadAllMembers);
     socket.on("department_assigned", loadAllMembers);
 
-    return () => {
-      socket.off("user_created");
-      socket.off("user_assigned");
-      socket.off("user_unassigned");
-      socket.off("task_modified");
-      socket.off("department_assigned");
-      
-    };
   }, []);
 
   function isMonitoringPhase(currentPhase) {
@@ -160,9 +152,9 @@ function DepartmentTasksTable({ id, admin_mode, currentPhase }) {
         aria-labelledby="assignModalLabel"
         aria-hidden="true"
       >
-        <div className="modal-dialog modal-dialog-centered modal-lg">
+        <div className="modal-dialog modal-dialog-centered modal-xl">
           <div className="modal-content">
-            <div className="modal-header bg-secondary text-white">
+            <div className="modal-header bg-primary text-white">
               <h5 className="modal-title" id="assignModalLabel">
                 <i className="bi bi-person-plus me-2"></i> Assign Members
               </h5>

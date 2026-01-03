@@ -79,7 +79,7 @@ export default function PositionItem({position}){
     }, [positionName, supportWeight, strategicWeight, coreWeight])
 
     return (
-        <div className="position-item p-3 border rounded mb-3 d-flex justify-content-between align-items-start">
+        <div className="position-item col-6 p-3 border rounded mb-3 d-flex justify-content-between align-items-start">
 
             <div className="modal fade" id={position.id} data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                 <div className="modal-dialog modal-dialog-centered modal-lg" >

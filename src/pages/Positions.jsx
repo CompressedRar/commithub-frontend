@@ -118,10 +118,12 @@ function Positions() {
 
                 </div>
 
-                <div className="position-list">
-                    {allPositions && allPositions.map((data) => (
-                        <PositionItem position={data}></PositionItem>
-                    ))}
+                <div className="position-list d-grid">
+                    <div className="row">
+                        {allPositions && allPositions.map((data) => (
+                            <PositionItem position={data}></PositionItem>
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>

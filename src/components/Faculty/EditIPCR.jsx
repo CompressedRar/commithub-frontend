@@ -472,21 +472,23 @@ function EditIPCR(props) {
                     <span className="material-symbols-outlined">undo</span>
                     Back to IPCRs
                 </button>
-                <button
-                    className="btn btn-primary btn-sm d-flex align-items-center gap-2"
-                    data-bs-toggle="modal"
-                    data-bs-target="#manage-docs"
-                    >
-                    <span className="material-symbols-outlined fs-5">attach_file</span>
-                    Documents
-                </button>
-                {
-                    isRatingPhase(currentPhase) && 
-                    <button className="btn btn-outline-primary d-flex" onClick={download} disabled={downloading}>
-                        {downloading ? <span className="spinner-border spinner-border-sm me-2"></span> : <span className="material-symbols-outlined me-1">download</span>}
-                        Download
+                <div className="d-flex gap-2">
+                    <button
+                        className="btn btn-primary btn-sm d-flex align-items-center gap-2 "
+                        data-bs-toggle="modal"
+                        data-bs-target="#manage-docs"
+                        >
+                        <span className="material-symbols-outlined fs-5 m-1">attach_file</span>
+                        Documents
                     </button>
-                }
+                    {
+                        isRatingPhase() && 
+                        <button className="btn btn-outline-primary d-flex" onClick={download} disabled={downloading}>
+                            {downloading ? <span className="spinner-border spinner-border-sm me-2"></span> : <span className="material-symbols-outlined me-1">download</span>}
+                            Download
+                        </button>
+                    }
+                </div>
 
                 {canSubmit && props.mode === "faculty" && (
                     <button
@@ -715,11 +717,6 @@ function TaskSection({
                     <td colSpan="3" className="fw-semibold">Raw Average</td>
                     <td className="fw-semibold text-end">{rawAvg.toFixed(2)}</td>
                     <td colSpan="3" className="text-center">{handleRemarks(rawAvg.toFixed(2))}</td>
-                </tr>
-                <tr className="table-light">
-                    <td colSpan="3" className="fw-semibold">Weighted Average ({(categoryStats.weight * 100).toFixed(0)}%)</td>
-                    <td className="fw-semibold text-end">{weightedAvg.toFixed(2)}</td>
-                    <td colSpan="3" className="text-center">{handleRemarks(weightedAvg.toFixed(2))}</td>
                 </tr>
                 </>
             }

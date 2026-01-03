@@ -8,10 +8,10 @@ import DepartmentTasksTable from "./DepartmentTasksTable";
 import DepartmentAssignHead from "./DepartmentAssignHead";
 import PerformanceReviews from "./PerformanceReview";
 import CreateOPCRModal from "./CreateOPCRModal";
-import GeneralTasksTable from "./GeneralTasksTable";
 import UserPerformanceInDepartment from "../Charts/UserPerformanceInDepartment";
 import { getSettings } from "../../services/settingsService";
 import TaskWeights from "./Tasks/TaskWeights";
+import FormulaSettings from "./Tasks/TaskFormulas";
 
 function DepartmentInfo({ id, firstLoad, loadDepts }) {
   const [deptInfo, setDeptinfo] = useState({});
@@ -123,10 +123,11 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
   // Determine available tabs based on phase
   const getTabs = () => {
     const allTabs = [
-      { label: "Performance Reviews", index: 0, icon: "assessment", phases: ["monitoring", "rating"] },
+      { label: "Performance Reviews", index: 0, icon: "assessment", phases: ["planning","monitoring", "rating"] },
       { label: "Tasks", index: 1, icon: "task_alt", phases: ["planning", "monitoring", "rating"] },
       { label: "Weights", index: 2, icon: "weight", phases: ["planning", "monitoring", "rating"] },
       { label: "Members", index: 3, icon: "group", phases: ["planning", "monitoring", "rating"] },
+      { label: "Formulas", index: 4, icon: "function", phases: ["planning", "monitoring", "rating"] },
     ];
 
     return allTabs.filter((tab) => tab.phases.some((phase) => currentPhase?.includes(phase)));
@@ -333,7 +334,7 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
         {/* Tab Content */}
         <div>
 
-          {currentPage === 0 && (isMonitoringPhase() || isRatingPhase()) && (
+          {currentPage === 0 &&  (
             <PerformanceReviews deptid={id} />
           )}
 
@@ -369,6 +370,14 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
                 </div>
                 
               </div>
+              
+              
+            </div>
+          )}
+          
+          {currentPage === 4 && (
+            <div className="d-grid" style={{display:"grid", backgroundColor:"white"}}>
+              <FormulaSettings></FormulaSettings>
               
               
             </div>

@@ -76,6 +76,7 @@ function DepartmentTask({ mems, switchMember }) {
   useEffect(() => {
     loadCurrentPhase()
     socket.on("user_assigned", filterAssigned);
+    socket.on("user_unassigned", filterAssigned);
     socket.on("task_modified", filterAssigned);
     socket.on("department_assigned", filterAssigned);
   }, []);
@@ -159,7 +160,7 @@ function DepartmentTask({ mems, switchMember }) {
 
           {/* Action Buttons */}
           <div className="d-flex gap-2 ms-auto">
-            {isPlanningPhase() ? <>
+            {isPlanningPhase() || true ? <>
               <button
                 className="btn btn-sm btn-outline-primary d-flex align-items-center gap-2 px-3 py-1"
                 onClick={(e) => {
