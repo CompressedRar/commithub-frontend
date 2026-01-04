@@ -127,7 +127,6 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
       { label: "Tasks", index: 1, icon: "task_alt", phases: ["planning", "monitoring", "rating"] },
       { label: "Weights", index: 2, icon: "weight", phases: ["planning", "monitoring", "rating"] },
       { label: "Members", index: 3, icon: "group", phases: ["planning", "monitoring", "rating"] },
-      { label: "Formulas", index: 4, icon: "function", phases: ["planning", "monitoring", "rating"] },
     ];
 
     return allTabs.filter((tab) => tab.phases.some((phase) => currentPhase?.includes(phase)));

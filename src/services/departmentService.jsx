@@ -123,6 +123,9 @@ export async function getAssignedDepartmentTask(dept_id) {
     return api.get(`/api/v1/task/assigned_department/${dept_id}`)
 }
 
+
+
+
 export async function updateAssignedDepartmentTask(data) {
     console.log("updating assigned department task")
     return api.patch(`/api/v1/task/assigned_department/`, data, {
@@ -131,3 +134,13 @@ export async function updateAssignedDepartmentTask(data) {
         }
     })
 }
+
+export async function updateAssignedDepartmentTaskFormula(id, data) {
+    console.log("updating assigned department task formulas")
+    return api.patch(`/api/v1/department/assigned_department/${id}`, data, {
+        headers: {
+            "Content-type": "application/json"
+        }
+    })
+}
+

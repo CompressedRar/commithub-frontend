@@ -3,7 +3,7 @@ import Swal from "sweetalert2";
 import { removeTask } from "../../services/departmentService";
 import { socket } from "../api";
 import { getSettings } from "../../services/settingsService"
-function DepartmentTask({ mems, switchMember }) {
+function DepartmentTask({ mems, dept_id, switchMember, switchInfo }) {
   const [assigned, setAssigned] = useState([]);
   const [currentPhase, setCurrentPhase] = useState(null) //monitoring, rating, planning
 
@@ -28,7 +28,7 @@ function DepartmentTask({ mems, switchMember }) {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const res = await removeTask(mems.id);
+          const res = await removeTask(mems.id, dept_id);
           const msg = res.data.message;
           Swal.fire({
             title: msg.includes("successfully") ? "Success" : "Error",
@@ -161,6 +161,25 @@ function DepartmentTask({ mems, switchMember }) {
           {/* Action Buttons */}
           <div className="d-flex gap-2 ms-auto">
             {isPlanningPhase() || true ? <>
+              <button
+                className="btn btn-sm btn-outline-primary d-flex align-items-center gap-2 px-3 py-1"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  switchMember(mems.id);
+                  switchInfo()
+                }}
+                data-bs-toggle="modal"
+                data-bs-target="#formulas"
+              >
+                <span
+                  className="material-symbols-outlined"
+                  style={{ fontSize: "18px" }}
+                >
+                  function
+                </span>
+                Manage Formulas
+              </button>
+
               <button
                 className="btn btn-sm btn-outline-primary d-flex align-items-center gap-2 px-3 py-1"
                 onClick={(e) => {

@@ -618,8 +618,8 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
             </div>
           </td>
           <td>
-            <div className="d-flex justify-content-center">
-              {assignedData[task.title]}
+            <div className="d-flex justify-content-center align-items-center flex-column">
+              {assignedData[task.title].map((user) => <div>{user}</div>)}
             </div>
           </td>
           <td>

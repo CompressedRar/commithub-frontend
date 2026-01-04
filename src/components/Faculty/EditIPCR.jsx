@@ -459,7 +459,7 @@ function EditIPCR(props) {
     }
 
     return (
-        <div className="container-fluid py-4" onMouseOver={props.onMouseOver}>
+        <div onMouseOver={props.onMouseOver} className="py-4" style={{minWidth:"1200px"}}>
             <ManageTaskSupportingDocuments ipcr_id={ipcrInfo.id} batch_id={ipcrInfo.batch_id} dept_mode={false} sub_tasks={arrangedSubTasks}></ManageTaskSupportingDocuments>
             {/* Header */}
             
@@ -711,15 +711,6 @@ function TaskSection({
                 />
             ))}
 
-            {
-                isRatingPhase(currentPhase) && <>
-                <tr className="table-light">
-                    <td colSpan="3" className="fw-semibold">Raw Average</td>
-                    <td className="fw-semibold text-end">{rawAvg.toFixed(2)}</td>
-                    <td colSpan="3" className="text-center">{handleRemarks(rawAvg.toFixed(2))}</td>
-                </tr>
-                </>
-            }
 
             
         </>
@@ -1034,40 +1025,16 @@ function FinalRatingsSection({ stats, ratingThresholds, handleRemarks, currentPh
                 </div>
             </div>
 
-            <div className="col-md-4">
-                <div className="card h-100 border">
-                    <div className="card-body">
-                        <h6 className="card-title fw-bold">Weighted Ratings</h6>
-                        <div className="small gap-2 d-flex flex-column">
-                            <div className="d-flex justify-content-between">
-                                <span>Core ({(core.weight ?? 0) * 100}%):</span>
-                                <strong>{coreWeighted ? coreWeighted.toFixed(2) : "0.00"}</strong>
-                            </div>
-                            <div className="d-flex justify-content-between">
-                                <span>Strategic ({(strategic.weight ?? 0) * 100}%):</span>
-                                <strong>{strategicWeighted ? strategicWeighted.toFixed(2) : "0.00"}</strong>
-                            </div>
-                            <div className="d-flex justify-content-between">
-                                <span>Support ({(support.weight ?? 0) * 100}%):</span>
-                                <strong>{supportWeighted ? supportWeighted.toFixed(2) : "0.00"}</strong>
-                            </div>
-                            <div className="d-flex justify-content-between fw-bold border-top pt-2">
-                                <span>Overall Weighted</span>
-                                <strong>{overallWeighted.toFixed(2)}</strong>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            
 
             <div className="col-md-4">
                 <div className="card h-100 border text-center">
                     <div className="card-body d-flex flex-column justify-content-center">
                         <h6 className="card-title fw-bold">Adjectival Rating</h6>
                         <p className="mb-0 fs-6 fw-bold text-warning">
-                            {handleRemarks(overallWeighted.toFixed(2), ratingThresholds)}
+                            {handleRemarks(parseFloat(stats.average).toFixed(2), ratingThresholds)}
                         </p>
-                        <small className="text mt-2">Overall Weighted: {overallWeighted.toFixed(2)}</small>
+                        <small className="text mt-2">Overall Average: {isRatingPhase(currentPhase) && parseFloat(stats.average).toFixed(2)}</small>
                     </div>
                 </div>
             </div>

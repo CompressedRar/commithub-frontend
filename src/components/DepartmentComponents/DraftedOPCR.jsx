@@ -592,8 +592,8 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
             </div>
           </td>
           <td>
-            <div className="d-flex justify-content-center">
-              {assignedData && assignedData[task.title].map((user) => (<div>{user}</div>))}
+            <div className="d-flex justify-content-center align-items-center flex-column">
+              {assignedData && assignedData[task.title].map((user) => (<div style={{textAlign:"center"}}>{user}</div>))}
             </div>
           </td>
           <td>

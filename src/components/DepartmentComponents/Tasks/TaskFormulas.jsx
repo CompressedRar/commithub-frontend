@@ -1,18 +1,19 @@
 import { useEffect, useState } from "react"
 import Swal from "sweetalert2"
 import { getSettings, updateSettings, validateFormula } from "../../../services/settingsService"
+import { updateAssignedDepartmentTaskFormula } from "../../../services/departmentService"
+import Switch from '@mui/material/Switch';
 
 
-
-
-
-export default function FormulaSettings() {
+export default function FormulaSettings({task_data}) {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
   const [quantity, setQuantity] = useState({})
   const [efficiency, setEfficiency] = useState({})
   const [timeliness, setTimeliness] = useState({})
+
+  const [enableFormulas, setEnableFormulas] = useState(false) 
 
   const [validity, setValidity] = useState({
     quantity: true,
@@ -26,12 +27,13 @@ export default function FormulaSettings() {
 
   async function load() {
     try {
-      const res = await getSettings()
-      const data = res.data?.data ?? res.data ?? {}
+      if (task_data == null) return;
 
-      setQuantity(data.quantity_formula ?? {})
-      setEfficiency(data.efficiency_formula ?? {})
-      setTimeliness(data.timeliness_formula ?? {})
+    
+      setEnableFormulas(task_data.enable_formulas ?? false)
+      setQuantity(task_data.quantity_formula)
+      setEfficiency(task_data.efficiency_formula)
+      setTimeliness(task_data.timeliness_formula)
     } catch {
       Swal.fire("Error", "Failed to load formulas", "error")
     } finally {
@@ -40,17 +42,22 @@ export default function FormulaSettings() {
   }
 
   async function save() {
-    if (!validity.quantity || !validity.efficiency || !validity.timeliness) {
-      Swal.fire("Validation Error", "Fix invalid formulas before saving", "warning")
-      return
+
+    if(enableFormulas) {
+      if (!validity.quantity || !validity.efficiency || !validity.timeliness) {
+        Swal.fire("Validation Error", "Fix invalid formulas before saving", "warning")
+        return
+      }
     }
+    
 
     try {
       setSaving(true)
-      await updateSettings({
+      await updateAssignedDepartmentTaskFormula(task_data.assigned_dept_id,{
         quantity_formula: quantity,
         efficiency_formula: efficiency,
-        timeliness_formula: timeliness
+        timeliness_formula: timeliness,
+        enable_formulas: enableFormulas
       })
       Swal.fire("Success", "Formulas updated successfully", "success")
     } catch {
@@ -78,7 +85,23 @@ export default function FormulaSettings() {
         <p className="text-muted">Configure system computation formulas</p>
       </header>
 
-      <div className="row g-3">
+      <div className="form-check form-switch my-4">
+        <input
+          className="form-check-input"
+          type="checkbox"
+          id="enableFormulas"
+          checked={enableFormulas}
+          onChange={(e) => setEnableFormulas(e.target.checked)}
+        />
+        <label className="form-check-label fw-semibold" htmlFor="enableFormulas">
+          Enable Formulas
+        </label>
+      </div>
+
+
+      {
+        enableFormulas ? 
+        <div className="row g-3" >
         <FormulaEditor
           title="Quantity Formula"
           icon="inventory_2"
@@ -103,10 +126,15 @@ export default function FormulaSettings() {
           onValidity={(v) => setValidity(p => ({ ...p, timeliness: v }))}
         />
       </div>
+      :
+      <div className="card text-muted">
+        Click "Enable Formulas" to edit formula for the tasks.
+      </div>
+      }
 
       <div className=" p-3 d-flex justify-content-end bg-white border-top">
         <button className="btn btn-success" onClick={save} disabled={saving}>
-          {saving ? "Saving..." : "Save Formulas"}
+          {saving ? "Saving..." : "Save"}
         </button>
       </div>
     </div>

@@ -5,6 +5,7 @@ import { socket } from "../api";
 import DepartmentTask from "./DepartmentTask";
 import DepartmentAssignTask from "./DepartmentAssignTask";
 import AddDepartmentTask from "./AddDepartmentTask";
+import FormulaSettings from "./Tasks/TaskFormulas";
 
 function DepartmentTasksTable({ id, admin_mode, currentPhase }) {
   const [allMembers, setAllMembers] = useState([]);
@@ -14,6 +15,8 @@ function DepartmentTasksTable({ id, admin_mode, currentPhase }) {
   const [memberLimit, setMemberLimit] = useState({ offset: 0, limit: 10 });
   const [searchQuery, setQuery] = useState("");
   const [currentUserID, setCurrentUserID] = useState(0);
+
+  const [currentTaskData, setCurrentTaskData] = useState(null)
 
   // Load all tasks
   async function loadAllMembers() {
@@ -183,6 +186,43 @@ function DepartmentTasksTable({ id, admin_mode, currentPhase }) {
         </div>
       </div>
 
+      <div
+        className="modal fade"
+        id="formulas"
+        data-bs-backdrop="static"
+        data-bs-keyboard="false"
+        tabIndex="-1"
+        aria-labelledby="assignModalLabel"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog modal-dialog-centered modal-xl">
+          <div className="modal-content">
+            <div className="modal-header bg-primary text-white">
+              <h5 className="modal-title" id="assignModalLabel">
+                <i className="bi bi-person-plus me-2"></i> Manage Formula
+              </h5>
+              <button
+                type="button"
+                className="btn-close btn-close-white"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div className="modal-body bg-light">
+              {currentUserID ? (
+                <FormulaSettings
+                  task_data = {currentTaskData}
+                ></FormulaSettings>
+              ) : (
+                <p className="text-center text-muted">
+                  Select an output to assign members.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* === Header Controls === */}
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-3">
         <h4 className="fw-semibold text-dark mb-0">Office Outputs</h4>
@@ -220,7 +260,9 @@ function DepartmentTasksTable({ id, admin_mode, currentPhase }) {
                 <DepartmentTask
                   key={mems.id}
                   mems={mems}
+                  dept_id={id}
                   switchMember={(id) => setCurrentUserID(id)}
+                  switchInfo= {() => setCurrentTaskData(mems)}
                   currentPhase={currentPhase}
                 />
               ))

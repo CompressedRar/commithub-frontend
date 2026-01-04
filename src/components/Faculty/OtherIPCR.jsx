@@ -471,7 +471,7 @@ function OtherIPCR(props) {
     }
 
     return (
-        <div className="container-fluid py-4" onMouseOver={props.onMouseOver}>
+        <div className="py-4" style={{minWidth:"1200px"}} onMouseOver={props.onMouseOver}>
             <ManageTaskSupportingDocuments ipcr_id={ipcr_id} batch_id={ipcrInfo.batch_id} dept_mode={true} sub_tasks={arrangedSubTasks}></ManageTaskSupportingDocuments>
             {/* Header */}
             
@@ -485,21 +485,23 @@ function OtherIPCR(props) {
                     <span className="material-symbols-outlined">undo</span>
                     Back
                 </button>
-                <button
-                    className="btn btn-primary btn-sm d-flex align-items-center gap-2 p-2 rounded"
-                    data-bs-toggle="modal"
-                    data-bs-target="#manage-docs"
-                    >
-                    <span className="material-symbols-outlined fs-5">attach_file</span>
-                    Documents
-                </button>
-                {
-                    isRatingPhase(currentPhase) && 
-                    <button className="btn btn-outline-primary d-flex" onClick={download} disabled={downloading}>
-                        {downloading ? <span className="spinner-border spinner-border-sm me-2"></span> : <span className="material-symbols-outlined me-1">download</span>}
-                        Export
+                <div className="d-flex gap-2">
+                    <button
+                        className="btn btn-primary btn-sm d-flex align-items-center gap-2 p-2 rounded"
+                        data-bs-toggle="modal"
+                        data-bs-target="#manage-docs"
+                        >
+                        <span className="material-symbols-outlined fs-5">attach_file</span>
+                        Documents
                     </button>
-                }
+                    {
+                        isRatingPhase(currentPhase) && 
+                        <button className="btn btn-outline-primary d-flex" onClick={download} disabled={downloading}>
+                            {downloading ? <span className="spinner-border spinner-border-sm me-2"></span> : <span className="material-symbols-outlined me-1">download</span>}
+                            Export
+                        </button>
+                    }
+                </div>
 
                 {canSubmit && props.mode === "faculty" && (
                     <button
@@ -722,20 +724,7 @@ function TaskSection({
                 />
             ))}
 
-            {
-                isRatingPhase(currentPhase) && <>
-                <tr className="table-light">
-                    <td colSpan="3" className="fw-semibold">Raw Average</td>
-                    <td className="fw-semibold text-end">{rawAvg.toFixed(2)}</td>
-                    <td colSpan="3" className="text-center">{handleRemarks(rawAvg.toFixed(2))}</td>
-                </tr>
-                <tr className="table-light">
-                    <td colSpan="3" className="fw-semibold">Weighted Average ({(categoryStats.weight * 100).toFixed(0)}%)</td>
-                    <td className="fw-semibold text-end">{weightedAvg.toFixed(2)}</td>
-                    <td colSpan="3" className="text-center">{handleRemarks(weightedAvg.toFixed(2))}</td>
-                </tr>
-                </>
-            }
+            
 
             
         </>
@@ -750,7 +739,8 @@ function RatingBadges({ task, currentPhase, handleDataChange, setSubTaskID }) {
     }
     return (
         <div style = {{
-            display:"flex",
+            display:"grid",
+            gridTemplateColumns:"1fr 1fr 1fr 1fr ",
             height:"150px"
         }}>
             <div className="text-center">
@@ -762,7 +752,9 @@ function RatingBadges({ task, currentPhase, handleDataChange, setSubTaskID }) {
                     onKeyDown={numericKeyDown}
                     onPaste={handlePasteNumeric}
                     onInput={onNumberInput}
-                    name="quantity"                    
+                    name="quantity"   
+                    max={5}
+                    min={1}                 
                 />
             </div>
             <div className="text-center">
@@ -775,6 +767,8 @@ function RatingBadges({ task, currentPhase, handleDataChange, setSubTaskID }) {
                     onPaste={handlePasteNumeric}
                     onInput={onNumberInput}
                     name="efficiency"
+                    max={5}
+                    min={1}
                 />
             </div>
             <div className="text-center" >
@@ -782,6 +776,8 @@ function RatingBadges({ task, currentPhase, handleDataChange, setSubTaskID }) {
                     type="number" className="form-control form-control-sm no-spinner text-center" 
                     defaultValue = {isRatingPhase(currentPhase) && parseFloat(task.timeliness).toFixed(0)} 
                     style={{width:"100%", height:"100%"}}
+                    max={5}
+                    min={1}
                     onClick={() => setSubTaskID(task.id)}
                     onKeyDown={numericKeyDown}
                     onPaste={handlePasteNumeric}
@@ -792,7 +788,7 @@ function RatingBadges({ task, currentPhase, handleDataChange, setSubTaskID }) {
             <div className="text-center" >
                 <input 
                     type="number" className="form-control form-control-sm no-spinner text-center" 
-                    value = {isRatingPhase(currentPhase) && parseFloat(task.quantity).toFixed(0)} 
+                    value = {isRatingPhase(currentPhase) && parseFloat(task.average).toFixed(2)} 
                     style={{width:"100%", height:"100%"}}
                     disabled={true}
                 />
@@ -1087,40 +1083,16 @@ function FinalRatingsSection({ stats, ratingThresholds, handleRemarks, currentPh
                 </div>
             </div>
 
-            <div className="col-md-4">
-                <div className="card h-100 border">
-                    <div className="card-body">
-                        <h6 className="card-title fw-bold">Weighted Ratings</h6>
-                        <div className="small gap-2 d-flex flex-column">
-                            <div className="d-flex justify-content-between">
-                                <span>Core ({(core.weight ?? 0) * 100}%):</span>
-                                <strong>{coreWeighted ? coreWeighted.toFixed(2) : "0.00"}</strong>
-                            </div>
-                            <div className="d-flex justify-content-between">
-                                <span>Strategic ({(strategic.weight ?? 0) * 100}%):</span>
-                                <strong>{strategicWeighted ? strategicWeighted.toFixed(2) : "0.00"}</strong>
-                            </div>
-                            <div className="d-flex justify-content-between">
-                                <span>Support ({(support.weight ?? 0) * 100}%):</span>
-                                <strong>{supportWeighted ? supportWeighted.toFixed(2) : "0.00"}</strong>
-                            </div>
-                            <div className="d-flex justify-content-between fw-bold border-top pt-2">
-                                <span>Overall Weighted</span>
-                                <strong>{overallWeighted.toFixed(2)}</strong>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            
 
             <div className="col-md-4">
                 <div className="card h-100 border text-center">
                     <div className="card-body d-flex flex-column justify-content-center">
                         <h6 className="card-title fw-bold">Adjectival Rating</h6>
                         <p className="mb-0 fs-6 fw-bold text-warning">
-                            {handleRemarks(overallWeighted.toFixed(2), ratingThresholds)}
+                            {handleRemarks(parseFloat(stats.average).toFixed(2), ratingThresholds)}
                         </p>
-                        <small className="text mt-2">Overall Weighted: {overallWeighted.toFixed(2)}</small>
+                        <small className="text mt-2">Overall Average: {isRatingPhase(currentPhase) && parseFloat(stats.average).toFixed(2)}</small>
                     </div>
                 </div>
             </div>
