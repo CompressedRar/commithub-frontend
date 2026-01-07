@@ -118,7 +118,7 @@ function Administrator() {
         {[
           { icon: "group", label: "Total Users", count: allCount, color: "primary" },
           { icon: "task", label: "Total Outputs", count: taskCount, color: "success" },
-          { icon: "category", label: "Total Major Final Outputs", count: categoryCount, color: "warning" },
+          { icon: "category", label: "Total KRA", count: categoryCount, color: "warning" },
         ].map((stat, idx) => (
           <div className="col-md-4" key={idx}>
             <div className="card border text-center rounded-4">
@@ -139,7 +139,7 @@ function Administrator() {
         {[
           { href: "/admin/users", icon: "manage_accounts", label: "Manage Accounts" },
           { href: "/admin/department", icon: "apartment", label: "Manage Offices" },
-          { href: "/admin/tasks", icon: "admin_panel_settings", label: "Manage Outputs" },
+          { href: "/admin/tasks", icon: "admin_panel_settings", label: "Manage Tasks" },
         ].map((link, idx) => (
           <a
             key={idx}

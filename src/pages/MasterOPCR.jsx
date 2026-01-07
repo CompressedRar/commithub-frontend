@@ -244,22 +244,7 @@ function MasterOPCR(){
     return (
         <div className="py-4" style={{minWidth:"1200px"}}>
             {/* Header */}
-            {isRatingPhase() && (
-            <div className="d-flex justify-content-center align-items-center flex-column" style={{ zIndex: 1050,marginTop:"-5%", width:"80%", height:"100%", position:"absolute", backgroundColor:"rgba(255,255,255,0.8)"}}>
-                <div className="overlay-content text-center p-4">
-                <img
-                    src={`${import.meta.env.BASE_URL}calendar_blocked.png`}
-                    alt="Master OPCR Closed"
-                    className="overlay-icon"
-                    style={{ maxWidth: 120 }}
-                />
-                <h2>Rating Period Closed</h2>
-                <p className="mb-0 text-muted">
-                    Master OPCR can only be viewed in Rating Period. This is to ensure that all data from OPCR are properly consolidated.
-                </p>
-                </div>
-            </div>
-            )}
+            
 
             {!opcrInfo && (
                 <div className="d-flex justify-content-center align-items-center flex-column" style={{ zIndex: 1050,marginTop:"-5%", width:"80%", height:"100%", position:"absolute", backgroundColor:"rgba(255,255,255,0.8)"}}>
@@ -465,7 +450,7 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
           </td>
           <td>
             <div className="d-flex justify-content-center align-items-center flex-column" >
-              {assignedData[task.title].map((user) => <div>{user}</div>)} 
+              {Object.keys(assignedData).includes(task.title) && assignedData[task.title].map((user) => <div>{user}</div>)} 
             </div>
           </td>
           <td>
@@ -476,7 +461,7 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
               </div>
               {task.description?.timeliness_mode == "timeframe" ? (
                 <div>
-                  <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.actual} />
+                  <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.actual != 0 ? task.working_days?.actual / task.frequency : 0} />
                   <small className="text-muted d-block">{task.description?.time} with</small>
                 </div>
               ):
@@ -485,12 +470,14 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
                   {parseFloat(task.working_days?.actual / task.frequency).toFixed(0) == 0 ? (
                     <input disabled className="form-control form-control-sm" value = ""/>
                   ) : (
-                    <input disabled className="form-control form-control-sm" defaultValue={Math.abs(parseFloat(task.working_days?.actual / task.frequency).toFixed(0))} />
+                    <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.actual != 0 ? Math.abs(parseFloat(task.working_days?.actual / task.frequency).toFixed(0)) : ""} />
                   )}
-                  {parseFloat(task.working_days?.actual / task.frequency) == 0 ? (
+
+                  
+                  {task.working_days?.actual != 0 ? Math.abs(parseFloat(task.working_days?.actual / task.frequency).toFixed(0)) : 0 == 0 ? (
                     <small className="text-muted d-block">on the set deadline with</small>
                   ) : 
-                    parseFloat(task.working_days?.actual / task.frequency) < 0? (
+                    parseFloat(task.working_days?.actual / task.frequency) < 0 ? (
                       <small className="text-muted d-block">day/s early in average with</small>
                     ) :
                     (
@@ -501,7 +488,7 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
               )
               }
               <div>
-                <input disabled className="form-control form-control-sm" defaultValue={parseFloat(task.corrections?.actual / task.frequency).toFixed(0)} />
+                <input disabled className="form-control form-control-sm" defaultValue={task.corrections?.actual != 0 ?parseFloat(task.corrections?.actual / task.frequency).toFixed(0) : 0} />
                 <small className="text-muted d-block">{task.description?.alterations}/s in average</small>
               </div>
             </div>

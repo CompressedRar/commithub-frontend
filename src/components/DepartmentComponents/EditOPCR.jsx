@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import {
   approveOPCR,
   downloadOPCR,
+  downloadPlannedOPCR,
   downloadWeightedOPCR,
   getOPCR,
   reviewOPCR,
@@ -197,6 +198,20 @@ function EditOPCR(props) {
     if (link) window.open(link, "_blank", "noopener,noreferrer")
     setDownloading(false)
   }
+  
+  async function downloadPlanned() {
+              setDownloading(true)
+              var res = await downloadPlannedOPCR(props.dept_id).then(data => data.data.link).catch(error => {
+                  console.log(error.response.data.error)
+                  Swal.fire({
+                      title: "Error",
+                      text: error.response.data.error,
+                      icon: "error"
+                  })
+              })
+                  window.open(res, "_blank", "noopener,noreferrer");
+                  setDownloading(false)
+              }
 
   async function downloadWeighted() {
     setDownloading(true)
@@ -415,6 +430,12 @@ function EditOPCR(props) {
                 
               </button>
             </option>
+
+            <option value="" onClick={downloadPlanned} disabled={downloading}>
+              <button className="btn btn-outline-primary d-flex" >
+                {downloading ? "Downloading..." : "Download Planned OPCR"}                
+              </button>
+            </option>
           </select>
 
         </div>
@@ -619,7 +640,7 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
           </td>
           <td>
             <div className="d-flex justify-content-center align-items-center flex-column">
-              {assignedData[task.title].map((user) => <div>{user}</div>)}
+              {Object.keys(assignedData).includes(task.title) && assignedData[task.title].map((user) => <div>{user}</div>)}
             </div>
           </td>
           <td>
@@ -630,7 +651,7 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
               </div>
               {task.description?.timeliness_mode == "timeframe" ? (
                 <div>
-                  <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.actual / task.frequency} />
+                  <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.actual != 0 ? task.working_days?.actual / task.frequency : 0} />
                   <small className="text-muted d-block">{task.description?.time}/s in average with</small>
                 </div>
               ):
@@ -639,12 +660,14 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
                   {parseFloat(task.working_days?.actual / task.frequency).toFixed(0) == 0 ? (
                     <input disabled className="form-control form-control-sm" value = ""/>
                   ) : (
-                    <input disabled className="form-control form-control-sm" defaultValue={Math.abs(parseFloat(task.working_days?.actual / task.frequency).toFixed(0))} />
+                    <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.actual != 0 ? Math.abs(parseFloat(task.working_days?.actual / task.frequency).toFixed(0)) : ""} />
                   )}
-                  {parseFloat(task.working_days?.actual / task.frequency) == 0 ? (
+
+                  
+                  {task.working_days?.actual != 0 ? Math.abs(parseFloat(task.working_days?.actual / task.frequency).toFixed(0)) : 0 == 0 ? (
                     <small className="text-muted d-block">on the set deadline with</small>
                   ) : 
-                    parseFloat(task.working_days?.actual / task.frequency) < 0? (
+                    parseFloat(task.working_days?.actual / task.frequency) < 0 ? (
                       <small className="text-muted d-block">day/s early in average with</small>
                     ) :
                     (
@@ -655,7 +678,7 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
               )
               }
               <div>
-                <input disabled className="form-control form-control-sm" defaultValue={parseFloat(task.corrections?.actual / task.frequency).toFixed(0)} />
+                <input disabled className="form-control form-control-sm" defaultValue={task.corrections?.actual != 0 ?parseFloat(task.corrections?.actual / task.frequency).toFixed(0) : 0} />
                 <small className="text-muted d-block">{task.description?.alterations}/s in average</small>
               </div>
             </div>

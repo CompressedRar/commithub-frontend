@@ -1,7 +1,7 @@
 // ...existing code...
 import { useEffect, useMemo, useState } from "react";
 import "../assets/styles/CategoryAndTask.css";
-import { getCategories, registerCategory } from "../services/categoryService";
+import { getCategories, registerCategory, updateCategoryOrder } from "../services/categoryService";
 import { objectToFormData, socket } from "../components/api";
 import CategoryTasks from "../components/CategoryAndTaskComponents/CategoryTasks";
 import TaskInfo from "../components/CategoryAndTaskComponents/TaskInfo";
@@ -35,11 +35,25 @@ export default function CategoryAndTask() {
       setAllCategory(data);
       if (!selectedCategoryId && data.length > 0) setSelectedCategoryId(data[0].id);
       if (data.length === 0) setSelectedCategoryId(null);
+
     } catch (error) {
       console.error(error);
       Swal.fire("Error", error?.response?.data?.error || "Failed to load categories", "error");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleCategoryOrder(e){
+    if (e.target.value == 0 || e.target.value == "") return;
+
+    try {
+      var res = await updateCategoryOrder(selectedCategoryId, e.target.value)
+
+      Swal.fire("Success", res.data.message, "success");
+    }
+    catch(error){
+      Swal.fire("Error", error?.response?.data?.error || "Updating Priority No. Failed", "error");
     }
   }
 
@@ -221,8 +235,8 @@ export default function CategoryAndTask() {
                                 <div className="d-flex gap-2 mt-3 flex-wrap">
 
                                   <div className="p-3 bg-light rounded-2 text-center" style={{ minWidth: 100 }}>
-                                    <div className="fw-bold">{allCategory.find((c) => c.id === selectedCategoryId)?.type}</div>
-                                    <small className="text-muted d-block">Type</small>
+                                    <input type="number" onInput={handleCategoryOrder} min={0} defaultValue={allCategory.find((c) => c.id === selectedCategoryId)?.priority_order} className="form-control no-spinner"/>
+                                    <small className="text-muted d-block">Priority No.</small>
                                   </div>
 
                                   <div className="p-3 bg-light rounded-2 text-center" style={{ minWidth: 100 }}>
@@ -231,7 +245,7 @@ export default function CategoryAndTask() {
                                   </div>
                     
                                   <div className="p-3 bg-light rounded-2 text-center" style={{ minWidth: 100 }}>
-                                    <div className="fw-bold">{allCategory.find((c) => c.id === selectedCategoryId)?.average_rating ?? 0}</div>
+                                    <div className="fw-bold">{parseFloat(allCategory.find((c) => c.id === selectedCategoryId)?.average_rating).toFixed(2) ?? 0}</div>
                                     <small className="text-muted d-block">Avg Rating</small>
                                   </div>
                                 </div>
@@ -329,4 +343,3 @@ export default function CategoryAndTask() {
     </div>
   );
 }
-// ...existing code...

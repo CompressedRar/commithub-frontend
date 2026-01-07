@@ -886,7 +886,6 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                 <td className>
                     <div className="d-grid gap-2">
                         <div>
-                            <span className="text-muted small d-block">{task.main_task.target_acc} in</span>
                             <input
                                 type="number"
                                 inputMode="decimal"
@@ -901,11 +900,12 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                 disabled={true}
                                 title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
                             />
+                            <span className="text-muted small d-block">{task.main_task.target_acc} in</span>
+                            
                         </div>
                         <div>
                             {task.main_task.timeliness_mode == "timeframe"? 
                             <>
-                                <span className="text-muted small d-block">{task.main_task.time} with</span>
                                 <input
                                     type="number"
                                     inputMode="decimal"
@@ -920,9 +920,10 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                     disabled={true}
                                     title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
                                 />
+                                <span className="text-muted small d-block">{task.main_task.time} with</span>
+                                
                             </>:
                             <>
-                                <span className="text-muted small d-block">on set deadline with</span>
                                 <input 
                                     type="date" 
                                     name="target_deadline"
@@ -932,11 +933,12 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                     disabled={true}
                                     title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
                                 />
+                                <span className="text-muted small d-block">on set deadline with</span>
+                                
 
                             </>}
                         </div>
                         <div>
-                            <span className="text-muted small d-block">{task.main_task.modification}</span>
                             <input
                                 type="number"
                                 inputMode="decimal"
@@ -951,13 +953,14 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                 disabled={true}
                                 title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
                             />
+                            <span className="text-muted small d-block">{task.main_task.modification}</span>
+                            
                         </div>
                     </div>
                 </td>
                 <td>
                     <div className="d-grid gap-2">
                         <div>
-                            <span className="text-muted small d-block">{task.main_task.actual_acc} in</span>
                             <input
                                 type="number"
                                 inputMode="decimal"
@@ -972,11 +975,12 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                 disabled={!isActualEditable}
                                 title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
                             />
+                            <span className="text-muted small d-block">{task.main_task.actual_acc} in</span>
+                            
                         </div>
                         <div>
                             {task.main_task.timeliness_mode == "timeframe"? 
                             <>
-                                <span className="text-muted small d-block">{task.main_task.time} with</span>
                                 <input
                                     type="number"
                                     inputMode="decimal"
@@ -992,9 +996,10 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                     disabled={!isActualEditable}
                                     title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
                                 />
+                                <span className="text-muted small d-block">{task.main_task.time} with</span>
+                                
                             </>:
                             <>
-                                <span className="text-muted small d-block">on set deadline with</span>
                                 <input 
                                     type="date" 
                                     name = "actual_deadline"
@@ -1004,11 +1009,12 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                     disabled={!isActualEditable}
                                     title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
                                 />
+                                <span className="text-muted small d-block">on set deadline with</span>
+                                
 
                             </>}
                         </div>
                         <div>
-                            <span className="text-muted small d-block">{task.main_task.modification}</span>
                             <input
                                 type="number"
                                 inputMode="decimal"
@@ -1023,6 +1029,8 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                 disabled={!isActualEditable}
                                 title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
                             />
+                            <span className="text-muted small d-block">{task.main_task.modification}</span>
+                            
                         </div>
                     </div>
                 </td>

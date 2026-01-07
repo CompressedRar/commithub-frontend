@@ -34,3 +34,7 @@ export async function updateCategory(data){
         }
     })
 }
+
+export async function updateCategoryOrder(id, orderNum){
+    return api.patch(`/api/v1/category/order/${id}&${orderNum}`)
+}
