@@ -733,9 +733,30 @@ function TaskSection({
 
 function RatingBadges({ task, currentPhase, handleDataChange, setSubTaskID }) {
 
+     const clampRating = (v) => {
+        if (v === undefined || v === null || v === "") return "";
+        const str = String(v).replace(/[^0-9.]/g, "");
+        const num = parseInt(str.split(".")[0], 10);
+        if (isNaN(num)) return "";
+        if (num < 1) return "1";
+        if (num > 5) return "5";
+        return String(num);
+     }
+
      const onNumberInput = (e) => {
         sanitizeNumberInput(e)
+        // clamp values for rating fields
+        if (e.target && ["quantity","efficiency","timeliness"].includes(e.target.name)) {
+            e.target.value = clampRating(e.target.value)
+        }
         handleDataChange(e)
+    }
+
+    const onNumberBlur = (e) => {
+        if (e.target && ["quantity","efficiency","timeliness"].includes(e.target.name)) {
+            e.target.value = clampRating(e.target.value)
+            handleDataChange(e)
+        }
     }
     return (
         <div style = {{
@@ -752,6 +773,7 @@ function RatingBadges({ task, currentPhase, handleDataChange, setSubTaskID }) {
                     onKeyDown={numericKeyDown}
                     onPaste={handlePasteNumeric}
                     onInput={onNumberInput}
+                    onBlur={onNumberBlur}
                     name="quantity"   
                     max={5}
                     min={1}                 
@@ -766,6 +788,7 @@ function RatingBadges({ task, currentPhase, handleDataChange, setSubTaskID }) {
                     onKeyDown={numericKeyDown}
                     onPaste={handlePasteNumeric}
                     onInput={onNumberInput}
+                    onBlur={onNumberBlur}
                     name="efficiency"
                     max={5}
                     min={1}
@@ -782,6 +805,7 @@ function RatingBadges({ task, currentPhase, handleDataChange, setSubTaskID }) {
                     onKeyDown={numericKeyDown}
                     onPaste={handlePasteNumeric}
                     onInput={onNumberInput}
+                    onBlur={onNumberBlur}
                     name="timeliness"
                 />
             </div>
@@ -801,9 +825,13 @@ function numericKeyDown(e) {
         "Backspace","Tab","ArrowLeft","ArrowRight","Delete","Enter","Home","End"
     ]
     if (allowed.includes(e.key)) return
-    // allow digits and single dot
+    // allow digits and single dot (but block dot for rating fields)
     const isDigit = /^[0-9]$/.test(e.key)
     const isDot = e.key === "."
+    if (isDot && e.target && ["quantity","efficiency","timeliness"].includes(e.target.name)) {
+        e.preventDefault()
+        return
+    }
     if (!isDigit && !isDot) {
         e.preventDefault()
         return
@@ -817,8 +845,17 @@ function numericKeyDown(e) {
 function handlePasteNumeric(e) {
     e.preventDefault()
     const pasted = (e.clipboardData || window.clipboardData).getData("text")
-    const sanitized = pasted.replace(/[^0-9.]/g, "")
+    let sanitized = pasted.replace(/[^0-9.]/g, "")
     if (!sanitized) return
+
+    // If pasting into rating fields, clamp to integer 1-5
+    if (e.target && ["quantity","efficiency","timeliness"].includes(e.target.name)) {
+        const intVal = parseInt(sanitized.split(".")[0], 10)
+        if (isNaN(intVal)) return
+        const clamped = Math.min(5, Math.max(1, intVal))
+        sanitized = String(clamped)
+    }
+
     // insert sanitized text at cursor
     const start = e.target.selectionStart
     const end = e.target.selectionEnd

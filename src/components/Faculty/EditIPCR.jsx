@@ -558,6 +558,9 @@ function EditIPCR(props) {
                                 </tr>
                             </thead>
                             <tbody>
+                                <tr className="table-secondary fw-bold">
+                                    <td colSpan="5">CORE FUNCTIONS</td>
+                                </tr>
                                 {Object.entries(arrangedSubTasks).map(([category, tasks]) => (
                                     <TaskSection
                                         key={category}
@@ -691,9 +694,7 @@ function TaskSection({
 
     return (
         <>
-            <tr className="table-secondary fw-bold">
-                <td colSpan="5">{categoryType}</td>
-            </tr>
+            
             <tr className="table-light small">
                 <td colSpan="5" className="text-muted">{category}</td>
             </tr>

@@ -461,11 +461,8 @@ function CategoryTasks(props) {
                 
                   <div className="col-md-6 mb-3">
                     <label className="form-label fw-semibold">Efficiency Unit</label>
-                    <select name="modification" className="form-select" onChange={handleDataChange}>
-                      <option value="correction">Correction</option>
-                      <option value="revision">Revision</option>
-                      <option value="error">Error</option>
-                    </select>
+                    <input type="text" name="modification" className="form-control" onChange={handleDataChange} placeholder="eg. corrections"/>
+                    
                   </div>
                 </div>
 
@@ -495,18 +492,8 @@ function CategoryTasks(props) {
 
                     <div className="col-md-6 mb-3">
                       <label className="form-label fw-semibold">Time Unit</label>
-                      <select
-                        name="time_measurement"
-                        className="form-select form-select-sm"
-                        onChange={handleDataChange}
-                        value={formData.time_measurement || "minute"}
-                      >
-                        {["minute","hour","day","week","month","semester","year"].map((t) => (
-                          <option key={t} value={t}>
-                            {t[0].toUpperCase() + t.slice(1)}
-                          </option>
-                        ))}
-                      </select>
+                      <input type="text" name="time_measurement" className="form-control" onChange={handleDataChange} placeholder="eg. days"/>
+                      
                     </div>
                   </div>
                 ) : (

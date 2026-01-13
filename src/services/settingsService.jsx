@@ -12,6 +12,10 @@ export async function updateSettings(data) {
     return api.patch("/api/v1/settings/", data)
 }
 
+export async function verifyAdminPassword(data) {
+    console.log("verifying admin password")
+    return api.post("/api/v1/auth/verify-admin-password", data)
+}
 export async function validateFormula(data) {
     console.log("validating formula")
     return api.post("/api/v1/settings/validate-formula", data)

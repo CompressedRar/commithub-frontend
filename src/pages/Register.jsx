@@ -111,13 +111,12 @@ function Register() {
     setRegistering(true)
     e.preventDefault();
 
-    if (!fileInput.current.files[0]) {
-      Swal.fire("Error", "You must upload a profile picture.", "error");
-      return;
-    }
-
     const newFormData = objectToFormData(formData);
-    newFormData.append("profile_picture", fileInput.current.files[0]);
+
+    // Append profile picture only if provided; otherwise backend will use default
+    if (fileInput.current && fileInput.current.files && fileInput.current.files[0]) {
+      newFormData.append("profile_picture", fileInput.current.files[0]);
+    }
 
     try {
       const res = await registerAccount(newFormData);
@@ -199,7 +198,7 @@ function Register() {
             height: "120px",
             backgroundImage: preview
               ? `url('${preview}')`
-              : "url('/default-avatar.png')",
+              : "url('/default-profile-pic.jpg')",
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
@@ -216,7 +215,6 @@ function Register() {
           id="profile-pic"
           onChange={handleImageChange}
           ref={fileInput}
-          required
           accept="image/*"
           hidden
         />

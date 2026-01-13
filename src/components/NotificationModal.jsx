@@ -1,14 +1,27 @@
-import { useEffect } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { readNotification } from "../services/userService";
 
-function NotificationModal({ notifications, setNotifications }) {
-  // mark unread notifications as read only when the modal is actually shown
+function NotificationModal({ notifications = [], setNotifications }) {
+  const [visibleCount, setVisibleCount] = useState(10);
+
+  // sort notifications by created_at desc
+  const sorted = useMemo(() => {
+    return [...(notifications || [])].sort((a, b) => {
+      const ta = new Date(a.created_at).getTime() || 0;
+      const tb = new Date(b.created_at).getTime() || 0;
+      return tb - ta;
+    });
+  }, [notifications]);
+
+  const visible = sorted.slice(0, visibleCount);
+
+  // mark unread notifications among visible ones as read only when the modal is actually shown
   useEffect(() => {
     const modalEl = document.getElementById("notification-modal");
     if (!modalEl) return;
 
     const handler = () => {
-      const unreadIds = (notifications || []).filter(n => !n.read).map(n => n.id);
+      const unreadIds = (visible || []).filter(n => !n.read).map(n => n.id);
       if (!unreadIds || unreadIds.length === 0) return;
 
       readNotification(unreadIds)
@@ -22,7 +35,7 @@ function NotificationModal({ notifications, setNotifications }) {
 
     modalEl.addEventListener("shown.bs.modal", handler);
     return () => modalEl.removeEventListener("shown.bs.modal", handler);
-  }, [notifications, setNotifications]);
+  }, [visible, setNotifications]);
 
   return (
     <div
@@ -70,11 +83,11 @@ function NotificationModal({ notifications, setNotifications }) {
               borderTop: "1px solid #e9ecef",
             }}
           >
-            {notifications.length > 0 ? (
+            {sorted.length > 0 ? (
               <div className="d-flex flex-column gap-3">
-                {notifications.map((notif, index) => (
+                {visible.map((notif, index) => (
                   <div
-                    key={index}
+                    key={notif.id || index}
                     className={`p-3 border rounded-3 d-flex flex-column gap-1 ${
                       notif.read
                         ? "bg-white"
@@ -111,6 +124,17 @@ function NotificationModal({ notifications, setNotifications }) {
                     )}
                   </div>
                 ))}
+
+                {sorted.length > visibleCount && (
+                  <div className="text-center mt-3">
+                    <button className="btn btn-link" onClick={() => setVisibleCount(v => v + 10)}>
+                      Load more
+                    </button>
+                    <button className="btn btn-link" onClick={() => setVisibleCount(sorted.length)}>
+                      Show all
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="text-center text-muted py-5">

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { authenticateAccount } from "../services/userService";
+import { authenticateAccount, verifyOtp } from "../services/userService";
 import { objectToFormData } from "../components/api";
 import Swal from "sweetalert2";
 import { jwtDecode } from "jwt-decode";
@@ -12,6 +12,9 @@ function Login() {
   const [loginFormData, setLoginFormData] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [loggingIn, setLoggingIn] = useState(false);
+  const [otpRequested, setOtpRequested] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
 
   // Detect existing token and redirect based on role
   function detectToken() {
@@ -38,10 +41,13 @@ function Login() {
       const convertedData = objectToFormData(loginFormData);
       const res = await authenticateAccount(convertedData);
 
-      if (res.data.message === "Authenticated.") {
+      if (res.data.token) {
         localStorage.setItem("token", res.data.token);
         const payload = jwtDecode(res.data.token);
         detectToken(payload);
+      } else if (res.data.message === "OTP sent") {
+        setOtpRequested(true);
+        Swal.fire({ title: "OTP Sent", text: "A one-time password was sent to your email.", icon: "info" });
       }
     } catch (error) {
       Swal.fire({
@@ -58,6 +64,23 @@ function Login() {
   const handleDataChange = (e) => {
     setLoginFormData({ ...loginFormData, [e.target.name]: e.target.value });
   };
+
+  const handleOtpSubmit = async (e) => {
+    e.preventDefault();
+    setVerifyingOtp(true);
+    try {
+      const res = await verifyOtp({ email: loginFormData.email, otp: otp });
+      if (res.data.token) {
+        localStorage.setItem("token", res.data.token);
+        const payload = jwtDecode(res.data.token);
+        detectToken(payload);
+      }
+    } catch (error) {
+      Swal.fire({ title: "Error", text: error.response?.data?.error, icon: "error" });
+    } finally {
+      setVerifyingOtp(false);
+    }
+  }
 
   return (
     <div className="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-light">
@@ -80,80 +103,101 @@ function Login() {
             <p className="text-muted small">Sign in to continue</p>
           </div>
 
-          <form onSubmit={handleSubmission}>
-            {/* Email */}
-            <div className="mb-3">
-              <label htmlFor="email" className="form-label fw-semibold">
-                Email Address
-              </label>
-              <div className="input-group">
-                <span className="input-group-text bg-white">
-                  <span className="material-symbols-outlined">mail</span>
-                </span>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  className="form-control"
-                  placeholder="Enter your email"
-                  required
-                  onChange={handleDataChange}
-                  maxLength={30}
-                />
-              </div>
-            </div>
-
-            {/* Password */}
-            <div className="mb-4">
-              <label htmlFor="password" className="form-label fw-semibold">
-                Password
-              </label>
-              <div className="input-group">
-                <span className="input-group-text bg-white">
-                  <span className="material-symbols-outlined">lock</span>
-                </span>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  id="password"
-                  name="password"
-                  className="form-control"
-                  placeholder="Enter your password"
-                  required
-                  onChange={handleDataChange}
-                  maxLength={30}
-                />
-                <button
-                  type="button"
-                  className="btn btn-outline-secondary"
-                  onClick={() => setShowPassword(!showPassword)}
-                  tabIndex={-1}
-                >
-                  <span className="material-symbols-outlined">
-                    {showPassword ? "visibility_off" : "visibility"}
+          {!otpRequested ? (
+            <form onSubmit={handleSubmission}>
+              {/* Email */}
+              <div className="mb-3">
+                <label htmlFor="email" className="form-label fw-semibold">
+                  Email Address
+                </label>
+                <div className="input-group">
+                  <span className="input-group-text bg-white">
+                    <span className="material-symbols-outlined">mail</span>
                   </span>
-                </button>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    className="form-control"
+                    placeholder="Enter your email"
+                    required
+                    onChange={handleDataChange}
+                    maxLength={30}
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Login Button */}
-            <button
-              type="submit"
-              className="btn btn-primary w-100 py-2 fw-semibold d-flex align-items-center justify-content-center"
-              disabled={loggingIn}
-            >
-              {loggingIn ? (
-                <>
-                  <span className="spinner-border spinner-border-sm me-2"></span>
-                  Logging in...
-                </>
-              ) : (
-                <>
-                  <span className="material-symbols-outlined me-2">login</span>
-                  Login
-                </>
-              )}
-            </button>
-          </form>
+              {/* Password */}
+              <div className="mb-4">
+                <label htmlFor="password" className="form-label fw-semibold">
+                  Password
+                </label>
+                <div className="input-group">
+                  <span className="input-group-text bg-white">
+                    <span className="material-symbols-outlined">lock</span>
+                  </span>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    name="password"
+                    className="form-control"
+                    placeholder="Enter your password"
+                    required
+                    onChange={handleDataChange}
+                    maxLength={30}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={() => setShowPassword(!showPassword)}
+                    tabIndex={-1}
+                  >
+                    <span className="material-symbols-outlined">
+                      {showPassword ? "visibility_off" : "visibility"}
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Login Button */}
+              <button
+                type="submit"
+                className="btn btn-primary w-100 py-2 fw-semibold d-flex align-items-center justify-content-center"
+                disabled={loggingIn}
+              >
+                {loggingIn ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2"></span>
+                    Logging in...
+                  </>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined me-2">login</span>
+                    Login
+                  </>
+                )}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleOtpSubmit}>
+              <div className="mb-3">
+                <label htmlFor="otp" className="form-label fw-semibold">Enter OTP</label>
+                <input
+                  type="text"
+                  id="otp"
+                  name="otp"
+                  className="form-control"
+                  placeholder="Enter the 6-digit OTP sent to your email"
+                  required
+                  onChange={(e) => setOtp(e.target.value)}
+                  maxLength={6}
+                />
+              </div>
+              <button type="submit" className="btn btn-primary w-100 py-2 fw-semibold" disabled={verifyingOtp}>
+                {verifyingOtp ? "Verifying..." : "Verify OTP"}
+              </button>
+            </form>
+          )}
         </div>
       </div>
       <div style={{width:"100vw", height:"100vh", position:"fixed",zIndex:"1", opacity:"0.1"}}>

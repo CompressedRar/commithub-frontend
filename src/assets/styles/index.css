@@ -21,6 +21,17 @@
 
   
 }
+select.no-arrow {
+  -webkit-appearance: none; /* for Chrome, Safari, and Opera */
+  -moz-appearance: none;    /* for Firefox */
+  appearance: none;         /* standard property */
+  background-image: none;   /* removes Bootstrap's custom arrow */
+  text-align: center;
+}
+
+select.no-arrow::-ms-expand {
+  display: none;
+}
 
 body {
   margin: 0;

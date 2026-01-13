@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import Swal from "sweetalert2"
-import { getSettings, updateSettings, validateFormula } from "../services/settingsService"
+import { getSettings, updateSettings, validateFormula, verifyAdminPassword } from "../services/settingsService"
 import Positions from "./Positions"
 import Periods from "../components/SystemSettings/Periods"
 
@@ -130,6 +130,28 @@ export default function SystemSettings() {
         rating_start_date: fmt(ratingStartDate),
         rating_end_date: fmt(ratingEndDate),
         auto_period_id: !!autoPeriodId
+      }
+
+      // Ask for admin password confirmation before saving
+      const { value: adminPassword } = await Swal.fire({
+        title: "Confirm changes",
+        text: "Please enter your admin password to confirm this change",
+        input: "password",
+        inputAttributes: { autocapitalize: "off", autocorrect: "off" },
+        showCancelButton: true
+      })
+
+      if (!adminPassword) {
+        setSaving(false)
+        return
+      }
+
+      try {
+        await verifyAdminPassword({ password: adminPassword })
+      } catch (err) {
+        Swal.fire("Error", err.response?.data?.error || "Invalid password", "error")
+        setSaving(false)
+        return
       }
 
       await updateSettings(payload)

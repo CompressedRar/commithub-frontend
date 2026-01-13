@@ -28,6 +28,15 @@ export async function authenticateAccount(data) {
     })
 }
 
+
+export async function verifyOtp(data){
+    return api.post("/api/v1/auth/verify-otp", data, {
+        headers: {
+            "Content-type": "application/json"
+        }
+    })
+}
+
 export async function updateMemberInfo(data){
     return api.patch("/api/v1/users/", data, {
         headers: {
