@@ -671,7 +671,7 @@ function RatingBadges({ task, canEval, setField, setValue, setRatingID, currentP
       <div className="text-center" style={{ fontSize: "1.5rem", borderStyle: "solid", borderWidth: "0 1px 0 0", borderColor: "grey", height: "100%" }}>
         <span
           className={`d-block ${canEval ? "cursor-pointer" : ""}`}
-          contentEditable={canEval}
+          contentEditable={false}
           onClick={() => canEval && setRatingID(task.rating?.id)}
           onInput={(e) => { if (canEval) { setField("quantity"); setValue(e.target.textContent) } }}
         >
@@ -681,7 +681,7 @@ function RatingBadges({ task, canEval, setField, setValue, setRatingID, currentP
       <div className="text-center" style={{ fontSize: "1.5rem", borderStyle: "solid", borderWidth: "0 1px 0 0", borderColor: "grey", height: "100%" }}>
         <span
           className={`d-block ${canEval ? "cursor-pointer" : ""}`}
-          contentEditable={canEval}
+          contentEditable={false}
           onClick={() => canEval && setRatingID(task.rating?.id)}
           onInput={(e) => { if (canEval) { setField("efficiency"); setValue(e.target.textContent) } }}
         >
@@ -691,7 +691,7 @@ function RatingBadges({ task, canEval, setField, setValue, setRatingID, currentP
       <div className="text-center" style={{ fontSize: "1.5rem", borderStyle: "solid", borderWidth: "0 1px 0 0", borderColor: "grey", height: "100%" }}>
         <span
           className={`d-block ${canEval ? "cursor-pointer" : ""}`}
-          contentEditable={canEval}
+          contentEditable={false}
           onClick={() => canEval && setRatingID(task.rating?.id)}
           onInput={(e) => { if (canEval) { setField("timeliness"); setValue(e.target.textContent) } }}
         >
