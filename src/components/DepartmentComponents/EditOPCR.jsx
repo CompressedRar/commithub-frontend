@@ -383,7 +383,7 @@ function EditOPCR(props) {
   }, [userInfo])
 
   useEffect(() => {
-    if (value === "") return
+    if (value == "") return
     const debounce = setTimeout(() => {
       updateRating(ratingID, field, value).catch((err) => console.error(err.response?.data?.error || err))
     }, 500)

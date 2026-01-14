@@ -48,4 +48,22 @@ if (token) {
   api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 }
 
+// Temporary debugging: log outgoing auth requests to find repeated login attempts
+api.interceptors.request.use((config) => {
+  try {
+    const url = config.url || "";
+    if (url.includes('/api/v1/auth/login') || url.includes('/api/v1/auth/verify-otp')) {
+      console.debug('[Auth Request]', (config.method || '').toUpperCase(), url, { data: config.data, headers: config.headers });
+      const stack = new Error().stack;
+      if (stack) {
+        // Show short stack to help locate caller (top 3 frames)
+        console.debug('Stack (top frames):', stack.split('\n').slice(2,6).join('\n'));
+      }
+    }
+  } catch (e) {
+    // ignore
+  }
+  return config;
+}, (error) => Promise.reject(error));
+
 export default api

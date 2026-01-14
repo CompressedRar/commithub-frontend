@@ -11,8 +11,15 @@ function LogTable() {
   const [allLogs, setAllLogs] = useState([]);
   const [filteredLogs, setFilteredLogs] = useState([]);
   const [visibleLogs, setVisibleLogs] = useState([]);
+
+  // pagination
   const [pages, setPages] = useState([]);
-  const [pageLimit, setPageLimit] = useState({ offset: 0, limit: 10 });
+  const [pageSize, setPageSize] = useState(() => {
+    const stored = localStorage.getItem("audit_page_size");
+    return stored ? Number(stored) : 10;
+  });
+  const [currentPage, setCurrentPage] = useState(1);
+
   const [searchQuery, setSearchQuery] = useState("");
 
   const [selectedDepartment, setSelectedDepartment] = useState("All");
@@ -20,6 +27,27 @@ function LogTable() {
   const [selectedTarget, setSelectedTarget] = useState("All");
 
   const [allDepartments, setAllDepartments] = useState([]);
+
+  // columns configuration (persisted)
+  const AVAILABLE_COLUMNS = [
+    { key: "user", label: "User" },
+    { key: "department", label: "Department" },
+    { key: "action", label: "Action" },
+    { key: "target", label: "Target" },
+    { key: "ip_address", label: "IP Address" },
+    { key: "timestamp", label: "Timestamp" },
+    { key: "user_agent", label: "User Agent" },
+  ];
+
+  const [columnsShown, setColumnsShown] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("audit_columns_shown"));
+      if (Array.isArray(saved) && saved.length > 0) return saved;
+    } catch (e) {
+      // ignore
+    }
+    return AVAILABLE_COLUMNS.map((c) => c.key);
+  });
 
   // 🔹 Fetch departments
   async function loadDepartments() {
@@ -40,7 +68,7 @@ function LogTable() {
       setAllLogs(res.data);
       setFilteredLogs(res.data);
       generatePagination(res.data);
-      setVisibleLogs(res.data.slice(0, 10)); // ✅ immediately show logs
+      setVisibleLogs(res.data.slice(0, pageSize)); // ✅ immediately show logs
     } catch (error) {
       console.error(error);
       Swal.fire("Error", "Fetching Logs failed.", "error");
@@ -50,17 +78,23 @@ function LogTable() {
   // 🔹 Pagination utilities
   function loadLimited() {
     if (!filteredLogs) return;
-    const sliced = filteredLogs.slice(pageLimit.offset, pageLimit.limit);
-    setVisibleLogs(sliced);
+    const start = (currentPage - 1) * pageSize;
+    setVisibleLogs(filteredLogs.slice(start, start + pageSize));
   }
 
   function generatePagination(array) {
-    const totalPages = Math.ceil(array.length / 10);
-    const newPages = Array.from({ length: totalPages }, (_, i) => ({
-      id: i + 1,
-      page: i + 1,
-    }));
+    const totalPages = Math.max(1, Math.ceil(array.length / pageSize));
+    const newPages = Array.from({ length: totalPages }, (_, i) => ({ id: i + 1, page: i + 1 }));
     setPages(newPages);
+  }
+
+  // persist pageSize and adjust pagination when pageSize changes
+  function changePageSize(size) {
+    setPageSize(size);
+    localStorage.setItem("audit_page_size", String(size));
+    setCurrentPage(1);
+    generatePagination(filteredLogs);
+    setVisibleLogs(filteredLogs.slice(0, size));
   }
 
   // 🔹 Filter logic
@@ -101,8 +135,8 @@ function LogTable() {
 
     setFilteredLogs(filtered);
     generatePagination(filtered);
-    setPageLimit({ offset: 0, limit: 10 });
-    setVisibleLogs(filtered.slice(0, 10));
+    setCurrentPage(1);
+    setVisibleLogs(filtered.slice(0, pageSize));
   }
 
   // 🔹 Hooks
@@ -113,7 +147,7 @@ function LogTable() {
 
   useEffect(() => {
     loadLimited();
-  }, [filteredLogs, pageLimit]);
+  }, [filteredLogs, currentPage, pageSize]);
 
   useEffect(() => {
     if (allLogs.length > 0) applyFilters(); // ✅ only after logs exist
@@ -126,14 +160,15 @@ function LogTable() {
     return () => clearTimeout(delay);
   }, [searchQuery]);
 
+  // persist columnsShown
+  useEffect(() => {
+    localStorage.setItem("audit_columns_shown", JSON.stringify(columnsShown));
+  }, [columnsShown]);
+
   return (
     <div className="container-fluid">
       {/* Header */}
-      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
-        <h4 className="fw-bold text-primary mb-2 mb-md-0 d-flex align-items-center gap-2">
-          <span className="material-symbols-outlined">history</span> System Logs
-        </h4>
-      </div>
+      
 
       
 
@@ -152,6 +187,19 @@ function LogTable() {
       </div>
 
       {/* Filters */}
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
+        <h4 className="fw-bold text-primary mb-2 mb-md-0 d-flex align-items-center gap-2">
+          <span className="material-symbols-outlined">history</span> System Logs
+        </h4>
+
+        <div className="d-flex gap-2 align-items-center mt-2 mt-md-0">
+          {/* Columns dropdown */}
+          
+
+          {/* Page size */}
+          
+        </div>
+      </div>
       <div className="row g-2 mb-3">
         <div className="col-12 col-md-3">
           <select
@@ -217,25 +265,38 @@ function LogTable() {
       </div>
 
       {/* Table */}
+      <div className="d-flex justify-content-between align-items-center mb-2">
+        <small className="text-muted">Showing {filteredLogs.length === 0 ? 0 : (currentPage - 1) * pageSize + 1} - {Math.min(currentPage * pageSize, filteredLogs.length)} of {filteredLogs.length}</small>
+            <div className="d-flex align-items-center gap-2">
+            <label className="small text-muted mb-0">Rows</label>
+            <select className="form-select form-select-sm" value={pageSize} onChange={(e) => changePageSize(Number(e.target.value))} style={{ width: 90 }}>
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+          </div>
+      </div>
+      
+
       <div className="table-responsive">
         <table className="table table-hover align-middle table-striped">
           <thead className="table-primary">
             <tr>
-              <th>User</th>
-              <th>Department</th>
-              <th>Action</th>
-              <th>Target</th>
-              <th>IP Address</th>
-              <th>Timestamp</th>
-              <th>User Agent</th>
+              {columnsShown.includes("user") && <th>User</th>}
+              {columnsShown.includes("department") && <th>Department</th>}
+              {columnsShown.includes("action") && <th>Action</th>}
+              {columnsShown.includes("target") && <th>Target</th>}
+              {columnsShown.includes("timestamp") && <th>Timestamp</th>}
+              {columnsShown.includes("user_agent") && <th>User Agent</th>}
             </tr>
           </thead>
           <tbody>
             {visibleLogs && visibleLogs.length > 0 ? (
-              visibleLogs.map((log) => <Logs key={log.id} log={log} />)
+              visibleLogs.map((log) => <Logs key={log.id} log={log} columnsShown={columnsShown} />)
             ) : (
               <tr>
-                <td colSpan="7" className="text-center py-5 text-muted">
+                <td colSpan={Math.max(1, columnsShown.length)} className="text-center py-5 text-muted">
                   <span className="material-symbols-outlined fs-1 d-block">
                     history_toggle_off
                   </span>
@@ -250,84 +311,55 @@ function LogTable() {
       {/* Pagination */}
       {pages && pages.length > 0 && (
         <nav className="mt-3">
-            <ul className="pagination justify-content-center flex-wrap">
+          <ul className="pagination justify-content-center flex-wrap">
             {/* Prev Button */}
-            <li className={`page-item ${pageLimit.offset === 0 ? "disabled" : ""}`}>
-                <button
+            <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+              <button
                 className="page-link"
                 onClick={() => {
-                    if (pageLimit.offset > 0) {
-                    const newPage = pageLimit.offset / 10 - 1;
-                    setPageLimit({
-                        offset: newPage * 10,
-                        limit: newPage * 10 + 10,
-                    });
-                    }
+                  if (currentPage > 1) setCurrentPage(currentPage - 1);
                 }}
-                >
+              >
                 ‹ Prev
-                </button>
+              </button>
             </li>
 
             {/* Dynamic page window */}
             {(() => {
-                const currentPage = Math.floor(pageLimit.offset / 10) + 1;
-                const totalPages = pages.length;
-                const maxVisible = 5;
-                let start = Math.max(currentPage - Math.floor(maxVisible / 2), 1);
-                let end = Math.min(start + maxVisible - 1, totalPages);
-                if (end - start < maxVisible - 1) {
+              const totalPages = pages.length;
+              const maxVisible = 5;
+              let start = Math.max(currentPage - Math.floor(maxVisible / 2), 1);
+              let end = Math.min(start + maxVisible - 1, totalPages);
+              if (end - start < maxVisible - 1) {
                 start = Math.max(end - maxVisible + 1, 1);
-                }
+              }
 
-                const visiblePages = pages.slice(start - 1, end);
+              const visiblePages = pages.slice(start - 1, end);
 
-                return visiblePages.map((data) => (
-                <li
-                    key={data.id}
-                    className={`page-item ${
-                    pageLimit.offset / 10 + 1 === data.page ? "active" : ""
-                    }`}
-                >
-                    <button
-                    className="page-link"
-                    onClick={() =>
-                        setPageLimit({
-                        offset: (data.page - 1) * 10,
-                        limit: data.page * 10,
-                        })
-                    }
-                    >
+              return visiblePages.map((data) => (
+                <li key={data.id} className={`page-item ${currentPage === data.page ? "active" : ""}`}>
+                  <button className="page-link" onClick={() => setCurrentPage(data.page)}>
                     {data.page}
-                    </button>
+                  </button>
                 </li>
-                ));
+              ));
             })()}
 
             {/* Next Button */}
-            <li
-                className={`page-item ${
-                pageLimit.offset + 10 >= filteredLogs.length ? "disabled" : ""
-                }`}
-            >
-                <button
+            <li className={`page-item ${currentPage >= pages.length ? "disabled" : ""}`}>
+              <button
                 className="page-link"
                 onClick={() => {
-                    if (pageLimit.offset + 10 < filteredLogs.length) {
-                    const newPage = pageLimit.offset / 10 + 1;
-                    setPageLimit({
-                        offset: newPage * 10,
-                        limit: newPage * 10 + 10,
-                    });
-                    }
+                  if (currentPage < pages.length) setCurrentPage(currentPage + 1);
                 }}
-                >
+              >
                 Next ›
-                </button>
+              </button>
             </li>
-            </ul>
+          </ul>
         </nav>
-        )}
+      )}
+      
     </div>
   );
 }

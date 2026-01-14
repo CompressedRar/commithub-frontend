@@ -27,8 +27,14 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
   async function loadCurrentPhase() {
     try {
       const res = await getSettings();
-      const phase = res?.data?.data?.current_phase;
-      console.log("Current phase:", phase);
+      let phase = res?.data?.data?.current_phase;
+      // normalize to an array so we can support multiple active phases
+      if (!phase) {
+        phase = [];
+      } else if (!Array.isArray(phase)) {
+        phase = [phase];
+      }
+      console.log("Current phase(s):", phase);
       setCurrentPhase(phase);
     } catch (error) {
       console.error("Failed to load current phase:", error);
@@ -111,14 +117,20 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
     return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("planning");
   }
 
-  function getPhaseLabel() {
-    if (isPlanningPhase()) return { label: "Planning Phase", color: "info", icon: "calendar_month" };
-    if (isMonitoringPhase()) return { label: "Monitoring Phase", color: "warning", icon: "timeline" };
-    if (isRatingPhase()) return { label: "Rating Phase", color: "success", icon: "star_rate" };
-    return { label: "Inactive", color: "secondary", icon: "block" };
+  function getPhaseInfos() {
+    const infos = [];
+    if (isPlanningPhase())
+      infos.push({ key: "planning", label: "Planning Phase", shortLabel: "Planning", color: "info", icon: "calendar_month" });
+    if (isMonitoringPhase())
+      infos.push({ key: "monitoring", label: "Monitoring Phase", shortLabel: "Monitoring", color: "warning", icon: "timeline" });
+    if (isRatingPhase())
+      infos.push({ key: "rating", label: "Rating Phase", shortLabel: "Rating", color: "success", icon: "star_rate" });
+
+    if (infos.length === 0) infos.push({ key: "inactive", label: "Inactive", shortLabel: "Inactive", color: "secondary", icon: "block" });
+    return infos;
   }
 
-  const phaseInfo = getPhaseLabel();
+  const phaseInfos = getPhaseInfos();
 
   // Determine available tabs based on phase
   const getTabs = () => {
@@ -179,9 +191,9 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
       <div className="modal fade" id="assign-head" aria-hidden="true">
         <div className="modal-dialog modal-lg modal-dialog-centered">
           <div className="modal-content">
-            <div className="modal-header">
+            <div className="modal-header bg-primary text-white">
               <h5 className="modal-title">Assign Office Head</h5>
-              <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
+              <button type="button" className="btn-close " data-bs-dismiss="modal"></button>
             </div>
             <div className="modal-body">
               <DepartmentAssignHead dept_id={id} />
@@ -225,24 +237,20 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
         <div className="alert alert-soft-primary d-flex justify-content-between align-items-center mb-4 border-0 rounded-3 shadow-sm" 
           style={{ backgroundColor: `#e7f1ff`, borderLeft: `5px solid #0d6efd` }}>
           <div className="d-flex align-items-center justify-content-center gap-3">
-            <div className={`rounded-circle p-3 bg-${phaseInfo.color}`} style={{ width: 50, height: 50 }}>
+            <div className={`rounded-circle p-3 ${phaseInfos.length === 1 ? `bg-${phaseInfos[0].color}` : 'bg-primary'}`} style={{ width: 50, height: 50 }}>
               <span className="material-symbols-outlined text-white d-flex align-items-center justify-content-center" 
-                style={{ fontSize: 24 }}>{phaseInfo.icon}</span>
+                style={{ fontSize: 24 }}>{phaseInfos.length === 1 ? phaseInfos[0].icon : 'layers'}</span>
             </div>
             <div>
-              <h6 className="mb-0 fw-bold text-dark">Current Phase</h6>
-              <p className="mb-0 text-muted small">{phaseInfo.label}</p>
+              <h6 className="mb-0 fw-bold text-dark">Current Phase{phaseInfos.length > 1 ? 's' : ''}</h6>
+              <p className="mb-0 text-muted small">{phaseInfos.length === 1 ? phaseInfos[0].label : 'Multiple phases active'}</p>
             </div>
           </div>
-          {isPlanningPhase() && (
-            <span className="badge bg-info">Plan outputs and assign to staff</span>
-          )}
-          {isMonitoringPhase() && (
-            <span className="badge bg-warning">Monitor progress and actual accomplishments</span>
-          )}
-          {isRatingPhase() && (
-            <span className="badge bg-success">Rate performance and consolidate results</span>
-          )}
+          <div className="d-flex gap-2 align-items-center">
+            {phaseInfos.map((p) => (
+              <span key={p.key} className={`badge bg-${p.color} me-1`}>{p.shortLabel}</span>
+            ))}
+          </div>
         </div>
 
         {/* Banner */}

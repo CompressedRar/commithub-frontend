@@ -138,7 +138,6 @@ function DepartmentAssignHead(props){
             loadDepartmentInfo()
         })
 
-        return () => socket.off("department")
     }, [])
     // assign and remove head
     //change role
@@ -147,47 +146,64 @@ function DepartmentAssignHead(props){
 
     return (
         <div className="department-assign-container">
-            <div className="assigned-head-container">
-                <h4>
-                    Current Office Head
-                </h4>
-                {headInfo ?<div className="member assigned-head">
-                    <div className="member-info">
-                        <div className="user-image" style={{backgroundImage: `url('${headInfo.profile_picture_link}')`}}>.</div>
-                        <div className="user-info">
-                            <span className="name">{headInfo.first_name + " " + headInfo.last_name}</span>
-                            <span className="position">{headInfo.position.name}</span>
+            <div className="assigned-head-container card mb-3">
+                <div className="card-body d-flex align-items-center justify-content-between">
+                    <div className="d-flex align-items-center gap-3">
+                        <div className="rounded-circle border flex-shrink-0" style={{ width: "60px", height: "60px", backgroundImage: `url(${(headInfo && headInfo.profile_picture_link) || '/default-profile.png'})`, backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
+                        <div>
+                            <h5 className="mb-0 fw-semibold">{headInfo ? `${headInfo.first_name} ${headInfo.last_name}` : "No Head Assigned"}</h5>
+                            <small className="text-muted">{headInfo ? headInfo.position.name : ""}</small>
                         </div>
                     </div>
-                    <button className="already-assigned" style={{backgroundImage:"linear-gradient(to left,rgb(255, 69, 69), rgb(255, 136, 0), rgb(240, 128, 0))"}} onClick={()=>{removeHead(headInfo.id)}}>
-                        <span className="material-symbols-outlined">assignment_ind</span>
-                        <span>REMOVE</span>
-                    </button>
-                </div> : 
-                <div className="empty-head">There is no member currently assigned as head.</div>}
+
+                    {headInfo ? (
+                        <div className="d-flex align-items-center gap-2">
+                            <button className="btn btn-outline-danger btn-sm" onClick={() => removeHead(headInfo.id)}>
+                                <span className="material-symbols-outlined align-middle">assignment_ind</span>
+                                <span className="ms-1">Remove</span>
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="text-muted small">There is no member currently assigned as head.</div>
+                    )}
+                </div>
             </div>
 
             <div className="other-member-container">
-                <h4>
-                    Office Members
-                </h4>
-                {departmentInfo.users && departmentUsers.map(user => (
-                    user.account_status == 1? <div className="member">
-                        <div className="member-info">
-                            <div className="user-image" style={{backgroundImage: `url('${user.profile_picture_link}')`}}>.</div>
-                            <div className="user-info">
-                                <span className="name">{user.first_name + " " + user.last_name}</span>
-                                <span className="position">{user.position.name}</span>
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                    <h5 className="fw-bold text-primary">Office Members</h5>
+                    <small className="text-muted">{departmentUsers.length} members</small>
+                </div>
+
+                <div className="list-group">
+                    {departmentInfo.users && departmentUsers.filter(u => u.account_status === 1).map(user => (
+                        <div key={user.id} className="list-group-item d-flex align-items-center justify-content-between">
+                            <div className="d-flex align-items-center gap-3">
+                                <div className="rounded-circle border flex-shrink-0" style={{ width: "48px", height: "48px", backgroundImage: `url(${user.profile_picture_link || '/default-profile.png'})`, backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
+                                <div>
+                                    <div className="fw-semibold">{user.first_name} {user.last_name}</div>
+                                    <small className="text-muted">{user.position.name}</small>
+                                </div>
+                            </div>
+
+                            <div>
+                                <button className="btn btn-primary fw-semibold d-flex align-items-center gap-1 shadow-sm px-3 py-2 rounded-pill" onClick={() => assignHead(user.id)}>
+                                    <span className="material-symbols-outlined">assignment_ind</span>
+                                    <span>Assign</span>
+                                </button>
                             </div>
                         </div>
-                        <button className="btn btn-primary" onClick={()=>{assignHead(user.id)}}>
-                            <span className="material-symbols-outlined">assignment_ind</span>
-                            <span>Assign</span>
-                        </button>
-                    </div>: ""
-                ))}
-            </div>
+                    ))}
 
+                    {/* Empty state */}
+                    {departmentUsers.filter(u => u.account_status === 1).length === 0 && (
+                        <div className="list-group-item text-center text-muted py-4">
+                            <span className="material-symbols-outlined fs-1 text-secondary">no_accounts</span>
+                            <div>No Members Found</div>
+                        </div>
+                    )}
+                </div>
+            </div>
 
         </div>
     )

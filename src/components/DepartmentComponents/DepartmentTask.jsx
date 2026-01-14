@@ -21,7 +21,7 @@ function DepartmentTask({ mems, dept_id, switchMember, switchInfo }) {
 
   const handleRemove = async () => {
     Swal.fire({
-      title: "Do you want to remove this output?",
+      title: "Do you want to remove this task?",
       showDenyButton: true,
       confirmButtonText: "Yes",
       denyButtonText: "No",
