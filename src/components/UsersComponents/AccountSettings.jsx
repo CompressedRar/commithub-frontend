@@ -42,6 +42,13 @@ function AccountSettings(props) {
   const [hasLowercase, setHasLowercase] = useState(false)
   const [hasNumber, setHasNumber] = useState(false)
 
+  // Recovery Email & 2FA
+  const [recoveryEmail, setRecoveryEmail] = useState("")
+  const [show2FAModal, setShow2FAModal] = useState(false)
+  const [twoFAEnabled, setTwoFAEnabled] = useState(false)
+  const [savingRecoveryEmail, setSavingRecoveryEmail] = useState(false)
+  const [enabling2FA, setEnabling2FA] = useState(false)
+
 
   function checkPasswordStrength(password) {
     const minLength = password.length >= 8
@@ -74,6 +81,8 @@ function AccountSettings(props) {
     setMemberInformation(res)
     setPreview(res.profile_picture_link)
     setFirstEmail(res.email)
+    setRecoveryEmail(res.recovery_email || "")
+    setTwoFAEnabled(res.two_factor_enabled || false)
     setFormData({
       id: props.id,
       department: res.department.id,
@@ -135,6 +144,74 @@ function AccountSettings(props) {
       Swal.fire("Result", res, "success")
       await loadUserInformation()
     })
+  }
+
+  async function handleSaveRecoveryEmail() {
+    if (!recoveryEmail || recoveryEmail === firstEmail) {
+      Swal.fire("Error", "Recovery email must be different from primary email", "error")
+      return
+    }
+    setSavingRecoveryEmail(true)
+    try {
+      await updateMemberInfo(objectToFormData({ recovery_email: recoveryEmail, id: props.id }))
+      Swal.fire("Success", "Recovery email saved successfully", "success")
+      await loadUserInformation()
+    } catch (error) {
+      Swal.fire("Error", error.response?.data?.error || "Failed to save recovery email", "error")
+    } finally {
+      setSavingRecoveryEmail(false)
+    }
+  }
+
+  async function handleToggle2FA() {
+    console.log("TIRGGERING 2FA")
+    if (!twoFAEnabled) {
+      Swal.fire({
+        title: "Enable 2FA?",
+        text: "You will need to enter OTP codes on login",
+        icon: "info",
+        showCancelButton: true,
+        confirmButtonText: "Yes",
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          setEnabling2FA(true)
+          try {
+            await updateMemberInfo(objectToFormData({ two_factor_enabled: 1, id: props.id }))
+            setTwoFAEnabled(false)
+            Swal.fire("Success", "2FA enabled", "success")
+            await loadUserInformation()
+          } catch (error) {
+            Swal.fire("Error", "Failed to disable 2FA", "error")
+          } finally {
+            setEnabling2FA(false)
+          }
+        }
+      })
+    } else {
+      
+      Swal.fire({
+        title: "Disable 2FA?",
+        text: "You will no longer need to enter OTP codes on login",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, Disable",
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          setEnabling2FA(true)
+          try {
+            await updateMemberInfo(objectToFormData({ two_factor_enabled: 0, id: props.id }))
+            setTwoFAEnabled(false)
+            Swal.fire("Success", "2FA disabled", "success")
+            await loadUserInformation()
+          } catch (error) {
+            Swal.fire("Error", "Failed to disable 2FA", "error")
+          } finally {
+            setEnabling2FA(false)
+          }
+        }
+      })
+
+    }
   }
 
   function handleImageChange() {
@@ -210,8 +287,8 @@ function AccountSettings(props) {
   useEffect(()=> {
     
     const debounce = setTimeout(() => {
-            authenticatePassword()
-        }, 500)
+      authenticatePassword()
+    }, 500)
 
     return () => clearTimeout(debounce)
     
@@ -227,93 +304,188 @@ function AccountSettings(props) {
   return (
     <div className="profile-edit-container container-fluid">
       <div className="">
-        <h4 className="mb-4 d-flex align-items-center text-primary">
-          <span className="material-symbols-outlined me-2">manage_accounts</span>
-          Account Settings
-        </h4>
 
-        {/* Profile Picture */}
-        <div className="d-flex align-items-center gap-4 mb-4">
-          <div
-            className="rounded-circle border border-2 border-primary"
-            style={{
-              width: "100px",
-              height: "100px",
-              backgroundImage: `url('${preview || "/default-avatar.png"}')`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          ></div>
-          <div>
-            <label htmlFor="profile-image" className="btn btn-outline-primary btn-sm d-flex">
-              <span className="material-symbols-outlined me-1">upload</span> Change Photo
-            </label>
-            <input type="file" id="profile-image" ref={fileInput} onChange={handleImageChange} accept="image/*" hidden />
+        {/* SECTION 1: PROFILE INFORMATION */}
+        <div className="border-0 mb-4" style={{ borderRadius: "1rem" }}>
+          <div className="card-body">
+            <h5 className="card-title d-flex align-items-center text-primary mb-3">
+            </h5>
+
+            {/* Profile Picture */}
+            <div className="d-flex align-items-center gap-4 mb-4">
+              <div
+                className="rounded-circle border border-2 border-primary"
+                style={{
+                  width: "100px",
+                  height: "100px",
+                  backgroundImage: `url('${preview || "/default-avatar.png"}')`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
+              ></div>
+              <div>
+                <label htmlFor="profile-image" className="btn btn-outline-primary btn-sm d-flex">
+                  <span className="material-symbols-outlined me-1">upload</span> Change Photo
+                </label>
+                <input type="file" id="profile-image" ref={fileInput} onChange={handleImageChange} accept="image/*" hidden />
+              </div>
+            </div>
+
+            {/* Email */}
+            <div className="mb-3">
+              <label htmlFor="email" className="form-label fw-semibold">Email Address</label>
+              <input disabled type="email" id="email" className="form-control" value={formData.email || ""} onChange={(e) => { setFormData({...formData, email: e.target.value}); setEmailQuery(e.target.value)}} />
+              <small className="text-muted">Primary email cannot be changed</small>
+            </div>
+
+            {/* Name Fields */}
+            <div className="row g-3">
+              <div className="col-md-4">
+                <label htmlFor="first_name" className="form-label fw-semibold">First Name</label>
+                <input type="text" id="first_name" className="form-control" value={formData.first_name || ""} onChange={(e) => setFormData({...formData, first_name: e.target.value})} />
+              </div>
+              <div className="col-md-4">
+                <label htmlFor="middle_name" className="form-label fw-semibold">Middle Name</label>
+                <input type="text" id="middle_name" className="form-control" value={formData.middle_name || ""} onChange={(e) => setFormData({...formData, middle_name: e.target.value})} />
+              </div>
+              <div className="col-md-4">
+                <label htmlFor="last_name" className="form-label fw-semibold">Last Name</label>
+                <input type="text" id="last_name" className="form-control" value={formData.last_name || ""} onChange={(e) => setFormData({...formData, last_name: e.target.value})} />
+              </div>
+            </div>
+
+            {/* Department & Position */}
+            <div className="row g-3 mt-2">
+              <div className="col-md-6">
+                <label htmlFor="department" className="form-label fw-semibold">Office</label>
+                <select id="department" className="form-select" disabled>
+                  {allDepartments.map((dept) => (
+                    <option key={dept.id} value={dept.id}>{dept.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="col-md-6">
+                <label htmlFor="position" className="form-label fw-semibold">Position</label>
+                <select id="position" className="form-select" disabled>
+                  {positions.map((pos) => (
+                    <option key={pos.id} value={pos.id}>{pos.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="d-flex justify-content-end gap-2 mt-4">
+              <button className="btn btn-secondary" onClick={() => window.location.reload()}>
+                Cancel
+              </button>
+              <button className="btn btn-success d-flex" onClick={handleUpdate} disabled={updating}>
+                <span className="material-symbols-outlined me-1">save</span> {updating ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Email */}
-        <div className="mb-3">
-          <label htmlFor="email" className="form-label">Email Address</label>
-          <input disabled type="email" id="email" className="form-control" value={formData.email || ""} onChange={(e) => { setFormData({...formData, email: e.target.value}); setEmailQuery(e.target.value)}} />
-          {emailQueryResult && <div className="mt-1">{emailQueryResult}</div>}
+        
+
+        {/* SECTION 3: SECURITY SETTINGS */}
+        <div className="border-0 my-6" style={{ borderRadius: "1rem" }}>
+          <div className="card-body">
+            <h5 className="card-title d-flex align-items-center  mb-3">
+              Security Settings
+            </h5>
+
+            {/* Password Change */}
+            <div className="mb-4 pb-3 border-bottom">
+              <label className="fw-semibold d-flex align-items-center">
+                Password
+              </label>
+              <p className="small text-muted mb-3">Change your password regularly to keep your account secure</p>
+              <button className="btn btn-outline-primary d-flex align-items-center gap-2" onClick={() => setShowPasswordModal(true)}>
+                <span className="material-symbols-outlined">lock_reset</span>
+                Change Password
+              </button>
+            </div>
+
+            {/* 2FA / OTP */}
+            <div>
+              <div className="d-flex justify-content-between align-items-center">
+                <div>
+                  <label className="fw-semibold d-flex align-items-center">
+                    Two-Factor Authentication (2FA)
+                  </label>
+                  <p className="small text-muted mb-0">Add an extra layer of security with one-time passwords (OTP)</p>
+                </div>
+                <div className="form-check form-switch">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    id="twoFA"
+                    checked={twoFAEnabled}
+                    onChange={handleToggle2FA}
+                    disabled={enabling2FA}
+                  />
+                </div>
+              </div>
+              {twoFAEnabled && (
+                <small className="text-success d-block mt-2">
+                  <span className="material-symbols-outlined" style={{ fontSize: "0.9rem", verticalAlign: "middle" }}>
+                    check_circle
+                  </span>
+                  {" "}2FA is enabled. You will receive OTP codes on login.
+                </small>
+              )}
+            </div>
+          </div>
         </div>
 
-        {/* Name Fields */}
-        <div className="row g-3">
-          <div className="col-md-4">
-            <label htmlFor="first_name" className="form-label">First Name</label>
-            <input type="text" id="first_name" className="form-control" value={formData.first_name || ""} onChange={(e) => setFormData({...formData, first_name: e.target.value})} />
-          </div>
-          <div className="col-md-4">
-            <label htmlFor="middle_name" className="form-label">Middle Name</label>
-            <input type="text" id="middle_name" className="form-control" value={formData.middle_name || ""} onChange={(e) => setFormData({...formData, middle_name: e.target.value})} />
-          </div>
-          <div className="col-md-4">
-            <label htmlFor="last_name" className="form-label">Last Name</label>
-            <input type="text" id="last_name" className="form-control" value={formData.last_name || ""} onChange={(e) => setFormData({...formData, last_name: e.target.value})} />
-          </div>
-        </div>
+        {/* SECTION 4: ACCOUNT STATUS */}
+        <div className="border-0 my-4" style={{ borderRadius: "1rem" }}>
+          <div className="card-body">
+            <h5 className="card-title d-flex align-items-center mb-3">
+              Account Status & Management
+            </h5>
 
-        {/* Department & Position */}
-        <div className="row g-3 mt-3">
-          <div className="col-md-6">
-            <label htmlFor="department" className="form-label">Office</label>
-            <select id="department" className="form-select" disabled>
-              
-              {allDepartments.map((dept) => (
-                <option key={dept.id} value={dept.id}>{dept.name}</option>
-              ))}
-            </select>
+            {/* Account Status Badge */}
+            <div className="mb-3">
+              <small className="text-muted fw-semibold">Current Status</small>
+              <div className="mt-2">
+                <span className={`badge py-2 px-3 ${memberInformation.account_status ? "bg-success" : "bg-danger"}`}>
+                  {memberInformation.account_status ? "✓ Active" : "✗ Deactivated"}
+                </span>
+              </div>
+            </div>
+
+            {/* Last Login */}
+            {memberInformation.last_login && (
+              <div className="mb-3 pb-3 border-bottom">
+                <small className="text-muted fw-semibold">Last Login</small>
+                <p className="mb-0">{new Date(memberInformation.last_login).toLocaleString()}</p>
+              </div>
+            )}
+
+            {/* Actions */}
+            <div className="d-flex flex-wrap gap-2">
+              <button
+                className={`btn d-flex align-items-center gap-2 ${
+                  memberInformation.account_status
+                    ? "btn-outline-danger"
+                    : "btn-outline-success"
+                }`}
+                onClick={handleArchive}
+              >
+                <span className="material-symbols-outlined">
+                  {memberInformation.account_status ? "lock" : "lock_open"}
+                </span>
+                {memberInformation.account_status ? "Deactivate Account" : "Reactivate Account"}
+              </button>
+
+              <button className="btn btn-outline-warning d-flex align-items-center gap-2" onClick={handleResetPassword} disabled={resetting}>
+                <span className="material-symbols-outlined">restart_alt</span>
+                {resetting ? "Resetting..." : "Reset Password"}
+              </button>
+            </div>
           </div>
-          <div className="col-md-6">
-            <label htmlFor="position" className="form-label">Position</label>
-            <select id="position" className="form-select" disabled>
-              {positions.map((pos) => (
-                <option key={pos.id} value={pos.id}>{pos.name}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="d-flex justify-content-end gap-2 mt-4">
-          <button className="btn btn-secondary" onClick={() => window.location.reload()}>
-            Cancel
-          </button>
-          <button className="btn btn-success d-flex" onClick={handleUpdate} disabled={updating}>
-            <span className="material-symbols-outlined me-1">save</span> {updating ? "Saving..." : "Save Changes"}
-          </button>
-        </div>
-
-        <hr className="my-4" />
-
-        {/* Password and Account Controls */}
-        <div className="d-flex flex-wrap gap-2">
-          <button className="btn btn-outline-primary d-flex align-items-center gap-1" onClick={() => setShowPasswordModal(true)}>
-            <span className="material-symbols-outlined">lock_reset</span> Change Password
-          </button>
-
         </div>
       </div>
 

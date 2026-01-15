@@ -42,6 +42,17 @@ export default function ActivityScatter() {
 
   const yLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+  if (!data || data.length === 0) {
+    return (
+      <div style={{ gridColumn: "span 2", height: "500px" }} className="graph d-flex align-items-center justify-content-center">
+        <div className="text-center">
+          <p className="text-muted mb-2">No activity data available</p>
+          <small className="text-secondary">Charts will display when data is recorded</small>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ gridColumn:"span 2", height:"500px"}} className="graph">
       <ResponsiveContainer>

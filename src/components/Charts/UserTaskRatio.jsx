@@ -33,6 +33,14 @@ const DepartmentChart = ({ mainTaskId }) => {
     fetchData();
   }, [mainTaskId]);
 
+  if (!data || data.length === 0) {
+    return (
+      <div className="graph d-flex align-items-center justify-content-center">
+        <p className="text-muted">No user task ratio data available</p>
+      </div>
+    );
+  }
+
   return (
     <div className="graph">
       <ResponsiveContainer width="100%" height="100%">

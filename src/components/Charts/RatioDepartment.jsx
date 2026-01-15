@@ -28,6 +28,17 @@ export default function RatioDepartment() {
   }, [])
   
   
+  if (!data || data.length === 0) {
+    return (
+      <div style={{ width: "100%", height: "400px" }} className="d-flex align-items-center justify-content-center">
+        <div className="text-center">
+          <p className="text-muted">No department data available</p>
+          <small className="text-secondary">Chart will display when departments are assigned</small>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ width: "100%", height: "400px"}}>
         <ResponsiveContainer>

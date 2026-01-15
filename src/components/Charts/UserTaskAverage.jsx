@@ -31,6 +31,14 @@ export default function TaskUserAverageBar({ taskId }) {
     if (taskId) loadUserAverages();
   }, [taskId]);
 
+  if (!data || data.length === 0) {
+    return (
+      <div className="graph d-flex align-items-center justify-content-center">
+        <p className="text-muted">No user task data available</p>
+      </div>
+    );
+  }
+
   return (
     <div className="graph">
       <ResponsiveContainer>

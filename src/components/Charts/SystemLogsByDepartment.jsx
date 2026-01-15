@@ -52,6 +52,11 @@ export default function SystemLogsByDepartment() {
         </h6>
 
         <div style={{ width: "100%", height: 320 }}>
+          {!data || data.length === 0 ? (
+            <div className="d-flex align-items-center justify-content-center h-100">
+              <p className="text-muted">No audit logs by department available</p>
+            </div>
+          ) : (
           <ResponsiveContainer>
             <BarChart
               data={data}
@@ -76,6 +81,7 @@ export default function SystemLogsByDepartment() {
               ))}
             </BarChart>
           </ResponsiveContainer>
+          )}
         </div>
       </div>
     </div>

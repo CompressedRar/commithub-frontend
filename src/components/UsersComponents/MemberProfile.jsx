@@ -274,7 +274,7 @@ function MemberProfile(props){
                 <div className="d-flex align-items-center gap-4 mb-4">
                     <div className="rounded-circle border border-2 border-primary" style={{ width: "100px", height: "100px", backgroundImage: `url('${preview || "/default-avatar.png"}')`, backgroundSize: "cover", backgroundPosition: "center" }}></div>
                     <div>
-                        <label htmlFor="profile-image" className="btn btn-outline-primary btn-sm">
+                        <label htmlFor="profile-image" className="btn btn-outline-primary btn-sm d-flex">
                             <span className="material-symbols-outlined me-1">upload</span>
                             Change Photo
                         </label>
@@ -323,7 +323,6 @@ function MemberProfile(props){
                         <select id="role" name="role" className="form-select" value={formData.role} onChange={handleDataChange}>
                             <option value="faculty">Faculty</option>
                             <option value="head">Head</option>
-                            <option value="president">President</option>
                             <option value="administrator">Administrator</option>
                         </select>
                     </div>

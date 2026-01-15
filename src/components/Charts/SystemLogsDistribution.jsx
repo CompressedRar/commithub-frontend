@@ -82,6 +82,11 @@ export default function SystemLogsDistribution() {
         </h6>
 
         <div style={{ width: "100%", height: 280 }}>
+          {!data || data.length === 0 ? (
+            <div className="d-flex align-items-center justify-content-center h-100">
+              <p className="text-muted">No audit log distribution data available</p>
+            </div>
+          ) : (
           <ResponsiveContainer>
             <BarChart
               data={data}
@@ -99,6 +104,7 @@ export default function SystemLogsDistribution() {
               />
             </BarChart>
           </ResponsiveContainer>
+          )}
         </div>
       </div>
     </div>

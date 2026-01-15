@@ -15,6 +15,8 @@ function Login() {
   const [otpRequested, setOtpRequested] = useState(false);
   const [otp, setOtp] = useState("");
   const [verifyingOtp, setVerifyingOtp] = useState(false);
+  const [twoFAEnabled, setTwoFAEnabled] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
 
   // Detect existing token and redirect based on role
   function detectToken() {
@@ -40,14 +42,22 @@ function Login() {
     try {
       const convertedData = objectToFormData(loginFormData);
       const res = await authenticateAccount(convertedData);
-
+      
       if (res.data.token) {
+        // User logged in directly (no 2FA)
         localStorage.setItem("token", res.data.token);
         const payload = jwtDecode(res.data.token);
         detectToken(payload);
-      } else if (res.data.message === "OTP sent") {
+      } else if (res.data.message === "OTP sent" || res.data.two_factor_enabled) {
+        // User has 2FA enabled, show OTP prompt
+        setTwoFAEnabled(true);
+        setUserEmail(loginFormData.email);
         setOtpRequested(true);
-        Swal.fire({ title: "OTP Sent", text: "A one-time password was sent to your email.", icon: "info" });
+        Swal.fire({ 
+          title: "2FA Enabled", 
+          text: "A one-time password was sent to your email.", 
+          icon: "info" 
+        });
       }
     } catch (error) {
       Swal.fire({
@@ -69,7 +79,7 @@ function Login() {
     e.preventDefault();
     setVerifyingOtp(true);
     try {
-      const res = await verifyOtp({ email: loginFormData.email, otp: otp });
+      const res = await verifyOtp({ email: userEmail, otp: otp });
       if (res.data.token) {
         localStorage.setItem("token", res.data.token);
         const payload = jwtDecode(res.data.token);
@@ -181,20 +191,49 @@ function Login() {
           ) : (
             <form onSubmit={handleOtpSubmit}>
               <div className="mb-3">
+                <div className="alert alert-info d-flex align-items-center gap-2">
+                  <span className="material-symbols-outlined">verified_user</span>
+                  <span>Two-factor authentication is enabled on this account</span>
+                </div>
+              </div>
+              <div className="mb-3">
                 <label htmlFor="otp" className="form-label fw-semibold">Enter OTP</label>
+                <p className="small text-muted mb-2">Enter the 6-digit code sent to your email</p>
                 <input
                   type="text"
                   id="otp"
                   name="otp"
-                  className="form-control"
-                  placeholder="Enter the 6-digit OTP sent to your email"
+                  className="form-control form-control-lg text-center"
+                  placeholder="000000"
                   required
-                  onChange={(e) => setOtp(e.target.value)}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
                   maxLength={6}
+                  value={otp}
                 />
               </div>
-              <button type="submit" className="btn btn-primary w-100 py-2 fw-semibold" disabled={verifyingOtp}>
-                {verifyingOtp ? "Verifying..." : "Verify OTP"}
+              <button type="submit" className="btn btn-primary w-100 py-2 fw-semibold d-flex align-items-center justify-content-center" disabled={verifyingOtp}>
+                {verifyingOtp ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2"></span>
+                    Verifying...
+                  </>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined me-2">check_circle</span>
+                    Verify OTP
+                  </>
+                )}
+              </button>
+              <button 
+                type="button" 
+                className="btn btn-link w-100 mt-2 text-decoration-none"
+                onClick={() => {
+                  setOtpRequested(false);
+                  setOtp("");
+                  setTwoFAEnabled(false);
+                }}
+              >
+                Back to Login
               </button>
             </form>
           )}

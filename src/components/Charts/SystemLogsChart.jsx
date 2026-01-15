@@ -98,6 +98,11 @@ export default function SystemLogsChart() {
         </h6>
 
         <div style={{ width: "100%", height: 280 }}>
+          {!data || data.length === 0 ? (
+            <div className="d-flex align-items-center justify-content-center h-100">
+              <p className="text-muted">No system log data available</p>
+            </div>
+          ) : (
           <ResponsiveContainer>
             <LineChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -118,6 +123,7 @@ export default function SystemLogsChart() {
               />
             </LineChart>
           </ResponsiveContainer>
+          )}
         </div>
       </div>
     </div>

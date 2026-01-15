@@ -79,6 +79,11 @@ export default function PopulationPerDepartment() {
         </div>
 
         <div style={{ width: "100%", height: 300 }}>
+          {!data || data.length === 0 ? (
+            <div className="d-flex align-items-center justify-content-center h-100">
+              <p className="text-muted">No population data available</p>
+            </div>
+          ) : (
           <ResponsiveContainer>
             <BarChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -88,6 +93,7 @@ export default function PopulationPerDepartment() {
               <Bar dataKey="value" fill={CHART_COLORS.PRIMARY} name="Population" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
+          )}
         </div>
       </div>
     </div>
