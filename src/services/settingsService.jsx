@@ -20,3 +20,8 @@ export async function validateFormula(data) {
     console.log("validating formula")
     return api.post("/api/v1/settings/validate-formula", data)
 }
+
+export async function resetPeriod() {
+    console.log("resetting period")
+    return api.patch("/api/v1/settings/reset")
+}

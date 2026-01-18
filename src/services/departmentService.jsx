@@ -48,6 +48,11 @@ export async function archiveDepartment(id) {
     return api.delete(`/api/v1/department/${id}`)
 }
 
+export async function generateDepartmentPerformanceReport(dept_id) {
+    console.log("generating department performance report")
+    return api.get(`/api/v1/department/${dept_id}/performance-report`)
+}
+
 export async function getDepartmentTasks(id) {
     console.log("fetching department tasks")
     return api.get(`/api/v1/department/tasks/${id}`)

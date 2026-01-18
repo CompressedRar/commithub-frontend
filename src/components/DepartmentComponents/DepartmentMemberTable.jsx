@@ -107,7 +107,8 @@ function DepartmentMemberTable({ deptid }) {
           <thead className="table">
             <tr>
               <th>FULL NAME</th>
-              <th>PERFORMANCE</th>
+              <th>NUMERICAL</th>
+              <th>ADJECTIVAL</th>
               <th>POSITION</th>
               <th></th>
             </tr>

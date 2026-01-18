@@ -63,6 +63,8 @@ function DepartmentMembers({ mems }) {
       </td>
 
       {/* Performance */}
+
+      <td className="text-nowrap">{parseFloat(mems.avg_performance).toFixed(2)}</td>
       <td className="text-nowrap">{getPerformanceBadge()}</td>
 
       {/* Email */}

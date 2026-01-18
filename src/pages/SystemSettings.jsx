@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import Swal from "sweetalert2"
-import { getSettings, updateSettings, validateFormula, verifyAdminPassword } from "../services/settingsService"
+import { getSettings, updateSettings, validateFormula, verifyAdminPassword, resetPeriod } from "../services/settingsService"
 import Positions from "./Positions"
 import Periods from "../components/SystemSettings/Periods"
 
@@ -9,6 +9,7 @@ export default function SystemSettings() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [activeTab, setActiveTab] = useState("ratings")
+  const [resettingPeriod, setResettingPeriod] = useState(false)
 
   const periodsRef = useRef(null)
 
@@ -147,7 +148,9 @@ export default function SystemSettings() {
       }
 
       try {
-        await verifyAdminPassword({ password: adminPassword })
+        const confirmationToken = await verifyAdminPassword({ password: adminPassword })
+        payload.confirmation_token = confirmationToken.data.confirmation_token
+        console.log("ADMIN PASSWORD VERIFIED")
       } catch (err) {
         Swal.fire("Error", err.response?.data?.error || "Invalid password", "error")
         setSaving(false)
@@ -175,6 +178,47 @@ export default function SystemSettings() {
         [field]: value === "" ? undefined : parseFloat(value)
       }
     }))
+  }
+
+  async function handleResetPeriod() {
+    const { value: adminPassword } = await Swal.fire({
+      title: "Reset Period",
+      text: "This will generate a new random period ID. Are you sure?",
+      input: "password",
+      inputLabel: "Enter your admin password to confirm",
+      inputPlaceholder: "Password",
+      inputAttributes: { autocomplete: "off" },
+      showCancelButton: true,
+      confirmButtonText: "Yes, Reset Period",
+      confirmButtonColor: "#f59e0b",
+      cancelButtonText: "Cancel",
+      inputValidator: (value) => !value && "Password is required"
+    })
+
+    if (!adminPassword) return
+
+    setResettingPeriod(true)
+    try {
+      const confirmationToken = await verifyAdminPassword({ password: adminPassword })
+      const res = await resetPeriod()
+      
+      if (res.data?.status === "success") {
+        Swal.fire({
+          title: "Success",
+          html: `<p>Period has been reset!</p><p className="fw-bold">New Period ID: <code>${res.data?.new_period_id}</code></p>`,
+          icon: "success"
+        })
+        
+        // Reload settings to show new period ID
+        const updatedSettings = await getSettings()
+        setSettings(updatedSettings.data?.data ?? updatedSettings.data ?? {})
+        setCurrentPeriodId(res.data?.new_period_id || "")
+      }
+    } catch (error) {
+      Swal.fire("Error", error.response?.data?.message || "Failed to reset period", "error")
+    } finally {
+      setResettingPeriod(false)
+    }
   }
 
   function checkDateOverlap() {
@@ -640,6 +684,29 @@ export default function SystemSettings() {
                     <small className="text-muted d-block mt-1">When enabled the Period ID is deterministic and will change every half-year (H1/H2).</small>
                   </div>
 
+                  <div className="col-12">
+                    <div className="border-warning">
+                      <div className="card-body">
+                        <h4 className="card-title fw-semibold d-flex align-items-center gap-2 mb-2">
+                          Period Management
+                        </h4>
+                        <p className="small text-muted mb-3">Generate a new random period ID to start a new academic period.</p>
+                        <button 
+                          className="btn btn-warning btn-sm d-flex align-items-center gap-2"
+                          onClick={handleResetPeriod}
+                          disabled={resettingPeriod}
+                        >
+                          <span className="material-symbols-outlined">{resettingPeriod ? "hourglass_empty" : "refresh"}</span>
+                          {resettingPeriod ? "Resetting..." : "Reset Period"}
+                        </button>
+                        <small className="text-muted d-block mt-2">
+                          <span className="material-symbols-outlined" style={{fontSize: "0.875rem", verticalAlign: "middle"}}>info</span>
+                          {" "}Current Period ID: <code>{currentPeriodId || "Not set"}</code>
+                        </small>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="col-12 col-md-12">
                     <label className="form-label fw-semibold">Current Period (auto)</label>
                     <input className="form-control" value={currentPeriod} readOnly />
@@ -672,6 +739,9 @@ export default function SystemSettings() {
                     <label className="form-label fw-semibold">Rating End Date</label>
                     <input type="date" className="form-control" value={ratingEndDate} onChange={(e) => setRatingEndDate(e.target.value)} />
                   </div>
+
+                  {/* Reset Period Section */}
+                  
                 </div>
               </div>
             </div>
