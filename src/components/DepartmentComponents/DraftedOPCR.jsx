@@ -416,7 +416,7 @@ function DraftedOPCR(props) {
           {/* Tasks Table */}
           <div className="table mt-5 mb-4">
             <table className="table table-bordered table-hover">
-              <thead className="table-light sticky-top">
+              <thead className="table-light">
                 <tr>
                   <th style={{ width: "20%", textAlign: "center" }}>OUTPUT</th>
                   <th style={{ width: "10%", textAlign: "center" }}>WEIGHT</th>

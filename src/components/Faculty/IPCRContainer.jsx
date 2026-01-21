@@ -423,7 +423,7 @@ function IPCRContainer({ switchPage }) {
 
       <div className="bg-white shadow-md p-4 rounded-3 mx-auto" style={{ maxWidth: "1600px", height:"85vh" }}>
 
-        {!isMonitoringPhase() || !isRatingPhase() && (
+        {!isMonitoringPhase() && !isRatingPhase() && (
           <div  style={{ zIndex: 1050, width:"80%", height:"80%", position:"absolute", backgroundColor:"rgba(255,255,255,0.8)"}} className="d-flex justify-content-center align-items-center flex-column">
             <div className="overlay-content text-center p-4">
               <img
@@ -440,13 +440,13 @@ function IPCRContainer({ switchPage }) {
           </div>
         )}
 
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <div>
-            <h5 className="fw-semibold mb-0">
-              Individual Performance Commitment Forms
-            </h5>
+        <div className="d-flex justify-content-center h-100 align-items-center mb-3">
+          <div className="d-flex justify-content-center flex-column align-items-center gap-3">
+            <h2 className="fw-semibold mb-0">
+              Your IPCR Form is being prepared.
+            </h2>
             <small className="text-muted">
-              Create your IPCR by selecting available outputs.
+              IPCR form will be available once the tasks are assigned to this account.
             </small>
           </div>
           <button
@@ -488,8 +488,7 @@ function IPCRContainer({ switchPage }) {
             )
           ) : (
             <div className="text-center text-muted py-5">
-              <i className="bi bi-file-earmark-excel display-4 d-block mb-3"></i>
-              <p>No IPCRs found.</p>
+              
             </div>
           )}
         </div>

@@ -461,7 +461,7 @@ function EditOPCR(props) {
           {/* Tasks Table */}
           <div className="table-responsive mt-5 mb-4">
             <table className="table table-bordered table-hover">
-              <thead className="table-light sticky-top">
+              <thead className="table-light">
                 <tr>
                   <th style={{ width: "15%", textAlign: "center" }}>OUTPUT</th>
                   <th style={{ width: "10%", textAlign: "center" }}>WEIGHT</th>

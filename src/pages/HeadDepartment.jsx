@@ -3,6 +3,7 @@ import "../assets/styles/Department.css"
 import Swal from "sweetalert2";
 import HeadDepartmentInfo from "../components/DepartmentComponents/HeadDepartmentInfo";
 import { jwtDecode } from "jwt-decode";
+import DepartmentInfo from "../components/DepartmentComponents/DepartmentInfo";
 
 
 function HeadDepartment(){
@@ -35,7 +36,7 @@ function HeadDepartment(){
             
 
             
-            {currentDepartment && <HeadDepartmentInfo key = {currentDepartment} id = {currentDepartment} ></HeadDepartmentInfo>}
+            {currentDepartment && <DepartmentInfo key = {currentDepartment} id = {currentDepartment} ></DepartmentInfo>}
         </div>
     )
 }

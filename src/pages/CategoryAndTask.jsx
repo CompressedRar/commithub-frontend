@@ -311,7 +311,7 @@ export default function CategoryAndTask() {
 
               <div className="mb-3">
                 <label className="form-label">Description <span className="text-danger">*</span></label>
-                <textarea rows={5} name="description" className="form-control" value={formData.category_name} onChange={handleDataChange} placeholder="Describe this key result area..." />
+                <textarea rows={5} name="description" className="form-control" value={formData.description} onChange={handleDataChange} placeholder="Describe this key result area..." />
               </div>
             </div>
 

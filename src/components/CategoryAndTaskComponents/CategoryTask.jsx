@@ -36,7 +36,7 @@ function CategoryTask({ category = {}, onClick, onEdit }) {
   return (
     <div
       key={category.id}
-      className="border rounded-3 shadow-sm bg-white m-1 p-3 col-lg-5 col-md-12 d-flex flex-column position-relative"
+      className="border rounded-3 shadow-sm bg-white m-1 p-3 col-lg-12 col-md-12 d-flex flex-column position-relative"
       style={{
         cursor: "pointer",
         transition: "box-shadow 0.2s ease, transform 0.2s ease",

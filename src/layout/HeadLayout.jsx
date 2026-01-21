@@ -337,9 +337,9 @@ function HeadLayout() {
         {/* Main content area */}
         <main
           className="flex-grow-1"
-          style={{ backgroundColor: "#ffffffff", padding:"5vw"}}
+          style={{ backgroundColor: "#ffffffff", padding:"1vw"}}
         >
-          <div style={{zoom:"0.9" }}>
+          <div>
             <Outlet />
           </div>
         </main>
