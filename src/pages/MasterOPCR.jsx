@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import Swal from "sweetalert2"
-import { downloadMasterOPCR, getMasterOPCR } from "../services/pcrServices"
+import { downloadAllDeptSummaries, downloadAllTaskSummaries, downloadMasterOPCR, getMasterOPCR } from "../services/pcrServices"
 import { socket } from "../components/api"
 import { getSettings } from "../services/settingsService"
 
@@ -20,6 +20,7 @@ function MasterOPCR(){
     const [supportRawAvg, setSupportRawAvg] = useState(0)
 
     const [downloading, setDownloading] = useState(false)
+    const [downloadingAllDeptSummary, setDownloadingSummary] = useState(false)
     const [ratingThresholds, setRatingThresholds] = useState(null)
 
     const [currentPhase, setCurrentPhase] = useState(null) //monitoring, rating, planning
@@ -83,6 +84,38 @@ function MasterOPCR(){
         if (res) window.open(res, "_blank", "noopener,noreferrer");
         setDownloading(false)
     }
+
+    async function downloadDeptSummaries() {
+        setDownloading(true)
+        var res = await downloadAllDeptSummaries().then(data => data.data.download_url).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+            setDownloading(false)
+        })
+        if (res) window.open(res, "_blank", "noopener,noreferrer");
+        setDownloading(false)
+    }
+
+    async function downloadTaskSummary() {
+        setDownloading(true)
+        var res = await downloadAllTaskSummaries().then(data => data.data.download_url).catch(error => {
+            console.log(error.response.data.error)
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+            setDownloading(false)
+        })
+        if (res) window.open(res, "_blank", "noopener,noreferrer");
+        setDownloading(false)
+    }
+
+    
 
     function handleRemarks(rating, thresholds) {
         const r = parseFloat(rating)
@@ -165,13 +198,6 @@ function MasterOPCR(){
             loadOPCR()
             console.log("ASSIGNED LISTENED")
         })
-
-        return () => {
-            socket.off("ipcr")
-            socket.off("ipcr_added")
-            socket.off("ipcr_remove")
-            socket.off("assign")
-        }
     }, [])
 
     
@@ -262,18 +288,35 @@ function MasterOPCR(){
                     </div>
                 </div>
             )}
-            <div className="d-flex justify-content-between align-items-center mb-4">
-                <h4 className="fw-bold mb-0">Master OPCR - Consolidated Results</h4>
-                <button
-                    className="btn btn-primary d-flex align-items-center gap-2 shadow-sm"
-                    onClick={download}
-                    disabled={downloading}
-                >
-                    <span className="material-symbols-outlined">
-                        {downloading ? "sync" : "download"}
-                    </span>
-                    {downloading ? "Generating..." : "Download Master OPCR"}
-                </button>
+            <div className="d-flex justify-content-end align-items-center mb-4 gap-3">
+                
+
+                <select name="" className="form-select w-25 bg-primary text-white" id="" disabled={downloading}>
+                    <option value="" onClick={download} disabled={downloading}>
+                        <button
+                            className="btn btn-primary d-flex align-items-center gap-2 shadow-sm"
+                        >
+                            {downloading ? "Generating..." : "Download Master OPCR"}
+                        </button>
+                    </option>
+
+                    <option value="" onClick={downloadDeptSummaries} disabled={downloading}>
+                        <button
+                            className="btn btn-primary d-flex align-items-center gap-2 shadow-sm"
+                        >
+                            {downloading ? "Generating..." : "Download Office Performance Summary"}
+                        </button>
+                    </option>
+
+                    <option value="" onClick={downloadTaskSummary} disabled={downloading}>
+                        <button
+                            className="btn btn-primary d-flex align-items-center gap-2 shadow-sm"
+                        >
+                            {downloading ? "Generating..." : "Download Tasks Performance Summary"}
+                        </button>
+                    </option>
+
+                </select>
             </div>
 
             {/* Main Card */}

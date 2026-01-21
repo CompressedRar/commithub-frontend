@@ -23,6 +23,7 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
 
   const [currentPhase, setCurrentPhase] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [downloading, setDownloading] = useState(false)
 
   async function loadCurrentPhase() {
     try {
@@ -371,18 +372,22 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
               <div className="row">
                 
                 <div className="col-lg-12 col-md-12" >
-                  <button className="btn btn-primary d-flex flex-row gap-2" onClick={ async ()=> {
+                  <button className="btn btn-primary d-flex flex-row gap-2" disabled = {downloading} onClick={ async ()=> {
+                    setDownloading(true)
                     const link = await generateDepartmentPerformanceReport(id)
                           .then((d) => d.data.download_url)
                           .catch((err) => {
                             Swal.fire("Error", err.response?.data?.error || "Failed to download", "error")
+                            setDownloading(false)
                             return null
                           })
                         if (link) window.open(link, "_blank", "noopener,noreferrer")
                     generateDepartmentPerformanceReport(id)
+                  setDownloading(false)
                   }}>
-                    <span className="material-symbols-outlined">download</span>
-                    <span>Download Report</span>
+                    
+                    {downloading ? <span className="spinner-border spinner-border-sm"></span> : <span className="material-symbols-outlined">download</span>}
+                    {downloading ? "Generating..." : "Download Office Performance Summary"}
                   </button>
                   <UserPerformanceInDepartment dept_id={id} currentPhase={currentPhase}/>
                 </div>

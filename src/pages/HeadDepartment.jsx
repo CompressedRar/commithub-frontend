@@ -36,7 +36,7 @@ function HeadDepartment(){
             
 
             
-            {currentDepartment && <DepartmentInfo key = {currentDepartment} id = {currentDepartment} ></DepartmentInfo>}
+            {currentDepartment && <HeadDepartmentInfo key = {currentDepartment} id = {currentDepartment} ></HeadDepartmentInfo>}
         </div>
     )
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { updateDepartment, getDepartment, archiveDepartment } from "../../services/departmentService";
+import { updateDepartment, getDepartment, archiveDepartment, generateDepartmentPerformanceReport } from "../../services/departmentService";
 import DepartmentMemberTable from "./DepartmentMemberTable";
 import { objectToFormData, socket } from "../api";
 import Swal from "sweetalert2";
@@ -8,14 +8,14 @@ import DepartmentTasksTable from "./DepartmentTasksTable";
 import DepartmentAssignHead from "./DepartmentAssignHead";
 import PerformanceReviews from "./PerformanceReview";
 import CreateOPCRModal from "./CreateOPCRModal";
-import GeneralTasksTable from "./GeneralTasksTable";
 import UserPerformanceInDepartment from "../Charts/UserPerformanceInDepartment";
 import { getSettings } from "../../services/settingsService";
+import TaskWeights from "./Tasks/TaskWeights";
+import FormulaSettings from "./Tasks/TaskFormulas";
 
-function HeadDepartmentInfo({ id, firstLoad }) {
+function DepartmentInfo({ id, firstLoad, loadDepts }) {
   const [deptInfo, setDeptinfo] = useState({});
   const [managerInfo, setManagerInfo] = useState(null);
-  const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({ department_name: "", icon: "" });
   const [submitting, setSubmitting] = useState(false);
   const [archiving, setArchiving] = useState(false);
@@ -27,8 +27,14 @@ function HeadDepartmentInfo({ id, firstLoad }) {
   async function loadCurrentPhase() {
     try {
       const res = await getSettings();
-      const phase = res?.data?.data?.current_phase;
-      console.log("Current phase:", phase);
+      let phase = res?.data?.data?.current_phase;
+      // normalize to an array so we can support multiple active phases
+      if (!phase) {
+        phase = [];
+      } else if (!Array.isArray(phase)) {
+        phase = [phase];
+      }
+      console.log("Current phase(s):", phase);
       setCurrentPhase(phase);
     } catch (error) {
       console.error("Failed to load current phase:", error);
@@ -37,15 +43,14 @@ function HeadDepartmentInfo({ id, firstLoad }) {
     }
   }
 
-  // === Load Department ===
   async function loadDepartmentInfo(deptId) {
     try {
-      const res = await getDepartment(deptId).then((d) => d.data);
+      const res = await getDepartment(deptId).then((data) => data.data);
       setDeptinfo(res);
-      setManagerInfo(res.users.find((u) => u.role === "head" || u.role === "president" || u.role === "administrator") || null);
+      setManagerInfo(res.users.find((u) => u.role === "head" || u.role === "president") || null);
       setFormData({ id: deptId, department_name: res.name, icon: res.icon });
     } catch (err) {
-      Swal.fire("Error", err.response?.data?.error || "Failed to load office info", "error");
+      Swal.fire("Error", err.response?.data?.error || "Failed to load department info", "error");
     }
   }
 
@@ -59,9 +64,7 @@ function HeadDepartmentInfo({ id, firstLoad }) {
     return () => socket.off("department");
   }, [id]);
 
-  const handleDataChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const handleDataChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmission = async () => {
     if (!formData.department_name) {
@@ -78,6 +81,7 @@ function HeadDepartmentInfo({ id, firstLoad }) {
       );
       loadDepartmentInfo(id);
       Modal.getInstance(document.getElementById("edit-department"))?.hide();
+      loadDepts();
     } catch (err) {
       Swal.fire("Error", err.response?.data?.error || "Failed to update office", "error");
     }
@@ -93,8 +97,8 @@ function HeadDepartmentInfo({ id, firstLoad }) {
         res.data.message,
         res.data.message.includes("successfully") ? "success" : "error"
       );
-      firstLoad();
       Modal.getInstance(document.getElementById("archive-department"))?.hide();
+      firstLoad();
     } catch (err) {
       Swal.fire("Error", err.response?.data?.error || "Failed to archive office", "error");
     }
@@ -102,49 +106,54 @@ function HeadDepartmentInfo({ id, firstLoad }) {
   };
 
   function isMonitoringPhase() {
-    
     return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("monitoring");
   }
 
   function isRatingPhase() {
-    
     return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("rating");
   }
 
   function isPlanningPhase() {
-    
     return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("planning");
   }
 
-  function getPhaseLabel() {
-    if (isPlanningPhase()) return { label: "Planning Phase", color: "info", icon: "calendar_month" };
-    if (isMonitoringPhase()) return { label: "Monitoring Phase", color: "warning", icon: "timeline" };
-    if (isRatingPhase()) return { label: "Rating Phase", color: "success", icon: "star_rate" };
-    return { label: "Inactive", color: "secondary", icon: "block" };
+  function getPhaseInfos() {
+    const infos = [];
+    if (isPlanningPhase())
+      infos.push({ key: "planning", label: "Planning Phase", shortLabel: "Planning", color: "info", icon: "calendar_month" });
+    if (isMonitoringPhase())
+      infos.push({ key: "monitoring", label: "Monitoring Phase", shortLabel: "Monitoring", color: "warning", icon: "timeline" });
+    if (isRatingPhase())
+      infos.push({ key: "rating", label: "Rating Phase", shortLabel: "Rating", color: "success", icon: "star_rate" });
+
+    if (infos.length === 0) infos.push({ key: "inactive", label: "Inactive", shortLabel: "Inactive", color: "secondary", icon: "block" });
+    return infos;
   }
 
-  const phaseInfo = getPhaseLabel();
+  const phaseInfos = getPhaseInfos();
 
   // Determine available tabs based on phase
   const getTabs = () => {
     const allTabs = [
-      { label: "Performance Reviews", index: 0, icon: "assessment", phases: ["monitoring", "rating"] },
-      { label: "Outputs", index: 1, icon: "task_alt", phases: ["planning", "monitoring", "rating"] },
-      { label: "Members", index: 2, icon: "group", phases: ["planning", "monitoring", "rating"] },
+      { label: "Performance Reviews", index: 0, icon: "assessment", phases: ["planning","monitoring", "rating"] },
+      { label: "Tasks", index: 1, icon: "task_alt", phases: ["planning", "monitoring", "rating"] },
+      { label: "Weights", index: 2, icon: "weight", phases: ["planning", "monitoring", "rating"] },
+      { label: "Members", index: 3, icon: "group", phases: ["planning", "monitoring", "rating"] },
     ];
 
     return allTabs.filter((tab) => tab.phases.some((phase) => currentPhase?.includes(phase)));
   };
 
-  // set default visible tab when phase is loaded/changed
+  // ensure a sensible default tab is selected when phase changes
   useEffect(() => {
     const tabs = getTabs();
     if (!tabs || tabs.length === 0) return;
+    // if currentPage is not in available tabs, select the first available tab
     const availableIndexes = tabs.map((t) => t.index);
     if (!availableIndexes.includes(currentPage)) {
       setCurrentPage(tabs[0].index);
     }
-  }, [currentPhase]);
+  }, [currentPhase]); 
 
   if (isLoading) {
     return (
@@ -156,13 +165,11 @@ function HeadDepartmentInfo({ id, firstLoad }) {
     );
   }
 
-  // === Layout ===
   return (
-    <div className="container-fluid py-3 overflow-auto bg-light" style={{ maxHeight: "calc(100vh - 110px)" }}>
+    <>
+      {/* Modals */}
       <CreateOPCRModal deptid={id} />
 
-      {/* ─── Modals ──────────────────────────────── */}
-      {/* Archive Modal */}
       <div className="modal fade" id="archive-department" tabIndex="-1" aria-hidden="true">
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
@@ -181,13 +188,12 @@ function HeadDepartmentInfo({ id, firstLoad }) {
         </div>
       </div>
 
-      {/* Assign Head Modal */}
-      <div className="modal fade" id="assign-head" tabIndex="-1" aria-hidden="true">
+      <div className="modal fade" id="assign-head" aria-hidden="true">
         <div className="modal-dialog modal-lg modal-dialog-centered">
           <div className="modal-content">
-            <div className="modal-header">
+            <div className="modal-header bg-primary text-white">
               <h5 className="modal-title">Assign Office Head</h5>
-              <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
+              <button type="button" className="btn-close " data-bs-dismiss="modal"></button>
             </div>
             <div className="modal-body">
               <DepartmentAssignHead dept_id={id} />
@@ -196,8 +202,7 @@ function HeadDepartmentInfo({ id, firstLoad }) {
         </div>
       </div>
 
-      {/* Edit Modal */}
-      <div className="modal fade" id="edit-department" tabIndex="-1" aria-hidden="true">
+      <div className="modal fade" id="edit-department" aria-hidden="true">
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header">
@@ -205,17 +210,15 @@ function HeadDepartmentInfo({ id, firstLoad }) {
               <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div className="modal-body">
-              <div className="mb-3">
-                <label className="form-label">Office Name</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  name="department_name"
-                  value={formData.department_name}
-                  onChange={handleDataChange}
-                  required
-                />
-              </div>
+              <label className="form-label">Office Name</label>
+              <input
+                type="text"
+                className="form-control"
+                name="department_name"
+                value={formData.department_name}
+                onChange={handleDataChange}
+                required
+              />
             </div>
             <div className="modal-footer">
               <button className="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -227,115 +230,147 @@ function HeadDepartmentInfo({ id, firstLoad }) {
         </div>
       </div>
 
-      {/* Phase Banner */}
-      <div className="alert alert-soft-primary d-flex justify-content-between align-items-center mb-4 border-0 rounded-3 shadow-sm" 
-        style={{ backgroundColor: `#e7f1ff`, borderLeft: `5px solid #0d6efd` }}>
-        <div className="d-flex align-items-center justify-content-center gap-3">
-          <div className={`rounded-circle p-3 bg-${phaseInfo.color}`} style={{ width: 50, height: 50 }}>
-            <span className="material-symbols-outlined text-white d-flex align-items-center justify-content-center" 
-              style={{ fontSize: 24 }}>{phaseInfo.icon}</span>
+      {/* Main Container */}
+      <div className="container-fluid py-3 overflow-auto bg-light">
+        
+        {/* Phase Banner */}
+        <div className="alert alert-soft-primary d-flex justify-content-between align-items-center mb-4 border-0 rounded-3 shadow-sm" 
+          style={{ backgroundColor: `#e7f1ff`, borderLeft: `5px solid #0d6efd` }}>
+          <div className="d-flex align-items-center justify-content-center gap-3">
+            <div className={`rounded-circle p-3 ${phaseInfos.length === 1 ? `bg-${phaseInfos[0].color}` : 'bg-primary'}`} style={{ width: 50, height: 50 }}>
+              <span className="material-symbols-outlined text-white d-flex align-items-center justify-content-center" 
+                style={{ fontSize: 24 }}>{phaseInfos.length === 1 ? phaseInfos[0].icon : 'layers'}</span>
+            </div>
+            <div>
+              <h6 className="mb-0 fw-bold text-dark">Current Phase{phaseInfos.length > 1 ? 's' : ''}</h6>
+              <p className="mb-0 text-muted small">{phaseInfos.length === 1 ? phaseInfos[0].label : 'Multiple phases active'}</p>
+            </div>
           </div>
-          <div>
-            <h6 className="mb-0 fw-bold text-dark">Current Phase</h6>
-            <p className="mb-0 text-muted small">{phaseInfo.label}</p>
-          </div>
-        </div>
-        {isPlanningPhase() && (
-          <span className="badge bg-info">Plan outputs and assign to staff</span>
-        )}
-        {isMonitoringPhase() && (
-          <span className="badge bg-warning">Monitor progress and actual accomplishments</span>
-        )}
-        {isRatingPhase() && (
-          <span className="badge bg-success">Rate performance and consolidate results</span>
-        )}
-      </div>
-
-      {/* ─── Header / Banner ──────────────────────────────── */}
-      <div
-        className="rounded-4 shadow-sm mb-4 position-relative overflow-hidden"
-        style={{
-          backgroundImage: `url('${import.meta.env.BASE_URL}nc-splash-new.jpg')`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          height: "240px",
-        }}
-      >
-        {/* Dark overlay for contrast */}
-        <div className="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-50"></div>
-
-        {/* Foreground content */}
-        <div className="position-relative text-white p-4 h-100 d-flex flex-column justify-content-between">
-          <div>
-            <h3 className="fw-bold mb-1 text-shadow-sm">{deptInfo.name || "Loading..."}</h3>
-            <p className="mb-0">
-              Office Head:{" "}
-              {managerInfo ? (
-                <span className="fw-semibold text-info">
-                  {managerInfo.first_name + " " + managerInfo.last_name}
-                </span>
-              ) : (
-                <span className="text-warning">None</span>
-              )}
-            </p>
+          <div className="d-flex gap-2 align-items-center">
+            {phaseInfos.map((p) => (
+              <span key={p.key} className={`badge bg-${p.color} me-1`}>{p.shortLabel}</span>
+            ))}
           </div>
         </div>
-      </div>
 
-      <div className="mb-3 border-bottom">
-        <ul className="nav nav-tabs">
-          {getTabs().map((tab) => (
-            <li className="nav-item" key={tab.index}>
-              <button
-                onClick={() => setCurrentPage(tab.index)}
-                className="nav-link border-0 d-flex align-items-center gap-2"
-                style={{
-                  borderBottom: currentPage === tab.index ? "3px solid #0d6efd" : "3px solid transparent",
-                  color: currentPage === tab.index ? "#0d6efd" : "#6c757d",
-                  fontWeight: currentPage === tab.index ? "600" : "400",
-                  backgroundColor: "transparent",
-                  transition: "all 0.2s ease-in-out",
-                }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: 20 }}>{tab.icon}</span>
-                {tab.label}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
+        {/* Banner */}
+        <div
+          className="rounded-4 shadow-sm mb-4 position-relative overflow-hidden"
+          style={{
+            backgroundImage: `url('${import.meta.env.BASE_URL}nc-splash-new.jpg')`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            height: "240px",
+          }}
+        >
+          <div className="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-50"></div>
+          <div className="position-relative text-white p-4 h-100 d-flex flex-column justify-content-between">
+            <div>
+              <h3 className="fw-bold mb-1">{deptInfo.name || "Loading..."}</h3>
+              <p className="mb-0">
+                Office Head:{" "}
+                {managerInfo ? (
+                  <span className="fw-semibold text-info">
+                    {managerInfo.first_name + " " + managerInfo.last_name}
+                  </span>
+                ) : (
+                  <span className="text-warning">None</span>
+                )}
+              </p>
+            </div>
 
-      {/* ─── Content ──────────────────────────────── */}
-      <div>
-          {currentPage === 1 && isPlanningPhase() && (
+            
+          </div>
+        </div>
+
+        {/* Phase-aware Tabs */}
+        <div className="mb-3 border-bottom">
+          <ul className="nav nav-tabs">
+            {getTabs().map((tab) => (
+              <li className="nav-item" key={tab.index}>
+                <button
+                  onClick={() => setCurrentPage(tab.index)}
+                  className="nav-link border-0 d-flex align-items-center gap-2"
+                  style={{
+                    borderBottom: currentPage === tab.index ? "3px solid #0d6efd" : "3px solid transparent",
+                    color: currentPage === tab.index ? "#0d6efd" : "#6c757d",
+                    fontWeight: currentPage === tab.index ? "600" : "400",
+                    backgroundColor: "transparent",
+                    transition: "all 0.2s ease-in-out",
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: 20 }}>{tab.icon}</span>
+                  {tab.label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Tab Content */}
+        <div>
+
+          {currentPage === 0 &&  (
+            <PerformanceReviews deptid={id} />
+          )}
+
+          {currentPage === 1 && (
             <>
               <div className="alert alert-info d-flex mb-3">
                 <span className="material-symbols-outlined me-2">info</span>
-                During Planning Phase: Outputs are created and assigned to staff members.
+                During Planning Phase: Tasks are created and assigned to staff members.
               </div>
-              <DepartmentTasksTable id={id} admin_mode={false} currentPhase = {currentPhase} />
-              <GeneralTasksTable id={id}  currentPhase = {currentPhase}/>
+              <DepartmentTasksTable id={id} admin_mode={true} currentPhase={currentPhase}/>
             </>
           )}
+          
+          {currentPage === 2 && (
+            <>
+              <div className="alert alert-info d-flex mb-3">
+                <span className="material-symbols-outlined me-2">info</span>
+                During Planning Phase: Tasks are also weighted based on priority, scope and difficulty.
+              </div>
+              <TaskWeights dept_id={id}></TaskWeights>
+            </>
+          )}
+          
 
-          {currentPage === 1 && isMonitoringPhase() && (
-             <>
-               <DepartmentTasksTable id={id} admin_mode={false}  currentPhase = {currentPhase}/>
-               <GeneralTasksTable id={id}  currentPhase = {currentPhase}/>
-             </>
-           )}
-
-           {currentPage === 2 && (
-             <>
-               <div className="bg-white p-3 mb-3 rounded shadow-sm">
-                 <UserPerformanceInDepartment dept_id={id} />
-               </div>
-               <DepartmentMemberTable deptid={id} />
-             </>
-           )}
-
-          {currentPage === 0 && (isMonitoringPhase() || isRatingPhase()) && (
-            <PerformanceReviews deptid={id} />
+          {currentPage === 3 && (
+            <div className="d-grid" style={{display:"grid", backgroundColor:"white"}}>
+              <div className="row">
+                
+                <div className="col-lg-12 col-md-12" >
+                  <button className="btn btn-primary d-flex flex-row gap-2" onClick={ async ()=> {
+                    const link = await generateDepartmentPerformanceReport(id)
+                          .then((d) => d.data.download_url)
+                          .catch((err) => {
+                            Swal.fire("Error", err.response?.data?.error || "Failed to download", "error")
+                            return null
+                          })
+                        if (link) window.open(link, "_blank", "noopener,noreferrer")
+                    generateDepartmentPerformanceReport(id)
+                  }}>
+                    <span className="material-symbols-outlined">download</span>
+                    <span>Download Report</span>
+                  </button>
+                  <UserPerformanceInDepartment dept_id={id} currentPhase={currentPhase}/>
+                </div>
+                <div className="col-lg-12 col-md-12">
+                  <DepartmentMemberTable deptid={id} currentPhase={currentPhase}/>
+                </div>
+                
+              </div>
+              
+              
+            </div>
+          )}
+          
+          {currentPage === 4 && (
+            <div className="d-grid" style={{display:"grid", backgroundColor:"white"}}>
+              <FormulaSettings></FormulaSettings>
+              
+              
+            </div>
           )}
 
           {/* Empty state when tab not available */}
@@ -343,12 +378,13 @@ function HeadDepartmentInfo({ id, firstLoad }) {
             <div className="text-center py-5 text-muted">
               <span className="material-symbols-outlined fs-1 mb-2 d-block">lock</span>
               <h5>No Tabs Available</h5>
-             <p>Check back when the phase changes.</p>
-           </div>
+              <p>Check back when the phase changes.</p>
+            </div>
           )}
-         </div>
-       </div>
-   );
+        </div>
+      </div>
+    </>
+  );
 }
 
-export default HeadDepartmentInfo;
+export default DepartmentInfo;

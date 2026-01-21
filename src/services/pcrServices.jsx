@@ -49,6 +49,15 @@ export async function downloadMasterOPCR() {
     return api.get(`/api/v1/pcr/master-opcr/download/`)
 }
 
+export async function downloadAllDeptSummaries() {
+    console.log("fetching dept summaries")
+    return api.get(`/api/v1/department/all/performance-report`)
+}
+
+export async function downloadAllTaskSummaries() {
+    console.log("fetching task summaries")
+    return api.get(`/api/v1/department/all/task-report`)
+}
 export async function approveOPCR(opcr_id) {
     console.log("approving opcr")
     return api.post(`/api/v1/pcr/opcr/approve/${opcr_id}`)
