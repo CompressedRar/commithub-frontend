@@ -94,10 +94,6 @@ function CategoryTasks(props) {
 
     socket.on("category", reload);
     socket.on("main_task", reload);
-    return () => {
-      socket.off("category", reload);
-      socket.off("main_task", reload);
-    };
   }, [props.id]);
 
   useEffect(() => {
@@ -446,26 +442,6 @@ function CategoryTasks(props) {
                     }} required />
                 </div>
 
-                <div className="row g-2">
-                  <div className="col-md-6 mb-3">
-                    <label className="form-label fw-semibold">Target Efficiency</label>
-                    <input
-                      type="number"
-                      name="target_efficiency"
-                      className="form-control form-control"
-                      onInput={handleDataChange}
-                      defaultValue={formData.target_efficiency ?? 0}
-                      
-                    />
-                  </div>
-                
-                  <div className="col-md-6 mb-3">
-                    <label className="form-label fw-semibold">Efficiency Unit</label>
-                    <input type="text" name="modification" className="form-control" onChange={handleDataChange} placeholder="eg. corrections"/>
-                    
-                  </div>
-                </div>
-
                 <div className="col-md-12 mb-3">
                     <label className="form-label fw-semibold">Timeliness Mode</label>
                     <select name="timeliness_mode" className="form-select form-select" onChange={handleDataChange} value={formData.timeliness_mode || "timeframe"}>
@@ -511,6 +487,28 @@ function CategoryTasks(props) {
                     </div>
                   </div>
                 )}
+
+                <div className="row g-2">
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label fw-semibold">Target Efficiency</label>
+                    <input
+                      type="number"
+                      name="target_efficiency"
+                      className="form-control form-control"
+                      onInput={handleDataChange}
+                      defaultValue={formData.target_efficiency ?? 0}
+                      
+                    />
+                  </div>
+                
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label fw-semibold">Efficiency Unit</label>
+                    <input type="text" name="modification" className="form-control" onChange={handleDataChange} placeholder="eg. corrections"/>
+                    
+                  </div>
+                </div>
+
+                
 
                 <div className="row">
                   <div className="col-md-6 mb-3">

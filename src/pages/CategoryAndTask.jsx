@@ -82,7 +82,7 @@ export default function CategoryAndTask() {
       const payload = objectToFormData(formData);
       const res = await registerCategory(payload);
       if (res?.data?.message) {
-        Swal.fire("Success", res.data.message, "success");
+        Swal.fire("Success", "KRA created successfully.", "success");
         loadCategories();
         // close modal
         const el = document.getElementById("add-category");
@@ -310,7 +310,7 @@ export default function CategoryAndTask() {
               </div>
 
               <div className="mb-3">
-                <label className="form-label">Description <span className="text-danger">*</span></label>
+                <label className="form-label">Description</label>
                 <textarea rows={5} name="description" className="form-control" value={formData.description} onChange={handleDataChange} placeholder="Describe this key result area..." />
               </div>
             </div>
