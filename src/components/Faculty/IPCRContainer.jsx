@@ -440,6 +440,67 @@ function IPCRContainer({ switchPage }) {
           </div>
         )}
 
+        <div className="d-flex flex-column justify-content-between overflow-hidden border rounded w-100 h-75 align-items-center mb-3">
+          <div className="bg-primary h-50 w-100">
+              
+          </div>  
+
+          <div className="d-grid w-100 h-50">
+            <div className="row">
+              <div className="col-9 card border-0">
+                <h1 className="fw-bold">
+                  {
+                    allIPCR && allIPCR.length > 0 && (isRatingPhase() || isMonitoringPhase()) ?
+                    "Your IPCR is now available.":
+                    "Your IPCR is being prepared."
+                  }
+                </h1>
+                <small>IPCR form will be available once the tasks are assigned to this account.</small>
+
+                <div className="d-flex gap-2">
+                  <span className="fw-semibold ">Deadline: </span>
+                  <span className="text-danger">09 - 02 - 2026</span>
+                </div>
+              </div>
+
+              <div className="col-3 d-flex justify-content-end align-items-end">
+                {allIPCR && allIPCR.length > 0 && (isRatingPhase() || isMonitoringPhase()) ?
+                
+                  (
+                    (
+                      allIPCR.map(
+                        (ipcr) =>
+                          ipcr.status === 1 && (
+                            <button className="d-flex btn btn-primary gap-2 m-2" onClick={()=>{
+                              switchPage(ipcr.id, userinfo.department.id)
+                            }}
+
+                            onMouseOver={()=> {
+                                    setBatchID(ipcr.batch_id)
+                                    setCurrentIPCRID(ipcr.id)
+                                  }}
+                            
+                            >
+                              <span className="material-symbols-outlined">assignment</span>
+                              <span className="fw-semibold">View IPCR</span>
+                            </button>
+                          )
+                      )
+                    )
+                    
+                  )
+                :
+                <button className="d-flex btn-secondary btn gap-2 m-2">
+                  <span className="material-symbols-outlined">assignment</span>
+                  <span className="fw-semibold">Unavailable</span>
+                </button>
+                }
+                
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="d-flex justify-content-center h-100 align-items-center mb-3">
           <div className="d-flex justify-content-center flex-column align-items-center gap-3">
             <h2 className="fw-semibold mb-0">
@@ -463,35 +524,7 @@ function IPCRContainer({ switchPage }) {
           batchID && currentIPCRID && <ManageSupportingDocuments key = {batchID} ipcr_id={currentIPCRID} batch_id={batchID} />
         }
 
-        <div className="row g-3">
-          {allIPCR && allIPCR.length > 0 && isRatingPeriod? (
-            allIPCR.map(
-              (ipcr) =>
-                ipcr.status === 1 && (
-                  <div className="col-md-6" key={ipcr.id}>
-                    <IPCR
-                      ipcr={ipcr}
-                      onClick={()=> {
-                        switchPage(ipcr.id, userinfo.department.id)
-                      }}
-                      onLoad={() => {
-                         switchPage(ipcr.id, userinfo.department.id)
-                        }                                                
-                      }
-                      onMouseOver={()=> {
-                        setBatchID(ipcr.batch_id)
-                        setCurrentIPCRID(ipcr.id)
-                      }}
-                    />
-                  </div>
-                )
-            )
-          ) : (
-            <div className="text-center text-muted py-5">
-              
-            </div>
-          )}
-        </div>
+        
       </div>
     </div>
   );
