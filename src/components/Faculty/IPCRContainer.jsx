@@ -30,6 +30,7 @@ function IPCRContainer({ switchPage }) {
 
   const [currentIPCRID, setCurrentIPCRID] = useState(null)
   const [batchID, setBatchID] = useState(null)
+  const [deadlineIPCR, setDeadline] = useState(null)
 
   const [currentPhase, setCurrentPhase] = useState(null) //monitoring, rating, planning
 
@@ -37,6 +38,8 @@ function IPCRContainer({ switchPage }) {
         try {
             const res = await getSettings()
             const phase = res?.data?.data?.current_phase
+            const deadline = res?.data?.data?.monitoring_end_date
+            setDeadline(deadline)
             console.log("Current phase:", phase)
             setCurrentPhase(phase) //monitoring, rating, planning
         } catch (error) {
@@ -441,8 +444,16 @@ function IPCRContainer({ switchPage }) {
         )}
 
         <div className="d-flex flex-column justify-content-between overflow-hidden border rounded w-100 h-75 align-items-center mb-3">
-          <div className="bg-primary h-50 w-100">
-              
+          <div className="bg-primary h-50 w-100" >
+            <div style={{
+            backgroundImage: `url('${import.meta.env.BASE_URL}nc-splash-new.jpg')`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            height: "100%",
+            opacity:'0.3'
+          }}>
+
+            </div>
           </div>  
 
           <div className="d-grid w-100 h-50">
@@ -459,7 +470,7 @@ function IPCRContainer({ switchPage }) {
 
                 <div className="d-flex gap-2">
                   <span className="fw-semibold ">Deadline: </span>
-                  <span className="text-danger">09 - 02 - 2026</span>
+                  <span className="text-danger">{new Date(deadlineIPCR).getMonth().toString() + " - "+ new Date(deadlineIPCR).getDate().toString() + " - " + new Date(deadlineIPCR).getFullYear().toString()}</span>
                 </div>
               </div>
 
@@ -501,7 +512,7 @@ function IPCRContainer({ switchPage }) {
           </div>
         </div>
 
-        <div className="d-flex justify-content-center h-100 align-items-center mb-3">
+        <div className="d-flex justify-content-center h-100 align-items-center d-none mb-3">
           <div className="d-flex justify-content-center flex-column align-items-center gap-3">
             <h2 className="fw-semibold mb-0">
               Your IPCR Form is being prepared.

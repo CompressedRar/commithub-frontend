@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { archiveIprc, archiveOprc, downloadIPCR, downloadOPCR, downloadPlannedOPCR, updateRating } from "../../services/pcrServices";
 import Swal from "sweetalert2";
 import { getSettings } from "../../services/settingsService";
-
+import { useNavigate } from "react-router-dom";
 
 function DeptOPCR(props) {
 
@@ -16,6 +16,7 @@ function DeptOPCR(props) {
     const [downloading, setDownloading] = useState(false)
     const [archiving, setArchiving] = useState(false)
     const [currentPhase, setCurrentPhase] = useState(null) //monitoring, rating, planning
+    const navigate = useNavigate()
     
     async function loadCurrentPhase() {
         try {
@@ -174,7 +175,14 @@ function DeptOPCR(props) {
                             {!downloading && <span>Download</span>}
                         </button>
                         
-                        <button className="choices btn btn-success" onClick={props.onClick} data-bs-toggle="modal" data-bs-target="#view-opcr" onMouseOver={props.dept_mode? props.onMouseOver:null}>
+                        <button className="choices btn btn-success" onClick={()=> {
+                            if(isPlanningPhase()){
+                                navigate(`/admin/drafted/${props.opcr_id}?dept_id=${props.dept_id}&mode=check`)
+                            }
+                            else {                                
+                                navigate(`/admin/opcr/${props.opcr_id}?dept_id=${props.dept_id}&mode=check`)
+                            }
+                        }} >
                             <span className="material-symbols-outlined">view_list</span>
                             <span>View</span>
                         </button>                      

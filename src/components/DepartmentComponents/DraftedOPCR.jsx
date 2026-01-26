@@ -384,7 +384,7 @@ function DraftedOPCR(props) {
         <div className="d-flex align-items-center gap-2">
           <button className="btn btn-outline-primary d-flex" onClick={download} disabled={downloading}>
             {downloading ? <span className="spinner-border spinner-border-sm me-2"></span> : <span className="material-symbols-outlined me-1">download</span>}
-            Export
+            Download
           </button>
 
           {props.mode === "check" && formStatus === "PENDING" && (

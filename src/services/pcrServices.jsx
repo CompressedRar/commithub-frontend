@@ -143,6 +143,10 @@ export async function getSupportingDocuments(ipcr_id) {
     return api.get(`/api/v1/pcr/ipcr/documents/${ipcr_id}`)
 }
 
+export async function getDeptSupportingDocuments(dept_id) {
+    return api.get(`/api/v1/pcr/documents/${dept_id}`)
+}
+
 export async function getOPCRSupportingDocuments(opcr_id) {
     return api.get(`/api/v1/pcr/opcr/documents/${opcr_id}`)
 }

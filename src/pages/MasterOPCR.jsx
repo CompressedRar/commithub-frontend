@@ -291,7 +291,7 @@ function MasterOPCR(){
             <div className="d-flex justify-content-end align-items-center mb-4 gap-3">
                 
 
-                <select name="" className="form-select w-25 bg-primary text-white" id="" disabled={downloading}>
+                <select name="" className="form-select w-25" id="" disabled={downloading}>
                     <option value="" onClick={download} disabled={downloading}>
                         <button
                             className="btn btn-primary d-flex align-items-center gap-2 shadow-sm"

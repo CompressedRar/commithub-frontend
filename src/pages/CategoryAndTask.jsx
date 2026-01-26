@@ -241,7 +241,7 @@ export default function CategoryAndTask() {
 
                                   <div className="p-3 bg-light rounded-2 text-center" style={{ minWidth: 100 }}>
                                     <div className="fw-bold">{allCategory.find((c) => c.id === selectedCategoryId)?.task_count ?? 0}</div>
-                                    <small className="text-muted d-block">Outputs</small>
+                                    <small className="text-muted d-block">Tasks</small>
                                   </div>
                     
                                   <div className="p-3 bg-light rounded-2 text-center" style={{ minWidth: 100 }}>

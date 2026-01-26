@@ -3,8 +3,8 @@ import {
   approveOPCR,
   downloadOPCR,
   downloadPlannedOPCR,
-  downloadWeightedOPCR,
   getOPCR,
+  getPlannedOPCR,
   reviewOPCR,
   updateRating
 } from "../../services/pcrServices"
@@ -14,19 +14,15 @@ import { jwtDecode } from "jwt-decode"
 import { getAccountInfo } from "../../services/userService"
 import { getSettings } from "../../services/settingsService"
 import { getCategories } from "../../services/categoryService"
-import ManageDeptSupportingDocuments from "../Faculty/ManageDeptSupportingDocuments"
+import { useParams, useSearchParams } from "react-router-dom"
 
 
-
-function EditOPCR(props) {
+function OtherDraftedOPCR(props) {
   const [opcrInfo, setOPCRInfo] = useState(null)
   const [quantityFormula, setQuantityFormula] = useState(null)
   const [efficiencyFormula, setEfficiencyFormula] = useState(null)
   const [timelinessFormula, setTimelinessFormula] = useState(null)
 
-  const [coreRawAvg, setCoreRawAvg] = useState(0)
-  const [strategicRawAvg, setStrategicRawAvg] = useState(0)
-  const [supportRawAvg, setSupportRawAvg] = useState(0)
 
   const [assignedData, setAssignedData] = useState(null)
   const [headData, setHeadData] = useState(null)
@@ -53,9 +49,14 @@ function EditOPCR(props) {
   const [categoriesTypes, setCategoryTypes] = useState({})
 
   const token = localStorage.getItem("token")
+  const [searchParams] = useSearchParams()
+
+  const { opcr_id } = useParams()
+  const dept_id = searchParams.get("dept_id")
+  const mode = searchParams.get("mode")
 
   async function loadOPCR() {
-    const res = await getOPCR(props.opcr_id)
+    const res = await getPlannedOPCR(dept_id)
       .then((d) => d.data)
       .catch((error) => {
         Swal.fire("Error", error.response?.data?.error || "Failed to load OPCR", "error")
@@ -65,7 +66,7 @@ function EditOPCR(props) {
     if (!res) return
     console.log("OPCR Data: ", res)
     setOPCRInfo(res.ipcr_data)
-    setFormStatus(res.form_status?.toUpperCase())
+    setFormStatus("APPROVED")
     setAssignedData(res.assigned)
     setHeadData(res.admin_data)
   }
@@ -190,36 +191,10 @@ function EditOPCR(props) {
 
   async function download() {
     setDownloading(true)
-    const link = await downloadOPCR(props.opcr_id)
+    const link = await downloadPlannedOPCR(dept_id)
       .then((d) => d.data.link)
       .catch((err) => {
-        Swal.fire("Error", err.response?.data?.error || "Failed to download", "error")
-        return null
-      })
-    if (link) window.open(link, "_blank", "noopener,noreferrer")
-    setDownloading(false)
-  }
-  
-  async function downloadPlanned() {
-              setDownloading(true)
-              var res = await downloadPlannedOPCR(props.dept_id).then(data => data.data.link).catch(error => {
-                  console.log(error.response.data.error)
-                  Swal.fire({
-                      title: "Error",
-                      text: error.response.data.error,
-                      icon: "error"
-                  })
-              })
-                  window.open(res, "_blank", "noopener,noreferrer");
-                  setDownloading(false)
-              }
-
-  async function downloadWeighted() {
-    setDownloading(true)
-    const link = await downloadWeightedOPCR(props.opcr_id)
-      .then((d) => d.data.link)
-      .catch((err) => {
-        Swal.fire("Error", err.response?.data?.error || "Failed to download", "error")
+        Swal.fire("Error", err.response?.data?.error || "Failed to export", "error")
         return null
       })
     if (link) window.open(link, "_blank", "noopener,noreferrer")
@@ -227,7 +202,7 @@ function EditOPCR(props) {
   }
 
   async function handleApproval() {
-    const res = await approveOPCR(props.opcr_id)
+    const res = await approveOPCR(opcr_id)
       .then((d) => d.data.message)
       .catch((err) => {
         Swal.fire("Error", err.response?.data?.error || "Approve failed", "error")
@@ -239,18 +214,6 @@ function EditOPCR(props) {
     }
   }
 
-  async function handleReview() {
-    const res = await reviewOPCR(props.opcr_id)
-      .then((d) => d.data.message)
-      .catch((err) => {
-        Swal.fire("Error", err.response?.data?.error || "Review failed", "error")
-        return null
-      })
-    if (res) {
-      Swal.fire("Success", res, "success")
-      loadOPCR()
-    }
-  }
 
   function handleRemarks(rating, thresholds) {
     const r = parseFloat(rating)
@@ -384,7 +347,7 @@ function EditOPCR(props) {
   }, [userInfo])
 
   useEffect(() => {
-    if (value == "") return
+    if (value === "") return
     const debounce = setTimeout(() => {
       updateRating(ratingID, field, value).catch((err) => console.error(err.response?.data?.error || err))
     }, 500)
@@ -402,49 +365,17 @@ function EditOPCR(props) {
   }
 
   return (
-    <div className="py-4" style={{minWidth:"1200px"}} >
+    <div className="py-4" style={{minWidth:"1200px"}}>
 
       {/* Overlay when rating period is closed in system settings */}
-
-
       {/* Header */}
-      <ManageDeptSupportingDocuments dept_id={props.dept_id} dept_mode={true} sub_tasks={props.arrangedSubTasks}></ManageDeptSupportingDocuments>
-      <div className="d-flex justify-content-between gap-2 align-items-center mb-4">
-        <button className="btn btn-outline-secondary d-flex align-items-center gap-2" data-bs-dismiss="modal" onClick={() => props.switchPage()}>
-          <span className="material-symbols-outlined">undo</span>
-          Back to PCR
-        </button>
-        <button className="btn btn-outline-primary d-none" >
-                {downloading ? <span className="spinner-border spinner-border-sm me-2"></span> : "Download Weighted OPCR"}
-                
-              </button>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        
         <div className="d-flex align-items-center gap-2">
-          
-        <button className="btn btn-primary" data-bs-toggle="modal"
-                        data-bs-target="#manage-dept-docs">Documents</button>
-
-
-          <select name="" className="form-select" id="" disabled={downloading}>
-            <option value="" onClick={download} disabled={downloading}>
-              <button className="btn btn-outline-primary d-flex" >
-                {downloading ? "Downloading..." : "Download OPCR"}
-                
-              </button>
-            </option>
-            <option value="" onClick={downloadWeighted} disabled={downloading}>
-              <button className="btn btn-outline-primary d-flex" >
-                {downloading ? "Downloading..." : "Download Weighted OPCR"}
-                
-              </button>
-            </option>
-
-            <option value="" onClick={downloadPlanned} disabled={downloading}>
-              <button className="btn btn-outline-primary d-flex" >
-                {downloading ? "Downloading..." : "Download Planned OPCR"}                
-              </button>
-            </option>
-          </select>
-
+          <button className="btn btn-outline-primary d-flex" onClick={download} disabled={downloading}>
+            {downloading ? <span className="spinner-border spinner-border-sm me-2"></span> : <span className="material-symbols-outlined me-1">download</span>}
+            Download
+          </button>
         </div>
       </div>
 
@@ -457,7 +388,7 @@ function EditOPCR(props) {
       )}
 
       {/* Main Card */}
-      <div className="container-fluid border rounded">
+      <div className="container-fluid border rounded" style={{minWidth:"500px"}}>
         <div className="card-body p-4">
           {/* Header Section */}
           <HeaderSection />
@@ -466,11 +397,11 @@ function EditOPCR(props) {
           <OfficerInfoSection headData={headData} assignedData={assignedData} />
 
           {/* Tasks Table */}
-          <div className="table-responsive mt-5 mb-4">
+          <div className="table mt-5 mb-4">
             <table className="table table-bordered table-hover">
               <thead className="table-light">
                 <tr>
-                  <th style={{ width: "15%", textAlign: "center" }}>OUTPUT</th>
+                  <th style={{ width: "20%", textAlign: "center" }}>OUTPUT</th>
                   <th style={{ width: "10%", textAlign: "center" }}>WEIGHT</th>
                   <th style={{ width: "20%", textAlign: "center" }}>
                     SUCCESS INDICATORS<br />
@@ -484,8 +415,7 @@ function EditOPCR(props) {
                     RATING<br />
                     <small className="text-muted">Q² E² T² A²</small>
                   </th>
-                  <th style={{ width: "10%", textAlign: "center" }}>WEIGHTED AVG</th>
-                  <th style={{ width: "15%", textAlign: "center" }}>REMARKS</th>
+                  <th style={{ width: "20%", textAlign: "center" }}>REMARKS</th>
                 </tr>
               </thead>
               <tbody>
@@ -519,7 +449,6 @@ function EditOPCR(props) {
             handleRemarks={handleRemarks}
             ratingThresholds={ratingThresholds}
             currentPhase={currentPhase}
-            opcrInfo = {opcrInfo}
           />
 
           {/* Signatures */}
@@ -619,7 +548,7 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
       {tasks.map((task, idx) => (
         <tr key={idx} className="align-middle">
           <td className="fw-semibold small" style={{ minWidth: 220 }}>{task.title}</td>
-          <td className="fw-semibold small" style={{textAlign:"center"}}>{task.description?.task_weight * 100}%</td>
+          <td className="fw-semibold small" style={{textAlign:"center"}}>{task.description?.weight * 100}%</td>
           <td>
             <div className="d-grid gap-2">
               <div>
@@ -647,7 +576,7 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
           </td>
           <td>
             <div className="d-flex justify-content-center align-items-center flex-column">
-              {Object.keys(assignedData).includes(task.title) && assignedData[task.title].map((user) => <div>{user}</div>)}
+              {assignedData && assignedData[task.title].map((user) => (<div style={{textAlign:"center"}}>{user}</div>))}
             </div>
           </td>
           <td>
@@ -658,7 +587,7 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
               </div>
               {task.description?.timeliness_mode == "timeframe" ? (
                 <div>
-                  <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.actual != 0 ? task.working_days?.actual / task.frequency : 0} />
+                  <input disabled className="form-control form-control-sm" defaultValue={0} />
                   <small className="text-muted d-block">{task.description?.time}/s in average with</small>
                 </div>
               ):
@@ -667,14 +596,12 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
                   {parseFloat(task.working_days?.actual / task.frequency).toFixed(0) == 0 ? (
                     <input disabled className="form-control form-control-sm" value = ""/>
                   ) : (
-                    <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.actual != 0 ? Math.abs(parseFloat(task.working_days?.actual / task.frequency).toFixed(0)) : ""} />
+                    <input disabled className="form-control form-control-sm" defaultValue={0} />
                   )}
-
-                  
-                  {task.working_days?.actual != 0 ? Math.abs(parseFloat(task.working_days?.actual / task.frequency).toFixed(0)) : 0 == 0 ? (
+                  {parseFloat(task.working_days?.actual / task.frequency) == 0 ? (
                     <small className="text-muted d-block">on the set deadline with</small>
                   ) : 
-                    parseFloat(task.working_days?.actual / task.frequency) < 0 ? (
+                    parseFloat(task.working_days?.actual / task.frequency) < 0? (
                       <small className="text-muted d-block">day/s early in average with</small>
                     ) :
                     (
@@ -685,7 +612,7 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
               )
               }
               <div>
-                <input disabled className="form-control form-control-sm" defaultValue={task.corrections?.actual != 0 ?parseFloat(task.corrections?.actual / task.frequency).toFixed(0) : 0} />
+                <input disabled className="form-control form-control-sm" defaultValue={parseFloat(0).toFixed(0)} />
                 <small className="text-muted d-block">{task.description?.alterations}/s in average</small>
               </div>
             </div>
@@ -693,9 +620,7 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
           <td className="text-center">
             <RatingBadges task={task} canEval={canEval} setField={setField} setValue={setValue} setRatingID={setRatingID} currentPhase={currentPhase} />
           </td>
-          <td className="small text-center fw-semibold">{task.rating?.weighted_avg.toFixed(2)}</td>
           <td className="small text-center fw-semibold">{(isMonitoringPhase() && isRatingPhase()) ?  handleRemarks(task.rating?.average, ratingThresholds) : "N/A"}</td>
-          
         </tr>
       ))}
     </>
@@ -729,7 +654,7 @@ function RatingBadges({ task, canEval, setField, setValue, setRatingID, currentP
       <div className="text-center" style={{ fontSize: "1.5rem", borderStyle: "solid", borderWidth: "0 1px 0 0", borderColor: "grey", height: "100%" }}>
         <span
           className={`d-block ${canEval ? "cursor-pointer" : ""}`}
-          contentEditable={canEval}
+          contentEditable={false}
           onClick={() => canEval && setRatingID(task.rating?.id)}
           onInput={(e) => { if (canEval) { setField("quantity"); setValue(e.target.textContent) } }}
         >
@@ -739,7 +664,7 @@ function RatingBadges({ task, canEval, setField, setValue, setRatingID, currentP
       <div className="text-center" style={{ fontSize: "1.5rem", borderStyle: "solid", borderWidth: "0 1px 0 0", borderColor: "grey", height: "100%" }}>
         <span
           className={`d-block ${canEval ? "cursor-pointer" : ""}`}
-          contentEditable={canEval}
+          contentEditable={false}
           onClick={() => canEval && setRatingID(task.rating?.id)}
           onInput={(e) => { if (canEval) { setField("efficiency"); setValue(e.target.textContent) } }}
         >
@@ -749,7 +674,7 @@ function RatingBadges({ task, canEval, setField, setValue, setRatingID, currentP
       <div className="text-center" style={{ fontSize: "1.5rem", borderStyle: "solid", borderWidth: "0 1px 0 0", borderColor: "grey", height: "100%" }}>
         <span
           className={`d-block ${canEval ? "cursor-pointer" : ""}`}
-          contentEditable={canEval}
+          contentEditable={false}
           onClick={() => canEval && setRatingID(task.rating?.id)}
           onInput={(e) => { if (canEval) { setField("timeliness"); setValue(e.target.textContent) } }}
         >
@@ -764,7 +689,7 @@ function RatingBadges({ task, canEval, setField, setValue, setRatingID, currentP
 }
 
 // Sub-component: Final Ratings
-function FinalRatingsSection({ quantityAvg, efficiencyAvg, timelinessAvg, allAvg, handleRemarks, ratingThresholds, currentPhase, opcrInfo}) {
+function FinalRatingsSection({ quantityAvg, efficiencyAvg, timelinessAvg, allAvg, handleRemarks, ratingThresholds, currentPhase}) {
   
   function isMonitoringPhase() {
             return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("monitoring")
@@ -777,89 +702,45 @@ function FinalRatingsSection({ quantityAvg, efficiencyAvg, timelinessAvg, allAvg
     function isPlanningPhase() {
             return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("planning")
         }
-  
-  const [totalWeightedAvg, setTotalWAvg] = useState(0)
-
-  useEffect(()=> {
-    var total = 0
-    opcrInfo.map((categoryObj, i) =>
-        Object.entries(categoryObj).map(([category, tasks]) => (
-          tasks.map((task, idx) => {
-              total += parseFloat(task.rating.weighted_avg)   
-              console.log(total)  
-            }             
-          )           
-        )
-      )
-    )
-    setTotalWAvg(total)  
-  },[])
 
   return (
     <div className="row g-3 my-4">
-      <div className="col-md-6">
+      <div className="col-md-4">
         <div className="card h-100 border">
           <div className="card-body">
-            <h6 className="card-title fw-bold">Average Rating</h6>
+            <h6 className="card-title fw-bold">Final Average Rating</h6>
             <div className="d-grid gap-2 small">
               <div className="d-flex justify-content-between">
                 <span>Quantity (Q):</span>
-                <strong>{(isMonitoringPhase() || isRatingPhase()) ? parseFloat(quantityAvg || 0).toFixed(2) : 0}</strong>
+                <strong>{(isMonitoringPhase() && isRatingPhase()) ? parseFloat(quantityAvg || 0).toFixed(2) : 0}</strong>
               </div>
               <div className="d-flex justify-content-between">
                 <span>Efficiency (E):</span>
-                <strong>{(isMonitoringPhase() || isRatingPhase()) ? parseFloat(efficiencyAvg || 0).toFixed(2) : 0}</strong>
+                <strong>{(isMonitoringPhase() && isRatingPhase()) ? parseFloat(efficiencyAvg || 0).toFixed(2) : 0}</strong>
               </div>
               <div className="d-flex justify-content-between">
                 <span>Timeliness (T):</span>
-                <strong>{(isMonitoringPhase() || isRatingPhase()) ? parseFloat(timelinessAvg || 0).toFixed(2) : 0}</strong>
+                <strong>{(isMonitoringPhase() && isRatingPhase()) ?parseFloat(timelinessAvg || 0).toFixed(2) : 0}</strong>
               </div>
               <div className="d-flex justify-content-between border-top pt-2">
                 <span>Average (A):</span>
-                <strong>{(isMonitoringPhase() || isRatingPhase()) ? parseFloat(allAvg || 0).toFixed(2) : 0}</strong>
+                <strong>{(isMonitoringPhase() && isRatingPhase()) ? parseFloat(allAvg || 0).toFixed(2) : 0}</strong>
               </div>
             </div>
-            <br />
-            <h6 className="fw-bold">Adjectival Rating</h6>
-            <p className="mb-0 fs-5 fw-bold text-warning">
-              {(isMonitoringPhase() || isRatingPhase()) ? handleRemarks(allAvg.toFixed(2), ratingThresholds) : "N/A"}
-            </p>
-            <small className="text-muted mt-2">Overall Average: {(isMonitoringPhase() || isRatingPhase()) ?parseFloat(allAvg || 0).toFixed(2) : 0}</small>
           </div>
         </div>
       </div>
 
-      <div className="col-md-6">
-        <div className="card h-100 border">
-          <div className="card-body">
-            <h6 className="card-title fw-bold">Weighted Average</h6>
-            <div className="d-grid gap-2 small">
-              {
-                opcrInfo.map((categoryObj, i) =>
-                    Object.entries(categoryObj).map(([category, tasks]) => (
-                      tasks.map((task, idx) => {
-                        //setTotalWAvg(parseFloat(task.rating.weighted_avg).toFixed(2) + totalWeightedAvg)
-                          return <div className="d-flex justify-content-between">
-                              <span>{task.title} ({String(task.description.task_weight * 100) + "%"})</span>
-                              <strong>{parseFloat(task.rating.weighted_avg).toFixed(2)}</strong>
-                            </div>
-                        }
-                      )
-                    )
-                  )
-                )
-              }
-              <div className="d-flex justify-content-between border-top pt-2">
-                <span>Total Weighted Average (A):</span>
-                <strong>{parseFloat(totalWeightedAvg).toFixed(2)}</strong>
-              </div>
-            </div>
-            <br />
-            <h6 className="fw-bold">Adjectival Rating</h6>
+      
+
+      <div className="col-md-4">
+        <div className="card h-100 border text-center">
+          <div className="card-body d-flex flex-column justify-content-center">
+            <h6 className="card-title fw-bold">Adjectival Rating</h6>
             <p className="mb-0 fs-5 fw-bold text-warning">
-              {(isMonitoringPhase() || isRatingPhase()) ? handleRemarks(totalWeightedAvg.toFixed(2), ratingThresholds) : "N/A"}
+              {(isMonitoringPhase() && isRatingPhase()) ? handleRemarks(allAvg.toFixed(2), ratingThresholds) : "N/A"}
             </p>
-            <small className="text-muted mt-2">Total Weighted Average: {(isMonitoringPhase() || isRatingPhase()) ? parseFloat(totalWeightedAvg || 0).toFixed(2) : 0}</small>
+            <small className="text-muted mt-2">Overall Average: {(isMonitoringPhase() && isRatingPhase()) ?parseFloat(allAvg || 0).toFixed(2) : 0}</small>
           </div>
         </div>
       </div>
@@ -893,4 +774,4 @@ function SignaturesSection({ headData }) {
   )
 }
 
-export default EditOPCR
+export default OtherDraftedOPCR

@@ -109,10 +109,6 @@ function DeptIPCR(props) {
                             <span className="material-symbols-outlined">{downloading ? "refresh": "download"}</span>
                             {!downloading && <span>Download</span>}
                         </button>
-                        <button className="choices btn btn-primary"  data-bs-toggle="modal" data-bs-target={props.dept_mode? "#manage-docs":""}>
-                            <span className="material-symbols-outlined">attach_file</span>
-                            <span>Documents</span>
-                        </button>
                         <button className="choices btn btn-success" onClick={()=> {
                             navigate(`/admin/ipcr/${props.ipcr.ipcr.id}?dept_id=${props.dept_id}&mode=check`)
                         }} >

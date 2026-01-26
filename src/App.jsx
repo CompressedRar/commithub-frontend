@@ -30,6 +30,8 @@ import Positions from './pages/Positions'
 import NotFound from './pages/NotFound'
 import SystemSettings from './pages/SystemSettings'
 import OtherIPCR from './components/Faculty/OtherIPCR'
+import OtherEditOPCR from './components/DepartmentComponents/OtherEditOPCR'
+import OtherDraftedOPCR from './components/DepartmentComponents/OtherDraftedOPCR'
 
 
 function App() {
@@ -53,6 +55,8 @@ function App() {
           <Route path = "/admin/logs" element={<AuditLogs></AuditLogs>}></Route>
           <Route path = "/admin/ipcr" element={<Faculty></Faculty>}></Route>
           <Route path = "/admin/ipcr/:ipcr_id" element={<OtherIPCR></OtherIPCR>}></Route>
+          <Route path = "/admin/opcr/:opcr_id" element={<OtherEditOPCR></OtherEditOPCR>}></Route>
+          <Route path = "/admin/drafted/:opcr_id" element={<OtherDraftedOPCR></OtherDraftedOPCR>}></Route>
           <Route path = "/admin/review" element={<PresPendingReviews></PresPendingReviews>}></Route>
           <Route path = "/admin/approve" element={<PresPendingApprovals></PresPendingApprovals>}></Route>
           <Route path = "/admin/master" element={<MasterOPCR></MasterOPCR>}></Route>

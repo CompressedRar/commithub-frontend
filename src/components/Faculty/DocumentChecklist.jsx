@@ -17,8 +17,6 @@ export default function DocumentChecklist({ sub_tasks, documents }) {
 
   // Check if document exists for a task
   const hasDocument = (taskId) => {
-
-
     return documents.some(doc => doc.task_id == taskId && doc.status == 1);
   };
 
@@ -34,7 +32,7 @@ export default function DocumentChecklist({ sub_tasks, documents }) {
   }
 
   return (
-    <div className="border py-4 rounded">
+    <div className="py-4 rounded">
       <div className=" ">
         <h6 className=" fw-bold d-flex align-items-center gap-2">
           <span className="material-symbols-outlined text-info">checklist</span>
@@ -71,12 +69,12 @@ export default function DocumentChecklist({ sub_tasks, documents }) {
                 {/* Status Badge */}
                 <div className="flex-shrink-0">
                   {isComplete ? (
-                    <span className="badge bg-success">
+                    <span className="badge bg-success d-flex gap-2">
                       <span className="material-symbols-outlined" style={{ fontSize: "0.875rem" }}>done</span>
                       Uploaded
                     </span>
                   ) : (
-                    <span className="badge bg-danger">
+                    <span className="badge bg-danger d-flex gap-2">
                       <span className="material-symbols-outlined" style={{ fontSize: "0.875rem" }}>pending</span>
                       Pending
                     </span>

@@ -15,18 +15,14 @@ import { getAccountInfo } from "../../services/userService"
 import { getSettings } from "../../services/settingsService"
 import { getCategories } from "../../services/categoryService"
 import ManageDeptSupportingDocuments from "../Faculty/ManageDeptSupportingDocuments"
+import { useParams, useSearchParams } from "react-router-dom"
 
 
-
-function EditOPCR(props) {
+function OtherEditOPCR(props) {
   const [opcrInfo, setOPCRInfo] = useState(null)
   const [quantityFormula, setQuantityFormula] = useState(null)
   const [efficiencyFormula, setEfficiencyFormula] = useState(null)
   const [timelinessFormula, setTimelinessFormula] = useState(null)
-
-  const [coreRawAvg, setCoreRawAvg] = useState(0)
-  const [strategicRawAvg, setStrategicRawAvg] = useState(0)
-  const [supportRawAvg, setSupportRawAvg] = useState(0)
 
   const [assignedData, setAssignedData] = useState(null)
   const [headData, setHeadData] = useState(null)
@@ -54,8 +50,14 @@ function EditOPCR(props) {
 
   const token = localStorage.getItem("token")
 
+  const [searchParams] = useSearchParams()
+
+  const { opcr_id } = useParams()
+  const dept_id = searchParams.get("dept_id")
+  const mode = searchParams.get("mode")
+
   async function loadOPCR() {
-    const res = await getOPCR(props.opcr_id)
+    const res = await getOPCR(opcr_id)
       .then((d) => d.data)
       .catch((error) => {
         Swal.fire("Error", error.response?.data?.error || "Failed to load OPCR", "error")
@@ -190,7 +192,7 @@ function EditOPCR(props) {
 
   async function download() {
     setDownloading(true)
-    const link = await downloadOPCR(props.opcr_id)
+    const link = await downloadOPCR(opcr_id)
       .then((d) => d.data.link)
       .catch((err) => {
         Swal.fire("Error", err.response?.data?.error || "Failed to download", "error")
@@ -202,7 +204,7 @@ function EditOPCR(props) {
   
   async function downloadPlanned() {
               setDownloading(true)
-              var res = await downloadPlannedOPCR(props.dept_id).then(data => data.data.link).catch(error => {
+              var res = await downloadPlannedOPCR(dept_id).then(data => data.data.link).catch(error => {
                   console.log(error.response.data.error)
                   Swal.fire({
                       title: "Error",
@@ -216,7 +218,7 @@ function EditOPCR(props) {
 
   async function downloadWeighted() {
     setDownloading(true)
-    const link = await downloadWeightedOPCR(props.opcr_id)
+    const link = await downloadWeightedOPCR(opcr_id)
       .then((d) => d.data.link)
       .catch((err) => {
         Swal.fire("Error", err.response?.data?.error || "Failed to download", "error")
@@ -226,31 +228,7 @@ function EditOPCR(props) {
     setDownloading(false)
   }
 
-  async function handleApproval() {
-    const res = await approveOPCR(props.opcr_id)
-      .then((d) => d.data.message)
-      .catch((err) => {
-        Swal.fire("Error", err.response?.data?.error || "Approve failed", "error")
-        return null
-      })
-    if (res) {
-      Swal.fire("Success", res, "success")
-      loadOPCR()
-    }
-  }
 
-  async function handleReview() {
-    const res = await reviewOPCR(props.opcr_id)
-      .then((d) => d.data.message)
-      .catch((err) => {
-        Swal.fire("Error", err.response?.data?.error || "Review failed", "error")
-        return null
-      })
-    if (res) {
-      Swal.fire("Success", res, "success")
-      loadOPCR()
-    }
-  }
 
   function handleRemarks(rating, thresholds) {
     const r = parseFloat(rating)
@@ -408,12 +386,9 @@ function EditOPCR(props) {
 
 
       {/* Header */}
-      <ManageDeptSupportingDocuments dept_id={props.dept_id} dept_mode={true} sub_tasks={props.arrangedSubTasks}></ManageDeptSupportingDocuments>
-      <div className="d-flex justify-content-between gap-2 align-items-center mb-4">
-        <button className="btn btn-outline-secondary d-flex align-items-center gap-2" data-bs-dismiss="modal" onClick={() => props.switchPage()}>
-          <span className="material-symbols-outlined">undo</span>
-          Back to PCR
-        </button>
+      <ManageDeptSupportingDocuments dept_id={dept_id} dept_mode={true}></ManageDeptSupportingDocuments>
+      <div className="d-flex justify-content-end gap-2 align-items-center mb-4">
+        
         <button className="btn btn-outline-primary d-none" >
                 {downloading ? <span className="spinner-border spinner-border-sm me-2"></span> : "Download Weighted OPCR"}
                 
@@ -421,7 +396,7 @@ function EditOPCR(props) {
         <div className="d-flex align-items-center gap-2">
           
         <button className="btn btn-primary" data-bs-toggle="modal"
-                        data-bs-target="#manage-dept-docs">Documents</button>
+          data-bs-target="#manage-dept-docs">Documents</button>
 
 
           <select name="" className="form-select" id="" disabled={downloading}>
@@ -893,4 +868,4 @@ function SignaturesSection({ headData }) {
   )
 }
 
-export default EditOPCR
+export default OtherEditOPCR

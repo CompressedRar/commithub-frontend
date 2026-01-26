@@ -464,14 +464,13 @@ function EditIPCR(props) {
             <ManageTaskSupportingDocuments ipcr_id={ipcrInfo.id} batch_id={ipcrInfo.batch_id} dept_mode={false} sub_tasks={arrangedSubTasks}></ManageTaskSupportingDocuments>
             {/* Header */}
             
-            <div className="d-flex justify-content-between align-items-center mb-4">
+            <div className="d-flex justify-content-end align-items-center mb-4">
                 <button
                     className="btn btn-outline-secondary d-none align-items-center gap-2"
                     data-bs-dismiss="modal"
                     onClick={props.switchPage}
                 >
                     <span className="material-symbols-outlined">undo</span>
-                    Back to IPCRs
                 </button>
                 <div className="d-flex gap-2">
                     <button
@@ -547,7 +546,8 @@ function EditIPCR(props) {
                                     </th>
                                     <th style={{ width: "20%", textAlign:"center"  }}>ACTUAL ACCOMPLISHMENT</th>
                                     {
-                                        isRatingPhase(currentPhase) && <>
+                                        true && 
+                                        <>
                                             <th style={{ width: "15%", textAlign:"center"  }}>
                                                 RATING<br />
                                                 <small className="text-muted">Q² E² T² A²</small>
@@ -726,16 +726,16 @@ function RatingBadges({ task, currentPhase }) {
             gridTemplateColumns:"repeat(4, 1fr)",
         }}>
             <div className="text-center" style={{fontSize:"1.5rem", borderStyle:"solid", borderWidth:"0 1px 0 0", borderColor:"grey", height: "100%"}}>
-                <div>{isRatingPhase(currentPhase) && parseFloat(task.quantity).toFixed(0)}</div>
+                <div>{parseFloat(task.quantity).toFixed(0)}</div>
             </div>
             <div className="text-center" style={{fontSize:"1.5rem", borderStyle:"solid", borderWidth:"0 1px 0 0", borderColor:"grey", height: "100%"}}>
-                <div>{isRatingPhase(currentPhase) && parseFloat(task.efficiency).toFixed(0)}</div>
+                <div>{parseFloat(task.efficiency).toFixed(0)}</div>
             </div>
             <div className="text-center" style={{fontSize:"1.5rem", borderStyle:"solid", borderWidth:"0 1px 0 0", borderColor:"grey", height: "100%"}}>
-                <div>{isRatingPhase(currentPhase) && parseFloat(task.timeliness).toFixed(0)}</div>
+                <div>{ parseFloat(task.timeliness).toFixed(0)}</div>
             </div>
             <div className="text-center" style={{fontSize:"1.5rem"}}>
-                <div>{isRatingPhase(currentPhase) && parseFloat(task.average).toFixed(0)}</div>
+                <div>{ parseFloat(task.average).toFixed(0)}</div>
             </div>
         </div>
     )
@@ -784,9 +784,13 @@ function sanitizeNumberInput(e) {
 }
 // Sub-component: Task Row
 function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setSubTaskID, mode, ipcrInfo, currentPhase }) {
-    const isEditable = mode === "faculty" && ipcrInfo?.form_status !== "approved"
-    const isEditableMode = mode === "faculty" && ipcrInfo?.form_status !== "approved"
+    const isEditable = mode === "faculty"
+    const isEditableMode = mode === "faculty"
     const isEditableDuringMonitoring = isMonitoringPhase(currentPhase)
+
+    function isMonitoringPhase(currentPhase) {
+    return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("monitoring")
+    }
     
     // Target fields only editable during monitoring phase
     const isTargetEditable = isEditableMode && isEditableDuringMonitoring
@@ -826,6 +830,7 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
     return (
         <>
             <tr className="align-middle">
+                
                 <td className="fw-semibold small">{task.title}</td>
                 <td className>
                     <div className="d-grid gap-2">
@@ -911,13 +916,13 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                 pattern="[0-9]*"
                                 name="actual_acc"
                                 defaultValue={task.actual_acc}
-                                className={`form-control form-control-sm no-spinner ${isActualEditable ? "bg-success bg-opacity-25" : ""}`}
+                                className={`form-control form-control-sm no-spinner ${isEditableDuringMonitoring ? "bg-success bg-opacity-25" : ""}`}
                                 onClick={() => isActualEditable && setSubTaskID(task.id)}
                                 onKeyDown={numericKeyDown}
                                 onPaste={handlePasteNumeric}
                                 onInput={onNumberInput}
-                                disabled={!isActualEditable}
-                                title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
+                                disabled={!isEditableDuringMonitoring}
+                                title={isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
                             />
                             <span className="text-muted small d-block">{task.main_task.actual_acc} in</span>
                             
@@ -932,13 +937,13 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                     name="actual_time"
                                     defaultValue={task.actual_time}
                                     
-                                    className={`form-control form-control-sm no-spinner ${isActualEditable ? "bg-success bg-opacity-25" : ""}`}
+                                    className={`form-control form-control-sm no-spinner ${isEditableDuringMonitoring ? "bg-success bg-opacity-25" : ""}`}
                                     onClick={() => isTargetEditable && setSubTaskID(task.id)}
                                     onKeyDown={numericKeyDown}
                                     onPaste={handlePasteNumeric}
                                     onInput={onNumberInput}
-                                    disabled={!isActualEditable}
-                                    title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
+                                    disabled={!isEditableDuringMonitoring}
+                                    title={isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
                                 />
                                 <span className="text-muted small d-block">{task.main_task.time} with</span>
                                 
@@ -947,11 +952,11 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                 <input 
                                     type="date" 
                                     name = "actual_deadline"
-                                    className={`form-control form-control-sm no-spinner ${isActualEditable ? "bg-success bg-opacity-25" : ""}`}
+                                    className={`form-control form-control-sm no-spinner ${isEditableDuringMonitoring ? "bg-success bg-opacity-25" : ""}`}
                                     value={formatDateForInput(task.actual_deadline) }
                                     onChange={(e) => submitDateTimeChange(task.id, "actual_deadline", e.target.value)}
-                                    disabled={!isActualEditable}
-                                    title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
+                                    disabled={!isEditableDuringMonitoring}
+                                    title={isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
                                 />
                                 <span className="text-muted small d-block">on set deadline with</span>
                                 
@@ -965,20 +970,20 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                 pattern="[0-9]*"
                                 name="actual_mod"
                                 defaultValue={task.actual_mod}
-                                className={`form-control form-control-sm no-spinner ${isActualEditable ? "bg-success bg-opacity-25" : ""}`}
+                                className={`form-control form-control-sm no-spinner ${isEditableDuringMonitoring ? "bg-success bg-opacity-25" : ""}`}
                                 onClick={() => isActualEditable && setSubTaskID(task.id)}
                                 onKeyDown={numericKeyDown}
                                 onPaste={handlePasteNumeric}
                                 onInput={onNumberInput}
-                                disabled={!isActualEditable}
-                                title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
+                                disabled={!isEditableDuringMonitoring}
+                                title={isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
                             />
                             <span className="text-muted small d-block">{task.main_task.modification}</span>
                             
                         </div>
                     </div>
                 </td>
-                {isRatingPhase(currentPhase) && <>  
+                {true && <>  
                     <td className="small text-center">
                         <RatingBadges task={task} currentPhase = {currentPhase} />
                     </td>
