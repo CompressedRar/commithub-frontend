@@ -4,6 +4,7 @@ import {
   downloadOPCR,
   downloadPlannedOPCR,
   downloadWeightedOPCR,
+  getAssignedTasksByDept,
   getOPCR,
   reviewOPCR,
   updateRating
@@ -24,9 +25,6 @@ function EditOPCR(props) {
   const [efficiencyFormula, setEfficiencyFormula] = useState(null)
   const [timelinessFormula, setTimelinessFormula] = useState(null)
 
-  const [coreRawAvg, setCoreRawAvg] = useState(0)
-  const [strategicRawAvg, setStrategicRawAvg] = useState(0)
-  const [supportRawAvg, setSupportRawAvg] = useState(0)
 
   const [assignedData, setAssignedData] = useState(null)
   const [headData, setHeadData] = useState(null)
@@ -54,6 +52,8 @@ function EditOPCR(props) {
 
   const token = localStorage.getItem("token")
 
+  const [mainTasks, setMainTasks] = useState(null)
+
   async function loadOPCR() {
     const res = await getOPCR(props.opcr_id)
       .then((d) => d.data)
@@ -69,6 +69,18 @@ function EditOPCR(props) {
     setAssignedData(res.assigned)
     setHeadData(res.admin_data)
   }
+
+  async function loadMainTasks() {
+    try {
+      console.log("LOADING TAKSS")
+      const res = await getAssignedTasksByDept()
+      const maintasks = res?.data?.tasks
+      console.log("Current main tasks:", maintasks)
+
+    } catch (error) {
+      console.error("Failed to load current phase:", error)
+      }
+    }
 
   const [currentPhase, setCurrentPhase] = useState(null) //monitoring, rating, planning
 
@@ -275,7 +287,9 @@ function EditOPCR(props) {
     loadUserInfo()
     loadFormulas()
     loadCategoryTypes()
-    
+    loadMainTasks()
+
+
     loadCurrentPhase()
 
     socket.on("ipcr", loadOPCR)

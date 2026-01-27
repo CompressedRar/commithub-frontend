@@ -17,10 +17,9 @@ export default function DocumentChecklist({ sub_tasks, documents }) {
 
   // Check if document exists for a task
   const hasDocument = (taskId) => {
-    return documents.some(doc => doc.task_id == taskId && doc.status == 1);
+    return documents.some(doc => doc.task_id == taskId && doc.status == 1) || documents.some(doc => doc.main_task_id == taskId && doc.status == 1);
   };
 
-    console.log(hasDocument(87));
 
   if (tasksRequiringDocs.length === 0) {
     return (

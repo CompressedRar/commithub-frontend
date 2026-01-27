@@ -1071,7 +1071,7 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                         </div>
                     </div>
                 </td>
-                {isRatingPhase(currentPhase) && <>  
+                {true && <>  
                     <td className="small text-center" style={{maxWidth:"200px"}}>
                         <RatingBadges task={task} setSubTaskID={setSubTaskID} handleDataChange={handleDataChange} currentPhase = {currentPhase} style = {{height:"100%"}}/>
                     </td>

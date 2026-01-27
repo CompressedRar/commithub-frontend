@@ -19,6 +19,7 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
     try {
       const res = await getSupportingDocuments(ipcr_id);
       setDocuments(res.data);
+      console.log("IPCR DOCUEMTNGS",res.data)
     } catch (error) {
       console.error(error);
       Swal.fire({
@@ -149,6 +150,7 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
 
   useEffect(() => {
     loadDocuments();
+    console.log("TASKS", sub_tasks)
     socket.on("document", loadDocuments);
     return () => socket.off("document", loadDocuments);
   }, []);

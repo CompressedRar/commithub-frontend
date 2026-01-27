@@ -4,6 +4,7 @@ import {
   downloadOPCR,
   downloadPlannedOPCR,
   downloadWeightedOPCR,
+  getAssignedTasksByDept,
   getOPCR,
   reviewOPCR,
   updateRating
@@ -56,6 +57,8 @@ function OtherEditOPCR(props) {
   const dept_id = searchParams.get("dept_id")
   const mode = searchParams.get("mode")
 
+  const [mainTasks, setMainTasks] = useState(null)
+
   async function loadOPCR() {
     const res = await getOPCR(opcr_id)
       .then((d) => d.data)
@@ -71,6 +74,19 @@ function OtherEditOPCR(props) {
     setAssignedData(res.assigned)
     setHeadData(res.admin_data)
   }
+
+  async function loadMainTasks() {
+      try {
+        console.log("LOADING TAKSS")
+        const res = await getAssignedTasksByDept(dept_id)
+        const maintasks = res?.data?.tasks
+        console.log("Current main tasks:", maintasks)
+        setMainTasks(maintasks)
+  
+      } catch (error) {
+        console.error("Failed to load current phase:", error)
+        }
+      }
 
   const [currentPhase, setCurrentPhase] = useState(null) //monitoring, rating, planning
 
@@ -253,7 +269,7 @@ function OtherEditOPCR(props) {
     loadUserInfo()
     loadFormulas()
     loadCategoryTypes()
-    
+    loadMainTasks()
     loadCurrentPhase()
 
     socket.on("ipcr", loadOPCR)
@@ -386,7 +402,7 @@ function OtherEditOPCR(props) {
 
 
       {/* Header */}
-      <ManageDeptSupportingDocuments dept_id={dept_id} dept_mode={true}></ManageDeptSupportingDocuments>
+      <ManageDeptSupportingDocuments dept_id={dept_id} dept_mode={true} sub_tasks={mainTasks}></ManageDeptSupportingDocuments>
       <div className="d-flex justify-content-end gap-2 align-items-center mb-4">
         
         <button className="btn btn-outline-primary d-none" >

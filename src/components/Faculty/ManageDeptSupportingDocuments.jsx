@@ -13,12 +13,14 @@ function ManageDeptSupportingDocuments({ dept_id, dept_mode, sub_tasks }) {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [selectedTask, setSelectedTask] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [mainTasks, setMainTasks] = useState(false)
   const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
 
   async function loadDocuments() {
     try {
       const res = await getDeptSupportingDocuments(dept_id);
       setDocuments(res.data.message);
+      console.log("OPCR DOCUEMTNGS",res.data.message)
     } catch (error) {
       console.error(error);
       Swal.fire({
@@ -179,7 +181,32 @@ function ManageDeptSupportingDocuments({ dept_id, dept_mode, sub_tasks }) {
     return grouped;
   };
 
+  
+
   useEffect(() => {
+
+    const all_categories = {}
+    const all_category_type = {}
+
+    
+    
+
+    sub_tasks.forEach(task => {
+            const category = task.category.name
+            const type = task.category.type
+
+            all_categories[category] = all_categories[category] || []
+            all_category_type[category] = type
+
+            all_categories[category].push(task)
+        })
+
+    setMainTasks(all_categories)
+    console.log("ALL CATS", all_categories)
+
+
+
+
     loadDocuments();
     socket.on("document", loadDocuments);
     return () => socket.off("document", loadDocuments);
@@ -209,8 +236,8 @@ function ManageDeptSupportingDocuments({ dept_id, dept_mode, sub_tasks }) {
           {/* Modal Body */}
           <div className="modal-body p-4">
             {/* Document Checklist */}
-            {!dept_mode && (
-              <DocumentChecklist sub_tasks={sub_tasks} documents={documents} />
+            {true && (
+              <DocumentChecklist sub_tasks={mainTasks} documents={documents} />
             )}
 
             {/* Upload Section */}

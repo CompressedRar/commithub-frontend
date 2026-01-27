@@ -58,6 +58,12 @@ export async function downloadAllTaskSummaries() {
     console.log("fetching task summaries")
     return api.get(`/api/v1/department/all/task-report`)
 }
+
+export async function getAssignedTasksByDept(dept_id) {
+    console.log("fetching task by deparmtnes")
+    return api.get(`/api/v1/task/department/${dept_id}`)
+}
+
 export async function approveOPCR(opcr_id) {
     console.log("approving opcr")
     return api.post(`/api/v1/pcr/opcr/approve/${opcr_id}`)
