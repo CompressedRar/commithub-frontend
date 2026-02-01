@@ -195,7 +195,7 @@ function PerformanceReviews(props){
 
             <div className="all-ipcr-container" style={{display:"flex", flexDirection:"column", gap:"10px"}}>
                 {allOPCR && allOPCR.map(opcr => (
-                    <DeptOPCR opcr = {opcr} onClick={()=>{ setCurrentOPCRID(opcr.id) }} dept_id = {props.deptid} onMouseOver = {()=>{setCurrentOPCRID(opcr.id)}} opcr_id = {opcr.id} key={opcr.id}></DeptOPCR>
+                    <DeptOPCR opcr = {opcr} onClick={()=>{ setCurrentOPCRID(opcr.id) }} dept_id = {props.deptid} onMouseOver = {()=>{setCurrentOPCRID(opcr.id)}} opcr_id = {opcr.id} key={opcr.id} dept_mode = {props.dept_mode}></DeptOPCR>
                 ))}
                 {allOPCR && allOPCR.length === 0 && (
                   <div className="empty-symbols">

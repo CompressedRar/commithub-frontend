@@ -311,7 +311,7 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
         <div>
 
           {currentPage === 0 &&  (
-            <PerformanceReviews deptid={id} />
+            <PerformanceReviews deptid={id} dept_mode = {true}/>
           )}
 
           {currentPage === 1 && (

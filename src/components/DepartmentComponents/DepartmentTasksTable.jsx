@@ -221,11 +221,11 @@ function DepartmentTasksTable({ id, admin_mode, currentPhase }) {
             </div>
           </div>
         </div>
-      </div>
+      </div>      {/* === Header Controls === */}
 
-      {/* === Header Controls === */}
+
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-3">
-        <h4 className="fw-semibold text-dark mb-0">Office Outputs</h4>
+        <h4 className="fw-semibold text-dark mb-0">Office Tasks</h4>
         <div className="d-flex align-items-center gap-2 m-2">
             {admin_mode? <button
                 className="btn btn-primary d-flex align-items-center"
@@ -235,7 +235,7 @@ function DepartmentTasksTable({ id, admin_mode, currentPhase }) {
                 
             >
                 <span className="material-symbols-outlined">add</span>
-                <span className="" style={{textWrap:"nowrap" }}>Add Output</span>
+                <span className="" style={{textWrap:"nowrap" }}>Add Tasks</span>
             </button>: ""}
 
             <div className="input-group" style={{ width: "250px", height: "38px" }}>

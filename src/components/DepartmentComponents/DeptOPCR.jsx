@@ -177,10 +177,20 @@ function DeptOPCR(props) {
                         
                         <button className="choices btn btn-success" onClick={()=> {
                             if(isPlanningPhase()){
-                                navigate(`/admin/drafted/${props.opcr_id}?dept_id=${props.dept_id}&mode=check`)
+                                if (props.dept_mode) {
+                                    navigate(`/head/drafted/${props.opcr_id}?dept_id=${props.dept_id}&mode=check`)
+                                }
+                                else {
+                                    navigate(`/admin/drafted/${props.opcr_id}?dept_id=${props.dept_id}&mode=check`)
+                                }                                
                             }
                             else {                                
-                                navigate(`/admin/opcr/${props.opcr_id}?dept_id=${props.dept_id}&mode=check`)
+                                if (props.dept_mode) {
+                                    navigate(`/head/drafted/${props.opcr_id}?dept_id=${props.dept_id}&mode=check`)
+                                }
+                                else {
+                                    navigate(`/admin/drafted/${props.opcr_id}?dept_id=${props.dept_id}&mode=check`)
+                                }
                             }
                         }} >
                             <span className="material-symbols-outlined">view_list</span>

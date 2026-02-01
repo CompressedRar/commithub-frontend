@@ -75,6 +75,9 @@ function App() {
         </Route>
 
         <Route element = {<HeadLayout></HeadLayout>}>
+          <Route path = "/head/ipcr/:ipcr_id" element={<OtherIPCR></OtherIPCR>}></Route>
+          <Route path = "/head/opcr/:opcr_id" element={<OtherEditOPCR></OtherEditOPCR>}></Route>
+          <Route path = "/head/drafted/:opcr_id" element={<OtherDraftedOPCR></OtherDraftedOPCR>}></Route>
           <Route path = "/head/department" element={<HeadDepartment></HeadDepartment>}></Route>
           <Route path = "/head/tasks" element={<CategoryAndTask></CategoryAndTask>}></Route>
           <Route path = "/head/review" element={<HeadPendingReviews></HeadPendingReviews>}></Route>
