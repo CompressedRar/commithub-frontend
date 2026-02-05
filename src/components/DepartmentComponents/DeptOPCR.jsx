@@ -186,10 +186,10 @@ function DeptOPCR(props) {
                             }
                             else {                                
                                 if (props.dept_mode) {
-                                    navigate(`/head/drafted/${props.opcr_id}?dept_id=${props.dept_id}&mode=check`)
+                                    navigate(`/head/opcr/${props.opcr_id}?dept_id=${props.dept_id}&mode=check`)
                                 }
                                 else {
-                                    navigate(`/admin/drafted/${props.opcr_id}?dept_id=${props.dept_id}&mode=check`)
+                                    navigate(`/admin/opcr/${props.opcr_id}?dept_id=${props.dept_id}&mode=check`)
                                 }
                             }
                         }} >
