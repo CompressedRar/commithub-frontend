@@ -103,8 +103,6 @@ function CategoryTask({ category = {}, onClick, onEdit }) {
 
           
 
-          
-
           <div className="col-12">
             <label className="form-label fw-semibold mb-1">Assigned</label>
             <div className="d-flex flex-wrap gap-2">

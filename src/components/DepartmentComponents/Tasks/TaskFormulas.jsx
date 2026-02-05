@@ -31,6 +31,7 @@ export default function FormulaSettings({task_data}) {
 
     
       setEnableFormulas(task_data.enable_formulas ?? false)
+      console.log("Quantity", task_data.quantity_formula)
       setQuantity(task_data.quantity_formula)
       setEfficiency(task_data.efficiency_formula)
       setTimeliness(task_data.timeliness_formula)
@@ -159,6 +160,7 @@ function FormulaEditor({ title, icon, value, onChange, onValidity }) {
         formula: JSON.stringify(obj, null, 2)
       })
       const msg = res.data?.message ?? "Invalid JSON"
+      console.log(res.data?.message )
       setResult(msg)
       onValidity(msg === "Valid JSON")
     } catch {
@@ -195,6 +197,7 @@ function FormulaEditor({ title, icon, value, onChange, onValidity }) {
           <textarea
             className="form-control font-monospace"
             rows={8}
+            defaultValue={input}
             value={input}
             onChange={handleChange}
           />

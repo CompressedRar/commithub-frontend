@@ -310,7 +310,7 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
         </div>
 
         {/* Timeliness Mode */}
-        <div className="mb-3">
+        <div className="mb-3 d-none">
           <label className="form-label fw-semibold">Timeliness Mode</label>
           <select
             name="timeliness_mode"
@@ -319,16 +319,12 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
             onChange={handleChange}
           >
             <option value="timeframe">Timeframe (number + unit)</option>
-            <option value="deadline">Deadline (specific date/time)</option>
           </select>
-          <small className="text-muted d-block mt-1">How to measure timeliness</small>
         </div>
 
-        {/* Conditional: Timeframe or Deadline */}
-        {(formData.timeliness_mode || "timeframe") === "timeframe" ? (
-          <div className="row g-2">
+        <div className="row g-2">
             <div className="col-md-6 mb-3">
-              <label className="form-label fw-semibold">Target Timeframe (units)</label>
+              <label className="form-label fw-semibold">Target Timeliness</label>
               <input
                 type="number"
                 name="target_timeframe"
@@ -343,36 +339,16 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
 
             <div className="col-md-6 mb-3">
               <label className="form-label fw-semibold">Time Unit</label>
-              <select
+              <input
                 name="time_measurement"
-                className="form-select"
+                className="form-control"
+                placeholder="eg. days"
                 value={formData.time_measurement || "day"}
                 onChange={handleChange}
-              >
-                <option value="minute">Minute</option>
-                <option value="hour">Hour</option>
-                <option value="day">Day</option>
-                <option value="week">Week</option>
-                <option value="month">Month</option>
-                <option value="semester">Semester</option>
-                <option value="year">Year</option>
-              </select>
+              />
               <small className="text-muted d-block mt-1">Unit for the timeframe</small>
             </div>
           </div>
-        ) : (
-          <div className="mb-3">
-            <label className="form-label fw-semibold">Target Deadline</label>
-            <input
-              type="date"
-              name="target_deadline"
-              className="form-control"
-              value={formatDate(new Date(formData.target_deadline))}
-              onChange={handleChange}
-            />
-            <small className="text-muted d-block mt-1">Specify exact date/time for completion</small>
-          </div>
-        )}
 
                   <div className="mb-3">
                     <label className="form-label fw-semibold">Require Supporting Document</label>

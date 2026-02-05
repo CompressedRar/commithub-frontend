@@ -442,20 +442,17 @@ function CategoryTasks(props) {
                     }} required />
                 </div>
 
-                <div className="col-md-12 mb-3">
+                <div className="col-md-12 mb-3 d-none">
                     <label className="form-label fw-semibold">Timeliness Mode</label>
                     <select name="timeliness_mode" className="form-select form-select" onChange={handleDataChange} value={formData.timeliness_mode || "timeframe"}>
                       <option value="timeframe">Timeframe (number + unit)</option>
-                      <option value="deadline">Deadline (specific date/time)</option>
                     </select>
                   </div>
 
-
-                {/* timeframe or deadline inputs - show depending on timeliness_mode */}
-                { (formData.timeliness_mode || "timeframe") === "timeframe" ? (
+                
                   <div className="row g-2">
                     <div className="col-md-6 mb-3">
-                      <label className="form-label fw-semibold">Timeframe (units)</label>
+                      <label className="form-label fw-semibold">Target Timeliness </label>
                       <input
                         type="number"
                         name="target_timeframe"
@@ -463,7 +460,6 @@ function CategoryTasks(props) {
                         onInput={handleDataChange}
                         value={formData.target_timeframe ?? 0}
                       />
-                      <small className="text-muted">Use with unit selector above</small>
                     </div>
 
                     <div className="col-md-6 mb-3">
@@ -472,21 +468,7 @@ function CategoryTasks(props) {
                       
                     </div>
                   </div>
-                ) : (
-                  <div className="row g-2">
-                    <div className="col-12 mb-3">
-                      <label className="form-label fw-semibold">Deadline</label>
-                      <input
-                        type="datetime-local"
-                        name="target_deadline"
-                        className="form-control form-control-sm"
-                        onChange={handleDataChange}
-                        value={formData.target_deadline}
-                      />
-                      <small className="text-muted">Specify exact date/time for completion</small>
-                    </div>
-                  </div>
-                )}
+                
 
                 <div className="row g-2">
                   <div className="col-md-6 mb-3">
