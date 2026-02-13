@@ -210,3 +210,13 @@ export async function getOPCRApproved() {
     console.log("fetching ipcr")
     return api.get(`/api/v1/pcr/opcr/approved`)
 }
+
+export async function uploadIPCRExcel(file) {
+    const formData = new FormData()
+    formData.append('file', file)
+    return api.post(`/api/v1/pcr/upload-ipcr`, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    })
+}

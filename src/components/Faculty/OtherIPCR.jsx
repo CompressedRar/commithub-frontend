@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react"
-import { assignMainIPCR, downloadIPCR, getIPCR, updateSubTask } from "../../services/pcrServices"
+import { useEffect, useState, useRef } from "react"
+import { assignMainIPCR, downloadIPCR, getIPCR, updateSubTask, uploadIPCRExcel } from "../../services/pcrServices"
 import { socket } from "../api"
 import { jwtDecode } from "jwt-decode"
 import { getAccountInfo } from "../../services/userService"
@@ -34,6 +34,8 @@ function OtherIPCR(props) {
     const [subTaskID, setSubTaskID] = useState(0)
 
     const [downloading, setDownloading] = useState(false);
+    const [uploading, setUploading] = useState(false);
+    const fileInputRef = useRef(null);
 
     // Organized task data
     const [arrangedSubTasks, setArrangedSubTasks] = useState({})
@@ -51,6 +53,34 @@ function OtherIPCR(props) {
             "Support Function": { count: 0, total: 0, weight: 0 }
         }
     })
+
+    async function handleFileUpload(e) {
+        const file = e.target.files[0]
+        if (!file) return
+
+        // Validate file type
+        if (!file.name.match(/\.(xlsx|xls|xlsm)$/i)) {
+            alert('Please upload a valid Excel file (.xlsx, .xls, .xlsm)')
+            return
+        }
+
+        setUploading(true)
+        try {
+            const response = await uploadIPCRExcel(file)
+            if (response.status === 200) {
+                Swal.fire("Success",response.data?.message, "success")
+                // Reset file input
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = ''
+                }
+            }
+        } catch (error) {
+            console.error('Upload error:', error)
+            alert('Failed to upload file: ' + (error.response?.data?.error || error.message))
+        } finally {
+            setUploading(false)
+        }
+    }
 
     async function download() {
         setDownloading(true);
@@ -494,6 +524,30 @@ function OtherIPCR(props) {
                         <span className="material-symbols-outlined fs-5">attach_file</span>
                         Documents
                     </button>
+                    <button
+                        className="btn btn-outline-primary btn-sm d-flex align-items-center gap-2 p-2 rounded"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploading}
+                    >
+                        {uploading ? (
+                            <>
+                                <span className="spinner-border spinner-border-sm"></span>
+                                Uploading...
+                            </>
+                        ) : (
+                            <>
+                                <span className="material-symbols-outlined fs-5">upload_file</span>
+                                Upload IPCR
+                            </>
+                        )}
+                    </button>
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept=".xlsx,.xls,.xlsm"
+                        onChange={handleFileUpload}
+                        style={{ display: 'none' }}
+                    />
                     {
                         isRatingPhase(currentPhase) && 
                         <button className="btn btn-outline-primary d-flex" onClick={download} disabled={downloading}>
@@ -1071,7 +1125,7 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                         </div>
                     </div>
                 </td>
-                {true && <>  
+                {isRatingPhase(currentPhase) && <>  
                     <td className="small text-center" style={{maxWidth:"200px"}}>
                         <RatingBadges task={task} setSubTaskID={setSubTaskID} handleDataChange={handleDataChange} currentPhase = {currentPhase} style = {{height:"100%"}}/>
                     </td>
