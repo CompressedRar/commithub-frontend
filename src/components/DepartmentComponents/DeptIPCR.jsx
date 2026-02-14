@@ -110,7 +110,12 @@ function DeptIPCR(props) {
                             {!downloading && <span>Download</span>}
                         </button>
                         <button className="choices btn btn-success" onClick={()=> {
-                            navigate(`/admin/ipcr/${props.ipcr.ipcr.id}?dept_id=${props.dept_id}&mode=check`)
+                            if(props.dept_mode){
+                                navigate(`/head/ipcr/${props.ipcr.ipcr.id}?dept_id=${props.dept_id}&mode=check`)
+                            }
+                            else {
+                                navigate(`/admin/ipcr/${props.ipcr.ipcr.id}?dept_id=${props.dept_id}&mode=check`)
+                            }
                         }} >
                             <span className="material-symbols-outlined">view_list</span>
                             <span>View</span>

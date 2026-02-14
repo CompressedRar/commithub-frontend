@@ -56,7 +56,7 @@ function HeadLayout() {
         setUserInfo(res.data)
         setProfilePictureLink(res.data.profile_picture_link);
         setRole(res.data.role || null)
-        
+        console.log("CURRENT ROLE", res.data.role)
       }
       catch(error){
         console.error(error);
@@ -123,6 +123,8 @@ function HeadLayout() {
 
   if (!token) return <Navigate to="/" replace />;
     if (role && role !== "head") return <Navigate to="/unauthorized" replace />;
+
+
   return (
     <div className="d-flex flex-column flex-md-row vh-100 overflow-scroll">
       {/* 🔹 Sidebar */}
