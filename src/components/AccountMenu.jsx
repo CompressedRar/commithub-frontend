@@ -29,7 +29,7 @@ export default function AccountMenu({isOpen, closeMenu, anchorEl, handleLogout})
               <ListItemText primary={"Account Settings"} />
             </MenuItem>
         
-            <MenuItem onClick={()=> {
+            <MenuItem id="logout" onClick={()=> {
                 handleLogout()
                 closeMenu()
             }}>

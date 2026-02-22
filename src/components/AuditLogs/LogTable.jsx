@@ -7,6 +7,7 @@ import ActivityTrendChart from "../Charts/ActivityTrendChart";
 import SystemLogsDistribution from "../Charts/SystemLogsDistribution";
 import SystemLogsByDepartment from "../Charts/SystemLogsByDepartment";
 
+
 function LogTable() {
   const [allLogs, setAllLogs] = useState([]);
   const [filteredLogs, setFilteredLogs] = useState([]);
@@ -179,11 +180,12 @@ function LogTable() {
 
       <div className="row">
         <div className="col-lg-6 col-md-12">
-          <SystemLogsDistribution></SystemLogsDistribution>
-        </div>
-        <div className="col-lg-6 col-md-12">
           <SystemLogsByDepartment></SystemLogsByDepartment>
         </div>
+        <div className="col-lg-6 col-md-12">
+          <SystemLogsDistribution></SystemLogsDistribution>
+        </div>
+        
       </div>
 
       {/* Filters */}
@@ -263,6 +265,7 @@ function LogTable() {
           />
         </div>
       </div>
+
 
       {/* Table */}
       <div className="d-flex justify-content-between align-items-center mb-2">

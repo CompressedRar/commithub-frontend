@@ -15,9 +15,6 @@ function MasterOPCR(){
     const [timelinessAvg, setTimeliness] = useState(0)
     const [allAvg, setAllAvg] = useState(0)
 
-    const [coreRawAvg, setCoreRawAvg] = useState(0)
-    const [strategicRawAvg, setStrategicRawAvg] = useState(0)
-    const [supportRawAvg, setSupportRawAvg] = useState(0)
 
     const [downloading, setDownloading] = useState(false)
     const [downloadingAllDeptSummary, setDownloadingSummary] = useState(false)
@@ -48,25 +45,25 @@ function MasterOPCR(){
         }
 
     async function loadOPCR(){
-        var res = await getMasterOPCR().then(data => data.data).catch(error => {
-            console.log(error.response.data.error)
-            Swal.fire({
-                title: "Error",
-                text: error.response.data.error,
-                icon: "error"
+        try {
+            var res = await getMasterOPCR().then(data => data.data).catch(error => {
+                console.log(error.response.data.error)                
             })
-        })
 
-        console.log("MASTER OPCR INFO", res)
-        setOPCRInfo(res.ipcr_data)
-        setAssignedData(res.assigned)
-        setHeadData(res.admin_data)
-        
-        // Load rating thresholds if available
-        if (res.rating_thresholds) {
-            let rt = res.rating_thresholds
-            if (typeof rt === "string") rt = JSON.parse(rt)
-            setRatingThresholds(rt)
+            console.log("MASTER OPCR INFO", res)
+            setOPCRInfo(res.ipcr_data)
+            setAssignedData(res.assigned)
+            setHeadData(res.admin_data)
+            
+            // Load rating thresholds if available
+            if (res.rating_thresholds) {
+                let rt = res.rating_thresholds
+                if (typeof rt === "string") rt = JSON.parse(rt)
+                setRatingThresholds(rt)
+            }
+        }
+        catch(error){
+
         }
     }
 
@@ -251,8 +248,14 @@ function MasterOPCR(){
 
     if (!opcrInfo ) {
         return (
-            <div className="edit-ipcr-container" style={{ position: "relative" }}>
-                <div className="overlay-container">
+            <div style={{
+                    width:'100%',
+                    height:"80vh",
+                    display:'flex',
+                    justifyContent:"center",
+                    alignItems:'center'
+                }}>
+                <div >
                     <div className="overlay-content">
                         <img 
                             src={`${import.meta.env.BASE_URL}empty-folder.png`} 
@@ -271,7 +274,7 @@ function MasterOPCR(){
         <div className="py-4" style={{minWidth:"1200px"}}>
             {/* Header */}
             
-
+            ASDFADFADKJLSFH
             {!opcrInfo && (
                 <div className="d-flex justify-content-center align-items-center flex-column" style={{ zIndex: 1050,marginTop:"-5%", width:"80%", height:"100%", position:"absolute", backgroundColor:"rgba(255,255,255,0.8)"}}>
                     <div className="overlay-content text-center p-4">

@@ -15,6 +15,9 @@ import CHART_COLORS from "./chartColors";
 export default function ActivityTrendChart() {
   const [data, setData] = useState([]);
   const [stats, setStats] = useState(null);
+  const [timeframe, setTimeframe] = useState('monthly');
+  const [rawData, setRawData] = useState([]);
+  const timeframes = ['daily', 'weekly', 'monthly', 'yearly'];
 
   async function loadPerformance() {
     try {
@@ -24,11 +27,123 @@ export default function ActivityTrendChart() {
         value: Number(d.value),
       }));
 
-      setData(cleanData);
-      computeStats(cleanData);
+      setRawData(cleanData);
+      processDataByTimeframe(cleanData, timeframe);
     } catch (error) {
       Swal.fire("Error", "Failed to load activity trend", "error");
     }
+  }
+
+  function processDataByTimeframe(allData, frame) {
+    let processed = [];
+    
+    if (frame === 'all') {
+      processed = allData;
+    } else if (frame === 'daily') {
+      processed = groupByDay(allData);
+    } else if (frame === 'weekly') {
+      processed = groupByWeek(allData);
+    } else if (frame === 'monthly') {
+      processed = groupByMonth(allData);
+    } else if (frame === 'yearly') {
+      processed = groupByYear(allData);
+    }
+
+    setData(processed);
+    computeStats(processed);
+  }
+
+  function parseDate(dateString) {
+    // Try to parse various date formats
+    const date = new Date(dateString);
+    if (!isNaN(date)) return date;
+    
+    // Fallback for other formats
+    return new Date(dateString);
+  }
+
+  function groupByDay(data) {
+    const grouped = {};
+    
+    data.forEach(item => {
+      const date = parseDate(item.name);
+      const dayKey = date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+      
+      if (!grouped[dayKey]) {
+        grouped[dayKey] = { values: [], key: dayKey };
+      }
+      grouped[dayKey].values.push(item.value);
+    });
+
+    return Object.values(grouped).map(group => ({
+      name: group.key,
+      value: Math.round(group.values.reduce((a, b) => a + b, 0) / group.values.length),
+    }));
+  }
+
+  function groupByWeek(data) {
+    const grouped = {};
+    
+    data.forEach(item => {
+      const date = parseDate(item.name);
+      const year = date.getFullYear();
+      const weekNum = getWeekNumber(date);
+      const weekKey = `${year} W${weekNum}`;
+      
+      if (!grouped[weekKey]) {
+        grouped[weekKey] = { values: [], key: weekKey };
+      }
+      grouped[weekKey].values.push(item.value);
+    });
+
+    return Object.values(grouped).map(group => ({
+      name: group.key,
+      value: Math.round(group.values.reduce((a, b) => a + b, 0) / group.values.length),
+    }));
+  }
+
+  function groupByMonth(data) {
+    const grouped = {};
+    
+    data.forEach(item => {
+      const date = parseDate(item.name);
+      const monthKey = date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+      
+      if (!grouped[monthKey]) {
+        grouped[monthKey] = { values: [], key: monthKey };
+      }
+      grouped[monthKey].values.push(item.value);
+    });
+
+    return Object.values(grouped).map(group => ({
+      name: group.key,
+      value: Math.round(group.values.reduce((a, b) => a + b, 0) / group.values.length),
+    }));
+  }
+
+  function groupByYear(data) {
+    const grouped = {};
+    
+    data.forEach(item => {
+      const date = parseDate(item.name);
+      const yearKey = date.getFullYear().toString();
+      
+      if (!grouped[yearKey]) {
+        grouped[yearKey] = { values: [], key: yearKey };
+      }
+      grouped[yearKey].values.push(item.value);
+    });
+
+    return Object.values(grouped).map(group => ({
+      name: group.key,
+      value: Math.round(group.values.reduce((a, b) => a + b, 0) / group.values.length),
+    }));
+  }
+
+  function getWeekNumber(date) {
+    const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+    const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
+    return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
   }
 
   function computeStats(data) {
@@ -55,6 +170,12 @@ export default function ActivityTrendChart() {
     loadPerformance();
   }, []);
 
+  useEffect(() => {
+    if (rawData.length > 0) {
+      processDataByTimeframe(rawData, timeframe);
+    }
+  }, [timeframe]);
+
   return (
     <div className="card border-0" style={{ borderRadius: "1rem" }}>
       <div className="card-body">
@@ -62,7 +183,7 @@ export default function ActivityTrendChart() {
         <div className="d-flex justify-content-between align-items-start mb-3">
           <div>
             <small className="text-muted text-uppercase fw-semibold">
-              System Activity Trend
+              System Activity Trend ({timeframe.charAt(0).toUpperCase() + timeframe.slice(1)})
             </small>
             {stats ? (
               <>
@@ -92,6 +213,23 @@ export default function ActivityTrendChart() {
           )}
         </div>
 
+        {/* Timeframe Filters */}
+        <div className="d-flex gap-2 mb-3">
+          {timeframes.map(tf => (
+            <button
+              key={tf}
+              className={`btn btn-sm ${
+                timeframe === tf
+                  ? 'btn-secondary'
+                  : 'btn-outline-secondary'
+              }`}
+              onClick={() => setTimeframe(tf)}
+            >
+              {tf.charAt(0).toUpperCase() + tf.slice(1)}
+            </button>
+          ))}
+        </div>
+
         {/* Chart */}
         <h6 className="fw-semibold text-secondary mb-2">
           Activity Performance Over Time
@@ -103,7 +241,7 @@ export default function ActivityTrendChart() {
               <p className="text-muted">No activity trend data available</p>
             </div>
           ) : (
-          <ResponsiveContainer>
+          <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis

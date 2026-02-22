@@ -98,20 +98,6 @@ function DepartmentTasksTable({ id, admin_mode, currentPhase }) {
 
   }, []);
 
-  function isMonitoringPhase(currentPhase) {
-    
-    return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("monitoring");
-  }
-
-  function isRatingPhase(currentPhase) {
-    
-    return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("rating");
-  }
-
-  function isPlanningPhase(currentPhase) {
-    
-    return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("planning");
-  }
 
   return (
     <div className="container-fluid py-3 bg-white ">
@@ -139,6 +125,7 @@ function DepartmentTasksTable({ id, admin_mode, currentPhase }) {
               ></button>
             </div>
             <div className="modal-body bg-light">
+              <h2>Key Result Areas</h2>
               <AddDepartmentTask dept_id={id} />
             </div>
           </div>
@@ -187,7 +174,7 @@ function DepartmentTasksTable({ id, admin_mode, currentPhase }) {
       </div>
 
       <div
-        className="modal fade"
+        className="modal fade d-none"
         id="formulas"
         data-bs-backdrop="static"
         data-bs-keyboard="false"
@@ -234,8 +221,7 @@ function DepartmentTasksTable({ id, admin_mode, currentPhase }) {
                 style={{ height: "38px", textWrap:"wrap" }}
                 
             >
-                <span className="material-symbols-outlined">add</span>
-                <span className="" style={{textWrap:"nowrap" }}>Add Tasks</span>
+                <span className="" style={{textWrap:"nowrap" }}>Manage Tasks</span>
             </button>: ""}
 
             <div className="input-group" style={{ width: "250px", height: "38px" }}>

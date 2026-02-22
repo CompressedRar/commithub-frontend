@@ -149,6 +149,7 @@ function FacultyLayout() {
             {/* User Menu */}
             <div
               className="d-flex align-items-center gap-2 cursor-pointer flex-row-reverse"
+              id="avatar"
               onClick={(event) => {
                 setOptions(!options)
                 console.log("Setting anchor", event.currentTarget)

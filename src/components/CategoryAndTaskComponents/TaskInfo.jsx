@@ -8,6 +8,10 @@ import {
 import { objectToFormData } from "../api";
 import { getDepartments } from "../../services/departmentService";
 
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
+
 function TaskInfo({ id, backAfterArchive, backToPage }) {
   const [taskInfo, setTaskInfo] = useState({});
   const [selectedDepartments, setSelectedDepartments] = useState([])
@@ -211,20 +215,27 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
 
         <div className="mb-3 p-2">
           <label className="form-label fw-semibold">Office</label>
-          <div style={{display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:"5px"}}>
+          <FormGroup sx={{
+            display:"grid",
+            gridTemplateColumns:"1fr 1fr 1fr",
+          }}>
             {allDepartments.map((dept) => (
-               
-              <div className="d-flex gap-2">
-                <input  name="department" type="checkbox" id = {`dept-${dept.name}`} value = {dept.id} onChange={handleDepartmentAppend} checked = {formData.department.includes(dept.id)}/>
-                
-                <label htmlFor={`dept-${dept.name}`}>
-                  {dept.name}
-                </label>
-                
-              </div>
-              
+              <FormControlLabel 
+                label={dept.name}
+                key = {dept.id} 
+                control={
+                  <Checkbox
+                    name="department"
+                    id = {dept.name}
+                    value = {dept.id}
+                    onChange={handleDepartmentAppend}
+                    checked = {formData.department.includes(dept.id)}
+                  ></Checkbox>
+                }                        
+              ></FormControlLabel>                        
             ))}
-          </div>          
+          </FormGroup>          
+                  
         </div>
 
         <div className="mb-3 p-2">

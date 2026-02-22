@@ -9,10 +9,11 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { getDepartments } from "../../services/departmentService";
 import { convert_tense, create_description } from "../../services/tenseConverted";
 import CategoryTask from "./CategoryTask";
-import CategoryTaskAverages from "../Charts/CategoryTaskAverage";
-import CategoryPerformanceCharts from "../Charts/CategoryPerformance";
 
 import { createMainTask } from "../../services/taskService";
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
 
 function CategoryTasks(props) {
   const [categoryTasks, setCategoryTasks] = useState([]);
@@ -340,7 +341,7 @@ function CategoryTasks(props) {
       
       <div className="mb-4">
         <div className="d-flex justify-content-between align-items-center mb-2">
-          <h5 className="mb-0">Tasks</h5>
+          <h3 className="mb-0">Tasks</h3>
           <small className="text-muted">{categoryTasks?.length ?? 0} items</small>
         </div>
 
@@ -412,13 +413,26 @@ function CategoryTasks(props) {
 
                 <div className="mb-3 p-2">
                   <label className="form-label fw-semibold">Offices <span className="text-danger">*</span></label>
-                  <div style={{display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:"7px"}}>
-                    {allDepartments.map((dept) => (
-                      <label key ={dept.id} htmlFor = {dept.name}>
-                        <input name="department" type="checkbox" id = {dept.name} value = {dept.id} onChange={handleDepartmentAppend}></input> {dept.name}
-                      </label>
-                    ))}
-                  </div>
+                  <FormGroup sx={{
+                      display:"grid",
+                      gridTemplateColumns:"1fr 1fr 1fr",
+                    }}>
+                      {allDepartments.map((dept) => (
+                        <FormControlLabel 
+                        label={dept.name}
+                        key = {dept.id} 
+                        control={
+                          <Checkbox
+                            name="department"
+                            id = {dept.name}
+                            value = {dept.id}
+                            onChange={handleDepartmentAppend}                          
+                          ></Checkbox>
+                        }                        
+                        ></FormControlLabel>
+                        
+                      ))}
+                    </FormGroup>
                 </div>
 
                 <h6 className="mt-3">Success Indicators (Targets + Measures)</h6>

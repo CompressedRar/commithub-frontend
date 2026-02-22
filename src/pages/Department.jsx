@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import "../assets/styles/Department.css"
 import { getDepartments, registerDepartment } from "../services/departmentService";
 import DepartmentInfo from "../components/DepartmentComponents/DepartmentInfo";
@@ -15,8 +15,9 @@ function Department(){
     const [searchQuery, setSearchQuery] = useState("")
     const [loading, setLoading] = useState(true)
 
-    async function loadAllDepartments(){
+    const loadAllDepartments = useCallback( async ()=>{
         setLoading(true)
+        console.log("DEPARTMENT LOADED")
         try {
             const res = await getDepartments().then(data => data.data)
             setDepartments(res)
@@ -33,7 +34,7 @@ function Department(){
         } finally {
             setLoading(false)
         }
-    }
+    },[])
 
     async function loadFirstDepartment() {
         loadAllDepartments().then(res => {
@@ -100,7 +101,7 @@ function Department(){
     }
 
     const filteredDepartments = departments.filter(dept => 
-        (dept.department_name || "").toLowerCase().includes((searchQuery || "").toLowerCase())
+        (dept.name || "").toLowerCase().includes((searchQuery || "").toLowerCase())
     )
 
     useEffect(()=>{

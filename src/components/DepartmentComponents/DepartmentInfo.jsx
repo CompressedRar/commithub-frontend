@@ -29,7 +29,6 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
     try {
       const res = await getSettings();
       let phase = res?.data?.data?.current_phase;
-      // normalize to an array so we can support multiple active phases
       if (!phase) {
         phase = [];
       } else if (!Array.isArray(phase)) {

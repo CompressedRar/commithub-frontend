@@ -432,7 +432,7 @@ export default function SystemSettings() {
                 Rating Thresholds
               </button>
             </li>
-            <li className="nav-item" role="presentation">
+            <li className="nav-item d-none" role="presentation">
               <button
                 className={`nav-link d-flex align-items-center gap-2 ${activeTab === "formulas" ? "active" : ""}`}
                 onClick={() => setActiveTab("formulas")}

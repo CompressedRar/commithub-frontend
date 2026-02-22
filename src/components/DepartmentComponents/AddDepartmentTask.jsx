@@ -7,7 +7,10 @@ import {
 } from "../../services/departmentService";
 import Swal from "sweetalert2";
 import { socket } from "../api";
-
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 function AddDepartmentTask(props) {
   const [allCategories, setAllCategories] = useState([]);
   const [departmentInfo, setDepartmentInfo] = useState({});
@@ -129,23 +132,29 @@ function AddDepartmentTask(props) {
         overflowY: "auto",
       }}
     >
+      
+      
       {allCategories.map((category, cidx) => {
         const activeTasks = category.main_tasks.filter((task) => task.status);
 
         return (
-          <div key={cidx} className="mb-4">
-            <h6 className="fw-semibold text-secondary mb-3 border-bottom pb-2">
-              <i className="bi bi-folder2-open me-2 text-primary"></i>
-              {category.name}
-            </h6>
+          <Accordion key={cidx} className="mb-4">
+            <AccordionSummary expandIcon={<ExpandMoreIcon></ExpandMoreIcon>}>
+              <span className="badge bg-primary text-light mx-2" style={{width:"20px", height:"20px", display:"flex", alignItems:"center", justifyContent:"center"}}>{activeTasks.length ?? 0}</span>
+              <h6 className="fw-semibold mb-3">
+                {category.name}
+              </h6>
+              
+            </AccordionSummary>
 
             {activeTasks.length > 0 ? (
-              <div className="d-grid gap-2">
+              <AccordionDetails className="d-grid gap-2">
+
                 {activeTasks.map((task, tidx) => (
                   <div className="row">
                   <div
                     key={tidx}
-                    className="border col-xl-4 col-lg-6 col-md-12 rounded p-3 bg-white shadow-sm d-flex justify-content-between align-items-center"
+                    className="border col-xl-12 col-lg-12 col-md-12 rounded p-3 bg-white shadow-sm d-flex justify-content-between align-items-center"
                   >
                     {/* Task Info */}
                     <div className="d-flex align-items-center gap-2 flex-wrap">
@@ -184,14 +193,14 @@ function AddDepartmentTask(props) {
 
                   </div>
                 ))}
-              </div>
+              </AccordionDetails>
             ) : (
               <div className="text-center text-muted fst-italic py-3 bg-light rounded">
                 <i className="bi bi-info-circle me-2"></i>
                 No available Outputs under this category.
               </div>
             )}
-          </div>
+          </Accordion>
         );
       })}
     </div>

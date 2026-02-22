@@ -7,7 +7,8 @@ import {
   getAssignedTasksByDept,
   getOPCR,
   reviewOPCR,
-  updateRating
+  updateRating,
+  updateADept
 } from "../../services/pcrServices"
 import { socket } from "../api"
 import Swal from "sweetalert2"
@@ -74,6 +75,8 @@ function OtherEditOPCR(props) {
     setAssignedData(res.assigned)
     setHeadData(res.admin_data)
   }
+
+  
 
   async function loadMainTasks() {
       try {
@@ -710,6 +713,16 @@ function RatingBadges({ task, canEval, setField, setValue, setRatingID, currentP
             return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("planning")
         }
 
+  async function handleOPCRRatings(id, field, value){
+    
+    if(value == "") return 
+    try{
+      await updateADept(id, field, value);
+    }
+    catch(error){
+      console.log(error)
+    }
+  }
     
   
   return (
@@ -720,35 +733,35 @@ function RatingBadges({ task, canEval, setField, setValue, setRatingID, currentP
       <div className="text-center" style={{ fontSize: "1.5rem", borderStyle: "solid", borderWidth: "0 1px 0 0", borderColor: "grey", height: "100%" }}>
         <span
           className={`d-block ${canEval ? "cursor-pointer" : ""}`}
-          contentEditable={canEval}
+          contentEditable={canEval && (isMonitoringPhase() || isRatingPhase())}
           onClick={() => canEval && setRatingID(task.rating?.id)}
-          onInput={(e) => { if (canEval) { setField("quantity"); setValue(e.target.textContent) } }}
+          onInput={async (e) => { if (canEval) {await handleOPCRRatings(task.rating?.a_dept_id,"quantity",e.target.textContent)} }}
         >
-          {(isMonitoringPhase() || isRatingPhase()) ? parseFloat(task.rating?.quantity || 0).toFixed(0) : 0}
+          {(isMonitoringPhase() || isRatingPhase()) ? parseFloat(task.rating?.quantity).toFixed(0) : ""}
         </span>
       </div>
       <div className="text-center" style={{ fontSize: "1.5rem", borderStyle: "solid", borderWidth: "0 1px 0 0", borderColor: "grey", height: "100%" }}>
         <span
           className={`d-block ${canEval ? "cursor-pointer" : ""}`}
-          contentEditable={canEval}
+          contentEditable={canEval && (isMonitoringPhase() || isRatingPhase())}
           onClick={() => canEval && setRatingID(task.rating?.id)}
-          onInput={(e) => { if (canEval) { setField("efficiency"); setValue(e.target.textContent) } }}
+          onInput={async (e) => { if (canEval) { await handleOPCRRatings(task.rating?.a_dept_id,"efficiency",e.target.textContent)} }}
         >
-          {(isMonitoringPhase() || isRatingPhase()) ? parseFloat(task.rating?.efficiency || 0).toFixed(0) : 0}
+          {(isMonitoringPhase() || isRatingPhase()) ? parseFloat(task.rating?.efficiency).toFixed(0) : ""}
         </span>
       </div>
       <div className="text-center" style={{ fontSize: "1.5rem", borderStyle: "solid", borderWidth: "0 1px 0 0", borderColor: "grey", height: "100%" }}>
         <span
           className={`d-block ${canEval ? "cursor-pointer" : ""}`}
-          contentEditable={canEval}
+          contentEditable={canEval && (isMonitoringPhase() || isRatingPhase())}
           onClick={() => canEval && setRatingID(task.rating?.id)}
-          onInput={(e) => { if (canEval) { setField("timeliness"); setValue(e.target.textContent) } }}
+          onInput={async (e) => { if(canEval) {await handleOPCRRatings(task.rating?.a_dept_id,"timeliness",e.target.textContent) }}}
         >
-          { (isMonitoringPhase() || isRatingPhase()) ? parseFloat(task.rating?.timeliness || 0).toFixed(0) : 0}
+          { (isMonitoringPhase() || isRatingPhase()) ? parseFloat(task.rating?.timeliness).toFixed(0) : ""}
         </span>
       </div>
       <div className="text-center" style={{ fontSize: "1.5rem" }}>
-        <div>{ (isMonitoringPhase() || isRatingPhase()) ? parseFloat(task.rating?.average || 0).toFixed(0) : 0}</div>
+        <div>{ (isMonitoringPhase() || isRatingPhase()) ? parseFloat(task.rating?.average || 0).toFixed(0) : ""}</div>
       </div>
     </div>
   )

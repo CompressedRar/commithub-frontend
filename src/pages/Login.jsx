@@ -171,6 +171,7 @@ function Login() {
 
               {/* Login Button */}
               <button
+                id="login-btn"
                 type="submit"
                 className="btn btn-primary w-100 py-2 fw-semibold d-flex align-items-center justify-content-center"
                 disabled={loggingIn}
