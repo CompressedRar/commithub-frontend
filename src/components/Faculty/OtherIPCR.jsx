@@ -801,7 +801,9 @@ function RatingBadges({ task, currentPhase, handleDataChange, setSubTaskID }) {
         sanitizeNumberInput(e)
         // clamp values for rating fields
         if (e.target && ["quantity","efficiency","timeliness"].includes(e.target.name)) {
-            e.target.value = clampRating(e.target.value)
+            let sanitized = clampRating(e.target.value)
+            if (sanitized) handleTabbing(e)
+            e.target.value = sanitized
         }
         handleDataChange(e)
     }
@@ -812,14 +814,22 @@ function RatingBadges({ task, currentPhase, handleDataChange, setSubTaskID }) {
             handleDataChange(e)
         }
     }
+
+    function handleTabbing(e){
+    if(e.target.nextElementSibling){
+              e.target.nextElementSibling.focus()
+            }
+            else {
+              e.target.blur()
+            }
+    }
     return (
         <div style = {{
             display:"grid",
             gridTemplateColumns:"1fr 1fr 1fr 1fr ",
             height:"150px"
         }}>
-            <div className="text-center">
-                <input 
+            <input 
                     type="number" className="form-control form-control-sm no-spinner text-center" 
                     defaultValue = {isRatingPhase(currentPhase) && parseFloat(task.quantity).toFixed(0)} 
                     style={{width:"100%", height:"100%"}}
@@ -829,12 +839,12 @@ function RatingBadges({ task, currentPhase, handleDataChange, setSubTaskID }) {
                     onInput={onNumberInput}
                     onBlur={onNumberBlur}
                     name="quantity"   
+                    autoFocus
+                    onFocus={(e)=> {e.target.select()}}
                     max={5}
                     min={1}                 
                 />
-            </div>
-            <div className="text-center">
-                <input 
+            <input 
                     type="number" className="form-control form-control-sm no-spinner text-center" 
                     defaultValue = {isRatingPhase(currentPhase) && parseFloat(task.efficiency).toFixed(0)} 
                     style={{width:"100%", height:"100%"}}
@@ -844,12 +854,12 @@ function RatingBadges({ task, currentPhase, handleDataChange, setSubTaskID }) {
                     onInput={onNumberInput}
                     onBlur={onNumberBlur}
                     name="efficiency"
+                    autoFocus
+                    onFocus={(e)=> {e.target.select()}}
                     max={5}
                     min={1}
                 />
-            </div>
-            <div className="text-center" >
-                <input 
+            <input 
                     type="number" className="form-control form-control-sm no-spinner text-center" 
                     defaultValue = {isRatingPhase(currentPhase) && parseFloat(task.timeliness).toFixed(0)} 
                     style={{width:"100%", height:"100%"}}
@@ -860,9 +870,10 @@ function RatingBadges({ task, currentPhase, handleDataChange, setSubTaskID }) {
                     onPaste={handlePasteNumeric}
                     onInput={onNumberInput}
                     onBlur={onNumberBlur}
+                    autoFocus
+                    onFocus={(e)=> {e.target.select()}}
                     name="timeliness"
                 />
-            </div>
             <div className="text-center" >
                 <input 
                     type="number" className="form-control form-control-sm no-spinner text-center" 

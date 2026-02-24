@@ -21,19 +21,6 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
   const [loading, setLoading] = useState(false);
   const [titleEditable, setTitleEditable] = useState(false);
 
-  // helper: convert server datetime to input-friendly "yyyy-MM-ddTHH:mm" (local)
-  const formatDateForInput = (dt) => {
-    if (!dt) return "";
-    try {
-      const d = new Date(dt);
-      if (isNaN(d.getTime())) return "";
-      const tzOffset = d.getTimezoneOffset() * 60000;
-      const local = new Date(d.getTime() - tzOffset);
-      return local.toISOString().slice(0, 16); // "YYYY-MM-DDTHH:mm"
-    } catch {
-      return "";
-    }
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -74,7 +61,7 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
       setSelectedDepartments(res.data.department_ids)
       setFormData({
         ...res.data,
-        target_deadline: res.data.target_deadline ? formatDateForInput(res.data.target_deadline) : ""
+        timeliness_mode:"timeframe"
       });
 
       console.log("OUTPUt INFO",  formData)
@@ -326,7 +313,7 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
           <select
             name="timeliness_mode"
             className="form-select"
-            value={formData.timeliness_mode || "timeframe"}
+            value={"timeframe"}
             onChange={handleChange}
           >
             <option value="timeframe">Timeframe (number + unit)</option>
@@ -401,7 +388,7 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
           onClick={() => {
             setFormData({
               ...taskInfo,
-              target_deadline: taskInfo.target_deadline ? formatDateForInput(taskInfo.target_deadline) : ""
+              
             });
             setIsDirty(false);
           }}

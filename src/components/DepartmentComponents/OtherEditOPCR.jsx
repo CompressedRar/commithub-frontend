@@ -279,12 +279,14 @@ function OtherEditOPCR(props) {
     socket.on("ipcr_added", loadOPCR)
     socket.on("rating", loadOPCR)
     socket.on("opcr_created", loadOPCR)
+    socket.on("rating", loadOPCR)
 
     return () => {
       socket.off("ipcr")
       socket.off("ipcr_added")
       socket.off("rating")
       socket.off("opcr_created")
+      socket.off("rating")
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -406,12 +408,17 @@ function OtherEditOPCR(props) {
 
       {/* Header */}
       <ManageDeptSupportingDocuments dept_id={dept_id} dept_mode={true} sub_tasks={mainTasks}></ManageDeptSupportingDocuments>
-      <div className="d-flex justify-content-end gap-2 align-items-center mb-4">
-        
-        <button className="btn btn-outline-primary d-none" >
-                {downloading ? <span className="spinner-border spinner-border-sm me-2"></span> : "Download Weighted OPCR"}
-                
-              </button>
+      <div className="d-flex justify-content-between gap-2 align-items-center mb-4">
+        <button
+          className="btn btn-outline-secondary d-flex align-items-center gap-2"
+          onClick={()=> {
+            window.history.back()
+          }}
+        >
+          <span className="material-symbols-outlined">undo</span>
+          Back
+        </button>
+
         <div className="d-flex align-items-center gap-2">
           
         <button className="btn btn-primary" data-bs-toggle="modal"
@@ -713,8 +720,28 @@ function RatingBadges({ task, canEval, setField, setValue, setRatingID, currentP
             return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("planning")
         }
 
+  // Function to sanitize input to allow only numbers and decimal point
+  function sanitizeNumeric(v) {
+    if (v === undefined || v === null || v === "") return "";
+        const str = String(v).replace(/[^0-9.]/g, "");
+        const num = parseInt(str.split(".")[0], 10);
+        if (isNaN(num)) return "";
+        if (num < 1) return "1";
+        if (num > 5) return "5";
+        return String(num);
+  }
+
+  function handleTabbing(e){
+    if(e.target.nextElementSibling){
+              e.target.nextElementSibling.focus()
+            }
+            else {
+              e.target.blur()
+            }
+  }
+
   async function handleOPCRRatings(id, field, value){
-    
+    console.log("trieg", value)
     if(value == "") return 
     try{
       await updateADept(id, field, value);
@@ -723,46 +750,86 @@ function RatingBadges({ task, canEval, setField, setValue, setRatingID, currentP
       console.log(error)
     }
   }
-    
-  
+
   return (
     <div style={{
       display: "grid",
-      gridTemplateColumns: "repeat(4, 1fr)",
+      gridTemplateColumns: "1fr 1fr 1fr 1fr",
+      height:"150px"
     }}>
-      <div className="text-center" style={{ fontSize: "1.5rem", borderStyle: "solid", borderWidth: "0 1px 0 0", borderColor: "grey", height: "100%" }}>
-        <span
-          className={`d-block ${canEval ? "cursor-pointer" : ""}`}
-          contentEditable={canEval && (isMonitoringPhase() || isRatingPhase())}
+      <input
+          type="number"
+          style={{width:"100%", height:"100%"}}
+          id={`${task.rating?.id}-quantity`}
+          className="form-control form-control-sm no-spinner text-center" 
+          disabled={!(canEval && (isMonitoringPhase() || isRatingPhase()))}
           onClick={() => canEval && setRatingID(task.rating?.id)}
-          onInput={async (e) => { if (canEval) {await handleOPCRRatings(task.rating?.a_dept_id,"quantity",e.target.textContent)} }}
-        >
-          {(isMonitoringPhase() || isRatingPhase()) ? parseFloat(task.rating?.quantity).toFixed(0) : ""}
-        </span>
-      </div>
-      <div className="text-center" style={{ fontSize: "1.5rem", borderStyle: "solid", borderWidth: "0 1px 0 0", borderColor: "grey", height: "100%" }}>
-        <span
-          className={`d-block ${canEval ? "cursor-pointer" : ""}`}
-          contentEditable={canEval && (isMonitoringPhase() || isRatingPhase())}
+          
+          onInput={async (e) => { 
+            if (canEval) {
+              const sanitized = sanitizeNumeric(e.target.value);
+              if(sanitized) {
+                handleTabbing(e)
+              } 
+              e.target.value = sanitized;
+              await handleOPCRRatings(task.rating?.a_dept_id,"quantity", sanitized);
+            }
+          }}
+          autoFocus
+          onFocus={(e)=> {e.target.select()}}
+          defaultValue={(isMonitoringPhase() || isRatingPhase()) ? parseFloat(task.rating?.quantity).toFixed(0) : 0}
+        />
+      <input
+          type="number"
+          id={`${task.rating?.id}-efficiency`}
+          style={{width:"100%", height:"100%"}}
+          className="form-control form-control-sm no-spinner text-center" 
+          disabled={!(canEval && (isMonitoringPhase() || isRatingPhase()))}
           onClick={() => canEval && setRatingID(task.rating?.id)}
-          onInput={async (e) => { if (canEval) { await handleOPCRRatings(task.rating?.a_dept_id,"efficiency",e.target.textContent)} }}
-        >
-          {(isMonitoringPhase() || isRatingPhase()) ? parseFloat(task.rating?.efficiency).toFixed(0) : ""}
-        </span>
-      </div>
-      <div className="text-center" style={{ fontSize: "1.5rem", borderStyle: "solid", borderWidth: "0 1px 0 0", borderColor: "grey", height: "100%" }}>
-        <span
-          className={`d-block ${canEval ? "cursor-pointer" : ""}`}
-          contentEditable={canEval && (isMonitoringPhase() || isRatingPhase())}
+          onInput={async (e) => { 
+            if (canEval) {
+              const sanitized = sanitizeNumeric(e.target.value);
+              if(sanitized) {
+                handleTabbing(e)
+              } 
+              e.target.value = sanitized;
+              let a = await handleOPCRRatings(task.rating?.a_dept_id,"efficiency", sanitized);
+              
+            }
+          }}
+          autoFocus
+          onFocus={(e)=> {e.target.select()}}
+          defaultValue={(isMonitoringPhase() || isRatingPhase()) ? parseFloat(task.rating?.efficiency).toFixed(0) : 0}
+        />
+        <input
+          type="number"
+          style={{width:"100%", height:"100%"}}
+          className={"form-control form-control-sm no-spinner text-center "} 
+          disabled={!(canEval && (isMonitoringPhase() || isRatingPhase()))}
           onClick={() => canEval && setRatingID(task.rating?.id)}
-          onInput={async (e) => { if(canEval) {await handleOPCRRatings(task.rating?.a_dept_id,"timeliness",e.target.textContent) }}}
-        >
-          { (isMonitoringPhase() || isRatingPhase()) ? parseFloat(task.rating?.timeliness).toFixed(0) : ""}
-        </span>
-      </div>
-      <div className="text-center" style={{ fontSize: "1.5rem" }}>
-        <div>{ (isMonitoringPhase() || isRatingPhase()) ? parseFloat(task.rating?.average || 0).toFixed(0) : ""}</div>
-      </div>
+          onInput={async (e) => { 
+            if (canEval) {
+              const sanitized = sanitizeNumeric(e.target.value);
+              if(sanitized) {
+                handleTabbing(e)
+              } 
+              e.target.value = sanitized;
+              await handleOPCRRatings(task.rating?.a_dept_id,"timeliness", sanitized);
+            }
+          }}
+          autoFocus
+          onFocus={(e)=> {e.target.select()}}
+          defaultValue={(isMonitoringPhase() || isRatingPhase()) ? parseFloat(task.rating?.timeliness).toFixed(0) : 0}
+        />
+      
+      <input
+          type="number"
+          style={{width:"100%", height:"100%"}}
+          className="form-control form-control-sm no-spinner text-center" 
+          readOnly
+          disabled
+          value={(isMonitoringPhase() || isRatingPhase()) ? parseFloat(task.rating?.average).toFixed(0) : 0}
+        />
     </div>
   )
 }
