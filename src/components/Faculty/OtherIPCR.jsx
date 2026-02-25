@@ -69,10 +69,14 @@ function OtherIPCR(props) {
             const response = await uploadIPCRExcel(file)
             if (response.status === 200) {
                 Swal.fire("Success",response.data?.message, "success")
-                // Reset file input
+
                 if (fileInputRef.current) {
                     fileInputRef.current.value = ''
                 }
+
+                setTimeout(()=>{
+                    window.location.reload()
+                }, 1000)
             }
         } catch (error) {
             console.error('Upload error:', error)
