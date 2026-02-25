@@ -129,10 +129,7 @@ function FacultyLayout() {
               <span className="material-symbols-outlined">menu</span>
             </button>
             <h5 className="fw-bold mb-0">
-              {window.location.pathname.split("/")[2]
-                ? window.location.pathname.split("/")[2].charAt(0).toUpperCase() +
-                  window.location.pathname.split("/")[2].slice(1)
-                : "Dashboard"}
+              
             </h5>
           </div>
 

@@ -114,7 +114,7 @@ function DeptIPCR(props) {
                                 navigate(`/head/ipcr/${props.ipcr.ipcr.id}?dept_id=${props.dept_id}&mode=check`)
                             }
                             else {
-                                navigate(`/admin/ipcr/${props.ipcr.ipcr.id}?dept_id=${props.dept_id}&mode=check`)
+                                navigate(`/sadmin/ipcr/${props.ipcr.ipcr.id}?dept_id=${props.dept_id}&mode=check`)
                             }
                         }} >
                             <span className="material-symbols-outlined">view_list</span>

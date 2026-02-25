@@ -45,7 +45,7 @@ function HeadDepartmentTaskInfo(props){
             })
         })
         console.log(a)
-        if(a.data.message == "Output successfully updated.") {
+        if(a.data.message == "Task successfully updated.") {
             Swal.fire({
                 title:"Success",
                 text: a.data.message,
@@ -71,7 +71,7 @@ function HeadDepartmentTaskInfo(props){
             })
         })
         console.log(a)
-        if(a.data.message == "Output successfully archived.") {
+        if(a.data.message == "Task successfully archived.") {
             Swal.fire({
                 title:"Success",
                 text: "Task successfully archived",

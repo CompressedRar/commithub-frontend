@@ -659,8 +659,8 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
               </div>
               {task.description?.timeliness_mode == "timeframe" ? (
                 <div>
-                  <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.actual != 0 ? task.working_days?.actual / task.frequency : 0} />
-                  <small className="text-muted d-block">{task.description?.time}/s in average with</small>
+                  <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.actual != 0 ? (task.working_days?.actual / task.frequency).toFixed(0) : 0} />
+                  <small className="text-muted d-block">{task.description?.time}/s with</small>
                 </div>
               ):
               (
@@ -676,26 +676,26 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
                     <small className="text-muted d-block">on the set deadline with</small>
                   ) : 
                     parseFloat(task.working_days?.actual / task.frequency) < 0 ? (
-                      <small className="text-muted d-block">day/s early in average with</small>
+                      <small className="text-muted d-block">day/s with</small>
                     ) :
                     (
-                      <small className="text-muted d-block">day/s late in average with</small>
+                      <small className="text-muted d-block">day/s with</small>
                     )
                   }
                 </div>
               )
               }
               <div>
-                <input disabled className="form-control form-control-sm" defaultValue={task.corrections?.actual != 0 ?parseFloat(task.corrections?.actual / task.frequency).toFixed(0) : 0} />
-                <small className="text-muted d-block">{task.description?.alterations}/s in average</small>
+                <input disabled className="form-control form-control-sm" defaultValue={task.corrections?.actual != 0 ? parseFloat(task.corrections?.actual / task.frequency).toFixed(0) : 0} />
+                <small className="text-muted d-block">{task.description?.alterations}/s</small>
               </div>
             </div>
           </td>
           <td className="text-center">
             <RatingBadges task={task} canEval={canEval} setField={setField} setValue={setValue} setRatingID={setRatingID} currentPhase={currentPhase} />
           </td>
-          <td className="small text-center fw-semibold">{task.rating?.weighted_avg.toFixed(2)}</td>
-          <td className="small text-center fw-semibold">{(isMonitoringPhase() && isRatingPhase()) ?  handleRemarks(task.rating?.average, ratingThresholds) : "N/A"}</td>
+          <td className="small text-center fw-semibold">{(task.rating?.average * task.description?.task_weight).toFixed(2)}</td>
+          <td className="small text-center fw-semibold">N/A</td>
           
         </tr>
       ))}
@@ -828,7 +828,7 @@ function RatingBadges({ task, canEval, setField, setValue, setRatingID, currentP
           className="form-control form-control-sm no-spinner text-center" 
           readOnly
           disabled
-          value={(isMonitoringPhase() || isRatingPhase()) ? parseFloat(task.rating?.average).toFixed(0) : 0}
+          value={(isMonitoringPhase() || isRatingPhase()) ? parseFloat(task.rating?.average).toFixed(2) : 0}
         />
     </div>
   )
@@ -857,14 +857,15 @@ function FinalRatingsSection({ quantityAvg, efficiencyAvg, timelinessAvg, allAvg
         Object.entries(categoryObj).map(([category, tasks]) => (
           tasks.map((task, idx) => {
               total += parseFloat(task.rating.weighted_avg)   
-              console.log(total)  
+              console.log(task.rating.weighted_avg)  
             }             
           )           
         )
       )
     )
+    console.log("w_avg", total)
     setTotalWAvg(total)  
-  },[])
+  },[allAvg])
 
   return (
     <div className="row g-3 my-4">
@@ -909,10 +910,10 @@ function FinalRatingsSection({ quantityAvg, efficiencyAvg, timelinessAvg, allAvg
                 opcrInfo.map((categoryObj, i) =>
                     Object.entries(categoryObj).map(([category, tasks]) => (
                       tasks.map((task, idx) => {
-                        //setTotalWAvg(parseFloat(task.rating.weighted_avg).toFixed(2) + totalWeightedAvg)
+
                           return <div className="d-flex justify-content-between">
                               <span>{task.title} ({String(task.description.task_weight * 100) + "%"})</span>
-                              <strong>{parseFloat(task.rating.weighted_avg).toFixed(2)}</strong>
+                              <strong>{parseFloat(task.rating.average * task.description.task_weight).toFixed(2)}</strong>
                             </div>
                         }
                       )

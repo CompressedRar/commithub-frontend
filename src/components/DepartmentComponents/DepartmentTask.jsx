@@ -162,7 +162,7 @@ function DepartmentTask({ mems, dept_id, switchMember, switchInfo }) {
           <div className="d-flex gap-2 ms-auto">
             {isPlanningPhase() || true ? <>
               <button
-                className="btn btn-sm btn-outline-primary d-flex align-items-center gap-2 px-3 py-1"
+                className="btn btn-sm btn-outline-primary d-flex align-items-center gap-2 px-3 py-1 d-none"
                 onClick={(e) => {
                   e.stopPropagation();
                   switchMember(mems.id);

@@ -117,11 +117,11 @@ function PresidentLayout() {
   return (
     <div className="d-flex flex-column flex-md-row vh-100 overflow-scroll">
       <Navigations links = {[
-          { href: "/president/dashboard", icon: <DashboardIcon></DashboardIcon>, text: "Dashboard" },
-          { href: "/president/department", icon: <ApartmentIcon></ApartmentIcon>, text: "Offices" },
-          { href: "/president/tasks", icon: <TaskIcon></TaskIcon>, text: "Key Result Areas" },
-          { href: "/president/ipcr", icon: <AssignmentIndIcon></AssignmentIndIcon>, text: "IPCR" },
-          { href: "/president/master", icon: <AssignmentIcon></AssignmentIcon>, text: "Master OPCR" },
+          { href: "/ad/dashboard", icon: <DashboardIcon></DashboardIcon>, text: "Dashboard" },
+          { href: "/ad/department", icon: <ApartmentIcon></ApartmentIcon>, text: "Offices" },
+          { href: "/ad/tasks", icon: <TaskIcon></TaskIcon>, text: "Key Result Areas" },
+          { href: "/ad/ipcr", icon: <AssignmentIndIcon></AssignmentIndIcon>, text: "IPCR" },
+          { href: "/ad/master", icon: <AssignmentIcon></AssignmentIcon>, text: "Master OPCR" },
         ]}
         isOpen={sidebarCollapsed}
         closeNavigation={()=> {setSidebarCollapsed(false)}}
@@ -143,10 +143,7 @@ function PresidentLayout() {
               <span className="material-symbols-outlined">menu</span>
             </button>
             <h5 className="fw-bold mb-0">
-              {window.location.pathname.split("/")[2]
-                ? window.location.pathname.split("/")[2].charAt(0).toUpperCase() +
-                  window.location.pathname.split("/")[2].slice(1)
-                : "Dashboard"}
+              
             </h5>
           </div>
 

@@ -76,7 +76,7 @@ function Administrator() {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h3 className="fw-bold d-flex align-items-center gap-2">
           <span className="material-symbols-outlined text-primary">dashboard</span>
-          Administrator Dashboard
+          Dashboard
         </h3>
 
         <button
@@ -131,24 +131,6 @@ function Administrator() {
               </div>
             </div>
           </div>
-        ))}
-      </div>
-
-      {/* Quick Links */}
-      <div className="d-flex flex-wrap gap-3 my-3">
-        {[
-          { href: "/admin/users", icon: "manage_accounts", label: "Manage Accounts" },
-          { href: "/admin/department", icon: "apartment", label: "Manage Offices" },
-          { href: "/admin/tasks", icon: "admin_panel_settings", label: "Manage Tasks" },
-        ].map((link, idx) => (
-          <a
-            key={idx}
-            href={link.href}
-            className="btn btn-outline-primary d-flex align-items-center gap-2 rounded-4 px-4 py-2 shadow-sm"
-          >
-            <span className="material-symbols-outlined">{link.icon}</span>
-            {link.label}
-          </a>
         ))}
       </div>
 

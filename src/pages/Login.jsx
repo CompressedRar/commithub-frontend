@@ -25,8 +25,8 @@ function Login() {
       const payload = jwtDecode(token);
       if (payload.role === "faculty") window.location.href = "/faculty/ipcr";
       else if (payload.role === "head") window.location.href = "/head/department";
-      else if (payload.role === "administrator") window.location.href = "/admin/dashboard";
-      else if (payload.role === "president") window.location.href = "/president/dashboard";
+      else if (payload.role === "administrator") window.location.href = "/sadmin/dashboard";
+      else if (payload.role === "president") window.location.href = "/ad/dashboard";
     }
   }
 

@@ -56,7 +56,7 @@ function AddDepartmentTask(props) {
         });
       });
 
-    if (res === "Output successfully removed.") {
+    if (res === "Task successfully removed.") {
       Swal.fire({ title: "Success", text: res, icon: "success" });
       loadAllCategories();
     } else {
@@ -89,7 +89,7 @@ function AddDepartmentTask(props) {
         });
       });
 
-    if (res === "Output successfully assigned.") {
+    if (res === "Task successfully assigned.") {
       Swal.fire({ title: "Success", text: res, icon: "success" });
       loadAllCategories();
     } else {
@@ -99,7 +99,7 @@ function AddDepartmentTask(props) {
 
   const handleAssign = async (task_id) => {
     Swal.fire({
-      title: "Assign this Output to this department?",
+      title: "Assign this Task to this department?",
       showDenyButton: true,
       confirmButtonText: "Yes",
       denyButtonText: "No",

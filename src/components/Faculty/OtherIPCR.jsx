@@ -456,17 +456,16 @@ function OtherIPCR(props) {
     useEffect(() => {
         if (!value) return
 
-        const debounce = setTimeout(() => {
-            updateSubTask(subTaskID, field, value)
+        const debounce = setTimeout(async () => {
+            console.log("TRIGERRING", subTaskID, field, value)
+            await updateSubTask(subTaskID, field, value)
                 .then(() => {
-                    setCanSubmit(allTargetsFilled(ipcrInfo))
-                    getIPCR(ipcr_id).then(res => setIPCRInfo(res.data))
                 })
                 .catch(error => console.error(error.response?.data?.error))
         }, 100)
 
         return () => clearTimeout(debounce)
-    }, [value])
+    }, [value, field])
 
     useEffect(() => {
         if (!ipcrInfo || !userinfo) return
@@ -797,15 +796,17 @@ function RatingBadges({ task, currentPhase, handleDataChange, setSubTaskID }) {
         return String(num);
      }
 
-     const onNumberInput = (e) => {
+     const onNumberInput = async (e) => {
         sanitizeNumberInput(e)
+        
         // clamp values for rating fields
         if (e.target && ["quantity","efficiency","timeliness"].includes(e.target.name)) {
+            console.log("CLICKED")
             let sanitized = clampRating(e.target.value)
             if (sanitized) handleTabbing(e)
             e.target.value = sanitized
         }
-        handleDataChange(e)
+         await handleDataChange(e)
     }
 
     const onNumberBlur = (e) => {
@@ -840,7 +841,7 @@ function RatingBadges({ task, currentPhase, handleDataChange, setSubTaskID }) {
                     onBlur={onNumberBlur}
                     name="quantity"   
                     autoFocus
-                    onFocus={(e)=> {e.target.select()}}
+                    onFocus={(e)=> {e.target.select(); setSubTaskID(task.id)}}
                     max={5}
                     min={1}                 
                 />
@@ -855,7 +856,7 @@ function RatingBadges({ task, currentPhase, handleDataChange, setSubTaskID }) {
                     onBlur={onNumberBlur}
                     name="efficiency"
                     autoFocus
-                    onFocus={(e)=> {e.target.select()}}
+                    onFocus={(e)=> {e.target.select(); setSubTaskID(task.id)}}
                     max={5}
                     min={1}
                 />
@@ -871,7 +872,7 @@ function RatingBadges({ task, currentPhase, handleDataChange, setSubTaskID }) {
                     onInput={onNumberInput}
                     onBlur={onNumberBlur}
                     autoFocus
-                    onFocus={(e)=> {e.target.select()}}
+                    onFocus={(e)=> {e.target.select(); setSubTaskID(task.id)}}
                     name="timeliness"
                 />
             <div className="text-center" >

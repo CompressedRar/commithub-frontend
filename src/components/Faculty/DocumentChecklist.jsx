@@ -6,12 +6,14 @@ export default function DocumentChecklist({ sub_tasks, documents }) {
   // Flatten all tasks and filter those requiring documents
   const tasksRequiringDocs = Object.entries(sub_tasks).flatMap(([category, tasks]) =>
     tasks
-      .filter(task => task.required_documents)
+      .filter(task => task.required_documents && task.status == 1)
       .map(task => ({
         ...task,
         category
       }))
   );
+
+  console.log(tasksRequiringDocs)
 
 
 

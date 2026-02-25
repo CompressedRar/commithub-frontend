@@ -181,7 +181,7 @@ function DeptOPCR(props) {
                                     navigate(`/head/drafted/${props.opcr_id}?dept_id=${props.dept_id}&mode=check`)
                                 }
                                 else {
-                                    navigate(`/admin/drafted/${props.opcr_id}?dept_id=${props.dept_id}&mode=check`)
+                                    navigate(`/sadmin/drafted/${props.opcr_id}?dept_id=${props.dept_id}&mode=check`)
                                 }                                
                             }
                             else {                                
@@ -189,7 +189,7 @@ function DeptOPCR(props) {
                                     navigate(`/head/opcr/${props.opcr_id}?dept_id=${props.dept_id}&mode=check`)
                                 }
                                 else {
-                                    navigate(`/admin/opcr/${props.opcr_id}?dept_id=${props.dept_id}&mode=check`)
+                                    navigate(`/sadmin/opcr/${props.opcr_id}?dept_id=${props.dept_id}&mode=check`)
                                 }
                             }
                         }} >

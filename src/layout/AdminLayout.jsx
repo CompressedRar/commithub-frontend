@@ -116,19 +116,19 @@ function AdminLayout() {
   }, []);
 
   if (!token) return <Navigate to="/" replace />;
-  if (role && role !== "administrator") return <Navigate to="/unauthorized" replace />;
+  if (role && role !== "administrator" && role !=="president") return <Navigate to="/unauthorized" replace />;
 
   return (
     <div className="d-flex flex-column flex-md-row vh-100 overflow-scroll">
       <Navigations links = {[
-          { href: "/admin/dashboard", icon: <DashboardIcon></DashboardIcon>, text: "Dashboard" },
-          { href: "/admin/department", icon: <ApartmentIcon></ApartmentIcon>, text: "Offices" },
-          { href: "/admin/tasks", icon: <TaskIcon></TaskIcon>, text: "Key Result Areas" },
-          { href: "/admin/ipcr", icon: <AssignmentIndIcon></AssignmentIndIcon>, text: "IPCR" },
-          { href: "/admin/master", icon: <AssignmentIcon></AssignmentIcon>, text: "Master OPCR" },
-          { href: "/admin/users", icon: <GroupIcon></GroupIcon>, text: "User Management" },
-          { href: "/admin/logs", icon: <MonitorIcon></MonitorIcon>, text: "Audit Logs" },              
-          { href: "/admin/settings", icon: <SettingsIcon></SettingsIcon>, text: "Settings" }
+          { href: "/sadmin/dashboard", icon: <DashboardIcon></DashboardIcon>, text: "Dashboard" },
+          { href: "/sadmin/department", icon: <ApartmentIcon></ApartmentIcon>, text: "Offices" },
+          { href: "/sadmin/tasks", icon: <TaskIcon></TaskIcon>, text: "Key Result Areas" },
+          { href: "/sadmin/ipcr", icon: <AssignmentIndIcon></AssignmentIndIcon>, text: "IPCR" },
+          { href: "/sadmin/master", icon: <AssignmentIcon></AssignmentIcon>, text: "Master OPCR" },
+          { href: "/sadmin/users", icon: <GroupIcon></GroupIcon>, text: "User Management" },
+          { href: "/sadmin/logs", icon: <MonitorIcon></MonitorIcon>, text: "Audit Logs" },              
+          { href: "/sadmin/settings", icon: <SettingsIcon></SettingsIcon>, text: "Settings" }
         ]}
         isOpen={sidebarCollapsed}
         closeNavigation={()=> {setSidebarCollapsed(false)}}
@@ -148,10 +148,7 @@ function AdminLayout() {
               <span className="material-symbols-outlined">menu</span>
             </button>
             <h5 className="fw-bold mb-0">
-              {window.location.pathname.split("/")[2]
-                ? window.location.pathname.split("/")[2].charAt(0).toUpperCase() +
-                  window.location.pathname.split("/")[2].slice(1)
-                : "Dashboard"}
+              
             </h5>
           </div>
 

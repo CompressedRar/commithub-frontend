@@ -217,6 +217,7 @@ function Register() {
           ref={fileInput}
           accept="image/*"
           hidden
+
         />
       </div>
 
@@ -228,6 +229,7 @@ function Register() {
         <input
           type="email"
           className="form-control"
+          maxLength={30}
           id="email"
           name="email"
           placeholder="e.g. johndoe@gmail.com"
@@ -248,6 +250,7 @@ function Register() {
           </label>
           <input
             type="text"
+            maxLength={30}
             className="form-control"
             id="first_name"
             name="first_name"
@@ -262,6 +265,7 @@ function Register() {
           </label>
           <input
             type="text"
+            maxLength={30}
             className="form-control"
             id="middle_name"
             name="middle_name"
@@ -275,6 +279,7 @@ function Register() {
           </label>
           <input
             type="text"
+            maxLength={30}
             className="form-control"
             id="last_name"
             name="last_name"
@@ -288,7 +293,7 @@ function Register() {
       {/* Department */}
       <div className="mb-3">
         <label htmlFor="department" className="form-label">
-          Department <span className="text-danger">*</span>
+          Office <span className="text-danger">*</span>
         </label>
         <select
           name="department"
@@ -337,7 +342,7 @@ function Register() {
           value={formData.role || "faculty"}
           onChange={handleRoleChange}
         >          
-          <option value="faculty">Faculty</option>
+          <option value="faculty">Staff</option>
           <option value="head">Head</option>
         </select>
       </div>

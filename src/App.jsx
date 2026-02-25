@@ -48,30 +48,30 @@ function App() {
         </Route>
       
         <Route element = {<AdminLayout></AdminLayout>}>
-          <Route path = "/admin/dashboard" element={<Administrator></Administrator>}></Route>
-          <Route path = "admin/department" element={<Department></Department>}></Route>
-          <Route path = "/admin/users" element={<UserManagement></UserManagement>}></Route>
-          <Route path = "/admin/tasks" element={<CategoryAndTask></CategoryAndTask>}></Route>
-          <Route path = "/admin/logs" element={<AuditLogs></AuditLogs>}></Route>
-          <Route path = "/admin/ipcr" element={<Faculty></Faculty>}></Route>
-          <Route path = "/admin/ipcr/:ipcr_id" element={<OtherIPCR></OtherIPCR>}></Route>
-          <Route path = "/admin/opcr/:opcr_id" element={<OtherEditOPCR></OtherEditOPCR>}></Route>
-          <Route path = "/admin/drafted/:opcr_id" element={<OtherDraftedOPCR></OtherDraftedOPCR>}></Route>
-          <Route path = "/admin/review" element={<PresPendingReviews></PresPendingReviews>}></Route>
-          <Route path = "/admin/approve" element={<PresPendingApprovals></PresPendingApprovals>}></Route>
-          <Route path = "/admin/master" element={<MasterOPCR></MasterOPCR>}></Route>
-          <Route path = "/admin/positions" element={<Positions></Positions>}></Route>
-          <Route path = "/admin/settings" element={<SystemSettings></SystemSettings>}></Route>
+          <Route path = "/sadmin/dashboard" element={<Administrator></Administrator>}></Route>
+          <Route path = "sadmin/department" element={<Department></Department>}></Route>
+          <Route path = "/sadmin/users" element={<UserManagement></UserManagement>}></Route>
+          <Route path = "/sadmin/tasks" element={<CategoryAndTask></CategoryAndTask>}></Route>
+          <Route path = "/sadmin/logs" element={<AuditLogs></AuditLogs>}></Route>
+          <Route path = "/sadmin/ipcr" element={<Faculty></Faculty>}></Route>
+          <Route path = "/sadmin/ipcr/:ipcr_id" element={<OtherIPCR></OtherIPCR>}></Route>
+          <Route path = "/sadmin/opcr/:opcr_id" element={<OtherEditOPCR></OtherEditOPCR>}></Route>
+          <Route path = "/sadmin/drafted/:opcr_id" element={<OtherDraftedOPCR></OtherDraftedOPCR>}></Route>
+          <Route path = "/sadmin/review" element={<PresPendingReviews></PresPendingReviews>}></Route>
+          <Route path = "/sadmin/approve" element={<PresPendingApprovals></PresPendingApprovals>}></Route>
+          <Route path = "/sadmin/master" element={<MasterOPCR></MasterOPCR>}></Route>
+          <Route path = "/sadmin/positions" element={<Positions></Positions>}></Route>
+          <Route path = "/sadmin/settings" element={<SystemSettings></SystemSettings>}></Route>
         </Route>
 
         <Route element = {<PresidentLayout></PresidentLayout>}>
-          <Route path = "/president/dashboard" element={<Administrator></Administrator>}></Route>
-          <Route path = "/president/department" element={<Department></Department>}></Route>
-          <Route path = "/president/tasks" element={<CategoryAndTask></CategoryAndTask>}></Route>
-          <Route path = "/president/ipcr" element={<Faculty></Faculty>}></Route>
-          <Route path = "/president/review" element={<PresPendingReviews></PresPendingReviews>}></Route>
-          <Route path = "/president/approve" element={<PresPendingApprovals></PresPendingApprovals>}></Route>
-          <Route path = "/president/master" element={<MasterOPCR></MasterOPCR>}></Route>
+          <Route path = "/ad/dashboard" element={<Administrator></Administrator>}></Route>
+          <Route path = "/ad/department" element={<Department></Department>}></Route>
+          <Route path = "/ad/tasks" element={<CategoryAndTask></CategoryAndTask>}></Route>
+          <Route path = "/ad/ipcr" element={<Faculty></Faculty>}></Route>
+          <Route path = "/ad/review" element={<PresPendingReviews></PresPendingReviews>}></Route>
+          <Route path = "/ad/approve" element={<PresPendingApprovals></PresPendingApprovals>}></Route>
+          <Route path = "/ad/master" element={<MasterOPCR></MasterOPCR>}></Route>
         </Route>
 
         <Route element = {<HeadLayout></HeadLayout>}>

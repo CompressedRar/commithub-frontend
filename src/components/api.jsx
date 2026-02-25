@@ -28,7 +28,7 @@ export function checkRole(){
       return <Navigate to = "/faculty/dashboard"></Navigate>
     }
     else if (payload.role == "administrator"){
-      return <Navigate to = "/admin/dashboard"></Navigate>
+      return <Navigate to = "/sadmin/dashboard"></Navigate>
     }
   }
 }

@@ -274,7 +274,6 @@ function MasterOPCR(){
         <div className="py-4" style={{minWidth:"1200px"}}>
             {/* Header */}
             
-            ASDFADFADKJLSFH
             {!opcrInfo && (
                 <div className="d-flex justify-content-center align-items-center flex-column" style={{ zIndex: 1050,marginTop:"-5%", width:"80%", height:"100%", position:"absolute", backgroundColor:"rgba(255,255,255,0.8)"}}>
                     <div className="overlay-content text-center p-4">
