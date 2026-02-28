@@ -233,7 +233,8 @@ function Register() {
           id="email"
           name="email"
           placeholder="e.g. johndoe@gmail.com"
-          onInput={(e) => {
+          value={formData.email || ""}
+          onChange={(e) => {
             handleDataChange(e);
             setEmailQuery(e.target.value);
           }}
@@ -255,7 +256,8 @@ function Register() {
             id="first_name"
             name="first_name"
             placeholder="John"
-            onInput={handleDataChange}
+            value={formData.first_name || ""}
+            onChange={handleDataChange}
             required
           />
         </div>
@@ -270,7 +272,8 @@ function Register() {
             id="middle_name"
             name="middle_name"
             placeholder="Craig"
-            onInput={handleDataChange}
+            value={formData.middle_name || ""}
+            onChange={handleDataChange}
           />
         </div>
         <div className="col-md-4 mb-3">
@@ -284,7 +287,8 @@ function Register() {
             id="last_name"
             name="last_name"
             placeholder="Doe"
-            onInput={handleDataChange}
+            value={formData.last_name || ""}
+            onChange={handleDataChange}
             required
           />
         </div>
@@ -342,7 +346,7 @@ function Register() {
           value={formData.role || "faculty"}
           onChange={handleRoleChange}
         >          
-          <option value="faculty">Staff</option>
+          <option value="faculty">Member</option>
           <option value="head">Head</option>
         </select>
       </div>

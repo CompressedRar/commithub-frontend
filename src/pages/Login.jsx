@@ -108,7 +108,7 @@ function Login() {
         {/* Right Side (Form) */}
         <div className="col-md-6 bg-white p-5 d-flex flex-column justify-content-center">
           <div className="text-center mb-4">
-            <img src="CommitHub.png" alt="CommitHub Logo" height="60" className="mb-3" />
+            <img src="LogoNC.png" alt="CommitHub Logo" height="60" className="mb-3" />
             <h3 className="fw-bold">Welcome to CommitHub</h3>
             <p className="text-muted small">Sign in to continue</p>
           </div>

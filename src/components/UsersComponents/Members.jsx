@@ -88,7 +88,12 @@ function Members({ mems, switchMember }) {
       <td className="text-nowrap">{mems.position.name}</td>
 
       {/* Role */}
-      <td className="text-nowrap">{mems.role[0].toUpperCase() + mems.role.slice(1)}</td>
+      <td className="text-nowrap">
+        {(mems.role[0].toUpperCase() + mems.role.slice(1)) == "President" ? "Admin" : null}
+        {(mems.role[0].toUpperCase() + mems.role.slice(1)) == "Administrator" ? "Super Admin" : null}
+        {(mems.role[0].toUpperCase() + mems.role.slice(1)) == "Head" ? "Head" : null}
+        {(mems.role[0].toUpperCase() + mems.role.slice(1)) == "Faculty" ? "Member" : null}
+        </td>
 
       {/* Status */}
       <td className="text-center">

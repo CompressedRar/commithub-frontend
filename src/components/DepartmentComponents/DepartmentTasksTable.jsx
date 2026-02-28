@@ -174,7 +174,7 @@ function DepartmentTasksTable({ id, admin_mode, currentPhase }) {
       </div>
 
       <div
-        className="modal fade d-none"
+        className="modal fade"
         id="formulas"
         data-bs-backdrop="static"
         data-bs-keyboard="false"

@@ -191,7 +191,7 @@ function MemberTable() {
             value={selectedDepartment}
             onChange={(e) => setSelectedDepartment(e.target.value)}
           >
-            <option value="All">All Departments</option>
+            <option value="All">All Office</option>
             {allDepartments &&
               allDepartments.map((dept) => (
                 <option key={dept.id} value={dept.id}>
@@ -208,10 +208,10 @@ function MemberTable() {
             onChange={(e) => setSelectedRole(e.target.value)}
           >
             <option value="All">All Roles</option>
-            <option value="Administrator">Administrator</option>
-            <option value="President">College President</option>
+            <option value="Administrator">Super Administrator</option>
+            <option value="President">Admin</option>
             <option value="Head">Head</option>
-            <option value="Faculty">Faculty</option>
+            <option value="Faculty">Member</option>
           </select>
         </div>
 

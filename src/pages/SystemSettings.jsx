@@ -12,6 +12,7 @@ export default function SystemSettings() {
   const [resettingPeriod, setResettingPeriod] = useState(false)
 
   const periodsRef = useRef(null)
+  const [enableFormulas, setEnableFormulas] = useState(0);
 
   const [currentPeriodId, setCurrentPeriodId] = useState("")
     const [autoPeriodId, setAutoPeriodId] = useState(true)
@@ -130,7 +131,8 @@ export default function SystemSettings() {
         monitoring_end_date: fmt(monitoringEndDate),
         rating_start_date: fmt(ratingStartDate),
         rating_end_date: fmt(ratingEndDate),
-        auto_period_id: !!autoPeriodId
+        auto_period_id: !!autoPeriodId,
+        enable_formula: enableFormulas
       }
 
       // Ask for admin password confirmation before saving
@@ -432,7 +434,7 @@ export default function SystemSettings() {
                 Rating Thresholds
               </button>
             </li>
-            <li className="nav-item d-none" role="presentation">
+            <li className="nav-item d-flex" role="presentation">
               <button
                 className={`nav-link d-flex align-items-center gap-2 ${activeTab === "formulas" ? "active" : ""}`}
                 onClick={() => setActiveTab("formulas")}
@@ -569,31 +571,47 @@ export default function SystemSettings() {
 
       {/* Formulas Tab */}
       {activeTab === "formulas" && (
-        <div className="row g-3">
-          <FormulaCard
-            title="Quantity Formula"
-            icon="inventory_2"
-            formula={quantityFormula}
-            onChange={setQuantityFormula}
-            isValid={setQuantityFormulaValid}
-            description="Define how quantity metrics are calculated"
-          />
-          <FormulaCard
-            title="Efficiency Formula"
-            icon="speed"
-            formula={efficiencyFormula}
-            onChange={setEfficiencyFormula}
-            description="Define how efficiency metrics are calculated"
-            isValid={setEfficiencyFormulaValid}
-          />
-          <FormulaCard
-            title="Timeliness Formula"
-            icon="schedule"
-            formula={timelinessFormula}
-            onChange={setTimelinessFormula}
-            description="Define how timeliness metrics are calculated"
-            isValid={setTimelinessFormulaValid}
-          />
+        <div>
+          <div className="form-check form-switch my-4">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              id="enableFormulas"
+              checked={enableFormulas}
+              onChange={(e) => setEnableFormulas(e.target.checked)}
+            />
+            <label className="form-check-label fw-semibold" htmlFor="enableFormulas">
+              Enable Formulas
+            </label>
+            
+          </div>
+          <small>Enabling formula will allow the system to automatically compute the rating.</small>
+          <div className={enableFormulas ? "row g-3" : "d-none"}>
+            <FormulaCard
+              title="Quantity Formula"
+              icon="inventory_2"
+              formula={quantityFormula}
+              onChange={setQuantityFormula}
+              isValid={setQuantityFormulaValid}
+              description="Define how quantity metrics are calculated"
+            />
+            <FormulaCard
+              title="Efficiency Formula"
+              icon="speed"
+              formula={efficiencyFormula}
+              onChange={setEfficiencyFormula}
+              description="Define how efficiency metrics are calculated"
+              isValid={setEfficiencyFormulaValid}
+            />
+            <FormulaCard
+              title="Timeliness Formula"
+              icon="schedule"
+              formula={timelinessFormula}
+              onChange={setTimelinessFormula}
+              description="Define how timeliness metrics are calculated"
+              isValid={setTimelinessFormulaValid}
+            />
+          </div>
         </div>
       )}
 
