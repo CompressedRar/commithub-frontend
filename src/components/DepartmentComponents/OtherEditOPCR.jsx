@@ -762,7 +762,7 @@ function RatingBadges({ task, canEval, setField, setValue, setRatingID, currentP
           style={{width:"100%", height:"100%"}}
           id={`${task.rating?.id}-quantity`}
           className="form-control form-control-sm no-spinner text-center" 
-          disabled={!(canEval && (isMonitoringPhase() || isRatingPhase()))}
+          disabled={!(canEval && isRatingPhase())}
           onClick={() => canEval && setRatingID(task.rating?.id)}
           
           onInput={async (e) => { 
@@ -784,7 +784,7 @@ function RatingBadges({ task, canEval, setField, setValue, setRatingID, currentP
           id={`${task.rating?.id}-efficiency`}
           style={{width:"100%", height:"100%"}}
           className="form-control form-control-sm no-spinner text-center" 
-          disabled={!(canEval && (isMonitoringPhase() || isRatingPhase()))}
+          disabled={!(canEval && isRatingPhase())}
           onClick={() => canEval && setRatingID(task.rating?.id)}
           onInput={async (e) => { 
             if (canEval) {
@@ -805,7 +805,7 @@ function RatingBadges({ task, canEval, setField, setValue, setRatingID, currentP
           type="number"
           style={{width:"100%", height:"100%"}}
           className={"form-control form-control-sm no-spinner text-center "} 
-          disabled={!(canEval && (isMonitoringPhase() || isRatingPhase()))}
+          disabled={!(canEval && isRatingPhase())}
           onClick={() => canEval && setRatingID(task.rating?.id)}
           onInput={async (e) => { 
             if (canEval) {

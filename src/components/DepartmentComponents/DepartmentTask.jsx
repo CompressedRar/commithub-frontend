@@ -6,6 +6,7 @@ import { getSettings } from "../../services/settingsService"
 function DepartmentTask({ mems, dept_id, switchMember, switchInfo }) {
   const [assigned, setAssigned] = useState([]);
   const [currentPhase, setCurrentPhase] = useState(null) //monitoring, rating, planning
+  const [settings, setSettings] = useState();
 
   function filterAssigned() {
     const seen = new Set();
@@ -49,6 +50,7 @@ function DepartmentTask({ mems, dept_id, switchMember, switchInfo }) {
   async function loadCurrentPhase() {
           try {
               const res = await getSettings()
+              setSettings(res?.data?.data)
               const phase = res?.data?.data?.current_phase
               console.log("Current phase:", phase)
               setCurrentPhase(phase) //monitoring, rating, planning
@@ -160,9 +162,9 @@ function DepartmentTask({ mems, dept_id, switchMember, switchInfo }) {
 
           {/* Action Buttons */}
           <div className="d-flex gap-2 ms-auto">
-            {isPlanningPhase() || true ? <>
+            {isPlanningPhase()? <>
               <button
-                className="btn btn-sm btn-outline-primary d-flex align-items-center gap-2 px-3 py-1 d-none"
+                className={settings?.enable_formula ? "d-flex btn btn-sm btn-outline-primary  align-items-center gap-2 px-3 py-1 " : "d-none btn btn-sm btn-outline-primary  align-items-center gap-2 px-3 py-1 "}
                 onClick={(e) => {
                   e.stopPropagation();
                   switchMember(mems.id);

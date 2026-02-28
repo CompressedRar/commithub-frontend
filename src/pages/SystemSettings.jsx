@@ -67,6 +67,9 @@ export default function SystemSettings() {
       if (data.efficiency_formula) setEfficiencyFormula(data.efficiency_formula)
       if (data.timeliness_formula) setTimelinessFormula(data.timeliness_formula)
 
+      
+      setEnableFormulas(data.enable_formula)
+
       setCurrentPresidentFullname(data.current_president_fullname ?? "")
       setCurrentMayorFullname(data.current_mayor_fullname ?? "")
 

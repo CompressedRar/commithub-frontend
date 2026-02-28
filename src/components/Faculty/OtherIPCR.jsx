@@ -838,6 +838,7 @@ function RatingBadges({ task, currentPhase, handleDataChange, setSubTaskID }) {
                     type="number" className="form-control form-control-sm no-spinner text-center" 
                     defaultValue = {isRatingPhase(currentPhase) && parseFloat(task.quantity).toFixed(0)} 
                     style={{width:"100%", height:"100%"}}
+                    disabled={!isRatingPhase(currentPhase)}
                     onClick={() => setSubTaskID(task.id)}
                     onKeyDown={numericKeyDown}
                     onPaste={handlePasteNumeric}
@@ -853,6 +854,7 @@ function RatingBadges({ task, currentPhase, handleDataChange, setSubTaskID }) {
                     type="number" className="form-control form-control-sm no-spinner text-center" 
                     defaultValue = {isRatingPhase(currentPhase) && parseFloat(task.efficiency).toFixed(0)} 
                     style={{width:"100%", height:"100%"}}
+                    disabled={!isRatingPhase(currentPhase)}
                     onClick={() => setSubTaskID(task.id)}
                     onKeyDown={numericKeyDown}
                     onPaste={handlePasteNumeric}
@@ -868,6 +870,7 @@ function RatingBadges({ task, currentPhase, handleDataChange, setSubTaskID }) {
                     type="number" className="form-control form-control-sm no-spinner text-center" 
                     defaultValue = {isRatingPhase(currentPhase) && parseFloat(task.timeliness).toFixed(0)} 
                     style={{width:"100%", height:"100%"}}
+                    disabled={!isRatingPhase(currentPhase)}
                     max={5}
                     min={1}
                     onClick={() => setSubTaskID(task.id)}

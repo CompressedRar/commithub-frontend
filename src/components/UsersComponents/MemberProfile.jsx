@@ -323,7 +323,7 @@ function MemberProfile(props){
                         <select id="role" name="role" className="form-select" value={formData.role} onChange={handleDataChange}>
                             <option value="faculty">Faculty</option>
                             <option value="head">Head</option>
-                            <option value="administrator">Administrator</option>
+                            <option value="president">Administrator</option>
                         </select>
                     </div>
                 </div>
