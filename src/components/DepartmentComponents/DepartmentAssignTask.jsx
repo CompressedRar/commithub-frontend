@@ -414,7 +414,7 @@ function DepartmentAssignTask(props) {
                         type="number"
                         className="form-control"
                         min="1"
-                        max={mainTask?.target_quantity || 0}
+                        max={mainTask?.target_quantity}
                         value={assignedQuantity}
                         onChange={(e) => setAssignedQuantity(parseInt(e.target.value) || 0)}
                       />
