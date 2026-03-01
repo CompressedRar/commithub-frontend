@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react"
 import { getPositions } from "../../services/positionService"
 import { getDepartments } from "../../services/departmentService"
 import { archiveAccount, getAccountInfo, updateMemberInfo, unarchiveAccount, resetAccountPasssword, checkEmail } from "../../services/userService"
+import { verifyAdminPassword } from "../../services/settingsService"
 import { objectToFormData } from "../api"
 import Swal from "sweetalert2"
 import { Modal } from "bootstrap/js/dist/modal"
@@ -178,23 +179,41 @@ function MemberProfile(props){
 
     // Update user
     const handleUpdate = async () => {
-        if (!isMounted.current) return; 
+        if (!isMounted.current) return;
         if(!isEmailValid) {
             Swal.fire({ title: "Error", text: "Email already taken", icon: "error" })
             return
         }
-        const data = objectToFormData(formData)
-        if(fileInput.current?.files[0]) data.set("profile_picture_link", fileInput.current.files[0])
-        setUpdating(true)
+
+        // Ask for admin password confirmation before updating
+        const { value: adminPassword } = await Swal.fire({
+            title: "Confirm Changes",
+            text: "Please enter your admin password to confirm this update",
+            input: "password",
+            inputAttributes: { autocapitalize: "off", autocorrect: "off" },
+            showCancelButton: true
+        })
+
+        if (!adminPassword) {
+            return
+        }
+
         try {
+            const confirmationToken = await verifyAdminPassword({ password: adminPassword })
+            const data = objectToFormData(formData)
+            data.set("confirmation_token", confirmationToken.data.confirmation_token)
+            if(fileInput.current?.files[0]) data.set("profile_picture_link", fileInput.current.files[0])
+
+            setUpdating(true)
             const res = await updateMemberInfo(data).then(d => d.data.message)
             Swal.fire({ title: res.includes("success") ? "Success" : "Error", text: res, icon: res.includes("success") ? "success" : "error" })
+            setUpdating(false)
+            await loadUserInformation()
         } catch(err) {
-            console.log(err.response?.data?.error || err)
-            Swal.fire({ title: "Error", text: err.response?.data?.error || "Failed to update", icon: "error" })
+            Swal.fire("Error", err.response?.data?.error || "Invalid password", "error")
+            setUpdating(false)
+            return
         }
-        setUpdating(false)
-        await loadUserInformation()
     }
 
     const handleImageChange = () => {

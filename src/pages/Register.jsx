@@ -5,6 +5,7 @@ import { getPositions } from "../services/positionService";
 import { doesPresidentExists } from "../services/userService";
 import { getDepartments } from "../services/departmentService";
 import { registerAccount, checkEmail } from "../services/userService";
+import { verifyAdminPassword } from "../services/settingsService";
 import { objectToFormData } from "../components/api";
 
 function Register() {
@@ -116,6 +117,30 @@ function Register() {
     // Append profile picture only if provided; otherwise backend will use default
     if (fileInput.current && fileInput.current.files && fileInput.current.files[0]) {
       newFormData.append("profile_picture", fileInput.current.files[0]);
+    }
+
+    // Ask for admin password confirmation before registering
+    const { value: adminPassword } = await Swal.fire({
+      title: "Confirm Registration",
+      text: "Please enter your admin password to confirm this registration",
+      input: "password",
+      inputAttributes: { autocapitalize: "off", autocorrect: "off" },
+      showCancelButton: true
+    })
+
+    if (!adminPassword) {
+      setRegistering(false)
+      return
+    }
+
+    try {
+      const confirmationToken = await verifyAdminPassword({ password: adminPassword })
+      newFormData.append("confirmation_token", confirmationToken.data.confirmation_token)
+      console.log("ADMIN PASSWORD VERIFIED")
+    } catch (err) {
+      Swal.fire("Error", err.response?.data?.error || "Invalid password", "error")
+      setRegistering(false)
+      return
     }
 
     try {
