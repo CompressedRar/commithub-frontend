@@ -28,6 +28,15 @@ export async function authenticateAccount(data) {
     })
 }
 
+export async function authenticatePass(data) {
+    console.log("authenticating")
+    return api.post("/api/v1/auth/pass", data, {
+        headers: {
+            "Content-type": "multipart/form-data"
+        }
+    })
+}
+
 
 export async function verifyOtp(data){
     return api.post("/api/v1/auth/verify-otp", data, {

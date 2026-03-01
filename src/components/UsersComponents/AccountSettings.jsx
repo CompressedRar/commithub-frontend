@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react"
 import { getPositions } from "../../services/positionService"
 import { getDepartments } from "../../services/departmentService"
-import { archiveAccount, getAccountInfo, updateMemberInfo, unarchiveAccount, resetAccountPasssword, checkEmail, authenticateAccount, updatePassword } from "../../services/userService"
+import { archiveAccount, getAccountInfo, updateMemberInfo, unarchiveAccount, resetAccountPasssword, checkEmail, authenticateAccount, updatePassword, authenticatePass } from "../../services/userService"
 import { objectToFormData, socket } from "../api"
 import Swal from "sweetalert2"
 import { Modal } from "bootstrap/js/dist/modal"
@@ -231,10 +231,12 @@ function AccountSettings(props) {
   async function authenticatePassword(){
     var converted = objectToFormData({"email": firstEmail, "password":currentPassword}) 
     
-    var a = await authenticateAccount(converted).then(data => data.data.message).catch(error => {
+    var a = await authenticatePass(converted).then(data => data.data.message).catch(error => {
 
     })
-    if (a == "Authenticated.") {
+
+    console.log("auth", a)
+    if (a == "Authenticated") {
       setPasswordResult(false)
       setPasswordResultText("")
     }
