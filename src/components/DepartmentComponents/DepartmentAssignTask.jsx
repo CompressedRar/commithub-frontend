@@ -104,7 +104,7 @@ function DepartmentAssignTask(props) {
     }
 
     if (assignedQuantity <= 0) {
-      Swal.fire("Invalid quantity", "Enter a valid quantity.", "warning");
+      Swal.fire("Invalid number", "Enter a valid number.", "warning");
       return;
     }
 
@@ -139,7 +139,7 @@ function DepartmentAssignTask(props) {
     if (!assignedQuantity || assignedQuantity <= 0) {
       Swal.fire({
         title: "Validation Error",
-        text: "Please enter a valid quantity.",
+        text: "Please enter a valid number.",
         icon: "warning",
       });
       return;
@@ -148,7 +148,7 @@ function DepartmentAssignTask(props) {
     if (assignedQuantity > (mainTask?.target_quantity || 0)) {
       Swal.fire({
         title: "Validation Error",
-        text: `Assigned quantity cannot exceed target quantity (${mainTask?.target_quantity}).`,
+        text: `Assigned number cannot exceed target number (${mainTask?.target_quantity}).`,
         icon: "warning",
       });
       return;
@@ -226,7 +226,7 @@ function DepartmentAssignTask(props) {
     }
 
     if (assignedQuantity <= 0) {
-      Swal.fire("Invalid quantity", "Enter a valid quantity.", "warning");
+      Swal.fire("Invalid number", "Enter a valid number.", "warning");
       return;
     }
 
@@ -427,7 +427,7 @@ function DepartmentAssignTask(props) {
                   <div className="alert alert-info d-flex gap-2 align-items-start mb-0">
                     <span className="material-symbols-outlined flex-shrink-0 mt-1">info</span>
                     <div className="small">
-                      <strong>Note:</strong> The assigned quantity should not exceed the target quantity of {mainTask?.target_quantity || 0}.
+                      <strong>Note:</strong> The assigned number should not exceed the target quantity of {mainTask?.target_quantity || 0}.
                     </div>
                   </div>
                 </div>

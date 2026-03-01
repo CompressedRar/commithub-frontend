@@ -437,7 +437,7 @@ function CategoryTasks(props) {
 
                 <h6 className="mt-3">Success Indicators (Targets + Measures)</h6>
                 <div className="col-md-12 mb-3">
-                    <label className="form-label fw-semibold">Target Quantity</label>
+                    <label className="form-label fw-semibold">Target Quality</label>
                     <input
                       type="number"
                       name="target_quantity"

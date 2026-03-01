@@ -1020,7 +1020,7 @@ function FinalRatingsSection({ stats, ratingThresholds, handleRemarks, currentPh
                         <h6 className="card-title fw-bold">Final Average Rating</h6>
                         <div className="d-grid gap-2 small">
                             <div className="d-flex justify-content-between">
-                                <span>Quantity (Q):</span>
+                                <span>Quality (Q):</span>
                                 <strong>{isRatingPhase(currentPhase) && parseFloat(stats.quantity).toFixed(2)}</strong>
                             </div>
                             <div className="d-flex justify-content-between">

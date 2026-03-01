@@ -240,7 +240,7 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
               name="target_accomplishment"
               className="form-control"
               rows="4"
-              placeholder="Define the target quantity/measure..."
+              placeholder="Define the target quality/measure..."
               value={formData.target_accomplishment || ""}
               onChange={handleChange}
             ></textarea>
@@ -264,7 +264,7 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
 
         {/* Target Quantity */}
         <div className="mb-3">
-          <label className="form-label fw-semibold">Target Quantity</label>
+          <label className="form-label fw-semibold">Target Quality</label>
           <input
             name="target_quantity"
             type="number"

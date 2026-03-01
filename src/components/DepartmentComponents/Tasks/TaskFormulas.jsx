@@ -104,7 +104,7 @@ export default function FormulaSettings({task_data}) {
         enableFormulas ? 
         <div className="row g-3" >
         <FormulaEditor
-          title="Quantity Formula"
+          title="Quality Formula"
           icon="inventory_2"
           value={quantity}
           onChange={setQuantity}

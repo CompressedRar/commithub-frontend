@@ -728,7 +728,7 @@ function FinalRatingsSection({ quantityAvg, efficiencyAvg, timelinessAvg, allAvg
             <h6 className="card-title fw-bold">Final Average Rating</h6>
             <div className="d-grid gap-2 small">
               <div className="d-flex justify-content-between">
-                <span>Quantity (Q):</span>
+                <span>Quality (Q):</span>
                 <strong>{(isMonitoringPhase() && isRatingPhase()) ? parseFloat(quantityAvg || 0).toFixed(2) : 0}</strong>
               </div>
               <div className="d-flex justify-content-between">

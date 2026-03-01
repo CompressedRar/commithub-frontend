@@ -133,7 +133,7 @@ export default function PerformanceSummaryPerDepartment() {
                 <YAxis domain={[0, 5]} />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="Quantity" fill={CHART_COLORS.QUANTITY} name="Quantity" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="Quantity" fill={CHART_COLORS.QUANTITY} name="Quality" radius={[6, 6, 0, 0]} />
                 <Bar dataKey="Efficiency" fill={CHART_COLORS.EFFICIENCY} name="Efficiency" radius={[6, 6, 0, 0]} />
                 <Bar dataKey="Timeliness" fill={CHART_COLORS.TIMELINESS} name="Timeliness" radius={[6, 6, 0, 0]} />
                 <Bar dataKey="Average" fill={CHART_COLORS.AVERAGE} name="Average" radius={[6, 6, 0, 0]} />

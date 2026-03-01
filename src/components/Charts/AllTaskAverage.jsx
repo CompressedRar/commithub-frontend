@@ -118,7 +118,7 @@ export default function AllTaskAverages() {
               <Bar
                 dataKey="average_quantity"
                 fill={CHART_COLORS.QUANTITY}
-                name="Quantity"
+                name="Quality"
                 radius={[6, 6, 0, 0]}
               />
               <Bar

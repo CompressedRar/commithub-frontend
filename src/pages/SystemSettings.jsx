@@ -91,7 +91,7 @@ export default function SystemSettings() {
       console.log(quantityFormulaValid, efficiencyFormulaValid, timelinessFormulaValid)
 
       if(!quantityFormulaValid) {
-        Swal.fire("Error", "Invalid Quantity Formula", "error")
+        Swal.fire("Error", "Invalid Quality Formula", "error")
         return
       }
       if(!efficiencyFormulaValid) {
@@ -591,7 +591,7 @@ export default function SystemSettings() {
           <small>Enabling formula will allow the system to automatically compute the rating.</small>
           <div className={enableFormulas ? "row g-3" : "d-none"}>
             <FormulaCard
-              title="Quantity Formula"
+              title="Quality Formula"
               icon="inventory_2"
               formula={quantityFormula}
               onChange={setQuantityFormula}
