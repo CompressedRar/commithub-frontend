@@ -216,7 +216,7 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
                     id = {dept.name}
                     value = {dept.id}
                     onChange={handleDepartmentAppend}
-                    checked = {formData.department.includes(dept.id)}
+                    checked = {formData.department?.includes(dept.id)}
                   ></Checkbox>
                 }                        
               ></FormControlLabel>                        
