@@ -13,6 +13,7 @@ import { socket } from "../components/api";
 import Navigations from "../components/Navigations";
 import ApartmentIcon from '@mui/icons-material/Apartment';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
+import AnalyticsIcon from '@mui/icons-material/Analytics';
 
 
 import Badge from '@mui/material/Badge';
@@ -143,6 +144,7 @@ function HeadLayout() {
       <Navigations links = {[
           { href: "/head/department", icon: <ApartmentIcon></ApartmentIcon>, text: "Offices" },
           { href: "/head/ipcr", icon: <AssignmentIndIcon></AssignmentIndIcon>, text: "IPCR" },
+          { href: "/head/analytics", icon: <AnalyticsIcon></AnalyticsIcon>, text: "Performance Analytics" },
         ]}
         isOpen={sidebarCollapsed}
         closeNavigation={()=> {setSidebarCollapsed(false)}}

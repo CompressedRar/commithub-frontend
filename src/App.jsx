@@ -1,5 +1,3 @@
-import { useState } from 'react'
-
 import './assets/styles/App.css'
 
 import {Route ,Routes} from 'react-router-dom'
@@ -32,6 +30,7 @@ import SystemSettings from './pages/SystemSettings'
 import OtherIPCR from './components/Faculty/OtherIPCR'
 import OtherEditOPCR from './components/DepartmentComponents/OtherEditOPCR'
 import OtherDraftedOPCR from './components/DepartmentComponents/OtherDraftedOPCR'
+import Analytics from './pages/Analytics'
 
 
 function App() {
@@ -39,16 +38,17 @@ function App() {
     <div>
       <Routes>
         <Route path="*" element={<NotFound />} />
-        
+
         <Route element = {<AuthLayout />}>
           <Route path='/' element = {<Login></Login>}></Route>
           <Route path='/register' element = {<Register></Register>}></Route>
           <Route path='/create' element = {<Register ></Register>}></Route>
-          <Route path='/logout' element = {<Logout></Logout>}></Route>  
+          <Route path='/logout' element = {<Logout></Logout>}></Route>
         </Route>
-      
+
         <Route element = {<AdminLayout></AdminLayout>}>
           <Route path = "/sadmin/dashboard" element={<Administrator></Administrator>}></Route>
+          <Route path = "/sadmin/analytics" element={<Analytics></Analytics>}></Route>
           <Route path = "sadmin/department" element={<Department></Department>}></Route>
           <Route path = "/sadmin/users" element={<UserManagement></UserManagement>}></Route>
           <Route path = "/sadmin/tasks" element={<CategoryAndTask></CategoryAndTask>}></Route>
@@ -66,6 +66,7 @@ function App() {
 
         <Route element = {<PresidentLayout></PresidentLayout>}>
           <Route path = "/ad/dashboard" element={<Administrator></Administrator>}></Route>
+          <Route path = "/ad/analytics" element={<Analytics></Analytics>}></Route>
           <Route path = "/ad/department" element={<Department></Department>}></Route>
           <Route path = "/ad/tasks" element={<CategoryAndTask></CategoryAndTask>}></Route>
           <Route path = "/ad/ipcr" element={<Faculty></Faculty>}></Route>
@@ -79,6 +80,7 @@ function App() {
           <Route path = "/head/opcr/:opcr_id" element={<OtherEditOPCR></OtherEditOPCR>}></Route>
           <Route path = "/head/drafted/:opcr_id" element={<OtherDraftedOPCR></OtherDraftedOPCR>}></Route>
           <Route path = "/head/department" element={<HeadDepartment></HeadDepartment>}></Route>
+          <Route path = "/head/analytics" element={<Analytics></Analytics>}></Route>
           <Route path = "/head/tasks" element={<CategoryAndTask></CategoryAndTask>}></Route>
           <Route path = "/head/review" element={<HeadPendingReviews></HeadPendingReviews>}></Route>
           <Route path = "/head/ipcr" element={<Faculty></Faculty>}></Route>

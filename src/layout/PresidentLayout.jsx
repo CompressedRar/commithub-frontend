@@ -16,6 +16,7 @@ import ApartmentIcon from '@mui/icons-material/Apartment';
 import TaskIcon from '@mui/icons-material/Task';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
+import AnalyticsIcon from '@mui/icons-material/Analytics';
 
 
 
@@ -122,6 +123,7 @@ function PresidentLayout() {
           { href: "/ad/tasks", icon: <TaskIcon></TaskIcon>, text: "Key Result Areas" },
           { href: "/ad/ipcr", icon: <AssignmentIndIcon></AssignmentIndIcon>, text: "IPCR" },
           { href: "/ad/master", icon: <AssignmentIcon></AssignmentIcon>, text: "Master OPCR" },
+          { href: "/ad/analytics", icon: <AnalyticsIcon></AnalyticsIcon>, text: "Performance Analytics" },
         ]}
         isOpen={sidebarCollapsed}
         closeNavigation={()=> {setSidebarCollapsed(false)}}

@@ -18,6 +18,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import GroupIcon from '@mui/icons-material/Group';
 import MonitorIcon from '@mui/icons-material/Monitor';
+import AnalyticsIcon from '@mui/icons-material/Analytics';
 import SettingsIcon from '@mui/icons-material/Settings';
 
 
@@ -127,7 +128,8 @@ function AdminLayout() {
           { href: "/sadmin/ipcr", icon: <AssignmentIndIcon></AssignmentIndIcon>, text: "IPCR" },
           { href: "/sadmin/master", icon: <AssignmentIcon></AssignmentIcon>, text: "Master OPCR" },
           { href: "/sadmin/users", icon: <GroupIcon></GroupIcon>, text: "User Management" },
-          { href: "/sadmin/logs", icon: <MonitorIcon></MonitorIcon>, text: "Audit Logs" },              
+          { href: "/sadmin/logs", icon: <MonitorIcon></MonitorIcon>, text: "Audit Logs" },
+          { href: "/sadmin/analytics", icon: <AnalyticsIcon></AnalyticsIcon>, text: "Performance Analytics" },
           { href: "/sadmin/settings", icon: <SettingsIcon></SettingsIcon>, text: "Settings" }
         ]}
         isOpen={sidebarCollapsed}
