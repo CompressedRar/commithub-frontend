@@ -45,16 +45,21 @@ export default function CategoryAndTask() {
   }
 
   async function handleCategoryOrder(e){
-    if (e.target.value == 0 || e.target.value == "") return;
+    if (e.target.value == "") return;
 
-    try {
+    const debounce = setTimeout(async () => {
+      try {
       var res = await updateCategoryOrder(selectedCategoryId, e.target.value)
 
-      Swal.fire("Success", res.data.message, "success");
-    }
-    catch(error){
-      Swal.fire("Error", error?.response?.data?.error || "Updating Priority No. Failed", "error");
-    }
+        Swal.fire("Success", res.data.message, "success");
+      }
+      catch(error){
+        Swal.fire("Error", error?.response?.data?.error || "Updating Priority No. Failed", "error");
+      }
+    }, 700);
+    return () => clearTimeout(debounce);
+
+    
   }
 
   useEffect(() => {
@@ -161,6 +166,7 @@ export default function CategoryAndTask() {
                       >
                         <div className="d-flex align-items-center gap-2">
                           <span className="material-symbols-outlined">folder</span>
+                          <span>{cat.priority_order}. </span>
                           <div className="text-start">
                             <div className="fw-semibold small mb-0 text-truncate" style={{ maxWidth: 180 }}>{cat.name}</div>
                           </div>
