@@ -541,7 +541,7 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
           <td className="text-center">
             <RatingBadges task={task} />
           </td>
-          <td className="small text-center fw-semibold">{handleRemarks(task.rating?.average, ratingThresholds)}</td>
+          <td className="small text-center fw-semibold"></td>
         </tr>
       ))}
     </>
