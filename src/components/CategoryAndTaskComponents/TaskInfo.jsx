@@ -294,16 +294,13 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
         {/* Efficiency Unit */}
         <div className="mb-3">
           <label className="form-label fw-semibold">Efficiency Unit</label>
-          <select
+          <input
+          type="text"
             name="modification"
-            className="form-select"
+            className="form-control form-control"
             value={formData.modification || "correction"}
             onChange={handleChange}
-          >
-            <option value="correction">Correction</option>
-            <option value="revision">Revision</option>
-            <option value="error">Error</option>
-          </select>
+          />
           <small className="text-muted d-block mt-1">Type of modification allowed</small>
         </div>
 
