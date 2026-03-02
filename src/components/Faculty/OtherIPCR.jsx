@@ -560,25 +560,7 @@ function OtherIPCR(props) {
                     }
                 </div>
 
-                {canSubmit && props.mode === "faculty" && (
-                    <button
-                        className="btn btn-primary d-flex align-items-center gap-2"
-                        disabled={submitting}
-                        onClick={assignIPCR}
-                    >
-                        {submitting ? (
-                            <>
-                                <span className="spinner-border spinner-border-sm me-2"></span>
-                                Submitting...
-                            </>
-                        ) : (
-                            <>
-                                <span className="material-symbols-outlined">article_shortcut</span>
-                                Submit IPCR
-                            </>
-                        )}
-                    </button>
-                )}
+                
             </div>
 
             {/* Alert - Show phase restriction info */}
@@ -627,6 +609,9 @@ function OtherIPCR(props) {
                                 </tr>
                             </thead>
                             <tbody>
+                                <tr>
+                                    CORE FUNCTIONS
+                                </tr>
                                 {Object.entries(arrangedSubTasks).map(([category, tasks]) => (
                                     <TaskSection
                                         key={category}
@@ -760,9 +745,6 @@ function TaskSection({
 
     return (
         <>
-            <tr className="table-secondary fw-bold">
-                <td colSpan="5">{categoryType}</td>
-            </tr>
             <tr className="table-light small">
                 <td colSpan="5" className="text-muted">{category}</td>
             </tr>
