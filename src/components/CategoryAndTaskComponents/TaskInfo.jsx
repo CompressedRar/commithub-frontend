@@ -263,8 +263,8 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
         </div>
 
         {/* Target Quantity */}
-        <div className="mb-3">
-          <label className="form-label fw-semibold">Target Quality</label>
+        <div className="mb-3 d-none">
+          <label className="form-label fw-semibold ">Target Quality</label>
           <input
             name="target_quantity"
             type="number"
@@ -278,7 +278,7 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
         </div>
 
         {/* Target Efficiency */}
-        <div className="mb-3">
+        <div className="mb-3 d-none">
           <label className="form-label fw-semibold">Target Efficiency</label>
           <input
             name="target_efficiency"
@@ -317,7 +317,7 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
           </select>
         </div>
 
-        <div className="row g-2">
+        <div className="row g-2 d-none">
             <div className="col-md-6 mb-3">
               <label className="form-label fw-semibold">Target Timeliness</label>
               <input
