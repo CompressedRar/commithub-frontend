@@ -137,7 +137,7 @@ function ManageDeptSupportingDocuments({ dept_id, dept_mode, sub_tasks }) {
 
 
   const groupDocumentsByTask = (docs) => {
-    if (docs.null) return;
+    if (!docs) return;
     
     const grouped = {};
     
