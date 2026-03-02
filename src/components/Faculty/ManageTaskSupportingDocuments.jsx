@@ -31,17 +31,24 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
   }
 
   const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    if (selectedFile && selectedFile.size > MAX_FILE_SIZE) {
-      Swal.fire({
-        title: "File too large",
-        text: "Maximum upload size is 50 MB.",
-        icon: "warning",
-      });
-      e.target.value = null;
-      return;
+    const selectedFile = e.target.files;
+
+    for(const i of selectedFile){
+      console.log("FILES")
+      if (i && i.size > MAX_FILE_SIZE) {
+        Swal.fire({
+          title: "File too large",
+          text: "Maximum upload size is 50 MB.",
+          icon: "warning",
+        });
+        e.target.value = null;
+        return;
+      }
+
+      
     }
     setFile(selectedFile);
+    
   };
 
   const uploadFile = async () => {
@@ -64,30 +71,32 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
     setUploading(true);
     try {
       // Step 1: Request pre-signed URL
-      const res = await generatePreSignedURL({ fileName: file.name, fileType: file.type });
-      const uploadUrl = res.data.link;
+      for(const i of file){
+        const res = await generatePreSignedURL({ fileName: i.name, fileType: i.type });
+        const uploadUrl = res.data.link;
 
-      // Step 2: Upload file to S3
-      await axios.put(uploadUrl, file, {
-        headers: { "Content-Type": file.type },
-        onUploadProgress: (e) => {
-          const percent = Math.round((e.loaded * 100) / e.total);
-          setUploadProgress(percent);
-        },
-      });
+        // Step 2: Upload file to S3
+        await axios.put(uploadUrl, i, {
+          headers: { "Content-Type": i.type },
+          onUploadProgress: (e) => {
+            const percent = Math.round((e.loaded * 100) / e.total);
+            setUploadProgress(percent);
+          },
+        });
 
-      // Step 3: Record upload info in database
-      const uploadRes = await recordFileUploadInfo({
-        fileName: file.name,
-        fileType: file.type,
-        ipcrID: ipcr_id,
-        batchID: batch_id,
-        subTaskID: selectedTask,
-      });
+        // Step 3: Record upload info in database
+        const uploadRes = await recordFileUploadInfo({
+          fileName: i.name,
+          fileType: i.type,
+          ipcrID: ipcr_id,
+          batchID: batch_id,
+          subTaskID: selectedTask,
+        });
+      }
 
       Swal.fire({
         title: "Success",
-        text: uploadRes.data.message,
+        text: "Files are uploaded.",
         icon: "success",
       });
 
@@ -201,6 +210,7 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
                         id="support"
                         onChange={handleFileChange}
                         disabled={uploading}
+                        multiple
                       />
                       <small className="text-muted d-block mt-2">
                         <span className="material-symbols-outlined" style={{ fontSize: "1rem", verticalAlign: "middle" }}>info</span>
