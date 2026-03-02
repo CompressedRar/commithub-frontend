@@ -135,30 +135,10 @@ function ManageDeptSupportingDocuments({ dept_id, dept_mode, sub_tasks }) {
     }
   };
 
-  const groupDocumentsByUserAndTask = (docs) => {
-    const grouped = {};
-    
-    docs
-      .filter((doc) => doc.status === 1)
-      .forEach((doc) => {
-        const userName = doc.user_name || "Unknown User";
-        const taskName = doc.task_name || "Unassigned Task";
-        
-        if (!grouped[userName]) {
-          grouped[userName] = {};
-        }
-        
-        if (!grouped[userName][taskName]) {
-          grouped[userName][taskName] = [];
-        }
-        
-        grouped[userName][taskName].push(doc);
-      });
-    
-    return grouped;
-  };
 
   const groupDocumentsByTask = (docs) => {
+    if (docs.null) return;
+    
     const grouped = {};
     
     docs
