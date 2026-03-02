@@ -764,6 +764,8 @@ function RatingBadges({ task, canEval, setField, setValue, setRatingID, currentP
           className="form-control form-control-sm no-spinner text-center" 
           disabled={!(canEval && isRatingPhase())}
           onClick={() => canEval && setRatingID(task.rating?.id)}
+          max={5}
+          min={1}
           
           onInput={async (e) => { 
             if (canEval) {
@@ -786,6 +788,8 @@ function RatingBadges({ task, canEval, setField, setValue, setRatingID, currentP
           className="form-control form-control-sm no-spinner text-center" 
           disabled={!(canEval && isRatingPhase())}
           onClick={() => canEval && setRatingID(task.rating?.id)}
+          max={5}
+          min={1}
           onInput={async (e) => { 
             if (canEval) {
               const sanitized = sanitizeNumeric(e.target.value);
@@ -807,6 +811,8 @@ function RatingBadges({ task, canEval, setField, setValue, setRatingID, currentP
           className={"form-control form-control-sm no-spinner text-center "} 
           disabled={!(canEval && isRatingPhase())}
           onClick={() => canEval && setRatingID(task.rating?.id)}
+          max={5}
+          min={1}
           onInput={async (e) => { 
             if (canEval) {
               const sanitized = sanitizeNumeric(e.target.value);
