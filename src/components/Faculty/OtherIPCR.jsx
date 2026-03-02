@@ -299,7 +299,7 @@ function OtherIPCR(props) {
         setArrangedSubTasks(all_categories)
         setCategoryTypes(all_category_type)
         setStats(newStats)
-        console.log(all_categories)
+        console.log("all task",all_categories)
     }
 
     // Update the handleRemarks function to use dynamic rating thresholds from settings
@@ -1003,7 +1003,7 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                     inputMode="decimal"
                                     pattern="[0-9]*"
                                     name="target_time"
-                                    defaultValue={task.main_task.target_timeframe}
+                                    defaultValue={task.target_time}
                                     className={`form-control form-control-sm no-spinner `}
                                     onClick={() => isTargetEditable && setSubTaskID(task.id)}
                                     onKeyDown={numericKeyDown}
@@ -1036,7 +1036,7 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                 inputMode="decimal"
                                 pattern="[0-9]*"
                                 name="target_mod"
-                                defaultValue={task.main_task.target_efficiency}
+                                defaultValue={task.target_mod}
                                 className={`form-control form-control-sm no-spinner `}
                                 onClick={() => isTargetEditable && setSubTaskID(task.id)}
                                 onKeyDown={numericKeyDown}

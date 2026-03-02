@@ -23,6 +23,8 @@ function DepartmentAssignTask(props) {
   const [selectedUser, setSelectedUser] = useState(null);
   
   const [assignedQuantity, setAssignedQuantity] = useState(0);
+  const [assignedTime, setAssignedTime] = useState(0);
+  const [assignedMod, setAssignedMod] = useState(0);
   const [submitting, setSubmitting] = useState(false);
 
   async function loadAssignedMembers() {
@@ -103,7 +105,7 @@ function DepartmentAssignTask(props) {
       return;
     }
 
-    if (assignedQuantity <= 0) {
+    if (assignedQuantity <= 0 || assignedTime <= 0 || assignedMod <= 0 ) {
       Swal.fire("Invalid number", "Enter a valid number.", "warning");
       return;
     }
@@ -111,7 +113,7 @@ function DepartmentAssignTask(props) {
     setSubmitting(true);
 
     try {
-      await assignUsers(selectedUser.id, props.task_id, assignedQuantity);
+      await assignUsers(selectedUser.id, props.task_id, assignedQuantity, assignedTime, assignedMod);
 
       Swal.fire("Success", "User assigned successfully.", "success");
 
@@ -128,10 +130,6 @@ function DepartmentAssignTask(props) {
   }
 
 
-  function openAssignModal(user) {
-    setSelectedUser(user);
-    setAssignedQuantity(mainTask?.target_quantity || 0);    
-  }
 
   async function handleConfirmAssign() {
     if (!selectedUser) return;
@@ -285,9 +283,14 @@ function DepartmentAssignTask(props) {
     if(res) {
       
       setAssignedQuantity(res?.assigned_quantity || 0);
+      setAssignedTime(res?.assigned_time || 0);
+      setAssignedMod(res?.assigned_mod || 0);
     }
     else {
-      setAssignedQuantity(mainTask?.target_quantity || 0);
+      setAssignedQuantity( 0);
+      setAssignedTime(0);
+      setAssignedMod(0);
+      
     }
 
   }
@@ -413,23 +416,50 @@ function DepartmentAssignTask(props) {
                       <input
                         type="number"
                         className="form-control"
-                        min="1"
-                        max={mainTask?.target_quantity}
+                        min={1}
                         value={assignedQuantity}
                         onChange={(e) => setAssignedQuantity(parseInt(e.target.value) || 0)}
                       />
                     </div>
-                    <small className="text-muted d-block mt-2">
-                      Target Quantity: <strong>{mainTask?.target_quantity || 0}</strong>
-                    </small>
                   </div>
 
-                  <div className="alert alert-info d-flex gap-2 align-items-start mb-0">
-                    <span className="material-symbols-outlined flex-shrink-0 mt-1">info</span>
-                    <div className="small">
-                      <strong>Note:</strong> The assigned number should not exceed the target quantity of {mainTask?.target_quantity || 0}.
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold">
+                      Assigned Time Unit <span className="text-danger">*</span>
+                    </label>
+                    <div className="input-group">
+                      <span className="input-group-text bg-light border-0">
+                        <span className="material-symbols-outlined">counter_5</span>
+                      </span>
+                      <input
+                        type="number"
+                        className="form-control"
+                        min={1}
+                        value={assignedTime}
+                        onChange={(e) => setAssignedTime(parseInt(e.target.value) || 0)}
+                      />
                     </div>
                   </div>
+
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold">
+                      Assigned Efficiency Unit <span className="text-danger">*</span>
+                    </label>
+                    <div className="input-group">
+                      <span className="input-group-text bg-light border-0">
+                        <span className="material-symbols-outlined">counter_5</span>
+                      </span>
+                      <input
+                        type="number"
+                        className="form-control"
+                        min={1}
+                        value={assignedMod}
+                        onChange={(e) => setAssignedMod(parseInt(e.target.value) || 0)}
+                      />
+                    </div>
+                  </div>
+
+                  
                 </div>
 
                   <div className="modal-footer">
