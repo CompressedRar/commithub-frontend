@@ -214,7 +214,7 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
                   {pendingFiles.length > 0 && (
                     <div className="table-responsive border rounded mb-3">
                       <table className="table table-sm align-middle mb-0">
-                        <thead className="table-dark">
+                        <thead className="table-primary">
                           <tr>
                             <th style={{ width: '25%' }}>File Name</th>
                             <th style={{ width: '25%' }}>Title</th>
@@ -287,7 +287,9 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
                         <div className="d-flex align-items-center gap-3 flex-grow-1">
                           <span className="material-symbols-outlined text-primary fs-5">description</span>
                           <div className="flex-grow-1">
-                            <div className="fw-bold text-dark">{doc.file_name}</div>
+                            <div className="fw-bold text-dark">{doc.title}</div>
+                            
+                            <div className="fw-light small text-dark">{doc.file_name}</div>
                             <small className="text-muted d-block">
                               {doc.task_name} 
                               <Divider></Divider>
