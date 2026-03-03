@@ -293,6 +293,7 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
 
         {/* Efficiency Unit */}
         <div className="mb-3">
+          
           <label className="form-label fw-semibold">Efficiency Unit</label>
           <input
           type="text"
@@ -303,7 +304,17 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
           />
           <small className="text-muted d-block mt-1">Type of modification allowed</small>
         </div>
-
+        <div className="col-md-12 mb-3">
+              <label className="form-label fw-semibold">Time Unit</label>
+              <input
+                name="time_measurement"
+                className="form-control"
+                placeholder="eg. days"
+                value={formData.time_measurement || "day"}
+                onChange={handleChange}
+              />
+              <small className="text-muted d-block mt-1">Unit for the timeframe</small>
+            </div>
         {/* Timeliness Mode */}
         <div className="mb-3 d-none">
           <label className="form-label fw-semibold">Timeliness Mode</label>
@@ -332,17 +343,7 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
               <small className="text-muted d-block mt-1">Use with unit selector below</small>
             </div>
 
-            <div className="col-md-6 mb-3">
-              <label className="form-label fw-semibold">Time Unit</label>
-              <input
-                name="time_measurement"
-                className="form-control"
-                placeholder="eg. days"
-                value={formData.time_measurement || "day"}
-                onChange={handleChange}
-              />
-              <small className="text-muted d-block mt-1">Unit for the timeframe</small>
-            </div>
+            
           </div>
 
                   <div className="mb-3">

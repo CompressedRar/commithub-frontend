@@ -52,14 +52,6 @@ export default function DocumentChecklist({ sub_tasks, documents }) {
                   isComplete ? "bg-success bg-opacity-10 border-success" : "border-danger"
                 }`}
               >
-                {/* Status Icon */}
-                <div className="flex-shrink-0">
-                  {isComplete ? (
-                    <span className="material-symbols-outlined text-success fs-5">check_circle</span>
-                  ) : (
-                    <span className="material-symbols-outlined text-danger fs-5">cancel</span>
-                  )}
-                </div>
 
                 {/* Task Info */}
                 <div className="flex-grow-1">
@@ -75,7 +67,7 @@ export default function DocumentChecklist({ sub_tasks, documents }) {
                       Uploaded
                     </span>
                   ) : (
-                    <span className="badge bg-danger d-flex gap-2">
+                    <span className="badge bg-secondary d-flex gap-2">
                       <span className="material-symbols-outlined" style={{ fontSize: "0.875rem" }}>pending</span>
                       Pending
                     </span>
@@ -95,7 +87,7 @@ export default function DocumentChecklist({ sub_tasks, documents }) {
             </div>
             <div className="col-6">
               <div className="fw-semibold text-danger">{tasksRequiringDocs.filter(t => !hasDocument(t.id)).length}</div>
-              <small className="text-muted">Remaining</small>
+              <small className="text-muted">Pending</small>
             </div>
           </div>
         </div>

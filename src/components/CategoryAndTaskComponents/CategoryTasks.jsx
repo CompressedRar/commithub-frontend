@@ -437,7 +437,7 @@ function CategoryTasks(props) {
 
                 <h6 className="mt-3">Success Indicators (Targets + Measures)</h6>
                 <div className="col-md-12 mb-3 d-none">
-                    <label className="form-label fw-semibold">Target Quality</label>
+                    
                     <input
                       type="number"
                       name="target_quantity"
@@ -447,6 +447,7 @@ function CategoryTasks(props) {
                       min={1}
                     />
                   </div>
+                  <label className="form-label fw-semibold  ">Target Quality</label>
                 <div className="mb-3">
                   <textarea name="task_desc" className="form-control" rows={5}
                     placeholder="Describe the measurable aspect of the output..."
@@ -464,8 +465,8 @@ function CategoryTasks(props) {
                   </div>
 
                 
-                  <div className="row g-2 d-none">
-                    <div className="col-md-6 mb-3">
+                  <div className="row g-2 ">
+                    <div className="col-md-6 mb-3  d-none">
                       <label className="form-label fw-semibold">Target Timeliness </label>
                       <input
                         type="number"
@@ -476,7 +477,7 @@ function CategoryTasks(props) {
                       />
                     </div>
 
-                    <div className="col-md-6 mb-3">
+                    <div className="col-md-12 mb-3">
                       <label className="form-label fw-semibold">Time Unit</label>
                       <input type="text" name="time_measurement" className="form-control" onChange={handleDataChange} placeholder="eg. days"/>
                       
@@ -484,8 +485,8 @@ function CategoryTasks(props) {
                   </div>
                 
 
-                <div className="row g-2 d-none">
-                  <div className="col-md-6 mb-3">
+                <div className="row g-2">
+                  <div className="col-md-6 mb-3  d-none">
                     <label className="form-label fw-semibold">Target Efficiency</label>
                     <input
                       type="number"
@@ -497,7 +498,7 @@ function CategoryTasks(props) {
                     />
                   </div>
                 
-                  <div className="col-md-6 mb-3">
+                  <div className="col-md-12 mb-3">
                     <label className="form-label fw-semibold">Efficiency Unit</label>
                     <input type="text" name="modification" className="form-control" onChange={handleDataChange} placeholder="eg. corrections"/>
                     
@@ -515,6 +516,7 @@ function CategoryTasks(props) {
                         type="checkbox"
                         id="requireDocToggle"
                         checked={requireDocument}
+                        defaultChecked={true}
                         onChange={() => setRequireDocument(!requireDocument)}
                         style={{ cursor: "pointer", width: "3rem", height: "1.5rem" }}
                       />

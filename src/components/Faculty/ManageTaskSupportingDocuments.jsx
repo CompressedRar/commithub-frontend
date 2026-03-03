@@ -4,16 +4,19 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { socket } from "../api";
 import DocumentChecklist from "./DocumentChecklist";
+import Divider from "@mui/material/Divider";
 
 
 
 function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks }) {
-  const [file, setFile] = useState(null);
   const [documents, setDocuments] = useState([]);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [selectedTask, setSelectedTask] = useState("");
   const [uploading, setUploading] = useState(false);
   const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
+
+  const [file, setFile] = useState(null); // Keep for compatibility or remove
+  const [pendingFiles, setPendingFiles] = useState([]);
 
   async function loadDocuments() {
     try {
@@ -31,90 +34,79 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
   }
 
   const handleFileChange = (e) => {
-    const selectedFile = e.target.files;
-
-    for(const i of selectedFile){
-      console.log("FILES")
-      if (i && i.size > MAX_FILE_SIZE) {
-        Swal.fire({
-          title: "File too large",
-          text: "Maximum upload size is 50 MB.",
-          icon: "warning",
-        });
-        e.target.value = null;
-        return;
-      }
-
-      
-    }
-    setFile(selectedFile);
+    const selectedFiles = Array.from(e.target.files);
     
+    const validFiles = selectedFiles.filter(f => {
+      if (f.size > MAX_FILE_SIZE) {
+        Swal.fire("File too large", `${f.name} exceeds 50MB`, "warning");
+        return false;
+      }
+      return true;
+    });
+
+    // Map files to include metadata fields
+    const newPending = validFiles.map(f => ({
+      fileObject: f,
+      title: f.name,
+      desc: "",
+      eventDate: new Date().toISOString().split('T')[0]
+    }));
+
+    setPendingFiles([...pendingFiles, ...newPending]);
+    e.target.value = null; // Reset input so user can add more
+  };
+
+  const updatePendingMetadata = (index, field, value) => {
+    const updated = [...pendingFiles];
+    updated[index][field] = value;
+    setPendingFiles(updated);
+  };
+
+  const removePendingFile = (index) => {
+    setPendingFiles(pendingFiles.filter((_, i) => i !== index));
   };
 
   const uploadFile = async () => {
-    if (!file) {
-      return Swal.fire({
-        title: "Empty File",
-        text: "You must add a file to upload.",
-        icon: "error",
-      });
-    }
-
-    if (!selectedTask) {
-      return Swal.fire({
-        title: "Select Task",
-        text: "Please select a task for this document.",
-        icon: "warning",
-      });
-    }
+    if (pendingFiles.length === 0) return Swal.fire("Error", "No files selected", "error");
+    if (!selectedTask) return Swal.fire("Select Task", "Please select a task", "warning");
 
     setUploading(true);
     try {
-      // Step 1: Request pre-signed URL
-      for(const i of file){
-        const res = await generatePreSignedURL({ fileName: i.name, fileType: i.type });
-        const uploadUrl = res.data.link;
-
-        // Step 2: Upload file to S3
-        await axios.put(uploadUrl, i, {
-          headers: { "Content-Type": i.type },
+      for (const item of pendingFiles) {
+        // 1. Get S3 URL
+        const res = await generatePreSignedURL({ 
+          fileName: item.fileObject.name, 
+          fileType: item.fileObject.type 
+        });
+        
+        // 2. Upload to S3
+        await axios.put(res.data.link, item.fileObject, {
+          headers: { "Content-Type": item.fileObject.type },
           onUploadProgress: (e) => {
-            const percent = Math.round((e.loaded * 100) / e.total);
-            setUploadProgress(percent);
+            setUploadProgress(Math.round((e.loaded * 100) / e.total));
           },
         });
 
-        // Step 3: Record upload info in database
-        const uploadRes = await recordFileUploadInfo({
-          fileName: i.name,
-          fileType: i.type,
+        // 3. Record in DB with the metadata from our table
+        await recordFileUploadInfo({
+          fileName: item.fileObject.name,
+          fileType: item.fileObject.type,
           ipcrID: ipcr_id,
           batchID: batch_id,
           subTaskID: selectedTask,
+          title: item.title,
+          desc: item.desc,
+          eventDate: item.eventDate
         });
       }
 
-      Swal.fire({
-        title: "Success",
-        text: "Files are uploaded.",
-        icon: "success",
-      });
-
-      // Reset
-      setFile(null);
-      setSelectedTask("");
+      Swal.fire("Success", "All files uploaded successfully", "success");
+      setPendingFiles([]);
       setUploadProgress(0);
-      document.getElementById("support").value = null;
       loadDocuments();
       socket.emit("document");
-
     } catch (error) {
-      console.error("Upload error:", error);
-      Swal.fire({
-        title: "Error",
-        text: error.response?.data?.error || "File upload failed.",
-        icon: "error",
-      });
+      Swal.fire("Upload Failed", error.message, "error");
     } finally {
       setUploading(false);
     }
@@ -194,96 +186,89 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
 
             {/* Upload Section */}
             {!dept_mode && (
-              <>
-                <div className="card card-body bg-light border-0 mb-4">
-                  <h6 className="fw-semibold mb-3 d-flex align-items-center gap-2">
-                    <span className="material-symbols-outlined text-primary">cloud_upload</span>
-                    Upload New Document
-                  </h6>
-
+              <div className="card shadow-sm border-0 mb-4">
+                <div className="card-header bg-light fw-bold">Upload Supporting Documents</div>
+                <div className="card-body">
                   <div className="row g-3 mb-3">
                     <div className="col-md-6">
-                      <label className="form-label fw-semibold">Select File</label>
-                      <input
-                        type="file"
-                        className="form-control"
-                        id="support"
-                        onChange={handleFileChange}
-                        disabled={uploading}
-                        multiple
-                      />
-                      <small className="text-muted d-block mt-2">
-                        <span className="material-symbols-outlined" style={{ fontSize: "1rem", verticalAlign: "middle" }}>info</span>
-                        Maximum file size: 50 MB
-                      </small>
-                    </div>
-
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold">Select Task</label>
-                      <select
-                        className="form-select"
-                        id="sub_task"
-                        value={selectedTask}
+                      <label className="form-label fw-bold small">1. Select Task</label>
+                      <select 
+                        className="form-select" 
+                        value={selectedTask} 
                         onChange={(e) => setSelectedTask(e.target.value)}
-                        disabled={uploading}
                       >
-                        <option value="">-- Choose a task --</option>
-                        {Object.entries(sub_tasks).map(([category, tasks]) => (
-                          <optgroup key={category} label={category}>
-                            {tasks
-                              .filter(task => task.required_documents)
-                              .map((task) => (
-                                <option key={task.id} value={task.id}>
-                                  {task.title} {task.required_documents ? "( Required )" : ""}
-                                </option>
-                              ))}
+                        <option value="">-- Select Target Task --</option>
+                        {Object.entries(sub_tasks).map(([cat, tasks]) => (
+                          <optgroup key={cat} label={cat}>
+                            {tasks.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
                           </optgroup>
                         ))}
                       </select>
                     </div>
+                    <div className="col-md-6">
+                      <label className="form-label fw-bold small">2. Add Files</label>
+                      <input type="file" className="form-control" multiple onChange={handleFileChange} />
+                    </div>
                   </div>
 
-                  <div className="d-flex gap-2">
-                    <button
-                      className="btn btn-success d-flex align-items-center gap-2"
-                      onClick={uploadFile}
-                      disabled={!file || !selectedTask || uploading}
-                    >
-                      {uploading ? (
-                        <>
-                          <span className="spinner-border spinner-border-sm"></span>
-                          Uploading...
-                        </>
-                      ) : (
-                        <>
-                          <span className="material-symbols-outlined">upload</span>
-                          Upload Document
-                        </>
-                      )}
-                    </button>
-                  </div>
-
-                  {/* Upload Progress */}
-                  {uploadProgress > 0 && (
-                    <div className="mt-3">
-                      <div className="progress" style={{ height: "24px" }}>
-                        <div
-                          className="progress-bar progress-bar-striped progress-bar-animated bg-success"
-                          role="progressbar"
-                          style={{ width: `${uploadProgress}%` }}
-                          aria-valuenow={uploadProgress}
-                          aria-valuemin="0"
-                          aria-valuemax="100"
-                        >
-                          <small className="fw-semibold">{uploadProgress}%</small>
-                        </div>
-                      </div>
+                  {pendingFiles.length > 0 && (
+                    <div className="table-responsive border rounded mb-3">
+                      <table className="table table-sm align-middle mb-0">
+                        <thead className="table-dark">
+                          <tr>
+                            <th style={{ width: '25%' }}>File Name</th>
+                            <th style={{ width: '25%' }}>Title</th>
+                            <th style={{ width: '30%' }}>Description</th>
+                            <th style={{ width: '15%' }}>Date</th>
+                            <th style={{ width: '5%' }}></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {pendingFiles.map((item, index) => (
+                            <tr key={index}>
+                              <td className="small text-truncate" style={{maxWidth: '150px'}}>{item.fileObject.name}</td>
+                              <td>
+                                <input 
+                                  type="text" className="form-control form-control-sm" 
+                                  value={item.title} 
+                                  onChange={(e) => updatePendingMetadata(index, 'title', e.target.value)} 
+                                />
+                              </td>
+                              <td>
+                                <textarea 
+                                  rows="1" className="form-control form-control-sm" 
+                                  value={item.desc} 
+                                  onChange={(e) => updatePendingMetadata(index, 'desc', e.target.value)}
+                                />
+                              </td>
+                              <td>
+                                <input 
+                                  type="date" className="form-control form-control-sm" 
+                                  value={item.eventDate} 
+                                  onChange={(e) => updatePendingMetadata(index, 'eventDate', e.target.value)}
+                                />
+                              </td>
+                              <td>
+                                <button className="btn btn-link text-danger p-0" onClick={() => removePendingFile(index)}>
+                                  <span className="material-symbols-outlined">delete</span>
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   )}
-                </div>
 
-                <hr className="my-4" />
-              </>
+                  <button 
+                    className="btn btn-primary w-100" 
+                    onClick={uploadFile} 
+                    disabled={uploading || pendingFiles.length === 0 || !selectedTask}
+                  >
+                    {uploading ? `Uploading (${uploadProgress}%)...` : `Upload ${pendingFiles.length} Document(s)`}
+                  </button>
+                </div>
+              </div>
             )}
 
             {/* Uploaded Files Section */}
@@ -302,8 +287,13 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
                         <div className="d-flex align-items-center gap-3 flex-grow-1">
                           <span className="material-symbols-outlined text-primary fs-5">description</span>
                           <div className="flex-grow-1">
-                            <div className="fw-semibold text-dark">{doc.file_name}</div>
-                            <small className="text-muted d-block">{doc.task_name}</small>
+                            <div className="fw-bold text-dark">{doc.file_name}</div>
+                            <small className="text-muted d-block">
+                              {doc.task_name} 
+                              <Divider></Divider>
+                              <span className="fw-semibold">Description:</span> {doc.desc || "None"}
+                              <Divider></Divider> 
+                              <span className="fw-semibold">Event Date:</span> {new Date(doc.created_at).toUTCString().split(' ').slice(0, 4).join(' ')}</small>
                           </div>
                         </div>
 
