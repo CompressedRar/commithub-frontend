@@ -506,34 +506,34 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
               </div>
               {task.description?.timeliness_mode == "timeframe" ? (
                 <div>
-                  <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.actual != 0 ? (task.working_days?.actual / task.frequency).toFixed(0) : 0} />
+                  <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.actual != 0 ? (task.working_days?.actual).toFixed(0) : 0} />
                   <small className="text-muted d-block">{task.description?.time} with</small>
                 </div>
               ):
               (
                 <div>
-                  {parseFloat(task.working_days?.actual / task.frequency).toFixed(0) == 0 ? (
+                  {parseFloat(task.working_days?.actual).toFixed(0) == 0 ? (
                     <input disabled className="form-control form-control-sm" value = ""/>
                   ) : (
-                    <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.actual != 0 ? Math.abs(parseFloat(task.working_days?.actual / task.frequency).toFixed(0)) : ""} />
+                    <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.actual != 0 ? Math.abs(parseFloat(task.working_days?.actual).toFixed(0)) : ""} />
                   )}
 
                   
-                  {task.working_days?.actual != 0 ? Math.abs(parseFloat(task.working_days?.actual / task.frequency).toFixed(0)) : 0 == 0 ? (
+                  {task.working_days?.actual != 0 ? Math.abs(parseFloat(task.working_days?.actual).toFixed(0)) : 0 == 0 ? (
                     <small className="text-muted d-block">on the set deadline with</small>
                   ) : 
-                    parseFloat(task.working_days?.actual / task.frequency) < 0 ? (
-                      <small className="text-muted d-block">day/s early in average with</small>
+                    parseFloat(task.working_days?.actual ) < 0 ? (
+                      <small className="text-muted d-block">day/s early with</small>
                     ) :
                     (
-                      <small className="text-muted d-block">day/s late in average with</small>
+                      <small className="text-muted d-block">day/s late with</small>
                     )
                   }
                 </div>
               )
               }
               <div>
-                <input disabled className="form-control form-control-sm" defaultValue={task.corrections?.actual != 0 ?parseFloat(task.corrections?.actual / task.frequency).toFixed(0) : 0} />
+                <input disabled className="form-control form-control-sm" defaultValue={task.corrections?.actual != 0 ?parseFloat(task.corrections?.actual).toFixed(0) : 0} />
                 <small className="text-muted d-block">{task.description?.alterations}/s in average</small>
               </div>
             </div>

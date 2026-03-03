@@ -665,7 +665,7 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
               ):
               (
                 <div>
-                  {parseFloat(task.working_days?.actual / task.frequency).toFixed(0) == 0 ? (
+                  {parseFloat(task.working_days?.actual).toFixed(0) == 0 ? (
                     <input disabled className="form-control form-control-sm" value = ""/>
                   ) : (
                     <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.actual != 0 ? Math.abs(parseFloat(task.working_days?.actual / task.frequency).toFixed(0)) : ""} />
@@ -675,7 +675,7 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
                   {task.working_days?.actual != 0 ? Math.abs(parseFloat(task.working_days?.actual / task.frequency).toFixed(0)) : 0 == 0 ? (
                     <small className="text-muted d-block">on the set deadline with</small>
                   ) : 
-                    parseFloat(task.working_days?.actual / task.frequency) < 0 ? (
+                    parseFloat(task.working_days?.actual) < 0 ? (
                       <small className="text-muted d-block">day/s with</small>
                     ) :
                     (
@@ -686,7 +686,7 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
               )
               }
               <div>
-                <input disabled className="form-control form-control-sm" defaultValue={task.corrections?.actual != 0 ? parseFloat(task.corrections?.actual / task.frequency).toFixed(0) : 0} />
+                <input disabled className="form-control form-control-sm" defaultValue={task.corrections?.actual != 0 ? parseFloat(task.corrections?.actual).toFixed(0) : 0} />
                 <small className="text-muted d-block">{task.description?.alterations}/s</small>
               </div>
             </div>
