@@ -442,7 +442,7 @@ function DepartmentAssignTask(props) {
                     </div>
                   </div>
 
-                  <div className="mb-3">
+                  <div className="mb-3 ">
                     <label className="form-label fw-semibold">
                       Assigned Efficiency Unit <span className="text-danger">*</span>
                     </label>

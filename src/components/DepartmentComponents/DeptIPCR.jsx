@@ -121,7 +121,7 @@ function DeptIPCR(props) {
                             <span>View</span>
                         </button>                      
                     </div>:
-                    <span style={{display:"flex", flexDirection:"row", justifyContent:"flex-end", fontStyle:"italic"}}>Awaiting Submission</span>
+                    <span style={{display:"flex", flexDirection:"row", justifyContent:"flex-end", fontStyle:"italic"}}>Unavailable</span>
                 }
             </div>
         </div>

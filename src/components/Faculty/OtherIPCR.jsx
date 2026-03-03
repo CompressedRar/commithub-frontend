@@ -935,9 +935,10 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
     const isEditable = mode === "faculty" && ipcrInfo?.form_status !== "approved"
     const isEditableMode = mode === "faculty" && ipcrInfo?.form_status !== "approved"
     const isEditableDuringMonitoring = isMonitoringPhase(currentPhase)
+    const isEditableDuringPlanning = isPlanningPhase(currentPhase)
     
-    // Target fields only editable during monitoring phase
-    const isTargetEditable = isEditableMode && isEditableDuringMonitoring
+    // Target fields only editable during planning phase
+    const isTargetEditable = isEditableMode && isEditableDuringPlanning
     // Actual fields only editable during monitoring phase
     const isActualEditable = isEditableMode && isEditableDuringMonitoring
 
@@ -990,7 +991,7 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                 onPaste={handlePasteNumeric}
                                 onInput={onNumberInput}
                                 disabled={!isTargetEditable}
-                                title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
+                                title={!isEditableDuringPlanning ? "Only editable during Planning phase" : ""}
                             />
                             <span className="text-muted small d-block">{task.main_task.target_acc} in</span>
                             
@@ -1010,7 +1011,7 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                     onPaste={handlePasteNumeric}
                                     onInput={onNumberInput}
                                     disabled={!isTargetEditable}
-                                    title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
+                                    title={!isEditableDuringPlanning ? "Only editable during Planning phase" : ""}
                                 />
                                 <span className="text-muted small d-block">{task.main_task.time} with</span>
                                 
@@ -1023,7 +1024,7 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                     value={formatDateForInput(task.main_task.target_deadline)}
                                     onChange={(e) => submitDateTimeChange(task.id, "target_deadline", e.target.value)}
                                     disabled={!isTargetEditable}
-                                    title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
+                                    title={!isEditableDuringPlanning ? "Only editable during Planning phase" : ""}
                                 />
                                 <span className="text-muted small d-block">on set deadline with</span>
                                 
@@ -1043,7 +1044,7 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                 onPaste={handlePasteNumeric}
                                 onInput={onNumberInput}
                                 disabled={!isTargetEditable}
-                                title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
+                                title={!isEditableDuringPlanning ? "Only editable during Planning phase" : ""}
                             />
                             <span className="text-muted small d-block">{task.main_task.modification}</span>
                             
@@ -1231,6 +1232,10 @@ function SignaturesSection({ ipcrInfo }) {
 // Add this function near the top of the component, after other helper functions
 function isMonitoringPhase(currentPhase) {
   return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("monitoring")
+}
+
+function isPlanningPhase(currentPhase) {
+  return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("planning")
 }
 
 function isRatingPhase(currentPhase) {

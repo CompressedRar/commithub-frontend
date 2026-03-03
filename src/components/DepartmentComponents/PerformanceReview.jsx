@@ -211,10 +211,8 @@ function PerformanceReviews(props){
                 )}
               </div>
 
-             <h3>Individual Performance Review and Commitment Forms</h3>
-            {/* IPCRs available during Monitoring and Rating phases */}
-            { (isMonitoringPhase() || isRatingPhase()) ? (
-              <div className="all-ipcr-container" style={{display:"flex", flexDirection:"column", gap:"10px"}}>
+            <h3>Individual Performance Review and Commitment Forms</h3>
+            <div className="all-ipcr-container" style={{display:"flex", flexDirection:"column", gap:"10px"}}>
                 
                 {allIPCR && allIPCR.map(ipcr => (
                     <DeptIPCR key={ipcr.ipcr?.id || ipcr.id} onMouseOver ={()=>{ setBatchID(ipcr.ipcr?.batch_id); setCurrentIPCRID(ipcr.ipcr?.id); }} dept_id = {props.deptid} onClick={()=>{ setCurrentIPCRID(ipcr.ipcr?.id) }} ipcr = {ipcr} dept_mode = {props.dept_mode}></DeptIPCR>
@@ -227,13 +225,7 @@ function PerformanceReviews(props){
                   </div>
                 )}
 
-              </div>
-            ) : (
-              <div className="empty-symbols text-muted opacity-75 fs-6">
-                <span className="material-symbols-outlined">lock</span>
-                <span className="desc">IPCRs are available during Monitoring and Rating phases only.</span>
-              </div>
-            )}
+            </div>
         </div>
     )
 }

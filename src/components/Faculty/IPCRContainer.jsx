@@ -31,6 +31,7 @@ function IPCRContainer({ switchPage }) {
   const [currentIPCRID, setCurrentIPCRID] = useState(null)
   const [batchID, setBatchID] = useState(null)
   const [deadlineIPCR, setDeadline] = useState(null)
+  const [targetSettingDeadline, setTargetDeadline] = useState(null)
 
   const [currentPhase, setCurrentPhase] = useState(null) //monitoring, rating, planning
 
@@ -39,7 +40,9 @@ function IPCRContainer({ switchPage }) {
             const res = await getSettings()
             const phase = res?.data?.data?.current_phase
             const deadline = res?.data?.data?.monitoring_end_date
-            setDeadline(deadline)
+            const tagertDeadline = res?.data?.data?.planning_end_date
+            setDeadline(deadline);
+            setTargetDeadline(tagertDeadline);
             console.log("Current phase:", phase)
             setCurrentPhase(phase) //monitoring, rating, planning
         } catch (error) {
@@ -426,23 +429,6 @@ function IPCRContainer({ switchPage }) {
 
       <div className="bg-white shadow-md p-4 rounded-3 mx-auto" style={{ maxWidth: "1600px", height:"85vh" }}>
 
-        {!isMonitoringPhase() && !isRatingPhase() && (
-          <div  style={{ zIndex: 1050, width:"80%", height:"80%", position:"absolute", backgroundColor:"rgba(255,255,255,0.8)"}} className="d-flex justify-content-center align-items-center flex-column">
-            <div className="overlay-content text-center p-4">
-              <img
-                src={`${import.meta.env.BASE_URL}calendar_blocked.png`}
-                alt="Monitoring Closed"
-                className="overlay-icon"
-                style={{ maxWidth: 120 }}
-              />
-              <h2>Monitoring Period Closed</h2>
-              <p className="mb-0 text-muted">
-                Submitting IPCR is currently disabled by system settings. You will not be able to submit or modify IPCR until the monitoring period opens.
-              </p>
-            </div>
-          </div>
-        )}
-
         <div className="d-flex flex-column justify-content-between overflow-hidden border rounded w-100 h-75 align-items-center mb-3">
           <div className="bg-primary h-50 w-100" >
             <div style={{
@@ -467,15 +453,20 @@ function IPCRContainer({ switchPage }) {
                   }
                 </h1>
                 <small>IPCR form will be available once the tasks are assigned to this account.</small>
+                <div className="d-flex gap-2">
+                  <span className="fw-semibold ">Target Setting Deadline: </span>
+                  
+                  <span className="text-danger">{new Date(targetSettingDeadline).getMonth().toString() + " - "+ new Date(targetSettingDeadline).getDate().toString() + " - " + new Date(targetSettingDeadline).getFullYear().toString()}</span>
+                </div>
 
                 <div className="d-flex gap-2">
-                  <span className="fw-semibold ">Deadline: </span>
+                  <span className="fw-semibold ">Actual Accomplishment Deadline: </span>
                   <span className="text-danger">{new Date(deadlineIPCR).getMonth().toString() + " - "+ new Date(deadlineIPCR).getDate().toString() + " - " + new Date(deadlineIPCR).getFullYear().toString()}</span>
                 </div>
               </div>
 
               <div className="col-3 d-flex justify-content-end align-items-end">
-                {allIPCR && allIPCR.length > 0 && (isRatingPhase() || isMonitoringPhase()) ?
+                {allIPCR && allIPCR.length > 0  ?
                 
                   (
                     (

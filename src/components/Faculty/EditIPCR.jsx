@@ -787,13 +787,18 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
     const isEditable = mode === "faculty"
     const isEditableMode = mode === "faculty"
     const isEditableDuringMonitoring = isMonitoringPhase(currentPhase)
+    const isEditableDuringPlanning = isPlanningPhase(currentPhase)
 
     function isMonitoringPhase(currentPhase) {
     return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("monitoring")
     }
+
+    function isPlanningPhase(currentPhase) {
+    return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("planning")
+    }
     
     // Target fields only editable during monitoring phase
-    const isTargetEditable = isEditableMode && isEditableDuringMonitoring
+    const isTargetEditable = isEditableMode && isEditableDuringPlanning
     // Actual fields only editable during monitoring phase
     const isActualEditable = isEditableMode && isEditableDuringMonitoring
 
@@ -841,13 +846,13 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                 pattern="[0-9]*"
                                 name="target_acc"
                                 defaultValue={task.target_acc}
-                                className={`form-control form-control-sm no-spinner`}
+                                className={`form-control form-control-sm no-spinner ${isTargetEditable ? "bg-success bg-opacity-25" : ""}`}
                                 onClick={() => isTargetEditable && setSubTaskID(task.id)}
                                 onKeyDown={numericKeyDown}
                                 onPaste={handlePasteNumeric}
                                 onInput={onNumberInput}
-                                disabled={true}
-                                title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
+                                disabled={!isEditableDuringPlanning}
+                                title={!isEditableDuringPlanning ? "Only editable during Planning phase" : ""}
                             />
                             <span className="text-muted small d-block">{task.main_task.target_acc} in</span>
                             
@@ -860,14 +865,14 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                     inputMode="decimal"
                                     pattern="[0-9]*"
                                     name="target_time"
-                                    defaultValue={task.main_task.target_timeframe}
-                                    className={`form-control form-control-sm no-spinner `}
+                                    defaultValue={task.target_time}
+                                    className={`form-control form-control-sm no-spinner ${isTargetEditable ? "bg-success bg-opacity-25" : ""}`}
                                     onClick={() => isTargetEditable && setSubTaskID(task.id)}
                                     onKeyDown={numericKeyDown}
                                     onPaste={handlePasteNumeric}
                                     onInput={onNumberInput}
-                                    disabled={true}
-                                    title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
+                                    disabled={!isEditableDuringPlanning}
+                                    title={!isEditableDuringPlanning ? "Only editable during Planning phase" : ""}
                                 />
                                 <span className="text-muted small d-block">{task.main_task.time} with</span>
                                 
@@ -876,11 +881,11 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                 <input 
                                     type="date" 
                                     name="target_deadline"
-                                    className={`form-control form-control-sm no-spinner`}
+                                    className={`form-control form-control-sm no-spinner ${isTargetEditable ? "bg-success bg-opacity-25" : ""}`}
                                     value={formatDateForInput(task.main_task.target_deadline)}
                                     onChange={(e) => submitDateTimeChange(task.id, "target_deadline", e.target.value)}
-                                    disabled={true}
-                                    title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
+                                    disabled={!isEditableDuringPlanning}
+                                    title={!isEditableDuringPlanning ? "Only editable during Planning phase" : ""}
                                 />
                                 <span className="text-muted small d-block">on set deadline with</span>
                                 
@@ -893,14 +898,14 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                 inputMode="decimal"
                                 pattern="[0-9]*"
                                 name="target_mod"
-                                defaultValue={task.main_task.target_efficiency}
-                                className={`form-control form-control-sm no-spinner `}
+                                defaultValue={task.target_mod}
+                                className={`form-control form-control-sm no-spinner ${isTargetEditable ? "bg-success bg-opacity-25" : ""}`}
                                 onClick={() => isTargetEditable && setSubTaskID(task.id)}
                                 onKeyDown={numericKeyDown}
                                 onPaste={handlePasteNumeric}
                                 onInput={onNumberInput}
-                                disabled={true}
-                                title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
+                                disabled={!isEditableDuringPlanning}
+                                title={!isEditableDuringPlanning ? "Only editable during Planning phase" : ""}
                             />
                             <span className="text-muted small d-block">{task.main_task.modification}</span>
                             
