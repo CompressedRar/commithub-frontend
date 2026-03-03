@@ -392,6 +392,7 @@ function DepartmentAssignTask(props) {
                 {
                   selectedUser ? 
                   <>
+                  
                   <div className="">
                     <h5 className=" fw-semibold" id="assignQuantityLabel">
                       <span className="material-symbols-outlined me-2 align-middle">check_circle</span>
@@ -463,6 +464,9 @@ function DepartmentAssignTask(props) {
                 </div>
 
                   <div className="modal-footer">
+                    <div>
+                      <small>Updating task will reset the target and actual data of the assigned user.</small>
+                    </div>
                     {
                       checkIfAssigned(selectedUser.id) &&
                       <button
@@ -479,7 +483,7 @@ function DepartmentAssignTask(props) {
                       onClick={handleAssign}
                       disabled={!isPlanningPhase() || !selectedUser || submitting}
                     >
-                      Assign
+                      {checkIfAssigned(selectedUser.id) ? "Update" : "Assign"}
                     </button>
 
 

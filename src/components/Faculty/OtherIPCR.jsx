@@ -989,7 +989,7 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                 onKeyDown={numericKeyDown}
                                 onPaste={handlePasteNumeric}
                                 onInput={onNumberInput}
-                                disabled={true}
+                                disabled={!isTargetEditable}
                                 title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
                             />
                             <span className="text-muted small d-block">{task.main_task.target_acc} in</span>
@@ -1009,7 +1009,7 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                     onKeyDown={numericKeyDown}
                                     onPaste={handlePasteNumeric}
                                     onInput={onNumberInput}
-                                    disabled={true}
+                                    disabled={!isTargetEditable}
                                     title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
                                 />
                                 <span className="text-muted small d-block">{task.main_task.time} with</span>
@@ -1022,7 +1022,7 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                     className={`form-control form-control-sm no-spinner`}
                                     value={formatDateForInput(task.main_task.target_deadline)}
                                     onChange={(e) => submitDateTimeChange(task.id, "target_deadline", e.target.value)}
-                                    disabled={true}
+                                    disabled={!isTargetEditable}
                                     title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
                                 />
                                 <span className="text-muted small d-block">on set deadline with</span>
@@ -1042,7 +1042,7 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                 onKeyDown={numericKeyDown}
                                 onPaste={handlePasteNumeric}
                                 onInput={onNumberInput}
-                                disabled={true}
+                                disabled={!isTargetEditable}
                                 title={!isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
                             />
                             <span className="text-muted small d-block">{task.main_task.modification}</span>
