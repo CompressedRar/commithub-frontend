@@ -984,7 +984,7 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                 pattern="[0-9]*"
                                 name="target_acc"
                                 defaultValue={task.target_acc}
-                                className={`form-control form-control-sm no-spinner`}
+                                className={`form-control form-control-sm no-spinner ${isTargetEditable ? "bg-success bg-opacity-25" : ""}`}
                                 onClick={() => isTargetEditable && setSubTaskID(task.id)}
                                 onKeyDown={numericKeyDown}
                                 onPaste={handlePasteNumeric}
@@ -1004,7 +1004,7 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                     pattern="[0-9]*"
                                     name="target_time"
                                     defaultValue={task.target_time}
-                                    className={`form-control form-control-sm no-spinner `}
+                                    className={`form-control form-control-sm no-spinner ${isTargetEditable ? "bg-success bg-opacity-25" : ""}`}
                                     onClick={() => isTargetEditable && setSubTaskID(task.id)}
                                     onKeyDown={numericKeyDown}
                                     onPaste={handlePasteNumeric}
@@ -1019,7 +1019,7 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                 <input 
                                     type="date" 
                                     name="target_deadline"
-                                    className={`form-control form-control-sm no-spinner`}
+                                    className={`form-control form-control-sm no-spinner ${isTargetEditable ? "bg-success bg-opacity-25" : ""}`}
                                     value={formatDateForInput(task.main_task.target_deadline)}
                                     onChange={(e) => submitDateTimeChange(task.id, "target_deadline", e.target.value)}
                                     disabled={!isTargetEditable}
@@ -1037,7 +1037,7 @@ function TaskRow({ task, handleDataChange, handleSpanChange, handleRemarks, setS
                                 pattern="[0-9]*"
                                 name="target_mod"
                                 defaultValue={task.target_mod}
-                                className={`form-control form-control-sm no-spinner `}
+                                className={`form-control form-control-sm no-spinner ${isTargetEditable ? "bg-success bg-opacity-25" : ""}`}
                                 onClick={() => isTargetEditable && setSubTaskID(task.id)}
                                 onKeyDown={numericKeyDown}
                                 onPaste={handlePasteNumeric}
