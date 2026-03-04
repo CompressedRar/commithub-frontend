@@ -105,8 +105,10 @@ function DepartmentAssignTask(props) {
     setSubmitting(true);
 
     try {
-      await assignUsers(user_id, props.task_id, 0, 0, 0);
+      let res = await assignUsers(user_id, props.task_id, 0, 0, 0);
 
+      
+      console.log(user_id, "USER ID")
       Swal.fire("Success", "User assigned successfully.", "success");
 
       setSelectedUser(null);
@@ -300,6 +302,7 @@ function DepartmentAssignTask(props) {
 
     socket.on("user_assigned", () => {
       loadMembers();
+      console.log("LOADING ASSIGNED AGAIN")
       loadAssignedMembers();
     });
 
@@ -328,7 +331,7 @@ function DepartmentAssignTask(props) {
 
             <div className="row">
               
-              <div className="col-7 card d-flex gap-2">
+              <div className="col-12 card d-flex gap-2">
                 {members.map((member) => (
 
                   <label
@@ -368,13 +371,13 @@ function DepartmentAssignTask(props) {
                       className="form-check-input"
                       type="checkbox"
                       
-                      checked={checkIfAssigned(member.id)}
-                      onClick={() => {
+                      defaultChecked={checkIfAssigned(member.id)}
+                      onClick={async () => {
                         if (checkIfAssigned(member.id)){
-                          handleUnassign(member.id)
+                          await handleUnassign(member.id)
                         }
                         else {
-                          handleAssign(member.id)
+                          await handleAssign(member.id)
                         }
                         
                       }}
@@ -386,108 +389,6 @@ function DepartmentAssignTask(props) {
                 ))}
               </div>
 
-              <div className="col-5 card ">
-                {
-                  selectedUser ? 
-                  <>
-                  
-                  <div className="">
-                    <h5 className=" fw-semibold" id="assignQuantityLabel">
-                      <span className="material-symbols-outlined me-2 align-middle">check_circle</span>
-                      Assign Quantity
-                    </h5>
-                </div>
-
-                <div className="modal-body px-4 py-3">
-                  <div className="mb-3">
-                    
-
-                  </div>
-
-                  <div className="mb-3">
-                    <label className="form-label fw-semibold">
-                      Assigned Quantity <span className="text-danger">*</span>
-                    </label>
-                    <div className="input-group">
-                      <span className="input-group-text bg-light border-0">
-                        <span className="material-symbols-outlined">counter_5</span>
-                      </span>
-                      <input
-                        type="number"
-                        className="form-control"
-                        min={1}
-                        value={assignedQuantity || 1}
-                        onChange={(e) => setAssignedQuantity(parseInt(e.target.value) || 0)}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="mb-3">
-                    <label className="form-label fw-semibold">
-                      Assigned Time Unit <span className="text-danger">*</span>
-                    </label>
-                    <div className="input-group">
-                      <span className="input-group-text bg-light border-0">
-                        <span className="material-symbols-outlined">counter_5</span>
-                      </span>
-                      <input
-                        type="number"
-                        className="form-control"
-                        min={1}
-                        value={assignedTime || 1}
-                        onChange={(e) => setAssignedTime(parseInt(e.target.value) || 0)}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="mb-3 ">
-                    <label className="form-label fw-semibold">
-                      Assigned Efficiency Unit <span className="text-danger">*</span>
-                    </label>
-                    <div className="input-group">
-                      <span className="input-group-text bg-light border-0">
-                        <span className="material-symbols-outlined">counter_5</span>
-                      </span>
-                      <input
-                        type="number"
-                        className="form-control"
-                        min={1}
-                        value={assignedMod || 1}
-                        onChange={(e) => setAssignedMod(parseInt(e.target.value) || 0)}
-                      />
-                    </div>
-                  </div>
-
-                </div>
-
-                  <div className="modal-footer">
-                    {
-                      checkIfAssigned(selectedUser.id) ?
-                      <button
-                        type="button"
-                        className="btn btn-outline-danger"
-                        disabled={!isPlanningPhase() || !selectedUser || submitting}
-                        onClick={handleUnassign}
-                      >
-                        Remove
-                      </button>
-                      :
-                      <button
-                        className="btn btn-primary"
-                        disabled={!isPlanningPhase() || !selectedUser || submitting}
-                      >
-                        {"Assign"}
-                      </button>
-                    }
-                    
-
-
-                  </div></>:
-                  <div className="d-flex justify-content-center align-items-center">
-                    <span className="text-muted">Choose a member to assign.</span>
-                  </div>
-                }
-              </div>
 
 
             </div>
