@@ -216,6 +216,19 @@ export async function getOPCRApproved() {
     return api.get(`/api/v1/pcr/opcr/approved`)
 }
 
+export async function getCompiledFromIPCR(ipcr_id) {
+    console.log("fetching ipcr")
+    return api.get(`/api/v1/pcr/supporting_docu/compile/${ipcr_id}`, {
+        responseType:'blob'
+    })
+}
+
+export async function getCompiledFromDept(dept_id) {
+    console.log("fetching ipcr")
+    return api.get(`/api/v1/pcr/supporting_dept/compile/${dept_id}`)
+}
+
+
 export async function uploadIPCRExcel(file) {
     const formData = new FormData()
     formData.append('file', file)

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { archiveDocument, generatePreSignedURL, getSupportingDocuments, recordFileUploadInfo } from "../../services/pcrServices";
+import { archiveDocument, generatePreSignedURL, getCompiledFromIPCR, getSupportingDocuments, recordFileUploadInfo } from "../../services/pcrServices";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { socket } from "../api";
@@ -17,6 +17,9 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
 
   const [file, setFile] = useState(null); // Keep for compatibility or remove
   const [pendingFiles, setPendingFiles] = useState([]);
+
+
+  const [compiling, setCompiling] = useState(false)
 
   async function loadDocuments() {
     try {
@@ -65,6 +68,40 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
   const removePendingFile = (index) => {
     setPendingFiles(pendingFiles.filter((_, i) => i !== index));
   };
+
+  const handleCompile = async ()=> {
+    try {
+      setCompiling(true)
+      let link = await getCompiledFromIPCR(ipcr_id)
+      .then((d) => {
+        const url = window.URL.createObjectURL(new Blob([d.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        
+        // You can name the file here
+        link.setAttribute('download', `Compiled_Report_${ipcr_id}.docx`);
+        
+        document.body.appendChild(link);
+        link.click();
+
+        // 4. Cleanup: remove the link and revoke the temporary URL
+        link.parentNode.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      })
+      .catch((err) => {
+        Swal.fire("Error", "Failed to download", "error")
+        setCompiling(false)
+       });
+
+        setCompiling(false)
+
+    }
+    catch(error){
+      console.log(error)
+      Swal.fire("Error", "Failed to download", "error")
+      setCompiling(false)
+    }
+  }
 
   const uploadFile = async () => {
     if (pendingFiles.length === 0) return Swal.fire("Error", "No files selected", "error");
@@ -273,10 +310,27 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
 
             {/* Uploaded Files Section */}
             <div>
-              <h6 className="fw-semibold mb-3 d-flex align-items-center gap-2">
-                <span className="material-symbols-outlined text-success">folder_managed</span>
-                Uploaded Files ({documents.filter(d => d.status === 1).length})
-              </h6>
+              <div className="d-flex justify-content-between m-2">
+                <h6 className="fw-semibold mb-3 d-flex align-items-center gap-2">
+                  <span className="material-symbols-outlined text-success">folder_managed</span>
+                  Uploaded Files ({documents.filter(d => d.status === 1).length})
+                </h6>
+                
+                {
+                  documents.filter(d => d.status === 1).length && 
+                  <button className="btn btn-outline-primary d-flex" disabled={compiling} onClick={()=> {
+                    if(!compiling) handleCompile();
+                  }}>
+                      
+                      {compiling ? <span className="spinner-border spinner-border-sm me-2"></span>
+                      : 
+                      <>
+                        <span className="material-symbols-outlined">download</span>
+                        Download Compiled Report
+                      </>}
+                  </button>
+                }
+              </div>
 
               <div className="list-group">
                 {documents && documents.length > 0 ? (
