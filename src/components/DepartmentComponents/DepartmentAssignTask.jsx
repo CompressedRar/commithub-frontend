@@ -99,21 +99,13 @@ function DepartmentAssignTask(props) {
     }
   }
 
-  async function handleAssign() {
-    if (!selectedUser) {
-      Swal.fire("No user selected", "Please select a user.", "warning");
-      return;
-    }
-
-    if (assignedQuantity <= 0 || assignedTime <= 0 || assignedMod <= 0 ) {
-      Swal.fire("Invalid number", "Enter a valid number.", "warning");
-      return;
-    }
+  async function handleAssign(user_id) {
+    
 
     setSubmitting(true);
 
     try {
-      await assignUsers(selectedUser.id, props.task_id, assignedQuantity, assignedTime, assignedMod);
+      await assignUsers(user_id, props.task_id, 0, 0, 0);
 
       Swal.fire("Success", "User assigned successfully.", "success");
 
@@ -123,6 +115,7 @@ function DepartmentAssignTask(props) {
       loadAssignedMembers();
       loadMembers();
     } catch (err) {
+      console.log(err)
       Swal.fire("Error", "Assignment failed.", "error");
     } finally {
       setSubmitting(false);
@@ -173,11 +166,10 @@ function DepartmentAssignTask(props) {
       showDenyButton: true,
       confirmButtonText: "Yes, remove it",
       denyButtonText: "Cancel",
-      confirmButtonColor: "#dc3545",
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const res = await unAssignUsers(selectedUser.id, props.task_id);
+          const res = await unAssignUsers(userid, props.task_id);
           const msg = res.data.message;
 
           Swal.fire({
@@ -189,6 +181,7 @@ function DepartmentAssignTask(props) {
           loadAssignedMembers();
           loadMembers();
         } catch (error) {
+          console.log(error)
           Swal.fire({
             title: "Error",
             text: error.response?.data?.error || "Unassignment failed.",
@@ -341,14 +334,14 @@ function DepartmentAssignTask(props) {
                   <label
                   key={member.id}
                   className={`px-3 py-2 border rounded ${
-                    selectedUser?.id === member.id
+                    checkIfAssigned(member.id)
                       ? "border-primary bg-light"
                       : "border-secondary"
                   }`}
                   style={{ minHeight: "60px", cursor: "pointer" }}
                   
                 >
-                  <div className="d-flex align-items-center justify-content-between">
+                  <div className="d-flex align-items-center justify-content-between form-check form-switch">
                     <div className="d-flex align-items-center gap-2">
                       <img
                         src={member.profile_picture_link}
@@ -372,14 +365,19 @@ function DepartmentAssignTask(props) {
                     </div>
 
                     <input
-                      type="radio"
-                      checked={selectedUser?.id === member.id}
-                      onChange={() => {
-                        selectUser(member)
-                        console.log(getAssignedQuantity(member.id))
+                      className="form-check-input"
+                      type="checkbox"
+                      
+                      checked={checkIfAssigned(member.id)}
+                      onClick={() => {
+                        if (checkIfAssigned(member.id)){
+                          handleUnassign(member.id)
+                        }
+                        else {
+                          handleAssign(member.id)
+                        }
+                        
                       }}
-                      className="d-none"
-                      readOnly
                     />
                   </div>
                 </label>
@@ -418,7 +416,7 @@ function DepartmentAssignTask(props) {
                         type="number"
                         className="form-control"
                         min={1}
-                        value={assignedQuantity}
+                        value={assignedQuantity || 1}
                         onChange={(e) => setAssignedQuantity(parseInt(e.target.value) || 0)}
                       />
                     </div>
@@ -436,7 +434,7 @@ function DepartmentAssignTask(props) {
                         type="number"
                         className="form-control"
                         min={1}
-                        value={assignedTime}
+                        value={assignedTime || 1}
                         onChange={(e) => setAssignedTime(parseInt(e.target.value) || 0)}
                       />
                     </div>
@@ -454,21 +452,17 @@ function DepartmentAssignTask(props) {
                         type="number"
                         className="form-control"
                         min={1}
-                        value={assignedMod}
+                        value={assignedMod || 1}
                         onChange={(e) => setAssignedMod(parseInt(e.target.value) || 0)}
                       />
                     </div>
                   </div>
 
-                  
                 </div>
 
                   <div className="modal-footer">
-                    <div>
-                      <small>Updating task will reset the target and actual data of the assigned user.</small>
-                    </div>
                     {
-                      checkIfAssigned(selectedUser.id) &&
+                      checkIfAssigned(selectedUser.id) ?
                       <button
                         type="button"
                         className="btn btn-outline-danger"
@@ -477,14 +471,15 @@ function DepartmentAssignTask(props) {
                       >
                         Remove
                       </button>
+                      :
+                      <button
+                        className="btn btn-primary"
+                        disabled={!isPlanningPhase() || !selectedUser || submitting}
+                      >
+                        {"Assign"}
+                      </button>
                     }
-                    <button
-                      className="btn btn-primary"
-                      onClick={handleAssign}
-                      disabled={!isPlanningPhase() || !selectedUser || submitting}
-                    >
-                      {checkIfAssigned(selectedUser.id) ? "Update" : "Assign"}
-                    </button>
+                    
 
 
                   </div></>:
