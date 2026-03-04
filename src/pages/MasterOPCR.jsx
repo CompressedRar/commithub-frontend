@@ -570,7 +570,7 @@ function RatingBadges({ task }) {
                 </span>
             </div>
             <div className="text-center" style={{ fontSize: "1.5rem" }}>
-                <div>{parseFloat(task.rating?.average || 0).toFixed(0)}</div>
+                <div>{parseFloat(task.rating?.average || 0).toFixed(1)}</div>
             </div>
         </div>
     )
@@ -587,19 +587,19 @@ function FinalRatingsSection({ quantityAvg, efficiencyAvg, timelinessAvg, allAvg
                         <div className="d-grid gap-2 small">
                             <div className="d-flex justify-content-between">
                                 <span>Quality (Q):</span>
-                                <strong>{parseFloat(quantityAvg || 0).toFixed(2)}</strong>
+                                <strong>{parseFloat(quantityAvg || 0).toFixed(0)}</strong>
                             </div>
                             <div className="d-flex justify-content-between">
                                 <span>Efficiency (E):</span>
-                                <strong>{parseFloat(efficiencyAvg || 0).toFixed(2)}</strong>
+                                <strong>{parseFloat(efficiencyAvg || 0).toFixed(0)}</strong>
                             </div>
                             <div className="d-flex justify-content-between">
                                 <span>Timeliness (T):</span>
-                                <strong>{parseFloat(timelinessAvg || 0).toFixed(2)}</strong>
+                                <strong>{parseFloat(timelinessAvg || 0).toFixed(0)}</strong>
                             </div>
                             <div className="d-flex justify-content-between border-top pt-2">
                                 <span>Average (A):</span>
-                                <strong>{parseFloat(allAvg || 0).toFixed(2)}</strong>
+                                <strong>{parseFloat(allAvg || 0).toFixed(1)}</strong>
                             </div>
                         </div>
                     </div>
@@ -611,9 +611,9 @@ function FinalRatingsSection({ quantityAvg, efficiencyAvg, timelinessAvg, allAvg
                     <div className="card-body d-flex flex-column justify-content-center">
                         <h6 className="card-title fw-bold">Adjectival Rating</h6>
                         <p className="mb-0 fs-5 fw-bold text-warning">
-                            {handleRemarks(allAvg.toFixed(2), ratingThresholds)}
+                            {handleRemarks(allAvg.toFixed(1), ratingThresholds)}
                         </p>
-                        <small className="text-muted mt-2">Overall Average: {parseFloat(allAvg || 0).toFixed(2)}</small>
+                        <small className="text-muted mt-2">Overall Average: {parseFloat(allAvg || 0).toFixed(1)}</small>
                     </div>
                 </div>
             </div>
