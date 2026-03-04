@@ -718,7 +718,7 @@ function RatingBadges({ task, currentPhase }) {
                 <div>{ parseFloat(task.timeliness).toFixed(0)}</div>
             </div>
             <div className="text-center" style={{fontSize:"1.5rem"}}>
-                <div>{ parseFloat(task.average).toFixed(0)}</div>
+                <div>{ parseFloat(task.average).toFixed(1)}</div>
             </div>
         </div>
     )
@@ -1009,19 +1009,19 @@ function FinalRatingsSection({ stats, ratingThresholds, handleRemarks, currentPh
                         <div className="d-grid gap-2 small">
                             <div className="d-flex justify-content-between">
                                 <span>Quality (Q):</span>
-                                <strong>{isRatingPhase(currentPhase) && parseFloat(stats.quantity).toFixed(2)}</strong>
+                                <strong>{isRatingPhase(currentPhase) && parseFloat(stats.quantity).toFixed(0)}</strong>
                             </div>
                             <div className="d-flex justify-content-between">
                                 <span>Efficiency (E):</span>
-                                <strong>{isRatingPhase(currentPhase) && parseFloat(stats.efficiency).toFixed(2)}</strong>
+                                <strong>{isRatingPhase(currentPhase) && parseFloat(stats.efficiency).toFixed(0)}</strong>
                             </div>
                             <div className="d-flex justify-content-between">
                                 <span>Timeliness (T):</span>
-                                <strong>{isRatingPhase(currentPhase) && parseFloat(stats.timeliness).toFixed(2)}</strong>
+                                <strong>{isRatingPhase(currentPhase) && parseFloat(stats.timeliness).toFixed(0)}</strong>
                             </div>
                             <div className="d-flex justify-content-between border-top pt-2">
                                 <span>Average (A):</span>
-                                <strong>{isRatingPhase(currentPhase) && parseFloat(stats.average).toFixed(2)}</strong>
+                                <strong>{isRatingPhase(currentPhase) && parseFloat(stats.average).toFixed(1)}</strong>
                             </div>
                         </div>
                     </div>
@@ -1035,9 +1035,9 @@ function FinalRatingsSection({ stats, ratingThresholds, handleRemarks, currentPh
                     <div className="card-body d-flex flex-column justify-content-center">
                         <h6 className="card-title fw-bold">Adjectival Rating</h6>
                         <p className="mb-0 fs-6 fw-bold text-warning">
-                            {handleRemarks(parseFloat(stats.average).toFixed(2), ratingThresholds)}
+                            {handleRemarks(parseFloat(stats.average).toFixed(1), ratingThresholds)}
                         </p>
-                        <small className="text mt-2">Overall Average: {isRatingPhase(currentPhase) && parseFloat(stats.average).toFixed(2)}</small>
+                        <small className="text mt-2">Overall Average: {isRatingPhase(currentPhase) && parseFloat(stats.average).toFixed(1)}</small>
                     </div>
                 </div>
             </div>

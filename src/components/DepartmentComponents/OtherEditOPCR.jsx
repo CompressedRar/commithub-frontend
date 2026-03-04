@@ -331,7 +331,7 @@ function OtherEditOPCR(props) {
         if (v === null || v === undefined) return fallback
         const n = Number(v)
         if (!Number.isFinite(n)) return fallback
-        return Math.min(5, Math.max(0, parseFloat(n.toFixed(2))))
+        return Math.min(5, Math.max(0, parseFloat(n.toFixed(1))))
       }
       const cq = clamp(q, task.rating?.quantity ?? 0)
       const ce = clamp(e, task.rating?.efficiency ?? 0)
@@ -779,7 +779,7 @@ function RatingBadges({ task, canEval, setField, setValue, setRatingID, currentP
           }}
           autoFocus
           onFocus={(e)=> {e.target.select()}}
-          defaultValue={(isMonitoringPhase() || isRatingPhase()) ? parseFloat(task.rating?.quantity).toFixed(0) : 0}
+          defaultValue={parseFloat(task.rating?.quantity).toFixed(0)}
         />
       <input
           type="number"
@@ -803,7 +803,7 @@ function RatingBadges({ task, canEval, setField, setValue, setRatingID, currentP
           }}
           autoFocus
           onFocus={(e)=> {e.target.select()}}
-          defaultValue={(isMonitoringPhase() || isRatingPhase()) ? parseFloat(task.rating?.efficiency).toFixed(0) : 0}
+          defaultValue={parseFloat(task.rating?.efficiency).toFixed(0)}
         />
         <input
           type="number"
@@ -825,7 +825,7 @@ function RatingBadges({ task, canEval, setField, setValue, setRatingID, currentP
           }}
           autoFocus
           onFocus={(e)=> {e.target.select()}}
-          defaultValue={(isMonitoringPhase() || isRatingPhase()) ? parseFloat(task.rating?.timeliness).toFixed(0) : 0}
+          defaultValue={parseFloat(task.rating?.timeliness).toFixed(0)}
         />
       
       <input
@@ -834,7 +834,7 @@ function RatingBadges({ task, canEval, setField, setValue, setRatingID, currentP
           className="form-control form-control-sm no-spinner text-center" 
           readOnly
           disabled
-          value={(isMonitoringPhase() || isRatingPhase()) ? parseFloat(task.rating?.average).toFixed(2) : 0}
+          value={parseFloat(task.rating?.average).toFixed(1)}
         />
     </div>
   )
@@ -882,27 +882,27 @@ function FinalRatingsSection({ quantityAvg, efficiencyAvg, timelinessAvg, allAvg
             <div className="d-grid gap-2 small">
               <div className="d-flex justify-content-between">
                 <span>Quality (Q):</span>
-                <strong>{(isMonitoringPhase() || isRatingPhase()) ? parseFloat(quantityAvg || 0).toFixed(2) : 0}</strong>
+                <strong>{parseFloat(quantityAvg || 0).toFixed(0)}</strong>
               </div>
               <div className="d-flex justify-content-between">
                 <span>Efficiency (E):</span>
-                <strong>{(isMonitoringPhase() || isRatingPhase()) ? parseFloat(efficiencyAvg || 0).toFixed(2) : 0}</strong>
+                <strong>{ parseFloat(efficiencyAvg || 0).toFixed(0)}</strong>
               </div>
               <div className="d-flex justify-content-between">
                 <span>Timeliness (T):</span>
-                <strong>{(isMonitoringPhase() || isRatingPhase()) ? parseFloat(timelinessAvg || 0).toFixed(2) : 0}</strong>
+                <strong>{parseFloat(timelinessAvg || 0).toFixed(0)}</strong>
               </div>
               <div className="d-flex justify-content-between border-top pt-2">
                 <span>Average (A):</span>
-                <strong>{(isMonitoringPhase() || isRatingPhase()) ? parseFloat(allAvg || 0).toFixed(2) : 0}</strong>
+                <strong>{parseFloat(allAvg || 0).toFixed(1)}</strong>
               </div>
             </div>
             <br />
             <h6 className="fw-bold">Adjectival Rating</h6>
             <p className="mb-0 fs-5 fw-bold text-warning">
-              {(isMonitoringPhase() || isRatingPhase()) ? handleRemarks(allAvg.toFixed(2), ratingThresholds) : "N/A"}
+              {handleRemarks(allAvg.toFixed(1), ratingThresholds)}
             </p>
-            <small className="text-muted mt-2">Overall Average: {(isMonitoringPhase() || isRatingPhase()) ?parseFloat(allAvg || 0).toFixed(2) : 0}</small>
+            <small className="text-muted mt-2">Overall Average: {parseFloat(allAvg || 0).toFixed(1)}</small>
           </div>
         </div>
       </div>
@@ -929,15 +929,15 @@ function FinalRatingsSection({ quantityAvg, efficiencyAvg, timelinessAvg, allAvg
               }
               <div className="d-flex justify-content-between border-top pt-2">
                 <span>Total Weighted Average (A):</span>
-                <strong>{parseFloat(totalWeightedAvg).toFixed(2)}</strong>
+                <strong>{parseFloat(totalWeightedAvg).toFixed(1)}</strong>
               </div>
             </div>
             <br />
             <h6 className="fw-bold">Adjectival Rating</h6>
             <p className="mb-0 fs-5 fw-bold text-warning">
-              {(isMonitoringPhase() || isRatingPhase()) ? handleRemarks(totalWeightedAvg.toFixed(2), ratingThresholds) : "N/A"}
+              {handleRemarks(totalWeightedAvg.toFixed(1), ratingThresholds)}
             </p>
-            <small className="text-muted mt-2">Total Weighted Average: {(isMonitoringPhase() || isRatingPhase()) ? parseFloat(totalWeightedAvg || 0).toFixed(2) : 0}</small>
+            <small className="text-muted mt-2">Total Weighted Average: {parseFloat(totalWeightedAvg || 0).toFixed(1)}</small>
           </div>
         </div>
       </div>
