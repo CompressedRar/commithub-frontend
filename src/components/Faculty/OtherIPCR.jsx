@@ -810,7 +810,7 @@ function RatingBadges({ task, currentPhase, handleDataChange, setSubTaskID }) {
         }}>
             <input 
                     type="number" className="form-control form-control-sm no-spinner text-center" 
-                    defaultValue = {isRatingPhase(currentPhase) && parseFloat(task.quantity).toFixed(0)} 
+                    defaultValue = { parseFloat(task.quantity).toFixed(0)} 
                     style={{width:"100%", height:"100%"}}
                     disabled={!isRatingPhase(currentPhase)}
                     onClick={() => setSubTaskID(task.id)}
@@ -826,7 +826,7 @@ function RatingBadges({ task, currentPhase, handleDataChange, setSubTaskID }) {
                 />
             <input 
                     type="number" className="form-control form-control-sm no-spinner text-center" 
-                    defaultValue = {isRatingPhase(currentPhase) && parseFloat(task.efficiency).toFixed(0)} 
+                    defaultValue = {parseFloat(task.efficiency).toFixed(0)} 
                     style={{width:"100%", height:"100%"}}
                     disabled={!isRatingPhase(currentPhase)}
                     onClick={() => setSubTaskID(task.id)}
@@ -842,7 +842,7 @@ function RatingBadges({ task, currentPhase, handleDataChange, setSubTaskID }) {
                 />
             <input 
                     type="number" className="form-control form-control-sm no-spinner text-center" 
-                    defaultValue = {isRatingPhase(currentPhase) && parseFloat(task.timeliness).toFixed(0)} 
+                    defaultValue = {parseFloat(task.timeliness).toFixed(0)} 
                     style={{width:"100%", height:"100%"}}
                     disabled={!isRatingPhase(currentPhase)}
                     max={5}
@@ -859,7 +859,7 @@ function RatingBadges({ task, currentPhase, handleDataChange, setSubTaskID }) {
             <div className="text-center" >
                 <input 
                     type="number" className="form-control form-control-sm no-spinner text-center" 
-                    value = {isRatingPhase(currentPhase) && parseFloat(task.average).toFixed(2)} 
+                    value = {parseFloat(task.average).toFixed(2)} 
                     style={{width:"100%", height:"100%"}}
                     disabled={true}
                 />
