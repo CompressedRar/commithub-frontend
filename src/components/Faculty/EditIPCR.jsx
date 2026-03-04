@@ -491,25 +491,7 @@ function EditIPCR(props) {
                     }
                 </div>
 
-                {canSubmit && props.mode === "faculty" && (
-                    <button
-                        className="btn btn-primary d-flex align-items-center gap-2"
-                        disabled={submitting}
-                        onClick={assignIPCR}
-                    >
-                        {submitting ? (
-                            <>
-                                <span className="spinner-border spinner-border-sm me-2"></span>
-                                Submitting...
-                            </>
-                        ) : (
-                            <>
-                                <span className="material-symbols-outlined">article_shortcut</span>
-                                Submit IPCR
-                            </>
-                        )}
-                    </button>
-                )}
+                
             </div>
 
             {/* Alert - Show phase restriction info */}
