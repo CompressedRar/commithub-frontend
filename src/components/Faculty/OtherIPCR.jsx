@@ -597,15 +597,11 @@ function OtherIPCR(props) {
                                         <small className="text-muted">(TARGETS + MEASURES)</small>
                                     </th>
                                     <th style={{ width: "20%", textAlign:"center"  }}>ACTUAL ACCOMPLISHMENT</th>
-                                    {
-                                        isRatingPhase(currentPhase) && <>
-                                            <th style={{ width: "15%", textAlign:"center"  }}>
+                                    <th style={{ width: "15%", textAlign:"center"  }}>
                                                 RATING<br />
                                                 <small className="text-muted">Q² E² T² A²</small>
                                             </th>
                                             <th style={{ width: "20%", textAlign:"center"  }}>REMARKS</th>
-                                        </>
-                                    }
                                 </tr>
                             </thead>
                             <tbody>
@@ -633,16 +629,12 @@ function OtherIPCR(props) {
                     </div>
 
                     {/* Final Ratings */}
-                    {
-                        isRatingPhase(currentPhase) && 
-                        <FinalRatingsSection 
+                    <FinalRatingsSection 
                             stats={stats} 
                             ratingThresholds={ratingThresholds}
                             handleRemarks={handleRemarks}
                             currentPhase={currentPhase}
                         />
-                    }
-
                     {/* Signatures */}
                     <SignaturesSection ipcrInfo={ipcrInfo} />
                 </div>

@@ -416,6 +416,7 @@ function EditIPCR(props) {
         if (!value) return
 
         const debounce = setTimeout(() => {
+            console.log(subTaskID, field, value)
             updateSubTask(subTaskID, field, value)
                 .then(() => {
                     setCanSubmit(allTargetsFilled(ipcrInfo))
