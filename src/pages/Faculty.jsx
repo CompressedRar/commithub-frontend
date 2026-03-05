@@ -3,6 +3,10 @@ import "../assets/styles/Faculty.css"
 import { useEffect, useState } from "react"
 import EditIPCR from "../components/Faculty/EditIPCR"
 import { getSettings } from "../services/settingsService"
+import Stepper from '@mui/material/Stepper';
+import Step from '@mui/material/Step';
+import StepLabel from '@mui/material/StepLabel';
+
 
 function Faculty(){
     const [currentPage, setCurrentPage] = useState(0)
@@ -101,6 +105,15 @@ function Faculty(){
 
     return(
         <div className="faculty-container">
+
+          <Stepper nonLinear activeStep={1} alternativeLabel>
+            {["Planning", "Monitoring", "Rating",].map((label) => (
+              <Step key={label} completed={currentPhase && currentPhase.includes(label.toLowerCase())}>
+                <StepLabel>{label}</StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+
             {currentPage == 0? <IPCRContainer switchPage={(ipcr_id, dept_id)=>{
 
                 setTimeout(()=> {

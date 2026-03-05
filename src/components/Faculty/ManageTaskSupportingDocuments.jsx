@@ -89,7 +89,7 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
         window.URL.revokeObjectURL(url);
       })
       .catch((err) => {
-        Swal.fire("Error", "Failed to download", "error")
+        Swal.fire("Error", "No Images to Compile", "error")
         setCompiling(false)
        });
 
@@ -98,7 +98,7 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
     }
     catch(error){
       console.log(error)
-      Swal.fire("Error", "Failed to download", "error")
+      Swal.fire("Error", "No Images to Compile", "error")
       setCompiling(false)
     }
   }
@@ -317,7 +317,7 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
                 </h6>
                 
                 {
-                  documents.filter(d => d.status === 1).length && 
+                  false && 
                   <button className="btn btn-outline-primary d-flex" disabled={compiling} onClick={()=> {
                     if(!compiling) handleCompile();
                   }}>
@@ -326,7 +326,7 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
                       : 
                       <>
                         <span className="material-symbols-outlined">download</span>
-                        Download Compiled Report
+                        Download Compiled Images
                       </>}
                   </button>
                 }
