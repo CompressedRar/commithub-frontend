@@ -16,7 +16,7 @@ function DepartmentTask({ mems, dept_id, switchMember, switchInfo }) {
       return true;
     });
 
-    
+    console.log(assigned)
     setAssigned(filtered || []);
   }
 
