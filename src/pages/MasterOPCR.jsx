@@ -476,7 +476,7 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
               </div>
               {task.description?.timeliness_mode == "timeframe" ? (
                 <div>
-                  <input disabled className="form-control form-control-sm" defaultValue={task.description?.target_timeframe} />
+                  <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.target != 0 ? (task.working_days?.target).toFixed(0) : 0} />
                   <small className="text-muted d-block">{task.description?.time} with</small>
                 </div>
               ):
