@@ -7,7 +7,9 @@ import Swal from "sweetalert2"
 import ManageTaskSupportingDocuments from "./ManageTaskSupportingDocuments"
 import { getSettings } from "../../services/settingsService"
 import { useParams, useSearchParams } from "react-router-dom"
-
+import Stepper from '@mui/material/Stepper';
+import Step from '@mui/material/Step';
+import StepLabel from '@mui/material/StepLabel';
 function OtherIPCR(props) {
     // Core data states
     const [userinfo, setUserInfo] = useState(null)
@@ -505,6 +507,15 @@ function OtherIPCR(props) {
 
     return (
         <div className="py-4" style={{minWidth:"1200px"}} onMouseOver={props.onMouseOver}>
+
+            <Stepper nonLinear activeStep={1} alternativeLabel>
+                    {["Planning", "Monitoring", "Rating",].map((label) => (
+                    <Step key={label} completed={currentPhase && currentPhase.includes(label.toLowerCase())}>
+                        <StepLabel>{label}</StepLabel>
+                    </Step>
+                ))}
+            </Stepper>   
+
             <ManageTaskSupportingDocuments ipcr_id={ipcr_id} batch_id={ipcrInfo.batch_id} dept_mode={true} sub_tasks={arrangedSubTasks}></ManageTaskSupportingDocuments>
             {/* Header */}
             

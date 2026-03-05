@@ -15,7 +15,9 @@ import { getAccountInfo } from "../../services/userService"
 import { getSettings } from "../../services/settingsService"
 import { getCategories } from "../../services/categoryService"
 import { useParams, useSearchParams } from "react-router-dom"
-
+import Stepper from '@mui/material/Stepper';
+import Step from '@mui/material/Step';
+import StepLabel from '@mui/material/StepLabel';
 
 function OtherDraftedOPCR(props) {
   const [opcrInfo, setOPCRInfo] = useState(null)
@@ -368,6 +370,13 @@ function OtherDraftedOPCR(props) {
     <div className="py-4" style={{minWidth:"1200px"}}>
 
       {/* Overlay when rating period is closed in system settings */}
+      <Stepper nonLinear activeStep={1} alternativeLabel>
+                    {["Planning", "Monitoring", "Rating",].map((label) => (
+                    <Step key={label} completed={currentPhase && currentPhase.includes(label.toLowerCase())}>
+                        <StepLabel>{label}</StepLabel>
+                    </Step>
+                ))}
+            </Stepper>   
       {/* Header */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         
@@ -419,7 +428,7 @@ function OtherDraftedOPCR(props) {
                 </tr>
               </thead>
               <tbody>
-                {opcrInfo.map((categoryObj, i) =>
+                {opcrInfo && opcrInfo.map((categoryObj, i) =>
                   Object.entries(categoryObj).map(([category, tasks]) => (
                      <TaskSection
                        key={`${i}-${category}`}
