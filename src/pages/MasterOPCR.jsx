@@ -310,19 +310,13 @@ function MasterOPCR(){
                     <Select
                     labelId="download-select-label"
                     id="download-select"
-                    value="" // Kept empty so the label stays visible/resets
+                    value=""
                     label={downloading ? "Generating..." : "Download Options"}
                     onChange={handleChange}
                     IconComponent={downloading ? () => <CircularProgress size={16} sx={{ mr: 2 }} /> : undefined}
                     >
                     <MenuItem value="master">
                         Download Master OPCR
-                    </MenuItem>
-                    <MenuItem value="dept">
-                        Download Office Performance Summary
-                    </MenuItem>
-                    <MenuItem value="task">
-                        Download Tasks Performance Summary
                     </MenuItem>
                     </Select>
                 </FormControl>
