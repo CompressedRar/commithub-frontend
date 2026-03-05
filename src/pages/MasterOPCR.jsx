@@ -477,7 +477,7 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
               </div>
               {task.description?.timeliness_mode == "timeframe" ? (
                 <div>
-                  <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.target != 0 ? (task.working_days?.target).toFixed(0) : 0} />
+                  <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.target != 0 ? (task.working_days?.target / task.frequency).toFixed(0) : 0} />
                   <small className="text-muted d-block">{task.description?.time} with</small>
                 </div>
               ):
@@ -489,7 +489,7 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
               )
               }
               <div>
-                <input disabled className="form-control form-control-sm" defaultValue={task.corrections?.target} />
+                <input disabled className="form-control form-control-sm" defaultValue={task.corrections?.target / task.frequency} />
                 <small className="text-muted d-block">{task.description?.alterations}</small>
               </div>
             </div>
@@ -507,7 +507,7 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
               </div>
               {task.description?.timeliness_mode == "timeframe" ? (
                 <div>
-                  <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.actual != 0 ? (task.working_days?.actual).toFixed(0) : 0} />
+                  <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.actual != 0 ? (task.working_days?.actual / task.frequency).toFixed(0) : 0} />
                   <small className="text-muted d-block">{task.description?.time} with</small>
                 </div>
               ):
@@ -520,7 +520,7 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
                   )}
 
                   
-                  {task.working_days?.actual != 0 ? Math.abs(parseFloat(task.working_days?.actual).toFixed(0)) : 0 == 0 ? (
+                  {task.working_days?.actual != 0 ? Math.abs(parseFloat(task.working_days?.actual / task.frequency).toFixed(0)) : 0 == 0 ? (
                     <small className="text-muted d-block">on the set deadline with</small>
                   ) : 
                     parseFloat(task.working_days?.actual ) < 0 ? (
@@ -534,7 +534,7 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
               )
               }
               <div>
-                <input disabled className="form-control form-control-sm" defaultValue={task.corrections?.actual != 0 ?parseFloat(task.corrections?.actual).toFixed(0) : 0} />
+                <input disabled className="form-control form-control-sm" defaultValue={task.corrections?.actual != 0 ?parseFloat(task.corrections?.actual / task.frequency).toFixed(0) : 0} />
                 <small className="text-muted d-block">{task.description?.alterations}/s in average</small>
               </div>
             </div>
