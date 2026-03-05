@@ -3,7 +3,7 @@ import Swal from "sweetalert2"
 import { downloadAllDeptSummaries, downloadAllTaskSummaries, downloadMasterOPCR, getMasterOPCR } from "../services/pcrServices"
 import { socket } from "../components/api"
 import { getSettings } from "../services/settingsService"
-
+import { FormControl, InputLabel, Select, MenuItem, Box, CircularProgress } from '@mui/material';
 
 function MasterOPCR(){
     const [opcrInfo, setOPCRInfo] = useState(null)
@@ -43,6 +43,18 @@ function MasterOPCR(){
         function isPlanningPhase() {
             return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("planning")
         }
+
+    const handleChange = (event) => {
+        const action = event.target.value;
+        
+        // Execute the corresponding function based on the selection
+        if (action === "master") download();
+        if (action === "dept") downloadDeptSummaries();
+        if (action === "task") downloadTaskSummary();
+        
+        // Note: We don't need to manage "value" state if we want 
+        // it to act like a menu that resets after each click.
+    };
 
     async function loadOPCR(){
         try {
@@ -290,35 +302,30 @@ function MasterOPCR(){
                     </div>
                 </div>
             )}
-            <div className="d-flex justify-content-end align-items-center mb-4 gap-3">
-                
-
-                <select name="" className="form-select w-25" id="" disabled={downloading}>
-                    <option value="" onClick={download} disabled={downloading}>
-                        <button
-                            className="btn btn-primary d-flex align-items-center gap-2 shadow-sm"
-                        >
-                            {downloading ? "Generating..." : "Download Master OPCR"}
-                        </button>
-                    </option>
-
-                    <option value="" onClick={downloadDeptSummaries} disabled={downloading}>
-                        <button
-                            className="btn btn-primary d-flex align-items-center gap-2 shadow-sm"
-                        >
-                            {downloading ? "Generating..." : "Download Office Performance Summary"}
-                        </button>
-                    </option>
-
-                    <option value="" onClick={downloadTaskSummary} disabled={downloading}>
-                        <button
-                            className="btn btn-primary d-flex align-items-center gap-2 shadow-sm"
-                        >
-                            {downloading ? "Generating..." : "Download Tasks Performance Summary"}
-                        </button>
-                    </option>
-
-                </select>
+            <div className="d-flex justify-content-end align-items-center mb-4 gap-3">            
+                <FormControl sx={{width:"200px"}} size="small" disabled={downloading}>
+                    <InputLabel id="download-select-label">
+                    {downloading ? "Generating..." : "Download Options"}
+                    </InputLabel>
+                    <Select
+                    labelId="download-select-label"
+                    id="download-select"
+                    value="" // Kept empty so the label stays visible/resets
+                    label={downloading ? "Generating..." : "Download Options"}
+                    onChange={handleChange}
+                    IconComponent={downloading ? () => <CircularProgress size={16} sx={{ mr: 2 }} /> : undefined}
+                    >
+                    <MenuItem value="master">
+                        Download Master OPCR
+                    </MenuItem>
+                    <MenuItem value="dept">
+                        Download Office Performance Summary
+                    </MenuItem>
+                    <MenuItem value="task">
+                        Download Tasks Performance Summary
+                    </MenuItem>
+                    </Select>
+                </FormControl>
             </div>
 
             {/* Main Card */}

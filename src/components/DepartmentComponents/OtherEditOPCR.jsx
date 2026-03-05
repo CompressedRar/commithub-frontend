@@ -21,6 +21,7 @@ import { useParams, useSearchParams } from "react-router-dom"
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
+import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 
 function OtherEditOPCR(props) {
   const [opcrInfo, setOPCRInfo] = useState(null)
@@ -39,6 +40,8 @@ function OtherEditOPCR(props) {
 
   const [downloading, setDownloading] = useState(false)
   const [userInfo, setUserInfo] = useState(null)
+
+  
 
   // new state: whether current system settings allow rating now
   const [isRatingPeriod, setIsRatingPeriod] = useState(true)
@@ -77,7 +80,12 @@ function OtherEditOPCR(props) {
     setAssignedData(res.assigned)
     setHeadData(res.admin_data)
   }
-
+  const handleChange = (event) => {
+    const action = event.target.value;
+    if (action === 'opcr') download();
+    if (action === 'weighted') downloadWeighted();
+    if (action === 'planned') downloadPlanned();
+  };
   
 
   async function loadMainTasks() {
@@ -433,26 +441,18 @@ function OtherEditOPCR(props) {
           data-bs-target="#manage-dept-docs">Documents</button>
 
 
-          <select name="" className="form-select" id="" disabled={downloading}>
-            <option value="" onClick={download} disabled={downloading}>
-              <button className="btn btn-outline-primary d-flex" >
-                {downloading ? "Downloading..." : "Download OPCR"}
-                
-              </button>
-            </option>
-            <option value="" onClick={downloadWeighted} disabled={downloading}>
-              <button className="btn btn-outline-primary d-flex" >
-                {downloading ? "Downloading..." : "Download Weighted OPCR"}
-                
-              </button>
-            </option>
-
-            <option value="" onClick={downloadPlanned} disabled={downloading}>
-              <button className="btn btn-outline-primary d-flex" >
-                {downloading ? "Downloading..." : "Download Planned OPCR"}                
-              </button>
-            </option>
-          </select>
+          <FormControl sx={{width:"200px", padding:'0px'}} size="small" variant="outlined" disabled={downloading}>
+            <InputLabel>Download OPCR</InputLabel>
+            <Select
+              value="" // Keep it empty so it acts like a trigger
+              label="Download OPCR"
+              onChange={handleChange}
+            >
+              <MenuItem value="opcr">Standard OPCR</MenuItem>
+              <MenuItem value="weighted">Weighted OPCR</MenuItem>
+              <MenuItem value="planned">Planned OPCR</MenuItem>
+            </Select>
+          </FormControl>
 
         </div>
       </div>
