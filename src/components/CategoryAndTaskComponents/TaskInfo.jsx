@@ -299,7 +299,7 @@ function TaskInfo({ id, backAfterArchive, backToPage }) {
           type="text"
             name="modification"
             className="form-control form-control"
-            value={formData.modification || "correction"}
+            value={formData.modification}
             onChange={handleChange}
           />
           <small className="text-muted d-block mt-1">Type of modification allowed</small>

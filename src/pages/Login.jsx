@@ -7,6 +7,20 @@ import { useLocation } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../assets/styles/Login.css";
 
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import OutlinedInput from "@mui/material/OutlinedInput";
+import IconButton from "@mui/material/IconButton";
+import InputAdornment from "@mui/material/InputAdornment";
+import Button from "@mui/material/Button";
+import Stack from "@mui/material/Stack";
+import Box from '@mui/material/Box';
+import FormHelperText from "@mui/material/FormHelperText";
+import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+
 function Login() {
   const location = useLocation();
   const [loginFormData, setLoginFormData] = useState({ email: "", password: "" });
@@ -105,140 +119,121 @@ function Login() {
           />
         </div>
 
+
         {/* Right Side (Form) */}
-        <div className="col-md-6 bg-white p-5 d-flex flex-column justify-content-center">
-          <div className="text-center mb-4">
-            <img src="LogoNC.png" alt="CommitHub Logo" height="60" className="mb-3" />
+        <Box className="col-md-6 bg-white p-5 d-flex flex-column justify-content-center">
+          <Stack>
+            <img src="LogoNC.png" alt="CommitHub Logo" width={60} height={60} className="mb-3" />
             <h3 className="fw-bold">Welcome to CommitHub</h3>
             <p className="text-muted small">Sign in to continue</p>
-          </div>
+          </Stack>
 
           {!otpRequested ? (
             <form onSubmit={handleSubmission}>
-              {/* Email */}
-              <div className="mb-3">
-                <label htmlFor="email" className="form-label fw-semibold">
-                  Email Address
-                </label>
-                <div className="input-group">
-                  <span className="input-group-text bg-white">
-                    <span className="material-symbols-outlined">mail</span>
-                  </span>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    className="form-control"
+
+              <Stack spacing={3}>
+                <FormControl fullWidth variant="outlined" > 
+                  <InputLabel htmlFor="outlined-adornment-password">Email</InputLabel>
+                  <OutlinedInput
                     placeholder="Enter your email"
                     required
+                    id="email"
+                    name="email"
                     onChange={handleDataChange}
                     maxLength={30}
+                    
+                    label="Email"
                   />
-                </div>
-              </div>
+                </FormControl>
 
-              {/* Password */}
-              <div className="mb-4">
-                <label htmlFor="password" className="form-label fw-semibold">
-                  Password
-                </label>
-                <div className="input-group">
-                  <span className="input-group-text bg-white">
-                    <span className="material-symbols-outlined">lock</span>
-                  </span>
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    id="password"
-                    name="password"
-                    className="form-control"
+                {/* Password */}
+
+                <FormControl fullWidth variant="outlined">
+                  <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
+                  <OutlinedInput
+                    type={showPassword ? 'text' : 'password'}
                     placeholder="Enter your password"
                     required
+                    id="password"
+                    name="password"
                     onChange={handleDataChange}
                     maxLength={30}
+                    endAdornment={
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setShowPassword(!showPassword)}
+                          aria-label={
+                            showPassword ? 'hide the password' : 'display the password'
+                          }
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    }
+                    label="Password"
                   />
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary"
-                    onClick={() => setShowPassword(!showPassword)}
-                    tabIndex={-1}
-                  >
-                    <span className="material-symbols-outlined">
-                      {showPassword ? "visibility_off" : "visibility"}
-                    </span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Login Button */}
-              <button
-                id="login-btn"
-                type="submit"
-                className="btn btn-primary w-100 py-2 fw-semibold d-flex align-items-center justify-content-center"
-                disabled={loggingIn}
-              >
-                {loggingIn ? (
-                  <>
-                    <span className="spinner-border spinner-border-sm me-2"></span>
-                    Logging in...
-                  </>
-                ) : (
-                  <>
-                    <span className="material-symbols-outlined me-2">login</span>
-                    Login
-                  </>
-                )}
-              </button>
+                </FormControl>
+                
+                <Button
+                  id="login-btn"
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  disabled={loggingIn}
+                  loading={loggingIn}
+                  size="large"
+                >
+                  Login
+                </Button>
+              </Stack>
             </form>
           ) : (
             <form onSubmit={handleOtpSubmit}>
-              <div className="mb-3">
-                <div className="alert alert-info d-flex align-items-center gap-2">
-                  <span className="material-symbols-outlined">verified_user</span>
+              <Stack gap={2}>
+                <Stack  className="alert alert-info" direction={"horizontal"} gap={2} alignItems={"center"}>
+                  <VerifiedUserIcon></VerifiedUserIcon>
                   <span>Two-factor authentication is enabled on this account</span>
-                </div>
-              </div>
-              <div className="mb-3">
-                <label htmlFor="otp" className="form-label fw-semibold">Enter OTP</label>
-                <p className="small text-muted mb-2">Enter the 6-digit code sent to your email</p>
-                <input
-                  type="text"
-                  id="otp"
-                  name="otp"
-                  className="form-control form-control-lg text-center"
-                  placeholder="000000"
-                  required
-                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                  maxLength={6}
-                  value={otp}
-                />
-              </div>
-              <button type="submit" className="btn btn-primary w-100 py-2 fw-semibold d-flex align-items-center justify-content-center" disabled={verifyingOtp}>
-                {verifyingOtp ? (
-                  <>
-                    <span className="spinner-border spinner-border-sm me-2"></span>
-                    Verifying...
-                  </>
-                ) : (
-                  <>
-                    <span className="material-symbols-outlined me-2">check_circle</span>
-                    Verify OTP
-                  </>
-                )}
-              </button>
-              <button 
-                type="button" 
-                className="btn btn-link w-100 mt-2 text-decoration-none"
-                onClick={() => {
-                  setOtpRequested(false);
-                  setOtp("");
-                  setTwoFAEnabled(false);
-                }}
-              >
-                Back to Login
-              </button>
+                </Stack>
+
+                <FormControl fullWidth variant="outlined"> 
+                  <InputLabel htmlFor="outlined-adornment-password">OTP</InputLabel>
+                  <OutlinedInput  
+                    id="otp"
+                    name="otp"
+                    placeholder="000000"
+                    required
+                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                    maxLength={6}
+                    value={otp}
+                    label="OTP"
+                    aria-describedby="otp-helper"
+                      
+                  />
+                  <FormHelperText id="otp-helper">Enter the 6-digit code sent to your email</FormHelperText>
+                </FormControl>
+
+                  
+                  
+                <Button type="submit" variant="contained" size="large" fullWidth disabled={verifyingOtp} loading={verifyingOtp} startIcon={<CheckCircleIcon></CheckCircleIcon>}>
+                  Verify OTP
+                </Button>
+                <Button 
+                  type="button" 
+                  fullWidth
+                  size="large"
+                  onClick={() => {
+                    setOtpRequested(false);
+                    setOtp("");
+                    setTwoFAEnabled(false);
+                  }}
+                >
+                  Back to Login
+                </Button>
+              </Stack>
             </form>
           )}
-        </div>
+        </Box>
       </div>
       <div style={{width:"100vw", height:"100vh", position:"fixed",zIndex:"1", opacity:"0.1"}}>
             <img
