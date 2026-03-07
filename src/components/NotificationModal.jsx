@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { readNotification } from "../services/userService";
+import { Box, Button, Icon, Paper, Stack, Typography } from "@mui/material";
 
 function NotificationModal({ notifications = [], setNotifications }) {
   const [visibleCount, setVisibleCount] = useState(10);
@@ -49,7 +50,7 @@ function NotificationModal({ notifications = [], setNotifications }) {
     >
       <div className="modal-dialog modal-dialog-centered modal-lg">
         <div
-          className="modal-content border-0 shadow-lg rounded-4 overflow-hidden position-relative"
+          className="modal-content border-0 shadow-lgoverflow-hidden position-relative"
           style={{ backgroundColor: "#f9fafb" }}
         >
           {/* 🔹 Floating Close Button */}
@@ -66,85 +67,108 @@ function NotificationModal({ notifications = [], setNotifications }) {
             <span className="material-symbols-outlined">close</span>
           </button>
 
-          {/* 🔹 Header */}
-          <div className="bg-primary bg-opacity-10 px-4 py-3 border-0">
-            <h5 className="modal-title fw-semibold d-flex align-items-center gap-2 text-primary mb-0">
-              <span className="material-symbols-outlined">notifications</span>
-              Notifications
-            </h5>
-          </div>
-
-          {/* 🔹 Body */}
-          <div
-            className="modal-body p-4 bg-white"
-            style={{
-              maxHeight: "500px",
-              overflowY: "auto",
-              borderTop: "1px solid #e9ecef",
-            }}
-          >
-            {sorted.length > 0 ? (
-              <div className="d-flex flex-column gap-3">
-                {visible.map((notif, index) => (
-                  <div
-                    key={notif.id || index}
-                    className={`p-3 border rounded-3 d-flex flex-column gap-1 ${
-                      notif.read
-                        ? "bg-white"
-                        : "bg-primary bg-opacity-10 border-primary border-opacity-25"
-                    }`}
-                    style={{
-                      transition: "all 0.2s ease",
-                      boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-                    }}
-                  >
-                    <div className="d-flex justify-content-between align-items-center">
-                      <div className="d-flex align-items-center gap-2">
-                        <span className="material-symbols-outlined text-primary">
-                          notifications_active
-                        </span>
-                        <strong>{notif.name}</strong>
-                      </div>
-                      <div className="text-end">
-                        <small className="text-muted d-flex align-items-center gap-1">
-                          <span
-                            className="material-symbols-outlined"
-                            style={{ fontSize: "16px" }}
-                          >
+          <Box sx={{ width: '100%', mx: 'auto', borderRadius: 2, overflow: 'hidden' }}>
+      
+     
+            <Box sx={{ 
+              bgcolor: 'primary.lighter', 
+              px: 4, 
+              py: 3, 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 2,
+              width:"100%" 
+            }} >
+              <Icon className="material-symbols-outlined" sx={{ color: 'primary.main' }}>
+                notifications
+              </Icon>
+              <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main', mb: 0 }}>
+                Notifications
+              </Typography>
+            </Box>
+          
+            <Box sx={{ 
+              p: 4, 
+              bgcolor: 'background.paper', 
+              maxHeight: '500px', 
+              overflowY: 'auto', 
+              borderTop: '1px solid',
+              borderColor: 'divider' // Replaces #e9ecef
+            }}>
+              {sorted.length > 0 ? (
+                <Stack spacing={3}>
+                  {visible.map((notif, index) => (
+                    <Paper
+                      key={notif.id || index}
+                      elevation={0}
+                      sx={{
+                        p: 3,
+                        border: '1px solid',
+                        borderRadius: 3,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 1,
+                        transition: 'all 0.2s ease',
+                        // Conditional styling based on 'read' status
+                        bgcolor: notif.read ? 'white' : 'primary.lighter',
+                        borderColor: notif.read ? 'divider' : 'primary.light',
+                        '&:hover': { boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                          <Icon className="material-symbols-outlined" sx={{ color: 'primary.main' }}>
+                            notifications_active
+                          </Icon>
+                          <Typography variant="body1" sx={{ fontWeight: 700 }}>
+                            {notif.name}
+                          </Typography>
+                        </Box>
+                        
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'text.secondary' }}>
+                          <Icon className="material-symbols-outlined" sx={{ fontSize: '16px' }}>
                             schedule
-                          </span>
-                          {notif.created_at}
-                        </small>
-                      </div>
-                    </div>
-                    {notif.message && (
-                      <small className="text-secondary text-wrap">
-                        {notif.message}
-                      </small>
-                    )}
-                  </div>
-                ))}
+                          </Icon>
+                          <Typography variant="caption">
+                            {notif.created_at}
+                          </Typography>
+                        </Box>
+                      </Box>
 
-                {sorted.length > visibleCount && (
-                  <div className="text-center mt-3">
-                    <button className="btn btn-link" onClick={() => setVisibleCount(v => v + 10)}>
-                      Load more
-                    </button>
-                    <button className="btn btn-link" onClick={() => setVisibleCount(sorted.length)}>
-                      Show all
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="text-center text-muted py-5">
-                <span className="material-symbols-outlined fs-1 mb-2 text-secondary opacity-50">
-                  notifications_off
-                </span>
-                <p className="m-0">No notifications yet</p>
-              </div>
-            )}
-          </div>
+                      {notif.message && (
+                        <Typography variant="body2" sx={{ color: 'text.secondary', ml: '34px' }}>
+                          {notif.message}
+                        </Typography>
+                      )}
+                    </Paper>
+                  ))}
+
+                  {/* Pagination Buttons */}
+                  {sorted.length > visibleCount && (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 3 }}>
+                      <Button variant="text" onClick={() => setVisibleCount(v => v + 10)}>
+                        Load more
+                      </Button>
+                      <Button variant="text" onClick={() => setVisibleCount(sorted.length)}>
+                        Show all
+                      </Button>
+                    </Box>
+                  )}
+                </Stack>
+              ) : (
+                /* Empty State */
+                <Box sx={{ textAlign: 'center', py: 5, color: 'text.secondary' }}>
+                  <Icon 
+                    className="material-symbols-outlined" 
+                    sx={{ fontSize: '3rem', mb: 2, opacity: 0.5 }}
+                  >
+                    notifications_off
+                  </Icon>
+                  <Typography variant="body1">No notifications yet</Typography>
+                </Box>
+              )}
+            </Box>
+          </Box>
         </div>
       </div>
     </div>

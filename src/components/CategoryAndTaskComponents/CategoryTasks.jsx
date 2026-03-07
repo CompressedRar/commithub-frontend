@@ -14,6 +14,11 @@ import { createMainTask } from "../../services/taskService";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
+import { Button, FormControl, Input, InputLabel, OutlinedInput, Stack, TextField } from "@mui/material";
+
+import AddBoxIcon from '@mui/icons-material/AddBox';
+import ArchiveIcon from '@mui/icons-material/Archive';
+import EditIcon from '@mui/icons-material/Edit';
 
 function CategoryTasks(props) {
   const [categoryTasks, setCategoryTasks] = useState([]);
@@ -290,52 +295,62 @@ function CategoryTasks(props) {
       {/* TOP: title + actions */}
       <div className="d-flex flex-column justify-content-between align-items-start gap-5 my-4">
         {
-          false && 
+          true && 
           <div className="d-flex align-items-center gap-3">
-          <div style={{ minWidth: 220 }}>
-            <h4
-              ref={titleRef}
-              id="title"
-              contentEditable={titleEditable}
-              suppressContentEditableWarning={true}
-              onInput={handleTitleChange}
-              className={`mb-0 fw-semibold d-flex align-items-center gap-2 ${titleEditable ? "border border-primary bg-white rounded px-2 py-1" : "text-primary"}`}
-              style={{ outline: "none", cursor: titleEditable ? "text" : "default" }}
-            >
-              <span>{categoryInfo?.name || "Category"}</span>
-            </h4>
-            <small className="text-muted d-block">{categoryInfo?.description}</small>
-          </div>
-
-          {titleEditable ? (
-            <div className="d-flex gap-2">
-              <button className="btn btn-sm btn-success d-flex align-items-center gap-1" onClick={() => { handleUpdate(); setTitleEditable(false); }}>
-                <span className="material-symbols-outlined">check</span> Save
-              </button>
-              <button className="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" onClick={() => { setTitleEditable(false); loadCategoryTasks(props.id); }}>
-                <span className="material-symbols-outlined">close</span> Cancel
-              </button>
+            <div style={{ minWidth: 220 }}>
+              <h4
+                ref={titleRef}
+                id="title"
+                contentEditable={titleEditable}
+                suppressContentEditableWarning={true}
+                onInput={handleTitleChange}
+                className={`mb-0 fw-semibold d-flex align-items-center gap-2 ${titleEditable ? "border border-primary bg-white rounded px-2 py-1" : "text-primary"}`}
+                style={{ outline: "none", cursor: titleEditable ? "text" : "default" }}
+              >
+                <span>{categoryInfo?.name || "Category"}</span>
+              </h4>
+              <small className="text-muted d-block">{categoryInfo?.description}</small>
             </div>
-          ) : (
-            <button className="btn btn-sm btn-outline-secondary" onClick={() => { setTitleEditable(true); setTimeout(() => titleRef.current?.focus(), 50); }}>
-              <span className="material-symbols-outlined">edit</span>
-            </button>
-          )}
+            
+            {titleEditable ? (
+              <Stack direction={"horizontal"} gap={1} display={"flex"}>
+                <Button variant="contained" color="success" onClick={() => { handleUpdate(); setTitleEditable(false); }}>
+                  Save
+                </Button>
+                <Button variant="outlined" onClick={() => { setTitleEditable(false); loadCategoryTasks(props.id); }}>
+                  Cancel
+                </Button>
+              </Stack>
+            ) : (
+              <Button variant="outlined" onClick={() => { setTitleEditable(true); setTimeout(() => titleRef.current?.focus(), 50); }}>
+                <EditIcon></EditIcon>
+              </Button>
+            )}
+
+
         </div>
         }
 
         <div className="d-flex justify-content-between w-100 gap-2 align-items-center">
+          <Button 
+            onClick={openModal}
+            variant="contained"
+            endIcon={<AddBoxIcon></AddBoxIcon>}
+            size="large"
+            >              
+            Create Task
+          </Button>
+          <Button 
+          onClick={handleArchive}
+          variant="outlined"
+          size="large"
+          color="error"
+          endIcon={<ArchiveIcon></ArchiveIcon>}
+          >
+            Archive
+          </Button>
           
 
-          <button className="btn btn-outline-danger d-flex gap-2 align-items-center" onClick={handleArchive}>
-            <span className="material-symbols-outlined me-1">archive</span> Archive
-          </button>
-
-          <button className="btn btn-primary d-flex gap-2 align-items-center" onClick={openModal}>
-            <span className="material-symbols-outlined me-1">add</span> Create Task
-          </button>
-
-          
         </div>
       </div>
       
@@ -405,14 +420,24 @@ function CategoryTasks(props) {
 
             <div className="modal-body px-4 py-3">
               <form noValidate ref={formRef}>
-                <div className="mb-3">
-                  <label className="form-label fw-semibold">Task <span className="text-danger">*</span></label>
-                  <input type="text" name="task_name" className="form-control"
-                    placeholder="e.g., Board Trustees Meeting" onInput={handleDataChange} required />
-                </div>
+                <InputLabel htmlFor={"task_name"}>Task Name</InputLabel>
+                <FormControl fullWidth>
+                  
+                  <OutlinedInput
+                    id="task_name"
+                    placeholder="e.g., Board Trustees Meeting"
+                    onInput={handleDataChange} 
+                    required
+                    type="text" 
+                    name="task_name"
+                  >
+                  </OutlinedInput>
+                </FormControl>
 
-                <div className="mb-3 p-2">
-                  <label className="form-label fw-semibold">Offices <span className="text-danger">*</span></label>
+                
+
+                <div className="p-2">
+                  <InputLabel>Offices</InputLabel>
                   <FormGroup sx={{
                       display:"grid",
                       gridTemplateColumns:"1fr 1fr 1fr",
@@ -434,8 +459,6 @@ function CategoryTasks(props) {
                       ))}
                     </FormGroup>
                 </div>
-
-                <h6 className="mt-3">Success Indicators (Targets + Measures)</h6>
                 <div className="col-md-12 mb-3 d-none">
                     
                     <input
@@ -447,14 +470,22 @@ function CategoryTasks(props) {
                       min={1}
                     />
                   </div>
-                  <label className="form-label fw-semibold  ">Target Quality</label>
-                <div className="mb-3">
-                  <textarea name="task_desc" className="form-control" rows={5}
+                    
+                
+                <div className="col-md-12 mb-3">
+                  <InputLabel>Target Accomplishment</InputLabel>
+                  <TextField 
+                    fullWidth
+                    multiline
+                    name="task_desc"
+                    maxRows={5}
+                    rows={4}
                     placeholder="Describe the measurable aspect of the output..."
                     onInput={(e) => {
                       handleDataChange(e);
                       setPastTense(e.target.value);
-                    }} required />
+                    }} 
+                    required />
                 </div>
 
                 <div className="col-md-12 mb-3 d-none">
@@ -462,7 +493,7 @@ function CategoryTasks(props) {
                     <select name="timeliness_mode" className="form-select form-select" onChange={handleDataChange} value={formData.timeliness_mode || "timeframe"}>
                       <option value="timeframe">Timeframe (number + unit)</option>
                     </select>
-                  </div>
+                </div>
 
                 
                   <div className="row g-2 ">
@@ -477,9 +508,10 @@ function CategoryTasks(props) {
                       />
                     </div>
 
-                    <div className="col-md-12 mb-3">
-                      <label className="form-label fw-semibold">Time Unit</label>
-                      <input type="text" name="time_measurement" className="form-control" onChange={handleDataChange} placeholder="eg. days"/>
+                    
+                    <div className="col-md-12 mb-3">      
+                      <InputLabel>Time Unit</InputLabel>              
+                      <TextField type="text" name="time_measurement" className="form-control" onChange={handleDataChange} placeholder="eg. days"/>
                       
                     </div>
                   </div>
@@ -497,11 +529,11 @@ function CategoryTasks(props) {
                       
                     />
                   </div>
-                
+                        
+                  
                   <div className="col-md-12 mb-3">
-                    <label className="form-label fw-semibold">Efficiency Unit</label>
-                    <input type="text" name="modification" className="form-control" onChange={handleDataChange} placeholder="eg. corrections"/>
-                    
+                    <InputLabel >Efficiency Unit</InputLabel>
+                    <TextField type="text" name="modification" className="form-control" onChange={handleDataChange} placeholder="eg. corrections"/>                    
                   </div>
                 </div>
 

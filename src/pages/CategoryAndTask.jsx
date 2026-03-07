@@ -10,6 +10,11 @@ import { Modal } from "bootstrap";
 import CategoryPerformanceCharts from "../components/Charts/CategoryPerformance";
 import CategoryTaskAverages from "../components/Charts/CategoryTaskAverage";
 import CategorySummaryPerDepartment from "../components/Charts/CategorySummaryPerDepartment";
+import { Button, Chip, FormControl, InputLabel, List, ListItem, ListItemButton, ListItemIcon, OutlinedInput } from "@mui/material";
+
+
+
+
 
 export default function CategoryAndTask() {
   const [allCategory, setAllCategory] = useState([]);
@@ -130,21 +135,30 @@ export default function CategoryAndTask() {
                   <h5 className="mb-0 fw-bold">Key Result Areas</h5>
                   <small className="text-muted">Select KRA to manage tasks</small>
                 </div>
-                <button className="btn btn-sm btn-primary d-flex gap-2 align-items-center" onClick={openCreateModal} title="Create category">
+                
+                <Button variant="contained" onClick={openCreateModal} title="Create category">
                   <span className="material-symbols-outlined">add</span>
-                </button>
+                </Button>
               </div>
+              
 
               <div className="mb-3">
-                <input
-                  className="form-control form-control-sm"
-                  placeholder="Search categories..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
+                <FormControl fullWidth>
+                  <InputLabel htmlFor="search">Search KRA Name</InputLabel>
+                  <OutlinedInput
+                    id="search"                                    
+                    fullWidth
+                    placeholder="Search KRA..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    label="Search KRA"
+                   />
+                </FormControl>
               </div>
 
-              <div className="list-group list-group-flush">
+              
+
+              <List>
                 {loading ? (
                   <div className="text-center py-3">
                     <div className="spinner-border text-primary" role="status" />
@@ -155,28 +169,34 @@ export default function CategoryAndTask() {
                   filteredCategories.map((cat) => {
                     const active = cat.id === selectedCategoryId;
                     return (
-                      <button
+                      <ListItemButton
                         key={cat.id}
-                        className={`list-group-item list-group-item-action p-2 d-flex justify-content-between align-items-center ${active ? "active" : ""}`}
+                        selected={active}
                         onClick={() => {
                           setSelectedCategoryId(cat.id);
                           setActiveRightTab("items");
                         }}
                         title={cat.name}
+                        sx={{
+                          display:"flex",
+                          justifyContent:"space-between"
+                        }}
                       >
                         <div className="d-flex align-items-center gap-2">
-                          <span className="material-symbols-outlined">folder</span>
-                          <span>{cat.priority_order}. </span>
+
+                          <ListItemIcon>
+                            <span className="material-symbols-outlined">folder</span>
+                          </ListItemIcon>                                                  
                           <div className="text-start">
-                            <div className="fw-semibold small mb-0 text-truncate" style={{ maxWidth: 180 }}>{cat.name}</div>
+                            <div style={{textOverflow:"ellipsis", textWrap:"wrap"}}>{cat.name}</div>
                           </div>
                         </div>
-                        <span className="badge bg-light text-dark">{cat.task_count ?? 0}</span>
-                      </button>
+                        <Chip label={cat.task_count ?? 0}></Chip>
+                      </ListItemButton>
                     );
                   })
                 )}
-              </div>
+              </List>
 
               <div className="mt-3 text-muted small">Showing {filteredCategories.length} Key Result Areas</div>
             </div>
@@ -186,13 +206,8 @@ export default function CategoryAndTask() {
         {/* RIGHT: content with tabs */}
         <div className="col-12 col-md-12 col-lg-7 col-xl-8">
           <div className="p-3 border roundedshadow-sm rounded">
-            <div className="header d-flex justify-content-between align-items-center">
-              <div className="d-flex gap-3 align-items-center">
-                <h5 className="mb-0 fw-semibold">
-                  {allCategory.find((c) => c.id === selectedCategoryId)?.name ?? "Select a category"}
-                </h5>
-                <small className="text">{allCategory.find((c) => c.id === selectedCategoryId)?.category_type}</small>
-              </div>
+           <div className="header d-flex justify-content-between align-items-center">
+              
 
               <div className="btn-group" role="tablist">
                 <button className={`btn btn-sm ${activeRightTab === "items" ? "btn-primary" : "btn-outline-secondary"}`} onClick={() => setActiveRightTab("items")}>Items</button>

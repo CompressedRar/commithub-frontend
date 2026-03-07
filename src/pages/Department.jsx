@@ -5,6 +5,8 @@ import DepartmentInfo from "../components/DepartmentComponents/DepartmentInfo";
 import { objectToFormData } from "../components/api";
 import Swal from "sweetalert2";
 import { Modal } from "bootstrap";
+import { Button, FormControl, InputLabel, List, ListItem, ListItemButton, ListItemIcon, OutlinedInput, TextField } from "@mui/material";
+import { Apartment } from "@mui/icons-material";
 
 
 function Department(){
@@ -20,6 +22,7 @@ function Department(){
         console.log("DEPARTMENT LOADED")
         try {
             const res = await getDepartments().then(data => data.data)
+            console.log("DEPATS", res)
             setDepartments(res)
             if (!currentDepartment && res.length > 0) setCurrentDepartment(res[0].id)
             return res
@@ -120,21 +123,28 @@ function Department(){
                                     <h5 className="mb-0 fw-bold">Offices</h5>
                                     <small className="text-muted">Select an office to manage</small>
                                 </div>
-                                <button className="btn btn-sm btn-primary d-flex gap-2 align-items-center" onClick={openCreateModal} title="Create office">
+                                <Button variant="contained" onClick={openCreateModal} title="Create office">
                                     <span className="material-symbols-outlined">add</span>
-                                </button>
+                                </Button>
                             </div>
 
                             <div className="mb-3">
-                                <input
-                                    className="form-control form-control-sm"
-                                    placeholder="Search offices..."
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                />
+                                <FormControl fullWidth>
+                                    <InputLabel htmlFor="search">Office Name</InputLabel>
+                                    <OutlinedInput
+                                        id="search"                                    
+                                        fullWidth
+                                        placeholder="Search offices..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        label="Search Office Name"
+                                    />
+                                </FormControl>
                             </div>
 
-                            <div className="list-group list-group-flush">
+                            
+
+                            <List>
                                 {loading ? (
                                     <div className="text-center py-3">
                                         <div className="spinner-border text-primary" role="status" />
@@ -145,24 +155,26 @@ function Department(){
                                     filteredDepartments.map((dept) => {
                                         const active = dept.id === currentDepartment
                                         return (
-                                            <button
+                                            <ListItemButton
                                                 key={dept.id}
-                                                className={`list-group-item list-group-item-action d-flex justify-content-between align-items-center ${active ? "active" : ""}`}
+                                                selected={active}
                                                 onClick={() => loadAnotherDepartment(dept.id)}
                                                 title={dept.department_name}
+
                                             >
+                                                <ListItemIcon>
+                                                    <Apartment></Apartment>
+                                                </ListItemIcon>
                                                 <div className="d-flex align-items-center gap-2">
-                                                    <span className="material-symbols-outlined">business</span>
                                                     <div className="text-start">
-                                                        <div className="fw-semibold small mb-0 text-truncate" style={{ maxWidth: 180 }}>{dept.department_name}</div>
-                                                        <small className="text">{dept.name || "No description"}</small>
+                                                        <div className="text">{dept.name || "No description"}</div>
                                                     </div>
                                                 </div>
-                                            </button>
+                                            </ListItemButton>
                                         )
                                     })
                                 )}
-                            </div>
+                            </List>
 
                             <div className="mt-3 text-muted small">Showing {filteredDepartments.length} offices</div>
                         </div>
@@ -212,16 +224,19 @@ function Department(){
                             <button type="button" className="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
-                            <div className="mb-3">
-                                <label className="form-label">Office Name <span className="text-danger">*</span></label>
-                                <input 
-                                    type="text"
-                                    className="form-control" 
-                                    name="department_name"
-                                    value={formData.department_name}
-                                    onChange={handleDataChange}
-                                    placeholder="Eg. Computing Studies"
-                                />
+                            <div className="mb-3">                                                                
+                                <FormControl fullWidth>
+                                    <InputLabel htmlFor="office">Office Name</InputLabel>
+                                    <OutlinedInput
+                                        label="Office Name"
+                                        type="text"
+                                        id="office"
+                                        name="department_name"
+                                        value={formData.department_name}
+                                        onChange={handleDataChange}>
+                                        placeholder="Eg. Computing Studies"
+                                    </OutlinedInput>
+                                </FormControl>
                             </div>
 
                             <div className="mb-3" style={{display:"none"}}>
@@ -257,27 +272,19 @@ function Department(){
                                 </div>
                             </div>
                         </div>
-
+                        
+                        
                         <div className="modal-footer">
-                            <button type="button" className="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                            <button 
+                            <Button type="button" className="btn btn-outline-secondary" data-bs-dismiss="modal">Close</Button>
+                            <Button 
                                 type="button" 
-                                className="btn btn-primary d-flex gap-2 align-items-center" 
+                                variant="contained"
                                 onClick={handleSubmission}
                                 disabled={submitting || !formData.department_name}
+                                loading={submitting}
                             >
-                                {submitting ? (
-                                    <>
-                                        <span className="spinner-border spinner-border-sm"></span>
-                                        Creating...
-                                    </>
-                                ) : (
-                                    <>
-                                        <span className="material-symbols-outlined">check</span>
-                                        Create Office
-                                    </>
-                                )}
-                            </button>
+                                Create Office
+                            </Button>
                         </div>
                     </div>
                 </div>

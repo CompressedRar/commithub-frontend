@@ -152,80 +152,70 @@ function HeadLayout() {
       
 
       {/* 🔹 Main Content */}
-      <div
-        className="flex-grow-1 d-flex flex-column"
-      >
-        {/* Header */}
-        <header className="d-flex justify-content-between align-items-center px-4 py-2 bg-white border-bottom shadow-sm w-100" style={{zIndex:1000}}>
-          <div className="d-flex align-items-center gap-3">
-            <button
-              className="btn btn-outline-primary btn-sm"
+      <Box 
+       sx={{ flexGrow: 1 }}
+      >  
+        <AppBar position="static" sx={{backgroundColor:"white", color: "text.primary", zIndex:1500, borderBottomStyle:"solid", borderWidth:"1px", borderColor:"lightgray"}}>
+          <Toolbar sx={{width:"100%", justifyContent:"space-between"}}>
+            <IconButton 
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             >
-              <span className="material-symbols-outlined">menu</span>
-            </button>
-            <h5 className="mb-0 fw-semibold text-primary">
-              
-            </h5>
-          </div>
+              <MenuIcon></MenuIcon>
+            </IconButton>
 
-          <div className="d-flex align-items-center gap-3 position-relative">
-            <Badge 
-              badgeContent = {notifications.filter((n) => !n.read).length} color="error" 
-              data-bs-toggle="modal"
-              data-bs-target="#notification-modal">
-                <IconButton>
-                  <NotificationsIcon></NotificationsIcon>
-                </IconButton>
-            </Badge>            
-            
+          
+            <Stack gap={2} direction={"horizontal"}>
+              <Badge 
+                badgeContent = {notifications.filter((n) => !n.read).length} color="error" 
+                data-bs-toggle="modal"
+                data-bs-target="#notification-modal">
+                  <IconButton>
+                    <NotificationsIcon></NotificationsIcon>
+                  </IconButton>
+              </Badge>     
 
-            {/* User Menu */}
-            <div
-              className="d-flex align-items-center gap-2 cursor-pointer flex-row-reverse"
-              id="avatar"
-              onClick={(event) => {
-                setOptions(!options)
-                console.log("Setting anchor", event.currentTarget)
-                setAnchor(event.currentTarget)
-              }}
-            >
-              <div
-                className="rounded-circle overflow-hidden border"
-                style={{ width: "40px", height: "40px" }}
-              >
-                <img
-                  src={profilePictureLink}
-                  alt="Profile"
-                  className="w-100 h-100 object-fit-cover"
+             
+                  
+                {!isMobile && (
+                  <Box display={"flex"} alignItems={"flex-end"} flexDirection={"column"}>
+                    <span className="fw-semibold">
+                      {userInfo?.first_name} {userInfo?.last_name}
+                    </span>
+                    <small className="text-muted">
+                      {userInfo?.department?.name || ""}
+                    </small>
+                  </Box>
+                )}   
+              <Avatar 
+                id="avatar"              
+                onClick={(event) => {
+                  setOptions(!options)
+                  console.log("Setting anchor", event.currentTarget)
+                  setAnchor(event.currentTarget)
+                }}
+                sx={{backgroundColor:"white", borderStyle:"solid", borderWidth:"1px", borderColor:"primary.main"}}
+                src={profilePictureLink}
               />
-              </div>
-              {!isMobile && (
-                <div className="d-flex flex-column align-items-end">
-                  <span className="fw-semibold">
-                    {userInfo?.first_name} {userInfo?.last_name}
-                  </span>
-                  <small className="text-muted">
-                    {userInfo?.department?.name || ""}
-                  </small>
-                </div>
-              )}
-            </div>
 
-            <AccountMenu isOpen={options} anchorEl={menuAnchor} closeMenu={()=> {setOptions(false)}} handleLogout={Logout}></AccountMenu>
-          </div>
-        </header>
+              
 
-        {/* Main content area */}
+              <AccountMenu isOpen={options} anchorEl={menuAnchor} closeMenu={()=> {setOptions(false)}} handleLogout={Logout}></AccountMenu>
+              
+            </Stack>
+
+          </Toolbar>
+        </AppBar>
+
         <main
           className="flex-grow-1"
-          style={{ backgroundColor: "#ffffffff", padding:"2vw"}}
+          style={{ backgroundColor: "#ffffffff"}}
         >
-          <div>
+          <div style={{zoom:"0.8", padding:"2em"}}>
             <Outlet />
           </div>
         </main>
-      </div>
+
+      </Box>
 
       {/* 🔹 Account Settings Modal */}
       <div

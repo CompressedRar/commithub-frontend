@@ -140,9 +140,8 @@ function Login() {
                     id="email"
                     name="email"
                     onChange={handleDataChange}
-                    maxLength={30}
-                    
-                    label="Email"
+                    maxLength={30}                    
+                    label="Email" 
                   />
                 </FormControl>
 
