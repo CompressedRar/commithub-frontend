@@ -28,6 +28,17 @@ export async function downloadIPCR(ipcr_id) {
     return api.get(`/api/v1/pcr/ipcr/download/${ipcr_id}`)
 }
 
+export async function downloadWeightedIPCR(ipcr_id) {
+    console.log("fetching ipcr")
+    return api.get(`/api/v1/pcr/weighted_ipcr/download/${ipcr_id}`)
+}
+
+export async function downloadPlannedIPCR(ipcr_id) {
+    console.log("fetching ipcr")
+    return api.get(`/api/v1/pcr/planned_ipcr/download/${ipcr_id}`)
+}
+
+
 export async function downloadOPCR(opcr_id) {
     console.log("fetching opcr")
     return api.get(`/api/v1/pcr/opcr/download/${opcr_id}`)

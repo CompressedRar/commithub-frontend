@@ -447,7 +447,7 @@ function IPCRContainer({ switchPage }) {
               <div className="col-9 card border-0">
                 <h1 className="fw-bold">
                   {
-                    allIPCR && allIPCR.length > 0 && (isRatingPhase() || isMonitoringPhase()) ?
+                    allIPCR && allIPCR.length > 0  ?
                     "Your IPCR is now available.":
                     "Your IPCR is being prepared."
                   }

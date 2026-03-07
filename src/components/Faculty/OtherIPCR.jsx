@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react"
-import { assignMainIPCR, downloadIPCR, getIPCR, updateSubTask, uploadIPCRExcel } from "../../services/pcrServices"
+import { assignMainIPCR, downloadIPCR, downloadWeightedIPCR, downloadPlannedIPCR, getIPCR, updateSubTask, uploadIPCRExcel } from "../../services/pcrServices"
 import { socket } from "../api"
 import { jwtDecode } from "jwt-decode"
 import { getAccountInfo } from "../../services/userService"
@@ -10,6 +10,10 @@ import { useParams, useSearchParams } from "react-router-dom"
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material"
+
+
+
 function OtherIPCR(props) {
     // Core data states
     const [userinfo, setUserInfo] = useState(null)
@@ -55,6 +59,12 @@ function OtherIPCR(props) {
             "Support Function": { count: 0, total: 0, weight: 0 }
         }
     })
+    const handleChange = (event) => {
+        const action = event.target.value;
+        if (action === 'ipcr') download();
+        if (action === 'weighted') downloadW();
+        if (action === 'planned') downloadP();
+    };
 
     async function handleFileUpload(e) {
         const file = e.target.files[0]
@@ -94,6 +104,38 @@ function OtherIPCR(props) {
           const res = await downloadIPCR(ipcr_id);
           window.open(res.data.link, "_blank", "noopener,noreferrer");
         } catch (error) {
+          Swal.fire({
+            title: "Error",
+            text: error.response?.data?.error || "Download failed.",
+            icon: "error",
+          });
+        } finally {
+          setDownloading(false);
+        }
+    }
+
+    async function downloadW() {
+        setDownloading(true);
+        try {
+          const res = await downloadWeightedIPCR(ipcr_id);
+          window.open(res.data.link, "_blank", "noopener,noreferrer");
+        } catch (error) {
+          Swal.fire({
+            title: "Error",
+            text: error.response?.data?.error || "Download failed.",
+            icon: "error",
+          });
+        } finally {
+          setDownloading(false);
+        }
+    }
+    async function downloadP() {
+        setDownloading(true);
+        try {
+          const res = await downloadPlannedIPCR(ipcr_id);
+          window.open(res.data.link, "_blank", "noopener,noreferrer");
+        } catch (error) {
+            console.log(error)
           Swal.fire({
             title: "Error",
             text: error.response?.data?.error || "Download failed.",
@@ -529,7 +571,7 @@ function OtherIPCR(props) {
                     <span className="material-symbols-outlined">undo</span>
                     Back
                 </button>
-                <div className="d-flex gap-2">
+                <div className="d-flex gap-2 m-2">
                     <button
                         className="btn btn-primary btn-sm d-flex align-items-center gap-2 p-2 rounded"
                         data-bs-toggle="modal"
@@ -562,13 +604,20 @@ function OtherIPCR(props) {
                         onChange={handleFileUpload}
                         style={{ display: 'none' }}
                     />
-                    {
-                        isRatingPhase(currentPhase) && 
-                        <button className="btn btn-outline-primary d-flex" onClick={download} disabled={downloading}>
-                            {downloading ? <span className="spinner-border spinner-border-sm me-2"></span> : <span className="material-symbols-outlined me-1">download</span>}
-                            Export
-                        </button>
-                    }
+                    
+                    <FormControl sx={{width:"200px", padding:'0px'}} size="small"  variant="outlined" disabled={downloading}>
+                        <InputLabel>Download IPCR</InputLabel>
+                        <Select
+                        value="" 
+                        label="Download IPCR"
+                        onChange={handleChange}
+                        disabled={downloading}
+                        >
+                        <MenuItem value="ipcr">Standard IPCR</MenuItem>
+                        <MenuItem value="weighted">Weighted IPCR</MenuItem>
+                        <MenuItem value="planned">Planned IPCR</MenuItem>
+                        </Select>
+                    </FormControl>
                 </div>
 
                 

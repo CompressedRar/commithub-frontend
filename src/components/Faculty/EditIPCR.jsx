@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react"
-import { assignMainIPCR, downloadIPCR, getIPCR, updateSubTask } from "../../services/pcrServices"
+import { assignMainIPCR, downloadIPCR, downloadPlannedIPCR, downloadWeightedIPCR, getIPCR, updateSubTask } from "../../services/pcrServices"
 import { socket } from "../api"
 import { jwtDecode } from "jwt-decode"
 import { getAccountInfo } from "../../services/userService"
 import Swal from "sweetalert2"
 import ManageTaskSupportingDocuments from "./ManageTaskSupportingDocuments"
 import { getSettings } from "../../services/settingsService"
-import Stepper from '@mui/material/Stepper';
-import Step from '@mui/material/Step';
-import StepLabel from '@mui/material/StepLabel';
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material"
+
 function EditIPCR(props) {
     // Core data states
     const [userinfo, setUserInfo] = useState(null)
@@ -43,6 +42,12 @@ function EditIPCR(props) {
             "Support Function": { count: 0, total: 0, weight: 0 }
         }
     })
+    const handleChange = (event) => {
+        const action = event.target.value;
+        if (action === 'ipcr') download();
+        if (action === 'weighted') downloadW();
+        if (action === 'planned') downloadP();
+    };
 
     async function download() {
         setDownloading(true);
@@ -59,6 +64,38 @@ function EditIPCR(props) {
           setDownloading(false);
         }
     }
+    async function downloadW() {
+            setDownloading(true);
+            try {
+              const res = await downloadWeightedIPCR(ipcr_id);
+              window.open(res.data.link, "_blank", "noopener,noreferrer");
+            } catch (error) {
+              Swal.fire({
+                title: "Error",
+                text: error.response?.data?.error || "Download failed.",
+                icon: "error",
+              });
+            } finally {
+              setDownloading(false);
+            }
+        }
+        async function downloadP() {
+            setDownloading(true);
+            try {
+              const res = await downloadPlannedIPCR(ipcr_id);
+              window.open(res.data.link, "_blank", "noopener,noreferrer");
+            } catch (error) {
+                console.log(error)
+              Swal.fire({
+                title: "Error",
+                text: error.response?.data?.error || "Download failed.",
+                icon: "error",
+              });
+            } finally {
+              setDownloading(false);
+            }
+        }
+    
 
     const [isRatingPeriod, setIsRatingPeriod] = useState(true)
     const [isMonitoringPeriod, setIsMonitoringPeriod] = useState(true)
@@ -464,6 +501,8 @@ function EditIPCR(props) {
 
     return (
         <div onMouseOver={props.onMouseOver} className="py-4" style={{minWidth:"1200px"}}>
+
+
             <ManageTaskSupportingDocuments ipcr_id={ipcrInfo.id} batch_id={ipcrInfo.batch_id} dept_mode={false} sub_tasks={arrangedSubTasks}></ManageTaskSupportingDocuments>
             {/* Header */}
             
@@ -484,13 +523,20 @@ function EditIPCR(props) {
                         <span className="material-symbols-outlined fs-5 m-1">attach_file</span>
                         Documents
                     </button>
-                    {
-                        true && 
-                        <button className="btn btn-outline-primary d-flex" onClick={download} disabled={downloading}>
-                            {downloading ? <span className="spinner-border spinner-border-sm me-2"></span> : <span className="material-symbols-outlined me-1">download</span>}
-                            Download
-                        </button>
-                    }
+                    <FormControl sx={{width:"200px", padding:'0px'}} size="small"  variant="outlined" disabled={downloading}>
+                        <InputLabel>Download IPCR</InputLabel>
+                            <Select
+                                value="" 
+                                label="Download IPCR"
+                                onChange={handleChange}
+                                disabled={downloading}
+                            >
+                                <MenuItem value="ipcr">Standard IPCR</MenuItem>
+                                <MenuItem value="weighted">Weighted IPCR</MenuItem>
+                                <MenuItem value="planned">Planned IPCR</MenuItem>
+                            </Select>
+                    </FormControl>
+                    
                 </div>
 
                 
@@ -590,6 +636,7 @@ function EditIPCR(props) {
 function HeaderSection({ ipcrInfo }) {
     return (
         <div className="text-center mb-5">
+            
             <div className="row align-items-center mb-3 g-2">
                 <div className="col-md-2 d-flex justify-content-center">
                     <img
