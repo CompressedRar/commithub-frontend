@@ -22,6 +22,9 @@ import IconButton from "@mui/material/IconButton";
 import AccountMenu from "../components/AccountMenu";
 
 
+import MenuIcon from '@mui/icons-material/Menu';
+import { AppBar, Avatar, Box, Stack, Toolbar } from "@mui/material";
+
 function HeadLayout() {
   const token = localStorage.getItem("token");
   const [profilePictureLink, setProfilePictureLink] = useState("");
