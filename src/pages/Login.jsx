@@ -20,6 +20,8 @@ import Box from '@mui/material/Box';
 import FormHelperText from "@mui/material/FormHelperText";
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { Link } from "@mui/material";
+import ForgotPassword from "./ForgotPassword";
 
 function Login() {
   const location = useLocation();
@@ -31,6 +33,8 @@ function Login() {
   const [verifyingOtp, setVerifyingOtp] = useState(false);
   const [twoFAEnabled, setTwoFAEnabled] = useState(false);
   const [userEmail, setUserEmail] = useState("");
+
+  const [forgotPassOpen, setForgotPassOpen] = useState(false);
 
   // Detect existing token and redirect based on role
   function detectToken() {
@@ -129,64 +133,76 @@ function Login() {
           </Stack>
 
           {!otpRequested ? (
-            <form onSubmit={handleSubmission}>
+            (
+              !forgotPassOpen ?
+              <form onSubmit={handleSubmission}>
+                <Stack spacing={3}>
+                  <FormControl fullWidth variant="outlined" > 
+                    <InputLabel htmlFor="outlined-adornment-password">Email</InputLabel>
+                    <OutlinedInput
+                      placeholder="Enter your email"
+                      required
+                      type="email"
+                      id="email"
+                      name="email"
+                      onChange={handleDataChange}
+                      maxLength={30}                    
+                      label="Email" 
+                    />
+                  </FormControl>
 
-              <Stack spacing={3}>
-                <FormControl fullWidth variant="outlined" > 
-                  <InputLabel htmlFor="outlined-adornment-password">Email</InputLabel>
-                  <OutlinedInput
-                    placeholder="Enter your email"
-                    required
-                    id="email"
-                    name="email"
-                    onChange={handleDataChange}
-                    maxLength={30}                    
-                    label="Email" 
-                  />
-                </FormControl>
+                  {/* Password */}
 
-                {/* Password */}
+                  <FormControl fullWidth variant="outlined" >
+                    <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
+                    <OutlinedInput
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Enter your password"
+                      className="mb-1"
+                      required
+                      id="password"
+                      name="password"
+                      onChange={handleDataChange}
+                      maxLength={30}
+                      endAdornment={
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowPassword(!showPassword)}
+                            aria-label={
+                              showPassword ? 'hide the password' : 'display the password'
+                            }
+                            edge="end"
+                          >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      }
+                      label="Password"
+                    />
+                    <Link underline="none" sx={{cursor:"pointer", textAlign:"right"}} onClick={() => setForgotPassOpen(true)}>Forgot Password</Link>
+                  </FormControl>
 
-                <FormControl fullWidth variant="outlined">
-                  <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
-                  <OutlinedInput
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="Enter your password"
-                    required
-                    id="password"
-                    name="password"
-                    onChange={handleDataChange}
-                    maxLength={30}
-                    endAdornment={
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={() => setShowPassword(!showPassword)}
-                          aria-label={
-                            showPassword ? 'hide the password' : 'display the password'
-                          }
-                          edge="end"
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    }
-                    label="Password"
-                  />
-                </FormControl>
-                
-                <Button
-                  id="login-btn"
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  disabled={loggingIn}
-                  loading={loggingIn}
-                  size="large"
-                >
-                  Login
-                </Button>
-              </Stack>
-            </form>
+                  
+                  
+                  <Button
+                    id="login-btn"
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    disabled={loggingIn}
+                    loading={loggingIn}
+                    size="large"
+                  >
+                    Login
+                  </Button>
+                </Stack>
+              </form>
+              :
+              <>
+                <ForgotPassword></ForgotPassword>
+                <Button onClick={() => setForgotPassOpen(false)}>Back to Login</Button>
+              </>
+            )
           ) : (
             <form onSubmit={handleOtpSubmit}>
               <Stack gap={2}>
@@ -232,6 +248,7 @@ function Login() {
               </Stack>
             </form>
           )}
+          
         </Box>
       </div>
       <div style={{width:"100vw", height:"100vh", position:"fixed",zIndex:"1", opacity:"0.1"}}>

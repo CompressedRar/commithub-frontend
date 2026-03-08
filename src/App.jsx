@@ -31,6 +31,7 @@ import OtherIPCR from './components/Faculty/OtherIPCR'
 import OtherEditOPCR from './components/DepartmentComponents/OtherEditOPCR'
 import OtherDraftedOPCR from './components/DepartmentComponents/OtherDraftedOPCR'
 import Analytics from './pages/Analytics'
+import ChangeForgotPassword from './pages/ChangeForgotPassword'
 
 
 function App() {
@@ -41,6 +42,7 @@ function App() {
 
         <Route element = {<AuthLayout />}>
           <Route path='/' element = {<Login></Login>}></Route>
+          <Route path='/forgot-password/:token' element = {<ChangeForgotPassword></ChangeForgotPassword>}></Route>
           <Route path='/register' element = {<Register></Register>}></Route>
           <Route path='/create' element = {<Register ></Register>}></Route>
           <Route path='/logout' element = {<Logout></Logout>}></Route>

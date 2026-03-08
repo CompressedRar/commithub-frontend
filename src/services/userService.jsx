@@ -19,6 +19,26 @@ export async function checkEmail(email) {
     })
 }
 
+export async function requestPasswordReset(email) {
+    console.log("requesting password reset")
+    return api.post(`/api/v1/auth/forgot_password/${email}`, {
+        headers: {
+            "Content-type": "application/json"
+        }
+    })
+}
+
+export async function verifyForgotPass(token) {
+    console.log("requesting password reset")
+    return api.post(`/api/v1/auth/reset-password/${token}`, {
+        headers: {
+            "Content-type": "application/json"
+        }
+    })
+}
+
+
+
 export async function authenticateAccount(data) {
     console.log("authenticating")
     return api.post("/api/v1/auth/login", data, {
@@ -56,6 +76,10 @@ export async function updateMemberInfo(data){
 
 export async function updatePassword(user_id,data){
     return api.patch(`/api/v1/users/change-password/${user_id}`, data)
+}
+
+export async function updateForgotPassword(user_id,data){
+    return api.patch(`/api/v1/users/forgot-change-password/${user_id}`, data)
 }
 
 export async function resetAccountPasssword(id) {

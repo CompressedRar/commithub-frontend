@@ -442,7 +442,7 @@ function AccountSettings(props) {
         </div>
 
         {/* SECTION 4: ACCOUNT STATUS */}
-        <div className="border-0 my-4" style={{ borderRadius: "1rem" }}>
+        <div className="border-0 my-4 d-none" style={{ borderRadius: "1rem" }}>
           <div className="card-body">
             <h5 className="card-title d-flex align-items-center mb-3">
               Account Status & Management
