@@ -67,7 +67,7 @@ function EditIPCR(props) {
     async function downloadW() {
             setDownloading(true);
             try {
-              const res = await downloadWeightedIPCR(ipcr_id);
+              const res = await downloadWeightedIPCR(props.ipcr_id);
               window.open(res.data.link, "_blank", "noopener,noreferrer");
             } catch (error) {
               Swal.fire({
@@ -82,7 +82,7 @@ function EditIPCR(props) {
         async function downloadP() {
             setDownloading(true);
             try {
-              const res = await downloadPlannedIPCR(ipcr_id);
+              const res = await downloadPlannedIPCR(props.ipcr_id);
               window.open(res.data.link, "_blank", "noopener,noreferrer");
             } catch (error) {
                 console.log(error)
