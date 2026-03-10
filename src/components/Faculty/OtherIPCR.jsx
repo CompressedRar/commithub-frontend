@@ -291,6 +291,7 @@ function OtherIPCR(props) {
         try {
             const res = await getIPCR(ipcr_id).then(data => data.data)
             setIPCRInfo(res)
+            
             processIPCRData(res)
         } catch (error) {
             Swal.fire({
@@ -741,9 +742,8 @@ function OathSection({ ipcrInfo }) {
         <div className="mb-4 p-3 bg-light rounded-3">
             <p className="fst-italic mb-3">
                 I, <strong>{ipcrInfo?.user_info.first_name} {ipcrInfo?.user_info.last_name}</strong>,
-                Librarian of the <strong>NORZAGARAY COLLEGE</strong>, commit to deliver and agree to be rated on
-                the attainment of the following targets in accordance with the indicated measures for the period
-                <strong> JULY - DECEMBER 2025</strong>
+                {ipcrInfo?.user_info.position.name} of the <strong>NORZAGARAY COLLEGE</strong>, commit to deliver and agree to be rated on
+                the attainment of the following targets in accordance with the indicated measures for this period
             </p>
 
             <div className="row g-3">
