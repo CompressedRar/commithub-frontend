@@ -3,7 +3,6 @@ import { authenticateAccount, verifyOtp } from "../services/userService";
 import { objectToFormData } from "../components/api";
 import Swal from "sweetalert2";
 import { jwtDecode } from "jwt-decode";
-import { useLocation } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../assets/styles/Login.css";
 
@@ -24,7 +23,6 @@ import { Link } from "@mui/material";
 import ForgotPassword from "./ForgotPassword";
 
 function Login() {
-  const location = useLocation();
   const [loginFormData, setLoginFormData] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [loggingIn, setLoggingIn] = useState(false);

@@ -4,6 +4,7 @@ import {Route ,Routes} from 'react-router-dom'
 
 import AuthLayout from './layout/AuthLayout'
 import Login from "./pages/Login"
+import LoginPage from "./pages/LoginPage"
 import Register from "./pages/Register"
 import Administrator from './pages/Administrator'
 import AdminLayout from './layout/AdminLayout'
@@ -41,7 +42,7 @@ function App() {
         <Route path="*" element={<NotFound />} />
 
         <Route element = {<AuthLayout />}>
-          <Route path='/' element = {<Login></Login>}></Route>
+          <Route path='/' element = {<LoginPage></LoginPage>}></Route>
           <Route path='/forgot-password/:token' element = {<ChangeForgotPassword></ChangeForgotPassword>}></Route>
           <Route path='/register' element = {<Register></Register>}></Route>
           <Route path='/create' element = {<Register ></Register>}></Route>
