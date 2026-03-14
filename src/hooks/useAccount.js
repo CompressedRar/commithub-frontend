@@ -3,6 +3,9 @@ import { jwtDecode } from "jwt-decode";
 import {
   getAccountInfo,
 } from "../services/userService";
+
+import Swal from "sweetalert2"
+
 export const useAccount = () => {
 
     const [loading, setLoading] = useState(true);

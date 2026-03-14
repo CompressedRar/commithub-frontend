@@ -4,7 +4,8 @@ import { getSettings } from "../services/settingsService";
 export const useSettings = () => {
 
     const [loading, setLoading] = useState(true);
-    const [settings, setSettings] = useState(null)
+    const [settings, setSettings] = useState(null);
+    
 
     const fetchSettings = async () => {
         setLoading(true);
@@ -19,9 +20,59 @@ export const useSettings = () => {
         }
   };
 
+    const handleRemarks = (rating) => {
+        const r = parseFloat(rating)
+
+        const thresholds = settings?.ratingThresholds || {
+            outstanding: { min: 4.5 },
+            very_satisfactory: { min: 3.5, max: 4.49 },
+            satisfactory: { min: 2.5, max: 3.49 },
+            unsatisfactory: { min: 1.5, max: 2.49 },
+            poor: { max: 1.49 }
+        }
+
+        if (thresholds.outstanding && r >= (thresholds.outstanding.min ?? 4.5)) {
+            return "OUTSTANDING"
+        }
+        if (
+            thresholds.very_satisfactory &&
+            r >= (thresholds.very_satisfactory.min ?? 3.5) &&
+            r <= (thresholds.very_satisfactory.max ?? 4.49)
+        ) {
+            return "VERY SATISFACTORY"
+        }
+        if (
+            thresholds.satisfactory &&
+            r >= (thresholds.satisfactory.min ?? 2.5) &&
+            r <= (thresholds.satisfactory.max ?? 3.49)
+        ) {
+            return "SATISFACTORY"
+        }
+        if (
+            thresholds.unsatisfactory &&
+            r >= (thresholds.unsatisfactory.min ?? 1.5) &&
+            r <= (thresholds.unsatisfactory.max ?? 2.49)
+        ) {
+            return "UNSATISFACTORY"
+        }
+        if (thresholds.poor && r <= (thresholds.poor.max ?? 1.49)) {
+            return "POOR"
+        }
+
+        return "UNKNOWN"
+    }
+
+    function isMonitoringPhase() {
+        return settings && Array.isArray(settings?.currentPhase) && settings?.currentPhase.includes("monitoring")
+    }
+
+    function isRatingPhase(currentPhase) {
+        return settings && Array.isArray(settings?.currentPhase) && settings?.currentPhase.includes("rating")
+    }
+
   useEffect(() => {
     fetchSettings();
   }, []);
 
-  return { loading, settings };
+  return { loading, settings, handleRemarks, isRatingPhase, isMonitoringPhase};
 };
