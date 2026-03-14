@@ -9,13 +9,12 @@ import { useIPCR } from "../../hooks/useIPCR"
 import SignaturesSection from "./IPCR/SignatureSection"
 import FinalRatingsSection from "./IPCR/FinalRatingSection"
 
-
 import OathSection from "./IPCR/OathSection"
 import MonitoringIndicator from "./IPCR/Header/MonitoringIndicator"
 import HeaderSection from "./IPCR/Header/HeaderSection"
 import DownloadIPCRButton from "./IPCR/Header/DownloadIPCRButton"
 import SupportingDocumentButton from "./IPCR/Header/SupportingDocumentButton"
-import { TaskSection } from "./IPCR/TaskSection"
+import { TaskSection } from "./IPCR/Task/TaskSection"
 
 
 function EditIPCR({ mode, ipcr_id, switchPage }) {
@@ -24,6 +23,7 @@ function EditIPCR({ mode, ipcr_id, switchPage }) {
     const [subTaskID, setSubTaskID] = useState(0)
 
     const [ratingThresholds, setRatingThresholds] = useState(null);
+    
     const [currentPhase, setCurrentPhase] = useState(null)
 
 

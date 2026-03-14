@@ -2,8 +2,7 @@ export default function OathSection({ ipcrInfo }) {
     return (
         <div className="mb-4 p-3 bg-light rounded-3">
             <p className="fst-italic mb-3">
-                I, <strong>{ipcrInfo?.user_info.first_name} {ipcrInfo?.user_info.last_name}</strong>,
-                {ipcrInfo?.user_info.position.name} of the <strong>NORZAGARAY COLLEGE</strong>, commit to deliver and agree to be rated on
+                I, <strong>{ipcrInfo?.user_info.first_name} {ipcrInfo?.user_info.last_name}</strong>, {ipcrInfo?.user_info.position.name} of the <strong>NORZAGARAY COLLEGE</strong>, commit to deliver and agree to be rated on
                 the attainment of the following targets in accordance with the indicated measures for this period.
 
             </p>

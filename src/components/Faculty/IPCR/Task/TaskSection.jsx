@@ -1,4 +1,4 @@
-import { TaskRow } from "./Task/TaskRow"
+import { TaskRow } from "./TaskRow"
 
 export function TaskSection({
     category,
@@ -19,6 +19,7 @@ export function TaskSection({
             <tr className="table-light small">
                 <td colSpan="5" className="text-muted">{category}</td>
             </tr>            
+            
             {tasks.map((task) => (
                 <TaskRow
                     key={task.id}

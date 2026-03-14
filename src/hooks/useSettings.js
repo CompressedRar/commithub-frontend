@@ -62,17 +62,22 @@ export const useSettings = () => {
         return "UNKNOWN"
     }
 
-    function isMonitoringPhase() {
-        return settings && Array.isArray(settings?.currentPhase) && settings?.currentPhase.includes("monitoring")
+    function isPlanningPhase(currentPhase) {
+        return  Array.isArray(currentPhase) && currentPhase.includes("planning")
+    }
+
+    function isMonitoringPhase(currentPhase) {
+        return Array.isArray(currentPhase) && currentPhase.includes("monitoring")
     }
 
     function isRatingPhase(currentPhase) {
-        return settings && Array.isArray(settings?.currentPhase) && settings?.currentPhase.includes("rating")
+        console.log(settings?.currentPhase)
+        return Array.isArray(currentPhase) && currentPhase.includes("rating")
     }
 
   useEffect(() => {
     fetchSettings();
   }, []);
 
-  return { loading, settings, handleRemarks, isRatingPhase, isMonitoringPhase};
+  return { loading, settings, handleRemarks, isRatingPhase, isMonitoringPhase, isPlanningPhase};
 };

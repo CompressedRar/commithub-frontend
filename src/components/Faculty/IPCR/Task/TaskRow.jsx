@@ -2,19 +2,16 @@ import RatingBadges from "./RatingBadges"
 import SubTaskField from "./SubTaskField"
 import Swal from "sweetalert2"
 import { numericKeyDown, handlePasteNumeric, sanitizeNumberInput } from "../../../../utils/inputSanitization"
+import EditableRatingBadges from "./EditableRatingBadges"
+import { useSettings } from "../../../../hooks/useSettings"
 
 export function TaskRow({ task, handleDataChange, setSubTaskID, mode, currentPhase }) {
+
+    const {isMonitoringPhase, isPlanningPhase, isRatingPhase} = useSettings();
+
     const isEditableMode = mode === "faculty"
     const isEditableDuringMonitoring = isMonitoringPhase(currentPhase)
     const isEditableDuringPlanning = isPlanningPhase(currentPhase)
-
-    function isMonitoringPhase(currentPhase) {
-        return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("monitoring")
-    }
-
-    function isPlanningPhase(currentPhase) {
-        return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("planning")
-    }
 
     const isTargetEditable = isEditableMode && isEditableDuringPlanning
     const isActualEditable = isEditableMode && isEditableDuringMonitoring
@@ -147,8 +144,6 @@ export function TaskRow({ task, handleDataChange, setSubTaskID, mode, currentPha
                                         title={isEditableDuringMonitoring ? "Only editable during Monitoring phase" : ""}
                                     />
                                     <span className="text-muted small d-block">on set deadline with</span>
-
-
                                 </>}
                         </div>
                         <div>
@@ -166,7 +161,8 @@ export function TaskRow({ task, handleDataChange, setSubTaskID, mode, currentPha
                     </div>
                 </td>
                 <td className="small text-center">
-                    <RatingBadges task={task} />
+                    {mode === "check" && <EditableRatingBadges task={task} onClick={() => setSubTaskID(task.id)} handleDataChange={handleDataChange} isRatingPhase={isRatingPhase(currentPhase)} />}
+                    {mode !== "check" && <RatingBadges task={task} />}
                 </td>
                 <td className="small text-center fw-semibold"></td>
             </tr>
