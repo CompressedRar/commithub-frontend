@@ -6,6 +6,11 @@ export async function getDepartments() {
     return api.get("/api/v1/department/")
 }
 
+export async function getDepartmentsLite() {
+    console.log("fetching departments")
+    return api.get("/api/v1/department/lite")
+}
+
 export async function getDepartment(id) {
     console.log("fetching department info")
     return api.get(`/api/v1/department/${id}`)

@@ -33,6 +33,7 @@ import OtherEditOPCR from './components/DepartmentComponents/OtherEditOPCR'
 import OtherDraftedOPCR from './components/DepartmentComponents/OtherDraftedOPCR'
 import Analytics from './pages/Analytics'
 import ChangeForgotPassword from './pages/ChangeForgotPassword'
+import DepartmentPage from './pages/DepartmentPage'
 
 
 function App() {
@@ -52,7 +53,7 @@ function App() {
         <Route element = {<AdminLayout></AdminLayout>}>
           <Route path = "/sadmin/dashboard" element={<Administrator></Administrator>}></Route>
           <Route path = "/sadmin/analytics" element={<Analytics></Analytics>}></Route>
-          <Route path = "sadmin/department" element={<Department></Department>}></Route>
+          <Route path = "sadmin/department" element={<DepartmentPage></DepartmentPage>}></Route>
           <Route path = "/sadmin/users" element={<UserManagement></UserManagement>}></Route>
           <Route path = "/sadmin/tasks" element={<CategoryAndTask></CategoryAndTask>}></Route>
           <Route path = "/sadmin/logs" element={<AuditLogs></AuditLogs>}></Route>

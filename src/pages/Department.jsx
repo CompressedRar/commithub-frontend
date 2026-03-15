@@ -115,6 +115,7 @@ function Department(){
         <div className="container-fluid py-4">
             <div className="row g-3">
                 {/* LEFT: Departments list */}
+                
                 <div className="col-12 col-md-12 col-lg-5 col-xl-4">
                     <div className="card shadow-sm sticky-top" style={{ top: "1rem" }}>
                         <div className="card-body">
@@ -181,7 +182,6 @@ function Department(){
                     </div>
                 </div>
 
-                {/* RIGHT: Department info */}
                 <div className="col-12 col-md-12 col-lg-7 col-xl-8">
                     <div className="p-2 border rounded shadow-sm">
                         <div className="header d-flex justify-content-between align-items-center mb-4">

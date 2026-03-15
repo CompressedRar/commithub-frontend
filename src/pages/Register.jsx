@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import Swal from "sweetalert2";
 
-import { getPositions } from "../services/positionService";
+import { getPositionInfo, getPositions } from "../services/positionService";
 import { doesPresidentExists } from "../services/userService";
-import { getDepartments } from "../services/departmentService";
+import { getDepartments, getDepartmentsLite } from "../services/departmentService";
 import { registerAccount, checkEmail } from "../services/userService";
 import { verifyAdminPassword } from "../services/settingsService";
 import { objectToFormData } from "../components/api";
@@ -30,7 +30,7 @@ function Register() {
 
   const loadDepartments = async () => {
     try {
-      const res = await getDepartments();
+      const res = await getDepartmentsLite();
       const deptList = res.data;
       setDepartments(deptList);
       if (deptList.length > 0) {
@@ -43,7 +43,7 @@ function Register() {
 
   const loadPositions = async () => {
     try {
-      const res = await getPositions();
+      const res = await getPositionInfo();
       const posList = res.data;
       setPositions(posList);
       if (posList.length > 0) {

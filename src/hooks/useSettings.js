@@ -1,13 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { getSettings } from "../services/settingsService";
 
 export const useSettings = () => {
 
     const [loading, setLoading] = useState(true);
     const [settings, setSettings] = useState(null);
-    
 
-    const fetchSettings = async () => {
+    const defaultThresholds = useMemo(() => ({
+        outstanding: { min: 4.5 },
+        very_satisfactory: { min: 3.5, max: 4.49 },
+        satisfactory: { min: 2.5, max: 3.49 },
+        unsatisfactory: { min: 1.5, max: 2.49 },
+        poor: { max: 1.49 }
+    }), [])
+
+
+    const fetchSettings = useCallback(async () => {
         setLoading(true);
         try {
             const res = await getSettings()
@@ -18,18 +26,13 @@ export const useSettings = () => {
         } finally {
             setLoading(false);
         }
-  };
+    }, []);
 
-    const handleRemarks = (rating) => {
+    const handleRemarks = useCallback((rating) => {
         const r = parseFloat(rating)
+        if (isNaN(r)) return "N/A";
 
-        const thresholds = settings?.ratingThresholds || {
-            outstanding: { min: 4.5 },
-            very_satisfactory: { min: 3.5, max: 4.49 },
-            satisfactory: { min: 2.5, max: 3.49 },
-            unsatisfactory: { min: 1.5, max: 2.49 },
-            poor: { max: 1.49 }
-        }
+        const thresholds = settings?.ratingThresholds || defaultThresholds;
 
         if (thresholds.outstanding && r >= (thresholds.outstanding.min ?? 4.5)) {
             return "OUTSTANDING"
@@ -60,10 +63,10 @@ export const useSettings = () => {
         }
 
         return "UNKNOWN"
-    }
+    }, [settings])
 
     function isPlanningPhase(currentPhase) {
-        return  Array.isArray(currentPhase) && currentPhase.includes("planning")
+        return Array.isArray(currentPhase) && currentPhase.includes("planning3")
     }
 
     function isMonitoringPhase(currentPhase) {
@@ -75,9 +78,9 @@ export const useSettings = () => {
         return Array.isArray(currentPhase) && currentPhase.includes("rating")
     }
 
-  useEffect(() => {
-    fetchSettings();
-  }, []);
+    useEffect(() => {
+        fetchSettings();
+    }, []);
 
-  return { loading, settings, handleRemarks, isRatingPhase, isMonitoringPhase, isPlanningPhase};
+    return { loading, settings, handleRemarks, isRatingPhase, isMonitoringPhase, isPlanningPhase };
 };

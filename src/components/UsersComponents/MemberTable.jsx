@@ -5,7 +5,8 @@ import Members from "./Members";
 import MemberProfile from "./MemberProfile";
 import { socket } from "../api";
 import Swal from "sweetalert2";
-import { auto } from "@popperjs/core";
+import { useDepartment } from "../../hooks/useDepartment";
+import { useMembers } from "../../hooks/useMembers";
 
 function MemberTable() {
   const [allMembers, setAllMembers] = useState(null);
@@ -19,33 +20,35 @@ function MemberTable() {
   const [selectedRole, setSelectedRole] = useState("All");
 
   const [currentUserID, setCurrentUserID] = useState(0);
-  const [allDepartments, setAllDepartments] = useState(null);
 
-  // Fetch departments
-  async function loadDepartments() {
+  const [departments, setDepartments] = useState(null);
+
+  const { fetchDepartments } = useDepartment();
+  const { fetchMembers } = useMembers();
+  
+
+  async function loadOffices() {
     try {
-      const res = await getDepartments();
-      setAllDepartments(res.data);
+      const res = await fetchDepartments();
+      setDepartments(res);
     } catch (error) {
       console.log(error);
-      Swal.fire("Error", "Fetching Departments failed.", "error");
+      Swal.fire("Error", error.response?.data?.error || "Loading offices failed.", "error");
     }
   }
-
   // Fetch all members
   async function loadAllMembers() {
     try {
-      const res = await getAccounts();
-      setAllMembers(res.data);
-      setFilteredMembers(res.data);
-      generatePagination(res.data);
+      const res = await fetchMembers();
+      setAllMembers(res);
+      setFilteredMembers(res);
+      generatePagination(res);
     } catch (error) {
       console.log(error);
-      Swal.fire("Error", error.response?.data?.error || "Fetching accounts failed.", "error");
+      Swal.fire("Error", error.response?.data?.error || "Loading accounts failed.", "error");
     }
   }
 
-  // Pagination
   function loadLimited() {
     if (!filteredMembers) return;
     const slicedMembers = filteredMembers.slice(memberLimit.offset, memberLimit.limit);
@@ -108,14 +111,16 @@ function MemberTable() {
 
   useEffect(() => {
     (async () => {
+      await loadOffices();
       await loadAllMembers();
-      await loadDepartments();
+      
     })();
 
     socket.on("user_created", loadAllMembers);
     socket.on("user_modified", loadAllMembers);
 
   }, []);
+
 
   return (
     <div className="container-fluid" style={{overflow:"auto"}}>
@@ -192,8 +197,8 @@ function MemberTable() {
             onChange={(e) => setSelectedDepartment(e.target.value)}
           >
             <option value="All">All Office</option>
-            {allDepartments &&
-              allDepartments.map((dept) => (
+            {departments &&
+              departments.map((dept) => (
                 <option key={dept.id} value={dept.id}>
                   {dept.name}
                 </option>
