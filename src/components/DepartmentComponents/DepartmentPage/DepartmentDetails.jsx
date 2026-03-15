@@ -1,7 +1,8 @@
-import DepartmentInfo from "../DepartmentInfo"
+import DepartmentInfo from "../DepartmentInfo/Info"
 
 
-function DepartmentDetails({ departmentId }){
+
+function DepartmentDetails({ departmentId, onLoadDepartments }) {
 
     return (
 
@@ -15,6 +16,7 @@ function DepartmentDetails({ departmentId }){
                     <DepartmentInfo
                         key={departmentId}
                         id={departmentId}
+                        onLoadDepartments={onLoadDepartments}
                     />
 
                 ) : (

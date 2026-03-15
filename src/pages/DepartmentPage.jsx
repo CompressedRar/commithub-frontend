@@ -12,7 +12,8 @@ function DepartmentPage(){
         setCurrentDepartment,
         loading,
         createDepartment,
-        submitting
+        submitting,
+        fetchFullDepartments
     } = useDepartment();
 
     return (
@@ -29,6 +30,7 @@ function DepartmentPage(){
                 />
 
                 <DepartmentDetails
+                    onLoadDepartments = {fetchFullDepartments}
                     departmentId={currentDepartment}
                 />
 
