@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { archiveIprc, downloadIPCR } from "../../services/pcrServices";
+import { archiveIprc, downloadIPCR } from "../../../../../services/pcrServices";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 

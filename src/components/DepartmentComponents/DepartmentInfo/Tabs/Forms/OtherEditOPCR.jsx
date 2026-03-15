@@ -9,14 +9,14 @@ import {
   reviewOPCR,
   updateRating,
   updateADept
-} from "../../services/pcrServices"
-import { socket } from "../api"
+} from "../../../../../services/pcrServices"
+import { socket } from "../../../../api"
 import Swal from "sweetalert2"
 import { jwtDecode } from "jwt-decode"
-import { getAccountInfo } from "../../services/userService"
-import { getSettings } from "../../services/settingsService"
-import { getCategories } from "../../services/categoryService"
-import ManageDeptSupportingDocuments from "../Faculty/ManageDeptSupportingDocuments"
+import { getAccountInfo } from "../../../../../services/userService"
+import { getSettings } from "../../../../../services/settingsService"
+import { getCategories } from "../../../../../services/categoryService"
+import ManageDeptSupportingDocuments from "../../../../Faculty/ManageDeptSupportingDocuments"
 import { useParams, useSearchParams } from "react-router-dom"
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';

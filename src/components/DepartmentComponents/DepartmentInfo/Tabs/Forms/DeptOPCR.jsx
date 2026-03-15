@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { archiveIprc, archiveOprc, downloadIPCR, downloadOPCR, downloadPlannedOPCR, updateRating } from "../../services/pcrServices";
+import { archiveIprc, archiveOprc, downloadIPCR, downloadOPCR, downloadPlannedOPCR, updateRating } from "../../../../../services/pcrServices";
 import Swal from "sweetalert2";
-import { getSettings } from "../../services/settingsService";
+import { getSettings } from "../../../../../services/settingsService";
 import { useNavigate } from "react-router-dom";
 
 function DeptOPCR(props) {

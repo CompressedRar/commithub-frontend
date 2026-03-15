@@ -1,9 +1,9 @@
 import { useState } from "react"
 
-import PerformanceReviews from "../PerformanceReview"
-import DepartmentTasksTable from "../DepartmentTasksTable"
+import PerformanceReviews from "./Tabs/Forms/PerformanceReview"
+import DepartmentTasksTable from "./Tabs/Tasks/DepartmentTasksTable"
 import TaskWeights from "../Tasks/TaskWeights"
-import DepartmentMemberTable from "../DepartmentMemberTable"
+import DepartmentMemberTable from "./Tabs/Members/DepartmentMemberTable"
 
 function DepartmentTabs({ deptId, currentPhase }) {
 

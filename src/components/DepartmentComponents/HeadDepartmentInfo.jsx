@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { updateDepartment, getDepartment, archiveDepartment, generateDepartmentPerformanceReport } from "../../services/departmentService";
-import DepartmentMemberTable from "./DepartmentMemberTable";
+import DepartmentMemberTable from "./DepartmentInfo/Tabs/Members/DepartmentMemberTable";
 import { objectToFormData, socket } from "../api";
 import Swal from "sweetalert2";
 import { Modal } from "bootstrap";
-import DepartmentTasksTable from "./DepartmentTasksTable";
+import DepartmentTasksTable from "./DepartmentInfo/Tabs/Tasks/DepartmentTasksTable";
 import DepartmentAssignHead from "./DepartmentAssignHead";
-import PerformanceReviews from "./PerformanceReview";
+import PerformanceReviews from "./DepartmentInfo/Tabs/Forms/PerformanceReview";
 import CreateOPCRModal from "./CreateOPCRModal";
 import UserPerformanceInDepartment from "../Charts/UserPerformanceInDepartment";
 import { getSettings } from "../../services/settingsService";

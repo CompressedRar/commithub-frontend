@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import { getDepartmentTasks } from "../../services/departmentService";
-import { socket } from "../api";
+import { getDepartmentTasks } from "../../../../../services/departmentService";
+import { socket } from "../../../../api";
 import DepartmentTask from "./DepartmentTask";
-import DepartmentAssignTask from "./DepartmentAssignTask";
-import AddDepartmentTask from "./AddDepartmentTask";
-import FormulaSettings from "./Tasks/TaskFormulas";
+import DepartmentAssignTask from "../../../DepartmentAssignTask";
+import AddDepartmentTask from "../../../AddDepartmentTask";
+import FormulaSettings from "../../../Tasks/TaskFormulas";
 
 function DepartmentTasksTable({ id, admin_mode, currentPhase }) {
   const [allMembers, setAllMembers] = useState([]);

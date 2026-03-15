@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { getDepartment } from "../../services/departmentService";
+import { getDepartment } from "../../../../../services/departmentService";
 import DepartmentMembers from "./DepartmentMembers";
-import { socket } from "../api";
+import { socket } from "../../../../api";
 import Swal from "sweetalert2";
 import "bootstrap/dist/css/bootstrap.min.css";
 

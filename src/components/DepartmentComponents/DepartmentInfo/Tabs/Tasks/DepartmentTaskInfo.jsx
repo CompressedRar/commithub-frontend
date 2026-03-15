@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react"
-import SubmissionsChart from "../Barchart"
-import UsersPieChart from "../Piechart"
+import SubmissionsChart from "../../../../Barchart"
+import UsersPieChart from "../../../../Piechart"
 import Swal from "sweetalert2"
 
-import { archiveMainTask, getMainTask, updateMainTaskInfo } from "../../services/taskService"
-import { objectToFormData } from "../api"
+import { archiveMainTask, getMainTask, updateMainTaskInfo } from "../../../../../services/taskService"
+import { objectToFormData } from "../../../../api"
 
 function DepartmentTaskInfo(props){
 

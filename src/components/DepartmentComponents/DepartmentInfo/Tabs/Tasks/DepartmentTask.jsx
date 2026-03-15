@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import { removeTask } from "../../services/departmentService";
-import { socket } from "../api";
-import { getSettings } from "../../services/settingsService"
+import { removeTask } from "../../../../../services/departmentService";
+import { socket } from "../../../../api";
+import { getSettings } from "../../../../../services/settingsService"
 function DepartmentTask({ mems, dept_id, switchMember, switchInfo }) {
   const [assigned, setAssigned] = useState([]);
   const [currentPhase, setCurrentPhase] = useState(null) //monitoring, rating, planning

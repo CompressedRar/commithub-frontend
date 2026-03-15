@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Swal from "sweetalert2";
-import { removeUserFromDepartment } from "../../services/departmentService";
+import { removeUserFromDepartment } from "../../../../../services/departmentService";
 
 function DepartmentMembers({ mems }) {
   const [open, setOpen] = useState(false);

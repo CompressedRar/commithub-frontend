@@ -1,19 +1,11 @@
 import { useEffect, useState } from "react"
-import { getDepartmentIPCR, getDepartmentOPCR } from "../../services/departmentService"
-import IPCR from "../Faculty/IPCR"
-
-import EditIPCR from "../Faculty/EditIPCR"
-import ManageSupportingDocuments from "../Faculty/ManageSupportingDocuments"
-import OPCR from "./OPCR"
-import { socket } from "../api"
-import EditOPCR from "./EditOPCR"
+import { getDepartmentIPCR, getDepartmentOPCR } from "../../../../../services/departmentService"
+import { socket } from "../../../../api"
 import Swal from "sweetalert2"
 import DeptIPCR from "./DeptIPCR"
 import DeptOPCR from "./DeptOPCR"
-import OPCRSupportingDocuments from "./OPCRSupportingDocuments"
-import { createOPCR } from "../../services/pcrServices"
-import { getSettings } from "../../services/settingsService"
-import DraftedOPCR from "./DraftedOPCR"
+import { createOPCR } from "../../../../../services/pcrServices"
+import { getSettings } from "../../../../../services/settingsService"
 
 
 function PerformanceReviews(props){
