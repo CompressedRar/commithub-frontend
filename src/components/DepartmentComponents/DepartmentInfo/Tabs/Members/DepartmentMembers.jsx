@@ -1,129 +1,107 @@
-import { useState } from "react";
-import Swal from "sweetalert2";
-import { removeUserFromDepartment } from "../../../../../services/departmentService";
+import React, { useState } from "react";
+import { 
+    TableRow, TableCell, Avatar, Typography, Chip, 
+    IconButton, Menu, MenuItem, ListItemIcon, ListItemText, Stack 
+} from "@mui/material";
+import { 
+    MoreVert as MoreIcon, 
+    PersonRemove as RemoveIcon, 
+    Visibility as ViewIcon 
+} from "@mui/icons-material";
 
-function DepartmentMembers({ mems }) {
-  const [open, setOpen] = useState(false);
+// Configuration for performance styling
+const PERFORMANCE_MAP = {
+    5: { label: "OUTSTANDING", color: "success" },
+    4: { label: "VERY SATISFACTORY", color: "primary" },
+    3: { label: "SATISFACTORY", color: "info" },
+    2: { label: "UNSATISFACTORY", color: "warning" },
+    1: { label: "POOR", color: "error" },
+    0: { label: "UNRATED", color: "default" }
+};
 
-  // Handle member removal
-  const handleRemoval = async () => {
-    Swal.fire({
-      title: "Remove member from this office?",
-      text: `${mems.first_name} ${mems.last_name} will lose access to this office.`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, remove",
-      cancelButtonText: "Cancel",
-      confirmButtonColor: "#dc3545",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          const res = await removeUserFromDepartment(mems.id);
-          Swal.fire("Removed", res.data.message, "success");
-        } catch (error) {
-          Swal.fire("Error", error.response?.data?.error || "Failed to remove member", "error");
-        }
-      }
-    });
-  };
+function DepartmentMembers({ mems, onRemove }) {
+    const [anchorEl, setAnchorEl] = useState(null);
+    const open = Boolean(anchorEl);
 
-  // Determine performance label and style
-  const getPerformanceBadge = () => {
-    const rating = mems.avg_performance;
-    if (rating === 5)
-      return <span className="badge bg-success px-3 py-2">OUTSTANDING</span>;
-    if (rating >= 4)
-      return <span className="badge bg-primary px-3 py-2">VERY SATISFACTORY</span>;
-    if (rating >= 3)
-      return <span className="badge bg-info text-dark px-3 py-2">SATISFACTORY</span>;
-    if (rating >= 2)
-      return <span className="badge bg-warning text-dark px-3 py-2">UNSATISFACTORY</span>;
-    if (rating >= 1)
-      return <span className="badge bg-danger px-3 py-2">POOR</span>;
-    return <span className="badge bg-secondary px-3 py-2">UNRATED</span>;
-  };
+    const handleOpenMenu = (event) => setAnchorEl(event.currentTarget);
+    const handleCloseMenu = () => setAnchorEl(null);
 
-  return (
-    <tr key={mems.id} className="align-middle">
-      {/* Profile */}
-      <td className="d-flex align-items-center gap-2 text-nowrap">
-        <div
-          className="rounded-circle border flex-shrink-0"
-          style={{
-            width: "40px",
-            height: "40px",
-            backgroundImage: `url(${mems.profile_picture_link || "/default-profile.png"})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        ></div>
-        <span className="fw-semibold text-truncate" style={{ maxWidth: "150px" }}>
-          {mems.first_name} {mems.last_name}
-        </span>
-      </td>
+    const getPerfData = (rating) => {
+        const score = Math.floor(rating);
+        return PERFORMANCE_MAP[score] || PERFORMANCE_MAP[0];
+    };
 
-      {/* Performance */}
+    const perf = getPerfData(mems.avg_performance);
 
-      <td className="text-nowrap">{parseFloat(mems.avg_performance).toFixed(2)}</td>
-      <td className="text-nowrap">{getPerformanceBadge()}</td>
+    return (
+        <TableRow hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+            {/* PROFILE & NAME */}
+            <TableCell>
+                <Stack direction="row" spacing={2} alignItems="center">
+                    <Avatar 
+                        src={mems.profile_picture_link} 
+                        sx={{ width: 36, height: 36, border: '1px solid', borderColor: 'divider' }}
+                    />
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                        {mems.first_name} {mems.last_name}
+                    </Typography>
+                </Stack>
+            </TableCell>
 
-      {/* Email */}
+            {/* NUMERICAL SCORE */}
+            <TableCell align="center">
+                <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 700 }}>
+                    {parseFloat(mems.avg_performance || 0).toFixed(2)}
+                </Typography>
+            </TableCell>
 
-      {/* Position */}
-      <td className="text-nowrap">{mems.position.name}</td>
+            {/* ADJECTIVAL BADGE */}
+            <TableCell align="center">
+                <Chip 
+                    label={perf.label} 
+                    color={perf.color} 
+                    size="small" 
+                    variant="contained"
+                    sx={{ fontWeight: 700, fontSize: '0.65rem', minWidth: 120 }} 
+                />
+            </TableCell>
 
-      {/* Tasks Count */}
+            {/* POSITION */}
+            <TableCell align="center">
+                <Typography variant="body2" color="text.secondary">
+                    {mems.position?.name || "N/A"}
+                </Typography>
+            </TableCell>
 
-      {/* Status */}
+            {/* ACTIONS */}
+            <TableCell align="right">
+                <IconButton size="small" onClick={handleOpenMenu}>
+                    <MoreIcon fontSize="small" />
+                </IconButton>
 
-      {/* Actions (Dropdown) */}
-      <td className="text-end position-relative">
-        <button
-          className="btn btn-sm btn-light border rounded-circle"
-          onClick={() => setOpen(!open)}
-        >
-          <span className="material-symbols-outlined align-middle">more_vert</span>
-        </button>
-
-        {open && (
-          <div
-            className="position-absolute bg-white border rounded-3 shadow-sm mt-2 py-2"
-            style={{
-              right: 0,
-              minWidth: "220px",
-              zIndex: 1050,
-              boxShadow: "0 4px 10px rgba(0, 0, 0, 0.08)",
-            }}
-            onMouseLeave={() => setOpen(false)}
-          >
-            <button
-              className="dropdown-item d-flex align-items-center gap-2 px-3 py-2 text-secondary"
-              style={{
-                borderRadius: "8px",
-                transition: "background-color 0.2s ease",
-              }}
-              onClick={() => handleRemoval()}
-            >
-              <span className="material-symbols-outlined fs-5 text-danger">
-                group_remove
-              </span>
-              <span>Remove Member</span>
-            </button>
-
-            {/* Example placeholder options (optional) */}
-            {/* <button
-              className="dropdown-item d-flex align-items-center gap-2 px-3 py-2 text-secondary"
-            >
-              <span className="material-symbols-outlined fs-5 text-primary">
-                visibility
-              </span>
-              <span>View Profile</span>
-            </button> */}
-          </div>
-        )}
-      </td>
-    </tr>
-  );
+                <Menu
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleCloseMenu}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                    transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                    PaperProps={{ sx: { minWidth: 180, borderRadius: 2, boxShadow: 3 } }}
+                >
+                    
+                    <MenuItem 
+                        onClick={() => {
+                            handleCloseMenu();
+                            onRemove(mems.id, `${mems.first_name} ${mems.last_name}`);
+                        }}
+                        sx={{ color: 'error.main' }}
+                    >
+                        <ListItemIcon><RemoveIcon fontSize="small" color="error" /></ListItemIcon>
+                        <ListItemText primary="Remove Member" primaryTypographyProps={{ variant: 'body2' }} />
+                    </MenuItem>
+                </Menu>
+            </TableCell>
+        </TableRow>
+    );
 }
 
 export default DepartmentMembers;

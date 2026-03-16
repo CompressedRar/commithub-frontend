@@ -11,9 +11,6 @@ import { getSettings } from "../../../../../services/settingsService"
 function PerformanceReviews(props){
     const [allIPCR, setAllIPCR] = useState(null)
     const [allOPCR, setAllOPCR] = useState(null)
-    const [currentIPCRID, setCurrentIPCRID] = useState(null)
-    const [currentOPCRID, setCurrentOPCRID] = useState(null)
-    const [batchID, setBatchID] = useState(null)
 
     const [filteredID, setFilteredID] = useState(null)
 
@@ -125,7 +122,6 @@ function PerformanceReviews(props){
         for(const opcr of res){
             if(opcr.status == 1) {
                 filter.push(opcr)
-                setCurrentOPCRID(opcr.id)
             }
         }
         console.log(res)
@@ -193,7 +189,7 @@ function PerformanceReviews(props){
 
             <div className="all-ipcr-container" style={{display:"flex", flexDirection:"column", gap:"10px"}}>
                 {allOPCR && allOPCR.map(opcr => (
-                    <DeptOPCR opcr = {opcr} onClick={()=>{ setCurrentOPCRID(opcr.id) }} dept_id = {props.deptid} onMouseOver = {()=>{setCurrentOPCRID(opcr.id)}} opcr_id = {opcr.id} key={opcr.id} dept_mode = {props.dept_mode}></DeptOPCR>
+                    <DeptOPCR opcr = {opcr}  dept_id = {props.deptid} opcr_id = {opcr.id} key={opcr.id} dept_mode = {props.dept_mode}></DeptOPCR>
                 ))}
                 {allOPCR && allOPCR.length === 0 && (
                   <div className="empty-symbols">
@@ -207,7 +203,7 @@ function PerformanceReviews(props){
             <div className="all-ipcr-container" style={{display:"flex", flexDirection:"column", gap:"10px"}}>
                 
                 {allIPCR && allIPCR.map(ipcr => (
-                    <DeptIPCR key={ipcr.ipcr?.id || ipcr.id} onMouseOver ={()=>{ setBatchID(ipcr.ipcr?.batch_id); setCurrentIPCRID(ipcr.ipcr?.id); }} dept_id = {props.deptid} onClick={()=>{ setCurrentIPCRID(ipcr.ipcr?.id) }} ipcr = {ipcr} dept_mode = {props.dept_mode}></DeptIPCR>
+                    <DeptIPCR key={ipcr.ipcr?.id || ipcr.id}  dept_id = {props.deptid} ipcr = {ipcr} dept_mode = {props.dept_mode}></DeptIPCR>
                 ))}
 
                 {allIPCR && allIPCR.length === 0 && (

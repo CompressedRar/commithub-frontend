@@ -339,22 +339,6 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
             <div className="d-grid" style={{display:"grid", backgroundColor:"white"}}>
               <div className="row">
                 
-                <div className="col-lg-12 col-md-12" >
-                  <button className="btn btn-primary d-flex flex-row gap-2" onClick={ async ()=> {
-                    const link = await generateDepartmentPerformanceReport(id)
-                          .then((d) => d.data.download_url)
-                          .catch((err) => {
-                            Swal.fire("Error", err.response?.data?.error || "Failed to download", "error")
-                            return null
-                          })
-                        if (link) window.open(link, "_blank", "noopener,noreferrer")
-                    generateDepartmentPerformanceReport(id)
-                  }}>
-                    <span className="material-symbols-outlined">download</span>
-                    <span>Download Report</span>
-                  </button>
-                  <UserPerformanceInDepartment dept_id={id} currentPhase={currentPhase}/>
-                </div>
                 <div className="col-lg-12 col-md-12">
                   <DepartmentMemberTable deptid={id} currentPhase={currentPhase}/>
                 </div>

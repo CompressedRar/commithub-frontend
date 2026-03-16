@@ -1,160 +1,155 @@
-import { useEffect, useState } from "react";
-import { getDepartment } from "../../../../../services/departmentService";
+
+import {
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  Paper, TextField, InputAdornment, Box, Typography, Pagination,
+  Stack, Button, CircularProgress
+} from "@mui/material";
+import { 
+    Search as SearchIcon, 
+    PersonOff as NoAccountIcon,
+    CloudDownload as DownloadIcon 
+} from "@mui/icons-material";
+import { useDepartmentMembers } from "./Hooks/useDepartmentMembers";
+import TopUserPerformanceInDepartment from "../../../../Charts/UserPerformanceInDepartment";
+import { generateDepartmentPerformanceReport } from "../../../../../services/departmentService";
+import { useState } from "react";
 import DepartmentMembers from "./DepartmentMembers";
-import { socket } from "../../../../api";
 import Swal from "sweetalert2";
-import "bootstrap/dist/css/bootstrap.min.css";
 
-function DepartmentMemberTable({ deptid }) {
-  const [allMembers, setAllMembers] = useState([]);
-  const [filteredMembers, setFilteredMembers] = useState([]);
-  const [tenMembers, setTenMembers] = useState([]);
-  const [pages, setPages] = useState([]);
-  const [memberLimit, setMemberLimit] = useState({ offset: 0, limit: 10 });
-  const [searchQuery, setQuery] = useState("");
+function DepartmentMemberTable({ deptid, currentPhase }) {
+  const {
+    paginatedMembers,
+    searchQuery,
+    setSearchQuery,
+    page,
+    setPage,
+    totalPages,
+    removeMember
+  } = useDepartmentMembers(deptid);
+  const [generating, setGenerating] = useState(false);
 
-  async function loadAllMembers(id) {
+  const handleDownloadReport = async () => {
+    setGenerating(true);
     try {
-      const res = await getDepartment(id).then((data) => data.data.users);
-      setAllMembers(res);
-      setFilteredMembers(res);
-      generatePagination(res);
-    } catch (error) {
-      Swal.fire({
-        title: "Error",
-        text: error.response?.data?.error || "Failed to load members",
-        icon: "error",
-      });
+      const res = await generateDepartmentPerformanceReport(deptid);
+      const link = res.data.download_url;
+      if (link) {
+        window.open(link, "_blank", "noopener,noreferrer");
+      }
+    } catch (err) {
+      Swal.fire("Error", err.response?.data?.error || "Failed to download", "error");
+    } finally {
+      setGenerating(false);
     }
-  }
+  };
 
-  function loadLimited() {
-    const sliced = filteredMembers.slice(memberLimit.offset, memberLimit.limit);
-    setTenMembers(sliced);
-  }
 
-  function loadSearchedData(query) {
-    const matched = allMembers.filter((m) =>
-      [m.email, m.first_name, m.last_name, m.position.name, String(m.id)].some((field) =>
-        field.toLowerCase().includes(query.toLowerCase())
-      )
-    );
-    setFilteredMembers(matched);
-    generatePagination(matched);
-    setMemberLimit({ offset: 0, limit: 10 });
-  }
 
-  function generatePagination(array) {
-    const pageCount = Math.ceil(array.length / 10);
-    const newPages = Array.from({ length: pageCount }, (_, i) => ({ id: i + 1, page: i + 1 }));
-    setPages(newPages);
-  }
-
-  // --- Load members initially ---
-  useEffect(() => {
-    loadAllMembers(deptid);
-
-    socket.on("user_modified", () => loadAllMembers(deptid));
-    socket.on("user_created", () => loadAllMembers(deptid));
-
-    return () => {
-      socket.off("user_created");
-      socket.off("user_modified");
-    };
-  }, [deptid]);
-
-  // --- Pagination updates ---
-  useEffect(() => {
-    loadLimited();
-  }, [filteredMembers, memberLimit, allMembers]);
-
-  // --- Search debounce ---
-  useEffect(() => {
-    if (searchQuery.trim().length === 0) {
-      setFilteredMembers(allMembers);
-      generatePagination(allMembers);
-      setMemberLimit({ offset: 0, limit: 10 });
-      return;
-    }
-
-    const debounce = setTimeout(() => loadSearchedData(searchQuery), 400);
-    return () => clearTimeout(debounce);
-  }, [searchQuery]);
 
   return (
-    <div className="container-fluid mt-3">
-      {/* Header */}
-      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
-        <h5 className="fw-bold text-primary mb-2 mb-md-0">Office Members</h5>
+    <Box sx={{ width: '100%', mt: 2 }}>
+      {/* Header Section */}
+      <Stack
+        direction={{ xs: 'column', md: 'row' }}
+        justifyContent="space-between"
+        alignItems={{ xs: 'flex-start', md: 'center' }}
+        spacing={2}
+        sx={{ mb: 3 }}
+      >
+        <Box>
+          <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.main' }}>
+            Office Members
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            Manage personnel and monitor performance ratings
+          </Typography>
+        </Box>
 
-        <div className="input-group w-100 w-md-50" style={{ maxWidth: "300px" }}>
-          <span className="input-group-text bg-light">
-            <span className="material-symbols-outlined">search</span>
-          </span>
-          <input
-            type="text"
-            className="form-control"
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ width: { xs: '100%', md: 'auto' } }}>
+          <TextField
+            size="small"
             placeholder="Search member..."
             value={searchQuery}
-            onInput={(e) => setQuery(e.target.value)}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            sx={{ width: { xs: '100%', sm: 250 }, bgcolor: 'background.paper' }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon fontSize="small" color="action" />
+                </InputAdornment>
+              ),
+            }}
           />
-        </div>
-      </div>
 
-      {/* Table */}
-      <div className="table-responsive">
-        <table className="table table-hover align-middle text-center">
-          <thead className="table">
-            <tr>
-              <th>FULL NAME</th>
-              <th>NUMERICAL</th>
-              <th>ADJECTIVAL</th>
-              <th>POSITION</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {tenMembers.length > 0 ? (
-              tenMembers
-                .filter((mems) => mems.account_status === 1)
-                .map((mems) => <DepartmentMembers key={mems.id} mems={mems} />)
+          <Button
+            variant="contained"
+            disableElevation
+            startIcon={generating ? <CircularProgress size={18} color="inherit" /> : <DownloadIcon />}
+            onClick={handleDownloadReport}
+            disabled={generating}
+            sx={{ borderRadius: 2, textTransform: 'none', px: 3 }}
+          >
+            {generating ? "Generating..." : "Download Report"}
+          </Button>
+        </Stack>
+      </Stack>
+
+      {/* Members Table */}
+      <TableContainer component={Paper} elevation={0} variant="outlined" sx={{ borderRadius: 3, mb: 4 }}>
+        <Table sx={{ minWidth: 650 }}>
+          <TableHead sx={{ bgcolor: 'action.hover' }}>
+            <TableRow>
+              <TableCell sx={{ fontWeight: 700 }}>FULL NAME</TableCell>
+              <TableCell align="center" sx={{ fontWeight: 700 }}>NUMERICAL</TableCell>
+              <TableCell align="center" sx={{ fontWeight: 700 }}>ADJECTIVAL</TableCell>
+              <TableCell align="center" sx={{ fontWeight: 700 }}>POSITION</TableCell>
+              <TableCell align="right"></TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+
+            {paginatedMembers.length > 0 ? (
+              paginatedMembers.map((member) => (
+                <DepartmentMembers
+                  key={member.id}
+                  mems={member}
+                  onRemove={removeMember}
+                />
+              ))
             ) : (
-              <tr>
-                <td colSpan="7" className="py-4 text-muted">
-                  <div className="d-flex flex-column align-items-center">
-                    <span className="material-symbols-outlined fs-1 text-secondary">no_accounts</span>
-                    <small>No Members Found</small>
-                  </div>
-                </td>
-              </tr>
+              <TableRow>
+                <TableCell colSpan={5} sx={{ py: 8 }}>
+                  <Stack alignItems="center" spacing={1} sx={{ color: 'text.disabled' }}>
+                    <NoAccountIcon sx={{ fontSize: 48 }} />
+                    <Typography variant="body2">No active members found</Typography>
+                  </Stack>
+                </TableCell>
+              </TableRow>
             )}
+          </TableBody>
+        </Table>
 
-          </tbody>
-        </table>
-      </div>
+        {totalPages > 1 && (
+          <Box sx={{ p: 2, borderTop: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'center' }}>
+            <Pagination
+              count={totalPages}
+              page={page}
+              onChange={(_, value) => setPage(value)}
+              size="small"
+              color="primary"
+            />
+          </Box>
+        )}
+      </TableContainer>
 
-      {/* Pagination */}
-      {pages.length > 1 && (
-        <nav className="d-flex justify-content-center mt-3">
-          <ul className="pagination pagination-sm mb-0">
-            {pages.map((data) => (
-              <li key={data.id} className="page-item">
-                <button
-                  className={`page-link ${
-                    memberLimit.offset / 10 + 1 === data.page ? "active bg-primary text-white" : ""
-                  }`}
-                  onClick={() =>
-                    setMemberLimit({ offset: (data.page - 1) * 10, limit: data.page * 10 })
-                  }
-                >
-                  {data.page}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      )}
-    </div>
+      {/* Performance Analytics Section */}
+      <Box sx={{ mt: 6 }}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2, px: 1 }}>
+          Performance Analytics
+        </Typography>
+        <TopUserPerformanceInDepartment dept_id={deptid} currentPhase={currentPhase} />
+      </Box>
+    </Box>
   );
 }
 

@@ -4,6 +4,7 @@ import PerformanceReviews from "./Tabs/Forms/PerformanceReview"
 import DepartmentTasksTable from "./Tabs/Tasks/DepartmentTasksTable"
 import TaskWeights from "../Tasks/TaskWeights"
 import DepartmentMemberTable from "./Tabs/Members/DepartmentMemberTable"
+import PCR from "./Tabs/Forms/PCR"
 
 function DepartmentTabs({ deptId, currentPhase }) {
 
@@ -39,7 +40,8 @@ function DepartmentTabs({ deptId, currentPhase }) {
       </ul>
 
       {tab === 0 && (
-        <PerformanceReviews deptid={deptId} dept_mode={false} />
+        
+        <PCR deptid={deptId} dept_mode={false} />
       )}
 
       {tab === 1 && (

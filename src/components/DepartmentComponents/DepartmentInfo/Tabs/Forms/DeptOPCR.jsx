@@ -1,207 +1,130 @@
-import { useEffect, useState } from "react";
-import { archiveIprc, archiveOprc, downloadIPCR, downloadOPCR, downloadPlannedOPCR, updateRating } from "../../../../../services/pcrServices";
-import Swal from "sweetalert2";
-import { getSettings } from "../../../../../services/settingsService";
+import React, { useEffect, useState } from "react";
+import { 
+    Card, 
+    CardContent, 
+    Typography, 
+    Button, 
+    Stack, 
+    Box, 
+    CircularProgress, 
+    Chip,
+    Divider
+} from "@mui/material";
+import { 
+    FileDownload as DownloadIcon, 
+    Visibility as ViewIcon, 
+    PendingActions as PendingIcon,
+    Business as BusinessIcon
+} from "@mui/icons-material";
+import { downloadOPCR } from "../../../../../services/pcrServices";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
-function DeptOPCR(props) {
+function DeptOPCR({ opcr, opcr_id, dept_id, dept_mode }) {
+    const [downloading, setDownloading] = useState(false);
+    const navigate = useNavigate();
 
-    //gawin bukas yung supporting documents 
-    //gawin yung head module
-    //generate OPCR bukas
-    //review and approve opcr para sa admin at head
-    //account settings
-
-    const [optionsOpen, setOpen] = useState(false)
-    const [downloading, setDownloading] = useState(false)
-    const [archiving, setArchiving] = useState(false)
-    const [currentPhase, setCurrentPhase] = useState(null) //monitoring, rating, planning
-    const navigate = useNavigate()
-    
-    async function loadCurrentPhase() {
+    const handleDownload = async () => {
+        setDownloading(true);
         try {
-          const res = await getSettings()
-          const phase = res?.data?.data?.current_phase
-          console.log("Current phase:", phase)
-          setCurrentPhase(phase) //monitoring, rating, planning
+            const res = await downloadOPCR(opcr_id);
+            const link = res.data.link;
+            window.open(link, "_blank", "noopener,noreferrer");
         } catch (error) {
-          console.error("Failed to load current phase:", error)
-        }
-    }
-
-    function isMonitoringPhase() {
-            return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("monitoring")
-        }
-    
-    function isRatingPhase() {
-            return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("rating")
-        }
-    
-    function isPlanningPhase() {
-            return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("planning")
-        }
-
-
-    async function handleArchive(){
-            setArchiving(true)
-            var res = await archiveOprc(props.opcr.id).then(data => data.data.message).catch(error => {
-                console.log(error.response.data.error)
-                Swal.fire({
-                    title: "Error",
-                    text: error.response.data.error,
-                    icon: "error"
-                })
-            })
-            console.log(res)
-            if (res == "OPCR was archived successfully."){
-                Swal.fire({
-                    title:"Success",
-                    text: res,
-                    icon:"success"
-                })
-            }
-            else {
-                Swal.fire({
-                    title:"Error",  
-                    text: "Archiving OPCR failed",
-                    icon:"error"
-                })
-            }
-            setArchiving(false)
-        } 
-            
-        async function archiveOPCR(){
             Swal.fire({
-                title:"Archive",
-                text:"Do you want to archive this OPCR?",
-                showDenyButton: true,
-                confirmButtonText:"Archive",
-                confirmButtonColor:"red",
-                denyButtonText:"No",
-                denyButtonColor:"grey",
-                icon:"warning",
-                customClass: {
-                    actions: 'my-actions',
-                    confirmButton: 'order-2',
-                    denyButton: 'order-1 right-gap',
-                },
-            }).then((result)=> {
-                if(result.isConfirmed){
-                    handleArchive()
-                }
-            }) 
+                title: "Download Failed",
+                text: error.response?.data?.error || "An error occurred while fetching the file.",
+                icon: "error"
+            });
+        } finally {
+            setDownloading(false);
         }
-    
-        async function download() {
-            setDownloading(true)
-            console.log("OPCR ID",props.opcr_id)
-            var res = await downloadOPCR(props.opcr_id).then(data => data.data.link).catch(error => {
-                console.log(error.response.data.error)
-                Swal.fire({
-                    title: "Error",
-                    text: error.response.data.error,
-                    icon: "error"
-                })
-            })
-                window.open(res, "_blank", "noopener,noreferrer");
-                setDownloading(false)
-            }
+    };
 
-        async function downloadPlanned() {
-            setDownloading(true)
-            var res = await downloadPlannedOPCR(props.dept_id).then(data => data.data.link).catch(error => {
-                console.log(error.response.data.error)
-                Swal.fire({
-                    title: "Error",
-                    text: error.response.data.error,
-                    icon: "error"
-                })
-            })
-                window.open(res, "_blank", "noopener,noreferrer");
-                setDownloading(false)
-            }
+    const handleView = () => {
+        const baseRoute = dept_mode ? "/head/opcr" : "/sadmin/opcr";
+        navigate(`${baseRoute}/${opcr_id}?dept_id=${dept_id}&mode=check`);
+    };
 
-        useEffect(()=> {
-            console.log(props.opcr_id)
-            loadCurrentPhase()
-        }, [])
-
-        
-            
     return (
-        <div className="ipcr-wrapper "> 
-            {optionsOpen && <div className="popup" onMouseLeave={()=>{setOpen(false)}}>
-                <div className="choices" onClick={()=> {download()}} style={{justifyContent:"center"}} >
-                    <span className="material-symbols-outlined">{downloading ? "refresh": "download"}</span>
-                    {!downloading && <span>Download</span>}
-                </div>
-                <div className="choices" onClick={()=>{archiveIPCR()}}>
-                    <span className="material-symbols-outlined">archive</span>
-                    {!archiving && <span>Archive</span>} 
-                </div>
+        <Card 
+            variant="outlined" 
+            sx={{ 
+                mb: 2, 
+                borderRadius: 3, 
+                transition: "0.3s", 
+                "&:hover": { boxShadow: 4, borderColor: 'primary.main' } 
+            }}
+        >
+            <CardContent>
+                <Stack 
+                    direction={{ xs: "column", sm: "row" }} 
+                    justifyContent="space-between" 
+                    alignItems="center" 
+                    spacing={2}
+                >
+                    {/* INFO SECTION */}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Box 
+                            sx={{ 
+                                bgcolor: 'primary.main', 
+                                color: 'primary.lighter', 
+                                p: 1, 
+                                borderRadius: 2,
+                                display: 'flex'
+                            }}
+                        >
+                            <BusinessIcon fontSize="medium" />
+                        </Box>
+                        <Box>
+                            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, textTransform: 'uppercase' }}>
+                                Office Performance Review
+                            </Typography>
+                            <Typography variant="h6" sx={{ fontWeight: 600, lineHeight: 1.2 }}>
+                                {opcr?.department || "Unknown Department"}
+                            </Typography>
+                        </Box>
+                    </Box>
 
-                <div className="choices"  data-bs-toggle="modal" data-bs-target={props.dept_mode? "#manage-docs":""}>
-                    <span className="material-symbols-outlined">attach_file</span>
-                    <span>Documents</span>
-                </div>
-
-                
-            </div>}
-            
-
-            <div className="dept-ipcr" >                                                
-                <div className="description">                        
-                    <div className="ipcr-info">
-                        
-                        <span >{ props.opcr && "OPCR - "}</span>
-                        <span>{props.opcr.department}</span>
-                    </div>
-                </div> 
-
-                {
-                    props.opcr ?
-                    <div className="status-container">                                                 
-                        <button disabled = {downloading} className="choices btn btn-primary" onClick={()=> {
-                            if (isPlanningPhase()){
-                                console.log("DOWNLOADING PLANNED OPCR")
-                                downloadPlanned()
-                            }
-                            else {
-                                console.log("DOWNLOADING OPCR HEHE")
-                                download()
-                            }
-                        }} style={{justifyContent:"center"}}>
-                            <span className="material-symbols-outlined">{downloading ? "refresh": "download"}</span>
-                            {!downloading && <span>Download</span>}
-                        </button>
-                        
-                        <button className="choices btn btn-success" onClick={()=> {
-                            if(isPlanningPhase()){
-                                if (props.dept_mode) {
-                                    navigate(`/head/drafted/${props.opcr_id}?dept_id=${props.dept_id}&mode=check`)
-                                }
-                                else {
-                                    navigate(`/sadmin/drafted/${props.opcr_id}?dept_id=${props.dept_id}&mode=check`)
-                                }                                
-                            }
-                            else {                                
-                                if (props.dept_mode) {
-                                    navigate(`/head/opcr/${props.opcr_id}?dept_id=${props.dept_id}&mode=check`)
-                                }
-                                else {
-                                    navigate(`/sadmin/opcr/${props.opcr_id}?dept_id=${props.dept_id}&mode=check`)
-                                }
-                            }
-                        }} >
-                            <span className="material-symbols-outlined">view_list</span>
-                            <span>View</span>
-                        </button>                      
-                    </div>:
-                    <span style={{display:"flex", flexDirection:"row", justifyContent:"flex-end", fontStyle:"italic"}}>Awaiting Submission</span>
-                }
-            </div>
-        </div>
-    )
+                    {/* ACTIONS SECTION */}
+                    <Stack direction="row" spacing={1} alignItems="center">
+                        {opcr ? (
+                            <>
+                                <Button
+                                    variant="outlined"
+                                    color="primary"
+                                    startIcon={downloading ? <CircularProgress size={16} color="inherit" /> : <DownloadIcon />}
+                                    onClick={handleDownload}
+                                    disabled={downloading}
+                                    sx={{ borderRadius: 2 }}
+                                >
+                                    {downloading ? "Preparing..." : "Download"}
+                                </Button>
+                                
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    startIcon={<ViewIcon />}
+                                    onClick={handleView}
+                                    sx={{ borderRadius: 2, boxShadow: 'none' }}
+                                >
+                                    View
+                                </Button>
+                            </>
+                        ) : (
+                            <Chip 
+                                icon={<PendingIcon />} 
+                                label="Awaiting Submission" 
+                                variant="outlined" 
+                                color="warning" 
+                                sx={{ fontStyle: 'italic' }}
+                            />
+                        )}
+                    </Stack>
+                </Stack>
+            </CardContent>
+        </Card>
+    );
 }
 
-export default DeptOPCR
+export default DeptOPCR;
