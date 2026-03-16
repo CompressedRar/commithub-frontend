@@ -6,7 +6,7 @@ import TaskWeights from "../Tasks/TaskWeights"
 import DepartmentMemberTable from "./Tabs/Members/DepartmentMemberTable"
 import PCR from "./Tabs/Forms/PCR"
 
-function DepartmentTabs({ deptId, currentPhase }) {
+function DepartmentTabs({ deptId, currentPhase, headMode = false }) {
 
   const [tab, setTab] = useState(0)
 
@@ -41,13 +41,13 @@ function DepartmentTabs({ deptId, currentPhase }) {
 
       {tab === 0 && (
         
-        <PCR deptid={deptId} dept_mode={false} />
+        <PCR deptid={deptId} dept_mode={headMode} />
       )}
 
       {tab === 1 && (
         <DepartmentTasksTable
           id={deptId}
-          admin_mode={true}
+          admin_mode={!headMode}
           currentPhase={currentPhase}
         />
       )}

@@ -2,11 +2,11 @@ import DepartmentInfo from "../DepartmentInfo/Info"
 
 
 
-function DepartmentDetails({ departmentId, onLoadDepartments }) {
+function DepartmentDetails({ departmentId, onLoadDepartments = ()=>{}, headMode = false }) {
 
     return (
 
-        <div className="col-12 col-lg-7 col-xl-8">
+        <div className={headMode ? "col-12" : "col-12 col-lg-7 col-xl-8"}>
 
             <div className="border rounded shadow-sm p-3">
                 
@@ -16,6 +16,7 @@ function DepartmentDetails({ departmentId, onLoadDepartments }) {
                     <DepartmentInfo
                         key={departmentId}
                         id={departmentId}
+                        headMode={headMode}
                         onLoadDepartments={onLoadDepartments}
                     />
 

@@ -1,291 +1,115 @@
-import { useEffect, useState } from "react";
-import Swal from "sweetalert2";
-import { getDepartmentTasks } from "../../../../../services/departmentService";
-import { socket } from "../../../../api";
+import { useState } from "react";
+import { Box, Typography, Stack, TextField, InputAdornment, Button, Pagination, Paper, CircularProgress } from "@mui/material";
+import { Search as SearchIcon, AddTask as AddTaskIcon, AssignmentLate as NoTaskIcon } from "@mui/icons-material";
+
+
 import DepartmentTask from "./DepartmentTask";
 import DepartmentAssignTask from "../../../DepartmentAssignTask";
 import AddDepartmentTask from "../../../AddDepartmentTask";
 import FormulaSettings from "../../../Tasks/TaskFormulas";
+import { TaskModal } from "./modals/TaskModal";
+import { useDepartmentTasks } from "./hooks/useDepartmentTask";
+
+
+const ITEMS_PER_PAGE = 10;
 
 function DepartmentTasksTable({ id, admin_mode, currentPhase }) {
-  const [allMembers, setAllMembers] = useState([]);
-  const [filteredMembers, setFilteredMembers] = useState([]);
-  const [tenMembers, setTenMembers] = useState([]);
-  const [pages, setPages] = useState([]);
-  const [memberLimit, setMemberLimit] = useState({ offset: 0, limit: 10 });
-  const [searchQuery, setQuery] = useState("");
-  const [currentUserID, setCurrentUserID] = useState(0);
+  const { tasks, loading, searchQuery, setQuery } = useDepartmentTasks(id);
+  const [page, setPage] = useState(1);
+  const [selectedTaskId, setSelectedTaskId] = useState(null);
+  const [selectedTaskData, setSelectedTaskData] = useState(null);
 
-  const [currentTaskData, setCurrentTaskData] = useState(null)
+  // Pagination Logic
+  const totalPages = Math.ceil(tasks.length / ITEMS_PER_PAGE);
+  const paginatedTasks = tasks.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
-  // Load all tasks
-  async function loadAllMembers() {
-    try {
-      const res = await getDepartmentTasks(id);
-      console.log("DEPARTMENTTASK",res.data)
-      setAllMembers(res.data);
-      setFilteredMembers(res.data);
-      generatePagination(res.data);
-    } catch (error) {
-      console.error(error);
-      Swal.fire({
-        title: "Error",
-        text: error.response?.data?.error || "Failed to load tasks.",
-        icon: "error",
-      });
-    }
-  }
+  const handleTaskSelect = (task) => {
+    setSelectedTaskId(task.id);
+    setSelectedTaskData(task);
+  };
 
-  // Pagination logic
-  function loadLimited() {
-    const sliced = filteredMembers.slice(memberLimit.offset, memberLimit.limit);
-    setTenMembers(sliced);
-  }
-
-  // Search filter
-  function loadSearchedData(query) {
-    const matched = allMembers.filter(
-      (member) =>
-        member.name.toLowerCase().includes(query.toLowerCase()) ||
-        member.actual_accomplishment
-          .toLowerCase()
-          .includes(query.toLowerCase()) ||
-        member.target_accomplishment
-          .toLowerCase()
-          .includes(query.toLowerCase()) ||
-        member.category.name.toLowerCase().includes(query.toLowerCase())
-    );
-    setFilteredMembers(matched);
-    generatePagination(matched);
-    setMemberLimit({ offset: 0, limit: 10 });
-  }
-
-  // Create pagination buttons
-  function generatePagination(array) {
-    const totalPages = Math.ceil(array.length / 10);
-    const newPages = Array.from({ length: totalPages }, (_, i) => ({
-      id: i + 1,
-      page: i + 1,
-    }));
-    setPages(newPages);
-  }
-
-  // --- EFFECTS ---
-  useEffect(() => {
-    if (searchQuery.trim().length === 0) {
-      loadLimited();
-      loadAllMembers();
-      return;
-    }
-    const debounce = setTimeout(() => {
-      loadSearchedData(searchQuery);
-    }, 500);
-    return () => clearTimeout(debounce);
-  }, [searchQuery]);
-
-  useEffect(() => {
-    loadLimited();
-  }, [allMembers, memberLimit]);
-
-  // Socket updates
-  useEffect(() => {
-    loadAllMembers();
-    socket.on("user_created", loadAllMembers);
-    socket.on("user_assigned", loadAllMembers);
-    socket.on("user_unassigned", loadAllMembers);
-    socket.on("task_modified", loadAllMembers);
-    socket.on("department_assigned", loadAllMembers);
-
-  }, []);
-
+  
 
   return (
-    <div className="container-fluid py-3 bg-white ">
-      {/* === Add Task Modal === */}
-      <div
-        className="modal fade"
-        id="add-user"
-        data-bs-backdrop="static"
-        data-bs-keyboard="false"
-        tabIndex="-1"
-        aria-labelledby="addTaskModalLabel"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog modal-dialog-centered modal-xl " style={{scale:"1.1"}}>
-          <div className="modal-content">
-            <div className="modal-header bg-primary text-white">
-              <h5 className="modal-title" id="addTaskModalLabel">
-                <i className="bi bi-plus-circle me-2"></i> Add Office Output
-              </h5>
-              <button
-                type="button"
-                className="btn-close btn-close-white"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div className="modal-body bg-light">
-              <h2>Key Result Areas</h2>
-              <AddDepartmentTask dept_id={id} />
-            </div>
-          </div>
-        </div>
-      </div>
+    <Box sx={{ width: '100%', mt: 2 }}>
+      
+      <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems="flex-end" spacing={2} sx={{ mb: 4 }}>
+        <Box>
+          <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.main' }}>Office Tasks</Typography>
+          <Typography variant="caption" color="text.secondary">
+            Assign tasks to members' IPCR and track progress.
+          </Typography>
+        </Box>
 
-      {/* === Assign Member Modal === */}
-      <div
-        className="modal fade"
-        id="user-profile"
-        data-bs-backdrop="static"
-        data-bs-keyboard="false"
-        tabIndex="-1"
-        aria-labelledby="assignModalLabel"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog modal-dialog-centered modal-xl">
-          <div className="modal-content">
-            <div className="modal-header bg-primary text-white">
-              <h5 className="modal-title" id="assignModalLabel">
-                <i className="bi bi-person-plus me-2"></i> Assign Members
-              </h5>
-              <button
-                type="button"
-                className="btn-close btn-close-white"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div className="modal-body bg-light">
-              {currentUserID ? (
-                <DepartmentAssignTask
-                  key={currentUserID}
-                  task_id={currentUserID}
-                  dept_id={id}
-                  currentPhase={currentPhase}
-                />
-              ) : (
-                <p className="text-center text-muted">
-                  Select an output to assign members.
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+        <Stack direction="row" spacing={2}>
+          <TextField
+            size="small"
+            placeholder="Search tasks..."
+            value={searchQuery}
+            onChange={(e) => { setQuery(e.target.value); setPage(1); }}
+            InputProps={{
+              startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment>,
+            }}
+          />
+          {admin_mode && (
+            <Button variant="contained" startIcon={<AddTaskIcon />} data-bs-toggle="modal" data-bs-target="#add-task-modal">
+              Manage Tasks
+            </Button>
+          )}
+        </Stack>
+      </Stack>
 
-      <div
-        className="modal fade"
-        id="formulas"
-        data-bs-backdrop="static"
-        data-bs-keyboard="false"
-        tabIndex="-1"
-        aria-labelledby="assignModalLabel"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog modal-dialog-centered modal-xl">
-          <div className="modal-content">
-            <div className="modal-header bg-primary text-white">
-              <h5 className="modal-title" id="assignModalLabel">
-                <i className="bi bi-person-plus me-2"></i> Manage Formula
-              </h5>
-              <button
-                type="button"
-                className="btn-close btn-close-white"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div className="modal-body bg-light">
-              {currentUserID ? (
-                <FormulaSettings
-                  task_data = {currentTaskData}
-                ></FormulaSettings>
-              ) : (
-                <p className="text-center text-muted">
-                  Select an output to assign members.
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>      {/* === Header Controls === */}
+      {/* --- CONTENT --- */}
+      <Box sx={{ minHeight: 400 }}>
+        {loading ? (
+          <Stack alignItems="center" sx={{ py: 10 }}><CircularProgress /></Stack>
+        ) : paginatedTasks.length > 0 ? (
+          paginatedTasks.map((task) => (
+            <Box key={task.id} sx={{ mb: 2 }}>
+              <DepartmentTask
+                mems={task}
+                dept_id={id}
+                switchMember={(tid) => setSelectedTaskId(tid)}
+                switchInfo={() => setSelectedTaskData(task)}
+                currentPhase={currentPhase}
+              />
+            </Box>
+          ))
+        ) : (
+          <Paper variant="outlined" sx={{ py: 10, textAlign: 'center', bgcolor: 'grey.50' }}>
+            <NoTaskIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 1 }} />
+            <Typography variant="body2" color="text.disabled">No Office Tasks Found</Typography>
+          </Paper>
+        )}
+      </Box>
 
-
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-3">
-        <h4 className="fw-semibold text-dark mb-0">Office Tasks</h4>
-        <div className="d-flex align-items-center gap-2 m-2">
-            {admin_mode? <button
-                className="btn btn-primary d-flex align-items-center"
-                data-bs-toggle="modal"
-                data-bs-target="#add-user"
-                style={{ height: "38px", textWrap:"wrap" }}
-                
-            >
-                <span className="" style={{textWrap:"nowrap" }}>Manage Tasks</span>
-            </button>: ""}
-
-            <div className="input-group" style={{ width: "250px", height: "38px" }}>
-                <span className="input-group-text bg-white">
-                    <span className="material-symbols-outlined">search</span>
-                </span>
-                <input
-                type="text"
-                className="form-control shadow-none"
-                placeholder="Search task..."
-                onInput={(e) => setQuery(e.target.value)}
-                style={{ height: "38px" }}
-                />
-            </div>
-        </div>
-      </div>
-
-      {/* === Tasks Table === */}
-      <div className="">
-        {tenMembers.length > 0 ? (
-              tenMembers.map((mems) => (
-                <DepartmentTask
-                  key={mems.id}
-                  mems={mems}
-                  dept_id={id}
-                  switchMember={(id) => setCurrentUserID(id)}
-                  switchInfo= {() => setCurrentTaskData(mems)}
-                  currentPhase={currentPhase}
-                />
-              ))
-            ) : (
-              <tr>
-                <td colSpan="6" className="text-center py-4 text-muted">
-                  <i className="bi bi-file-earmark-x fs-4 d-block mb-2"></i>
-                  No Office Outputs Found
-                </td>
-              </tr>
-            )}
-      </div>
-
-      {/* === Pagination === */}
-      {pages.length > 1 && (
-        <nav className="mt-4">
-          <ul className="pagination justify-content-center mb-0">
-            {pages.map((data) => (
-              <li key={data.id} className="page-item">
-                <button
-                  className="page-link"
-                  onClick={() =>
-                    setMemberLimit({
-                      offset: (data.page - 1) * 10,
-                      limit: data.page * 10,
-                    })
-                  }
-                >
-                  {data.page}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </nav>
+      {/* --- PAGINATION --- */}
+      {totalPages > 1 && (
+        <Stack alignItems="center" sx={{ mt: 4 }}>
+          <Pagination count={totalPages} page={page} onChange={(_, v) => setPage(v)} color="primary" />
+        </Stack>
       )}
-    </div>
+
+      {/* --- MODALS --- */}
+      <TaskModal id="add-task-modal" title="Add Office Task" icon="bi-plus-circle">
+        <AddDepartmentTask dept_id={id} />
+      </TaskModal>
+
+      <TaskModal id="user-profile" title="Assign Members" icon="bi-person-plus">
+        {selectedTaskId ? (
+          <DepartmentAssignTask key={selectedTaskId} task_id={selectedTaskId} dept_id={id} currentPhase={currentPhase} />
+        ) : <EmptySelectionNote />}
+      </TaskModal>
+
+      <TaskModal id="formulas" title="Manage Formula" icon="bi-calculator">
+        {selectedTaskData ? (
+          <FormulaSettings task_data={selectedTaskData} />
+        ) : <EmptySelectionNote />}
+      </TaskModal>
+    </Box>
   );
 }
+
+const EmptySelectionNote = () => <p className="text-center text-muted">Select a task to proceed.</p>;
 
 export default DepartmentTasksTable;

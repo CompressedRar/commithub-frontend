@@ -4,14 +4,7 @@ import { useState } from "react";
 export default function AssignedDepartment({info}){
     const [assigned, setAssigned] = useState([]);
       const [currentPhase, setCurrentPhase] = useState(null) //monitoring, rating, planning
-    
-      
-    
-      
-    
-      
-    
-    
+          
       return (
         <div
           key={info.id}

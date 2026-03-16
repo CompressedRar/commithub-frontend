@@ -1,4 +1,4 @@
-function DepartmentBanner({ deptInfo, managerInfo }) {
+function DepartmentBanner({ deptInfo, managerInfo, headMode = false }) {
 
   const protectedOffices = [
     "College of Computing Studies ",
@@ -40,40 +40,41 @@ function DepartmentBanner({ deptInfo, managerInfo }) {
           </p>
         </div>
 
-        <div className="d-flex gap-2 justify-content-end flex-wrap">
-
-          <button
-            className="btn btn-light text-dark fw-semibold d-flex align-items-center gap-1 shadow-sm border-0 px-3 py-2 rounded-pill"
-            data-bs-toggle="modal"
-            data-bs-target="#assign-head"
-          >
-            <span className="material-symbols-outlined">person_add</span>
-            Assign Head
-          </button>
-
-          {!isProtected && (
+        {!headMode && (
+          <div className="d-flex gap-2 justify-content-end flex-wrap">
             <button
-              className="btn btn-primary fw-semibold d-flex align-items-center gap-1 shadow-sm px-3 py-2 rounded-pill"
+              className="btn btn-light text-dark fw-semibold d-flex align-items-center gap-1 shadow-sm border-0 px-3 py-2 rounded-pill"
               data-bs-toggle="modal"
-              data-bs-target="#edit-department"
+              data-bs-target="#assign-head"
             >
-              <span className="material-symbols-outlined">edit</span>
-              Edit
+              <span className="material-symbols-outlined">person_add</span>
+              Assign Head
             </button>
-          )}
 
-          {!isProtected && (
-            <button
-              className="btn btn-danger fw-semibold d-flex align-items-center gap-1 shadow-sm px-3 py-2 rounded-pill"
-              data-bs-toggle="modal"
-              data-bs-target="#archive-department"
-            >
-              <span className="material-symbols-outlined">archive</span>
-              Archive
-            </button>
-          )}
+            {!isProtected && (
+              <button
+                className="btn btn-primary fw-semibold d-flex align-items-center gap-1 shadow-sm px-3 py-2 rounded-pill"
+                data-bs-toggle="modal"
+                data-bs-target="#edit-department"
+              >
+                <span className="material-symbols-outlined">edit</span>
+                Edit
+              </button>
+            )}
 
-        </div>
+            {!isProtected && (
+              <button
+                className="btn btn-danger fw-semibold d-flex align-items-center gap-1 shadow-sm px-3 py-2 rounded-pill"
+                data-bs-toggle="modal"
+                data-bs-target="#archive-department"
+              >
+                <span className="material-symbols-outlined">archive</span>
+                Archive
+              </button>
+            )}
+
+          </div>
+        )}
       </div>
     </div>
   )

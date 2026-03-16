@@ -1,13 +1,10 @@
 import { useEffect, useState } from "react";
 import "../assets/styles/Department.css"
-import Swal from "sweetalert2";
-import HeadDepartmentInfo from "../components/DepartmentComponents/HeadDepartmentInfo";
 import { jwtDecode } from "jwt-decode";
-import DepartmentInfo from "../components/DepartmentComponents/DepartmentInfo";
+import DepartmentDetails from "../components/DepartmentComponents/DepartmentPage/DepartmentDetails";
 
 
 function HeadDepartment(){
-    const [departments, setDepartments] = useState([])
     const [currentDepartment, setCurrentDepartment] = useState(null)
     const token = localStorage.getItem("token")
 
@@ -23,8 +20,6 @@ function HeadDepartment(){
         }
     }
 
-    
-
     useEffect(()=>{
         readTokenInformation()
     },[])
@@ -33,10 +28,8 @@ function HeadDepartment(){
     return(
 
         <div className="department-container" style={{gridTemplateColumns:"1fr"}}>
-            
 
-            
-            {currentDepartment && <HeadDepartmentInfo key = {currentDepartment} id = {currentDepartment} ></HeadDepartmentInfo>}
+            {currentDepartment && <DepartmentDetails headMode={true} departmentId={currentDepartment} ></DepartmentDetails>}
         </div>
     )
 }

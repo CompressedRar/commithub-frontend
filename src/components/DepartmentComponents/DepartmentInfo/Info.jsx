@@ -7,7 +7,7 @@ import DepartmentModals from "./DepartmentModals";
 import useDepartmentPhase from "../../../hooks/useDepartmentPhase";
 import useDepartmentInfo from "../../../hooks/useDepartmentInfo";
 
-function DepartmentInfo({id,onLoadDepartments}){
+function DepartmentInfo({id,onLoadDepartments, headMode = false}) {
 
     const dept = useDepartmentInfo(id,onLoadDepartments)
     const phase = useDepartmentPhase()
@@ -38,10 +38,12 @@ function DepartmentInfo({id,onLoadDepartments}){
             <DepartmentBanner
                 deptInfo={dept.deptInfo}
                 managerInfo={dept.managerInfo}
+                headMode={headMode}
             />
 
             <DepartmentTabs
                 deptId={id}
+                headMode={headMode}
                 currentPhase={phase.currentPhase}
             />
 
