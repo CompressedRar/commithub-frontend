@@ -12,6 +12,8 @@ function DepartmentList({
 
     const [searchQuery, setSearchQuery] = useState("")
 
+    console.log("dept list render", { departments, currentDepartment, loading }) // DEBUG
+
     const filtered = (departments ?? []).filter(d =>
         (d.name || "").toLowerCase().includes(searchQuery.toLowerCase())
     )
@@ -64,7 +66,7 @@ function DepartmentList({
                             </div>
                         ) : (
 
-                            filtered.map(dept => (
+                            filtered && filtered.map(dept => (
 
                                 <DepartmentListItem
                                     key={dept.id}
