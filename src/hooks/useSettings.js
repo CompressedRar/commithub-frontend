@@ -66,7 +66,7 @@ export const useSettings = () => {
     }, [settings])
 
     function isPlanningPhase(currentPhase) {
-        return Array.isArray(currentPhase) && currentPhase.includes("planning3")
+        return Array.isArray(currentPhase) && currentPhase.includes("planning")
     }
 
     function isMonitoringPhase(currentPhase) {

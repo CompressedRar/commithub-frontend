@@ -131,7 +131,7 @@ function OtherIPCR({ onMouseOver}) {
     return (
         <div className="py-4" style={{minWidth:"1200px"}} onMouseOver={onMouseOver}>
 
-            <Stepper nonLinear activeStep={1} alternativeLabel>
+            <Stepper activeStep={1} alternativeLabel>
                     {["Planning", "Monitoring", "Rating",].map((label) => (
                     <Step key={label} completed={currentPhase && currentPhase.includes(label.toLowerCase())}>
                         <StepLabel>{label}</StepLabel>

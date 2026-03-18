@@ -16,6 +16,8 @@ export function TaskRow({ task, handleDataChange, setSubTaskID, mode, currentPha
     const isTargetEditable = isEditableMode && isEditableDuringPlanning
     const isActualEditable = isEditableMode && isEditableDuringMonitoring
 
+    console.log(currentPhase)
+
     const onNumberInput = (e) => {
         sanitizeNumberInput(e)
         handleDataChange(e)

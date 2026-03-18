@@ -41,7 +41,7 @@ function OtherEditOPCR(props) {
   const [downloading, setDownloading] = useState(false)
   const [userInfo, setUserInfo] = useState(null)
 
-  
+
 
   // new state: whether current system settings allow rating now
   const [isRatingPeriod, setIsRatingPeriod] = useState(true)
@@ -86,20 +86,20 @@ function OtherEditOPCR(props) {
     if (action === 'weighted') downloadWeighted();
     if (action === 'planned') downloadPlanned();
   };
-  
+
 
   async function loadMainTasks() {
-      try {
-        console.log("LOADING TAKSS")
-        const res = await getAssignedTasksByDept(dept_id)
-        const maintasks = res?.data?.tasks
-        console.log("Current main tasks:", maintasks)
-        setMainTasks(maintasks)
-  
-      } catch (error) {
-        console.error("Failed to load current phase:", error)
-        }
-      }
+    try {
+      console.log("LOADING TAKSS")
+      const res = await getAssignedTasksByDept(dept_id)
+      const maintasks = res?.data?.tasks
+      console.log("Current main tasks:", maintasks)
+      setMainTasks(maintasks)
+
+    } catch (error) {
+      console.error("Failed to load current phase:", error)
+    }
+  }
 
   const [currentPhase, setCurrentPhase] = useState(null) //monitoring, rating, planning
 
@@ -111,14 +111,14 @@ function OtherEditOPCR(props) {
       setCurrentPhase(phase) //monitoring, rating, planning
     } catch (error) {
       console.error("Failed to load current phase:", error)
-      }
     }
+  }
 
   async function loadCategoryTypes() {
-    try{
+    try {
       const res = await getCategories()
 
-      if(!res) return
+      if (!res) return
       const data = res.data.reduce((acc, category) => {
         acc[category.name] = category.type
         return acc
@@ -162,7 +162,7 @@ function OtherEditOPCR(props) {
         let ratingOpen = true
 
         // prefer explicit start/end fields if present
-        console.log("THE SETTINGS DATA: ",data)
+        console.log("THE SETTINGS DATA: ", data)
         const startField = data.rating_start_date ?? data.ratingStartDate ?? data.rating_start
         const endField = data.rating_end_date ?? data.ratingEndDate ?? data.rating_end
 
@@ -175,9 +175,9 @@ function OtherEditOPCR(props) {
 
             console.log(ratingOpen = now >= start && now <= end)
 
-            if (start && end ) {
+            if (start && end) {
               ratingOpen = now >= start && now <= end
-            } 
+            }
             else if (start && !end) {
               ratingOpen = now >= start
             }
@@ -193,7 +193,7 @@ function OtherEditOPCR(props) {
           if (rp) {
             let period = rp
             if (typeof rp === "string") {
-              try { period = JSON.parse(rp) } catch {}
+              try { period = JSON.parse(rp) } catch { }
             }
             if (period && period.start && period.end) {
               const now = new Date()
@@ -230,20 +230,20 @@ function OtherEditOPCR(props) {
     if (link) window.open(link, "_blank", "noopener,noreferrer")
     setDownloading(false)
   }
-  
+
   async function downloadPlanned() {
-              setDownloading(true)
-              var res = await downloadPlannedOPCR(dept_id).then(data => data.data.link).catch(error => {
-                  console.log(error.response.data.error)
-                  Swal.fire({
-                      title: "Error",
-                      text: error.response.data.error,
-                      icon: "error"
-                  })
-              })
-                  window.open(res, "_blank", "noopener,noreferrer");
-                  setDownloading(false)
-              }
+    setDownloading(true)
+    var res = await downloadPlannedOPCR(dept_id).then(data => data.data.link).catch(error => {
+      console.log(error.response.data.error)
+      Swal.fire({
+        title: "Error",
+        text: error.response.data.error,
+        icon: "error"
+      })
+    })
+    window.open(res, "_blank", "noopener,noreferrer");
+    setDownloading(false)
+  }
 
   async function downloadWeighted() {
     setDownloading(true)
@@ -356,20 +356,20 @@ function OtherEditOPCR(props) {
 
     // Iterate through new nested structure: functionObj > categoryObj > tasks
     opcrInfo.forEach(categoryObj => {
-        Object.entries(categoryObj).forEach(([category, tasks]) => {
-            tasks.forEach(task => {
-                let q = task.rating.quantity;
-                let e = task.rating.efficiency;
-                let t = task.rating.timeliness;
-                
-                let avg = calculateAverage(q, e, t);
+      Object.entries(categoryObj).forEach(([category, tasks]) => {
+        tasks.forEach(task => {
+          let q = task.rating.quantity;
+          let e = task.rating.efficiency;
+          let t = task.rating.timeliness;
 
-                qSum += q; eSum += e; tSum += t; allSum += avg;
-                qCount++; eCount++; tCount++;
-                count++;
-                });
-            });
+          let avg = calculateAverage(q, e, t);
+
+          qSum += q; eSum += e; tSum += t; allSum += avg;
+          qCount++; eCount++; tCount++;
+          count++;
         });
+      });
+    });
 
     if (count === 0) return
     setQuantity(qSum / count)
@@ -381,11 +381,11 @@ function OtherEditOPCR(props) {
   }, [opcrInfo, quantityFormula, efficiencyFormula, timelinessFormula])
 
   function calculateAverage(quantity, efficiency, timeliness) {
-        let calculations = quantity + efficiency + timeliness;
-        let result = calculations / 3;
+    let calculations = quantity + efficiency + timeliness;
+    let result = calculations / 3;
 
-        return result;
-    }
+    return result;
+  }
 
   useEffect(() => {
     if (!userInfo) return
@@ -411,15 +411,15 @@ function OtherEditOPCR(props) {
   }
 
   return (
-    <div className="py-4" style={{minWidth:"1200px"}} >
+    <div className="py-4" style={{ minWidth: "1200px" }} >
 
-      <Stepper nonLinear activeStep={1} alternativeLabel>
-                    {["Planning", "Monitoring", "Rating",].map((label) => (
-                    <Step key={label} completed={currentPhase && currentPhase.includes(label.toLowerCase())}>
-                        <StepLabel>{label}</StepLabel>
-                    </Step>
-                ))}
-            </Stepper>   
+      <Stepper activeStep={1} alternativeLabel>
+        {["Planning", "Monitoring", "Rating",].map((label) => (
+          <Step key={label} completed={currentPhase && currentPhase.includes(label.toLowerCase())}>
+            <StepLabel>{label}</StepLabel>
+          </Step>
+        ))}
+      </Stepper>
 
 
       {/* Header */}
@@ -427,7 +427,7 @@ function OtherEditOPCR(props) {
       <div className="d-flex justify-content-between gap-2 align-items-center mb-4">
         <button
           className="btn btn-outline-secondary d-flex align-items-center gap-2"
-          onClick={()=> {
+          onClick={() => {
             window.history.back()
           }}
         >
@@ -436,12 +436,12 @@ function OtherEditOPCR(props) {
         </button>
 
         <div className="d-flex align-items-center gap-2">
-          
-        <button className="btn btn-primary" data-bs-toggle="modal"
-          data-bs-target="#manage-dept-docs">Documents</button>
+
+          <button className="btn btn-primary" data-bs-toggle="modal"
+            data-bs-target="#manage-dept-docs">Documents</button>
 
 
-          <FormControl sx={{width:"200px", padding:'0px'}} size="small" variant="outlined" disabled={downloading}>
+          <FormControl sx={{ width: "200px", padding: '0px' }} size="small" variant="outlined" disabled={downloading}>
             <InputLabel>Download OPCR</InputLabel>
             <Select
               value="" // Keep it empty so it acts like a trigger
@@ -500,20 +500,20 @@ function OtherEditOPCR(props) {
               <tbody>
                 {opcrInfo && opcrInfo.map((categoryObj, i) =>
                   Object.entries(categoryObj).map(([category, tasks]) => (
-                     <TaskSection
-                       key={`${i}-${category}`}
-                       category={category}
-                       tasks={tasks}
-                       assignedData={assignedData}
-                       handleRemarks={handleRemarks}
-                       ratingThresholds={ratingThresholds}
-                       setField={setField}
-                       setValue={setValue}
-                       setRatingID={setRatingID}
-                       canEval={canEval}
-                       currentPhase={currentPhase}
-                     />
-                   ))
+                    <TaskSection
+                      key={`${i}-${category}`}
+                      category={category}
+                      tasks={tasks}
+                      assignedData={assignedData}
+                      handleRemarks={handleRemarks}
+                      ratingThresholds={ratingThresholds}
+                      setField={setField}
+                      setValue={setValue}
+                      setRatingID={setRatingID}
+                      canEval={canEval}
+                      currentPhase={currentPhase}
+                    />
+                  ))
                 )}
               </tbody>
             </table>
@@ -528,7 +528,7 @@ function OtherEditOPCR(props) {
             handleRemarks={handleRemarks}
             ratingThresholds={ratingThresholds}
             currentPhase={currentPhase}
-            opcrInfo = {opcrInfo}
+            opcrInfo={opcrInfo}
           />
 
           {/* Signatures */}
@@ -606,21 +606,21 @@ function OfficerInfoSection({ headData, assignedData }) {
 }
 
 // Sub-component: Task Section
-function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThresholds, setField, setValue, setRatingID, canEval , currentPhase}) {
+function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThresholds, setField, setValue, setRatingID, canEval, currentPhase }) {
   if (!tasks || tasks.length === 0) return null
   function isMonitoringPhase() {
-            return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("monitoring")
-        }
-    
-    function isRatingPhase() {
-            return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("rating")
-        }
-    
-    function isPlanningPhase() {
-            return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("planning")
-        }
+    return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("monitoring")
+  }
+
+  function isRatingPhase() {
+    return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("rating")
+  }
+
+  function isPlanningPhase() {
+    return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("planning")
+  }
   return (
-    <>   
+    <>
       <tr className="table-light small">
         <td colSpan="6" className="text-muted">{category}</td>
       </tr>
@@ -628,7 +628,7 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
       {tasks.map((task, idx) => (
         <tr key={idx} className="align-middle">
           <td className="fw-semibold small" style={{ minWidth: 220 }}>{task.title}</td>
-          <td className="fw-semibold small" style={{textAlign:"center"}}>{task.description?.task_weight * 100}%</td>
+          <td className="fw-semibold small" style={{ textAlign: "center" }}>{task.description?.task_weight * 100}%</td>
           <td>
             <div className="d-grid gap-2">
               <div>
@@ -640,13 +640,13 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
                   <input disabled className="form-control form-control-sm" defaultValue={(task.working_days?.target / task.frequency).toFixed(0)} />
                   <small className="text-muted d-block">{task.description?.time}/s with</small>
                 </div>
-              ):
-              (
-                <div>
-                  <input disabled className="form-control form-control-sm"  value={""}/>
-                  <small className="text-muted d-block">on the set deadline with</small>
-                </div>
-              )
+              ) :
+                (
+                  <div>
+                    <input disabled className="form-control form-control-sm" value={""} />
+                    <small className="text-muted d-block">on the set deadline with</small>
+                  </div>
+                )
               }
               <div>
                 <input disabled className="form-control form-control-sm" defaultValue={(task.corrections?.target / task.frequency).toFixed(0)} />
@@ -670,28 +670,28 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
                   <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.actual != 0 ? (task.working_days?.actual / task.frequency).toFixed(0) : 0} />
                   <small className="text-muted d-block">{task.description?.time}/s with</small>
                 </div>
-              ):
-              (
-                <div>
-                  {parseFloat(task.working_days?.actual).toFixed(0) == 0 ? (
-                    <input disabled className="form-control form-control-sm" value = ""/>
-                  ) : (
-                    <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.actual != 0 ? Math.abs(parseFloat(task.working_days?.actual / task.frequency).toFixed(0)) : ""} />
-                  )}
+              ) :
+                (
+                  <div>
+                    {parseFloat(task.working_days?.actual).toFixed(0) == 0 ? (
+                      <input disabled className="form-control form-control-sm" value="" />
+                    ) : (
+                      <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.actual != 0 ? Math.abs(parseFloat(task.working_days?.actual / task.frequency).toFixed(0)) : ""} />
+                    )}
 
-                  
-                  {task.working_days?.actual != 0 ? Math.abs(parseFloat(task.working_days?.actual / task.frequency).toFixed(0)) : 0 == 0 ? (
-                    <small className="text-muted d-block">on the set deadline with</small>
-                  ) : 
-                    parseFloat(task.working_days?.actual) < 0 ? (
-                      <small className="text-muted d-block">day/s with</small>
+
+                    {task.working_days?.actual != 0 ? Math.abs(parseFloat(task.working_days?.actual / task.frequency).toFixed(0)) : 0 == 0 ? (
+                      <small className="text-muted d-block">on the set deadline with</small>
                     ) :
-                    (
-                      <small className="text-muted d-block">day/s with</small>
-                    )
-                  }
-                </div>
-              )
+                      parseFloat(task.working_days?.actual) < 0 ? (
+                        <small className="text-muted d-block">day/s with</small>
+                      ) :
+                        (
+                          <small className="text-muted d-block">day/s with</small>
+                        )
+                    }
+                  </div>
+                )
               }
               <div>
                 <input disabled className="form-control form-control-sm" defaultValue={task.corrections?.actual != 0 ? parseFloat(task.corrections?.actual / task.frequency).toFixed(0) : 0} />
@@ -704,7 +704,7 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
           </td>
           <td className="small text-center fw-semibold">{(task.rating?.average * task.description?.task_weight).toFixed(2)}</td>
           <td className="small text-center fw-semibold">N/A</td>
-          
+
         </tr>
       ))}
     </>
@@ -714,47 +714,47 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
 
 
 function RatingBadges({ task, canEval, setField, setValue, setRatingID, currentPhase }) {
-  
-      
-    function isMonitoringPhase() {
-            return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("monitoring")
-        }
-    
-    function isRatingPhase() {
-            return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("rating")
-        }
-    
-    function isPlanningPhase() {
-            return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("planning")
-        }
+
+
+  function isMonitoringPhase() {
+    return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("monitoring")
+  }
+
+  function isRatingPhase() {
+    return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("rating")
+  }
+
+  function isPlanningPhase() {
+    return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("planning")
+  }
 
   // Function to sanitize input to allow only numbers and decimal point
   function sanitizeNumeric(v) {
     if (v === undefined || v === null || v === "") return "";
-        const str = String(v).replace(/[^0-9.]/g, "");
-        const num = parseInt(str.split(".")[0], 10);
-        if (isNaN(num)) return "";
-        if (num < 1) return "1";
-        if (num > 5) return "5";
-        return String(num);
+    const str = String(v).replace(/[^0-9.]/g, "");
+    const num = parseInt(str.split(".")[0], 10);
+    if (isNaN(num)) return "";
+    if (num < 1) return "1";
+    if (num > 5) return "5";
+    return String(num);
   }
 
-  function handleTabbing(e){
-    if(e.target.nextElementSibling){
-              e.target.nextElementSibling.focus()
-            }
-            else {
-              e.target.blur()
-            }
+  function handleTabbing(e) {
+    if (e.target.nextElementSibling) {
+      e.target.nextElementSibling.focus()
+    }
+    else {
+      e.target.blur()
+    }
   }
 
-  async function handleOPCRRatings(id, field, value){
+  async function handleOPCRRatings(id, field, value) {
     console.log("trieg", value)
-    if(value == "") return 
-    try{
+    if (value == "") return
+    try {
       await updateADept(id, field, value);
     }
-    catch(error){
+    catch (error) {
       console.log(error)
     }
   }
@@ -763,123 +763,123 @@ function RatingBadges({ task, canEval, setField, setValue, setRatingID, currentP
     <div style={{
       display: "grid",
       gridTemplateColumns: "1fr 1fr 1fr 1fr",
-      height:"150px"
+      height: "150px"
     }}>
       <input
-          type="number"
-          style={{width:"100%", height:"100%"}}
-          id={`${task.rating?.id}-quantity`}
-          className="form-control form-control-sm no-spinner text-center" 
-          disabled={!(canEval && isRatingPhase())}
-          onClick={() => canEval && setRatingID(task.rating?.id)}
-          max={5}
-          min={1}
-          
-          onInput={async (e) => { 
-            if (canEval) {
-              const sanitized = sanitizeNumeric(e.target.value);
-              if(sanitized) {
-                handleTabbing(e)
-              } 
-              e.target.value = sanitized;
-              await handleOPCRRatings(task.rating?.a_dept_id,"quantity", sanitized);
+        type="number"
+        style={{ width: "100%", height: "100%" }}
+        id={`${task.rating?.id}-quantity`}
+        className="form-control form-control-sm no-spinner text-center"
+        disabled={!(canEval && isRatingPhase())}
+        onClick={() => canEval && setRatingID(task.rating?.id)}
+        max={5}
+        min={1}
+
+        onInput={async (e) => {
+          if (canEval) {
+            const sanitized = sanitizeNumeric(e.target.value);
+            if (sanitized) {
+              handleTabbing(e)
             }
-          }}
-          autoFocus
-          onFocus={(e)=> {e.target.select()}}
-          defaultValue={parseFloat(task.rating?.quantity).toFixed(0)}
-        />
+            e.target.value = sanitized;
+            await handleOPCRRatings(task.rating?.a_dept_id, "quantity", sanitized);
+          }
+        }}
+        autoFocus
+        onFocus={(e) => { e.target.select() }}
+        defaultValue={parseFloat(task.rating?.quantity).toFixed(0)}
+      />
       <input
-          type="number"
-          id={`${task.rating?.id}-efficiency`}
-          style={{width:"100%", height:"100%"}}
-          className="form-control form-control-sm no-spinner text-center" 
-          disabled={!(canEval && isRatingPhase())}
-          onClick={() => canEval && setRatingID(task.rating?.id)}
-          max={5}
-          min={1}
-          onInput={async (e) => { 
-            if (canEval) {
-              const sanitized = sanitizeNumeric(e.target.value);
-              if(sanitized) {
-                handleTabbing(e)
-              } 
-              e.target.value = sanitized;
-              let a = await handleOPCRRatings(task.rating?.a_dept_id,"efficiency", sanitized);
-              
+        type="number"
+        id={`${task.rating?.id}-efficiency`}
+        style={{ width: "100%", height: "100%" }}
+        className="form-control form-control-sm no-spinner text-center"
+        disabled={!(canEval && isRatingPhase())}
+        onClick={() => canEval && setRatingID(task.rating?.id)}
+        max={5}
+        min={1}
+        onInput={async (e) => {
+          if (canEval) {
+            const sanitized = sanitizeNumeric(e.target.value);
+            if (sanitized) {
+              handleTabbing(e)
             }
-          }}
-          autoFocus
-          onFocus={(e)=> {e.target.select()}}
-          defaultValue={parseFloat(task.rating?.efficiency).toFixed(0)}
-        />
-        <input
-          type="number"
-          style={{width:"100%", height:"100%"}}
-          className={"form-control form-control-sm no-spinner text-center "} 
-          disabled={!(canEval && isRatingPhase())}
-          onClick={() => canEval && setRatingID(task.rating?.id)}
-          max={5}
-          min={1}
-          onInput={async (e) => { 
-            if (canEval) {
-              const sanitized = sanitizeNumeric(e.target.value);
-              if(sanitized) {
-                handleTabbing(e)
-              } 
-              e.target.value = sanitized;
-              await handleOPCRRatings(task.rating?.a_dept_id,"timeliness", sanitized);
-            }
-          }}
-          autoFocus
-          onFocus={(e)=> {e.target.select()}}
-          defaultValue={parseFloat(task.rating?.timeliness).toFixed(0)}
-        />
-      
+            e.target.value = sanitized;
+            let a = await handleOPCRRatings(task.rating?.a_dept_id, "efficiency", sanitized);
+
+          }
+        }}
+        autoFocus
+        onFocus={(e) => { e.target.select() }}
+        defaultValue={parseFloat(task.rating?.efficiency).toFixed(0)}
+      />
       <input
-          type="number"
-          style={{width:"100%", height:"100%"}}
-          className="form-control form-control-sm no-spinner text-center" 
-          readOnly
-          disabled
-          value={parseFloat(task.rating?.average).toFixed(1)}
-        />
+        type="number"
+        style={{ width: "100%", height: "100%" }}
+        className={"form-control form-control-sm no-spinner text-center "}
+        disabled={!(canEval && isRatingPhase())}
+        onClick={() => canEval && setRatingID(task.rating?.id)}
+        max={5}
+        min={1}
+        onInput={async (e) => {
+          if (canEval) {
+            const sanitized = sanitizeNumeric(e.target.value);
+            if (sanitized) {
+              handleTabbing(e)
+            }
+            e.target.value = sanitized;
+            await handleOPCRRatings(task.rating?.a_dept_id, "timeliness", sanitized);
+          }
+        }}
+        autoFocus
+        onFocus={(e) => { e.target.select() }}
+        defaultValue={parseFloat(task.rating?.timeliness).toFixed(0)}
+      />
+
+      <input
+        type="number"
+        style={{ width: "100%", height: "100%" }}
+        className="form-control form-control-sm no-spinner text-center"
+        readOnly
+        disabled
+        value={parseFloat(task.rating?.average).toFixed(1)}
+      />
     </div>
   )
 }
 
 // Sub-component: Final Ratings
-function FinalRatingsSection({ quantityAvg, efficiencyAvg, timelinessAvg, allAvg, handleRemarks, ratingThresholds, currentPhase, opcrInfo}) {
-  
+function FinalRatingsSection({ quantityAvg, efficiencyAvg, timelinessAvg, allAvg, handleRemarks, ratingThresholds, currentPhase, opcrInfo }) {
+
   function isMonitoringPhase() {
-            return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("monitoring")
-        }
-    
-    function isRatingPhase() {
-            return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("rating")
-        }
-    
-    function isPlanningPhase() {
-            return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("planning")
-        }
-  
+    return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("monitoring")
+  }
+
+  function isRatingPhase() {
+    return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("rating")
+  }
+
+  function isPlanningPhase() {
+    return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("planning")
+  }
+
   const [totalWeightedAvg, setTotalWAvg] = useState(0)
 
-  useEffect(()=> {
+  useEffect(() => {
     var total = 0
     opcrInfo.map((categoryObj, i) =>
-        Object.entries(categoryObj).map(([category, tasks]) => (
-          tasks.map((task, idx) => {
-              total += parseFloat(task.rating.weighted_avg)   
-              console.log(task.rating.weighted_avg)  
-            }             
-          )           
+      Object.entries(categoryObj).map(([category, tasks]) => (
+        tasks.map((task, idx) => {
+          total += parseFloat(task.rating.weighted_avg)
+          console.log(task.rating.weighted_avg)
+        }
         )
+      )
       )
     )
     console.log("w_avg", total)
-    setTotalWAvg(total)  
-  },[allAvg])
+    setTotalWAvg(total)
+  }, [allAvg])
 
   return (
     <div className="row g-3 my-4">
@@ -894,7 +894,7 @@ function FinalRatingsSection({ quantityAvg, efficiencyAvg, timelinessAvg, allAvg
               </div>
               <div className="d-flex justify-content-between">
                 <span>Efficiency (E):</span>
-                <strong>{ parseFloat(efficiencyAvg || 0).toFixed(0)}</strong>
+                <strong>{parseFloat(efficiencyAvg || 0).toFixed(0)}</strong>
               </div>
               <div className="d-flex justify-content-between">
                 <span>Timeliness (T):</span>
@@ -922,16 +922,16 @@ function FinalRatingsSection({ quantityAvg, efficiencyAvg, timelinessAvg, allAvg
             <div className="d-grid gap-2 small">
               {
                 opcrInfo.map((categoryObj, i) =>
-                    Object.entries(categoryObj).map(([category, tasks]) => (
-                      tasks.map((task, idx) => {
+                  Object.entries(categoryObj).map(([category, tasks]) => (
+                    tasks.map((task, idx) => {
 
-                          return <div className="d-flex justify-content-between">
-                              <span>{task.title} ({String(task.description.task_weight * 100) + "%"})</span>
-                              <strong>{parseFloat(task.rating.average * task.description.task_weight).toFixed(2)}</strong>
-                            </div>
-                        }
-                      )
+                      return <div className="d-flex justify-content-between">
+                        <span>{task.title} ({String(task.description.task_weight * 100) + "%"})</span>
+                        <strong>{parseFloat(task.rating.average * task.description.task_weight).toFixed(2)}</strong>
+                      </div>
+                    }
                     )
+                  )
                   )
                 )
               }

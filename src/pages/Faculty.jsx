@@ -22,7 +22,7 @@ function Faculty() {
 
   return (
     <div className="faculty-container">
-      <Stepper nonLinear alternativeLabel sx={{ mb: 4 }}>
+      <Stepper alternativeLabel sx={{ mb: 4 }}>
         {["Planning", "Monitoring", "Rating"].map((label) => (
           <Step key={label} completed={currentPhase?.includes(label.toLowerCase())}>
             <StepLabel>{label}</StepLabel>
