@@ -32,6 +32,7 @@ export const useDepartment = () => {
             setDepartments(data)
 
             if (!currentDepartment && data.length > 0) {
+                console.log("First department", data, data[0])
                 setCurrentDepartment(data[0].id)
             }
 
