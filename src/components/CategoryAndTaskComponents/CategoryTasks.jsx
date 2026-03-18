@@ -1,585 +1,169 @@
-// ...existing code...
-import { useEffect, useRef, useState } from "react";
-import { objectToFormData, socket } from "../api";
-import Swal from "sweetalert2";
+import { useRef } from "react";
 import { Modal } from "bootstrap";
-import { archiveCategory, getCategory, updateCategory } from "../../services/categoryService";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import { Button, Stack } from "@mui/material";
+import AddBoxIcon from "@mui/icons-material/AddBox";
+import ArchiveIcon from "@mui/icons-material/Archive";
+import EditIcon from "@mui/icons-material/Edit";
 
-import { getDepartments } from "../../services/departmentService";
-import { convert_tense, create_description } from "../../services/tenseConverted";
 import CategoryTask from "./CategoryTask";
+import CreateTaskModal from "./CreateTaskModal";
+import { useCategoryTasks } from "../../hooks/useCategoryTasks";
+import { useEditableTitle } from "../../hooks/useEditableTitle";
 
-import { createMainTask } from "../../services/taskService";
-import FormGroup from "@mui/material/FormGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import { Button, FormControl, Input, InputLabel, OutlinedInput, Stack, TextField } from "@mui/material";
+const MODAL_ID = "add-task";
 
-import AddBoxIcon from '@mui/icons-material/AddBox';
-import ArchiveIcon from '@mui/icons-material/Archive';
-import EditIcon from '@mui/icons-material/Edit';
-
-function CategoryTasks(props) {
-  const [categoryTasks, setCategoryTasks] = useState([]);
-  const [allDepartments, setAllDepartments] = useState([]);
-  const [categoryInfo, setCategoryInfo] = useState({});
-
-  const [formData, setFormData] = useState({
-    category_name: "",
-    id: props.id,
-  });
-
-  const [updateData, setUpdateData] = useState({
-    category_name: "",
-    id: props.id,
-  });
-
-  const [submitting, setSubmission] = useState(false);
-  const [archiving, setArchiving] = useState(false);
-  const [titleEditable, setTitleEditable] = useState(false);
-  const [pastTense, setPastTense] = useState("");
-  const [translating, setTranslating] = useState(false);
-  const [requireDocument, setRequireDocument] = useState(false);
-
-  const [isEmpty, setEmpty] = useState(true);
-
+function CategoryTasks({ id: categoryId, changeTaskID, reloadAll }) {
   const titleRef = useRef(null);
-  const formRef = useRef(null);
 
-  // --- API Loaders
-  async function loadDepartments() {
-    try {
-      const res = await getDepartments().then((data) => data.data);
-      setAllDepartments(res);
-    } catch (err) {
-      console.error(err);
-    }
-  }
+  const {
+    categoryInfo,
+    categoryTasks,
+    allDepartments,
+    loading,
+    taskForm,
+    setTaskField,
+    toggleDepartment,
+    resetTaskForm,
+    loadCategory,
+    archiveCategoryAction,
+    updateCategoryTitle,
+  } = useCategoryTasks(categoryId, reloadAll);
 
-  async function loadCategoryTasks(id) {
-    if (id == null) return;
-    setEmpty(false);
-    try {
-      const res = await getCategory(id).then((d) => d.data);
-      setCategoryInfo(res);
-      setCategoryTasks(res.main_tasks || []);
-      setFormData({
-        task_name: "",
-        department: "0",
-        task_desc: "",
-        time_measurement: "minute",
-        modification: "correction",
-        accomplishment_editable: 0,
-        time_editable: 0,
-        modification_editable: 0,
-        // new target fields
-        target_quantity: 0,
-        target_efficiency: 0,
-        target_deadline: "",       // will hold datetime-local string
-        target_timeframe: 0,       // numeric value for timeframe (units in time_measurement)
-        timeliness_mode: "timeframe",
-        id,
-      });
-      setUpdateData({ title: res.name, id });
-    } catch (error) {
-      console.error(error);
-      Swal.fire("Error", error.response?.data?.error || "Failed to load category", "error");
-    }
-  }
-
-  // --- Effects
-  useEffect(() => {
-    loadCategoryTasks(props.id);
-    loadDepartments();
-
-    const reload = () => {
-      loadCategoryTasks(props.id);
-      loadDepartments();
-    };
-
-    socket.on("category", reload);
-    socket.on("main_task", reload);
-  }, [props.id]);
-
-  useEffect(() => {
-    return
-    if (!pastTense) return;
-    const deb = setTimeout(async () => {
-      setTranslating(true);
-      try {
-        const converted_tense = await convert_tense(String(pastTense));
-        setFormData((f) => ({ ...f, past_task_desc: converted_tense }));
-      } catch {
-        Swal.fire("Error", "There is an error while processing description.", "error");
-      } finally {
-        setTranslating(false);
-      }
-    }, 500);
-    return () => clearTimeout(deb);
-  }, [pastTense]);
-
-  // --- Handlers
-  const handleDataChange = (e) => {
-    setFormData((p) => ({ ...p, [e.target.name]: e.target.value }))
-    console.log(e.target.name, e.target.value)
-    console.log(formData)
-  };
-
-  const [selectedDepartments, setSelectedDepartments] = useState([])
-
-  const handleDepartmentAppend = (e) => {
-    var departments = selectedDepartments
-
-    if(e.target.checked){
-      departments.push(e.target.value)
-      setSelectedDepartments(departments)
-    }
-    else {
-      departments = departments.filter((r) => r != e.target.value)
-      setSelectedDepartments(departments.filter((r) => r != e.target.value))
-    }
-    console.log(departments)
-    setFormData((p) => ({ ...p, [e.target.name]: departments }))
-  }
-
-  const handleTitleChange = (e) => {
-    setUpdateData((prev) => ({ ...prev, [e.target.id]: e.target.textContent }));
-  };
-
-  const handleArch = async () => {
-    try {
-      const a = await archiveCategory(props.id);
-      const msg = a.data?.message;
-      if (msg === "Key Result Area successfully archived.") {
-        Swal.fire("Success", msg, "success");
-        props.reloadAll?.();
-      } else Swal.fire("Error", msg || "Failed to archive", "error");
-    } catch (error) {
-      console.error(error);
-      Swal.fire("Error", error.response?.data?.error || "Archive failed", "error");
-    }
-  };
-
-  const handleArchive = () => {
-    Swal.fire({
-      title: "Do you want to archive this Key Result Area?",
-      showDenyButton: true,
-      confirmButtonText: "Yes",
-      denyButtonText: "No",
-    }).then(async (r) => r.isConfirmed && (await handleArch()));
-  };
-
-  const handleUpdate = async () => {
-    try {
-      const a = await updateCategory(updateData);
-      const msg = a.data?.message;
-      if (msg === "Key Result Area updated.") {
-        Swal.fire("Success", msg, "success");
-        props.reloadAll?.();
-      } else Swal.fire("Error", msg || "Update failed", "error");
-    } catch (error) {
-      console.error(error);
-      Swal.fire("Error", error.response?.data?.error || "Update failed", "error");
-    }
-  };
+  const { titleEditable, startEdit, saveEdit, cancelEdit } = useEditableTitle({
+    initialTitle: categoryInfo?.name ?? "",
+    onSave: updateCategoryTitle,
+    titleRef,
+  });
 
   const openModal = () => {
-    const modal = new Modal(document.getElementById("add-task"));
-    modal.show();
+    new Modal(document.getElementById(MODAL_ID)).show();
   };
 
-  const closeModal = () => {
-    const modal = Modal.getInstance(document.getElementById("add-task"));
-    if (modal) modal.hide();
-  };
+  if (!categoryId) {
+    return (
+      <div className="mb-3 p-4 bg-light border rounded-3">
+        <div className="d-flex align-items-start gap-3">
+          <span className="material-symbols-outlined fs-2 text-muted">info</span>
+          <div>
+            <h5 className="mb-1">No KRA Selected</h5>
+            <p className="mb-0 text-muted">Select a Key Result Area to view its tasks.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  const handleSubmission = async () => {
-    setSubmission(true);
-    let converted_tense = "";
-    let short_descrtiption = "";
-    console.log(formData)
-    
-
-    try {
-      converted_tense = await convert_tense(String(pastTense));
-
-      short_descrtiption = await create_description(JSON.stringify(formData));
-    } catch {
-      Swal.fire("Error", "There is an error while processing description.", "error");
-      setSubmission(false);
-      return;
-    }
-
-    // sync current DOM values to avoid losing the last edited input
-    const syncFromForm = () => {
-      if (!formRef.current) return formData;
-      const fd = new FormData(formRef.current);
-      const parseIntOr0 = (v) => {
-        const n = parseInt(v, 10);
-        return Number.isFinite(n) ? n : 0;
-      };
-      return {
-        ...formData,
-        task_name: fd.get("task_name") || formData.task_name,
-        department: selectedDepartments,
-        task_desc: fd.get("task_desc") || formData.task_desc,
-        target_quantity: parseIntOr0(fd.get("target_quantity") ?? formData.target_quantity),
-        target_efficiency: parseIntOr0(fd.get("target_efficiency") ?? formData.target_efficiency),
-        timeliness_mode: fd.get("timeliness_mode") || formData.timeliness_mode,
-        target_timeframe: parseIntOr0(fd.get("target_timeframe") ?? formData.target_timeframe),
-        time_measurement: fd.get("time_measurement") || formData.time_measurement,
-        target_deadline: fd.get("target_deadline") || formData.target_deadline,
-        modification: fd.get("modification") || formData.modification,
-        description:short_descrtiption
-      };
-    };
-
-    
-
-    const synced = syncFromForm();
-    console.log("SYNCED", synced)
-
-    const newFormData = objectToFormData(synced);
-    newFormData.append("past_task_desc", converted_tense);
-
-    if (!formData.task_name || !formData.task_desc) {
-      Swal.fire("Error", "Please fill all required fields", "error");
-      setSubmission(false);
-      return;
-    }
-
-    try {
-      const a = await createMainTask(newFormData);
-      const msg = a.data?.message;
-      msg === "Task successfully created."
-        ? Swal.fire("Success", msg, "success")
-        : Swal.fire("Error", msg || "Failed to create", "error");
-    } catch (error) {
-      Swal.fire("Error", error.response?.data?.error || "Failed to create task", "error");
-    } finally {
-      setSubmission(false);
-    }
-
-    await loadCategoryTasks(props.id);
-    closeModal();
-  };
-
-  // --- Utilities
-  const requiredCount = categoryTasks.filter((t) => t.required_documents).length;
-  const completedCount = categoryTasks.filter((t) => t.required_documents && t.status === 1).length;
-
-  // --- Render (no cards; clean panels + list)
   return (
     <div
       className="category-main-container container-fluid py-3"
-      style={{
-        overflowY: "auto",
-        overflowX: "hidden",
-        paddingBottom: "2.5rem",
-        position: "relative",
-      }}
+      style={{ overflowY: "auto", overflowX: "hidden", paddingBottom: "2.5rem" }}
     >
-      {isEmpty && (
-        <div className="mb-3 p-4 bg-light border rounded-3">
-          <div className="d-flex align-items-start gap-3">
-            <span className="material-symbols-outlined fs-2 text-muted">info</span>
-            <div>
-              <h5 className="mb-1">No KRA Data</h5>
-              <p className="mb-0 text-muted">There are no information about this key result area.</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* TOP: title + actions */}
+      {/* Title + Edit Controls */}
       <div className="d-flex flex-column justify-content-between align-items-start gap-5 my-4">
-        {
-          true && 
-          <div className="d-flex align-items-center gap-3">
-            <div style={{ minWidth: 220 }}>
-              <h4
-                ref={titleRef}
-                id="title"
-                contentEditable={titleEditable}
-                suppressContentEditableWarning={true}
-                onInput={handleTitleChange}
-                className={`mb-0 fw-semibold d-flex align-items-center gap-2 ${titleEditable ? "border border-primary bg-white rounded px-2 py-1" : "text-primary"}`}
-                style={{ outline: "none", cursor: titleEditable ? "text" : "default" }}
+        <div className="d-flex align-items-center gap-3">
+          <div style={{ minWidth: 220 }}>
+            <h4
+              ref={titleRef}
+              id="title"
+              contentEditable={titleEditable}
+              suppressContentEditableWarning
+              onInput={(e) =>
+                titleRef.current && (titleRef.current._pendingTitle = e.currentTarget.textContent)
+              }
+              className={`mb-0 fw-semibold d-flex align-items-center gap-2 ${
+                titleEditable ? "border border-primary bg-white rounded px-2 py-1" : "text-primary"
+              }`}
+              style={{ outline: "none", cursor: titleEditable ? "text" : "default" }}
+            >
+              <span>{categoryInfo?.name ?? "Category"}</span>
+            </h4>
+            <small className="text-muted d-block">{categoryInfo?.description}</small>
+          </div>
+
+          {titleEditable ? (
+            <Stack direction="row" gap={1}>
+              <Button
+                variant="contained"
+                color="success"
+                onClick={() => saveEdit(titleRef.current?._pendingTitle)}
               >
-                <span>{categoryInfo?.name || "Category"}</span>
-              </h4>
-              <small className="text-muted d-block">{categoryInfo?.description}</small>
-            </div>
-            
-            {titleEditable ? (
-              <Stack direction={"horizontal"} gap={1} display={"flex"}>
-                <Button variant="contained" color="success" onClick={() => { handleUpdate(); setTitleEditable(false); }}>
-                  Save
-                </Button>
-                <Button variant="outlined" onClick={() => { setTitleEditable(false); loadCategoryTasks(props.id); }}>
-                  Cancel
-                </Button>
-              </Stack>
-            ) : (
-              <Button variant="outlined" onClick={() => { setTitleEditable(true); setTimeout(() => titleRef.current?.focus(), 50); }}>
-                <EditIcon></EditIcon>
+                Save
               </Button>
-            )}
-
-
+              <Button variant="outlined" onClick={cancelEdit}>
+                Cancel
+              </Button>
+            </Stack>
+          ) : (
+            <Button variant="outlined" onClick={startEdit}>
+              <EditIcon />
+            </Button>
+          )}
         </div>
-        }
 
+        {/* Primary Actions */}
         <div className="d-flex justify-content-between w-100 gap-2 align-items-center">
-          <Button 
-            onClick={openModal}
+          <Button
             variant="contained"
-            endIcon={<AddBoxIcon></AddBoxIcon>}
             size="large"
-            >              
+            endIcon={<AddBoxIcon />}
+            onClick={openModal}
+          >
             Create Task
           </Button>
-          <Button 
-          onClick={handleArchive}
-          variant="outlined"
-          size="large"
-          color="error"
-          endIcon={<ArchiveIcon></ArchiveIcon>}
+          <Button
+            variant="outlined"
+            size="large"
+            color="error"
+            endIcon={<ArchiveIcon />}
+            onClick={archiveCategoryAction}
           >
             Archive
           </Button>
-          
-
         </div>
       </div>
-      
+
+      {/* Task List */}
       <div className="mb-4">
         <div className="d-flex justify-content-between align-items-center mb-2">
           <h3 className="mb-0">Tasks</h3>
-          <small className="text-muted">{categoryTasks?.length ?? 0} items</small>
+          <small className="text-muted">{categoryTasks.length} items</small>
         </div>
 
-        {(!Array.isArray(categoryTasks) || categoryTasks.length === 0) ? (
+        {categoryTasks.filter((t) => t?.status === 1).length === 0 ? (
           <div className="py-5 text-center text-muted border rounded-3 bg-light">
             <span className="material-symbols-outlined fs-1 d-block mb-2">playlist_remove</span>
             <div>There are no existing tasks.</div>
           </div>
         ) : (
-          <div className="d-grid place-items-center no-wrap">
+          <div className="d-grid no-wrap">
             <div className="row gap-3">
               {categoryTasks
-              .filter((t) => t?.status === 1)
-              .map((task) => (
-                <CategoryTask
-                  key={task.id}
-                  category={task}
-                  onClick={() => {
-                    // open view modal (parent expects changeTaskID)
-                    props.changeTaskID(task.id);
-                  }}
-                  onEdit={(cat) => {
-                    // populate form for editing and open modal
-                    setFormData((f) => ({
-                      ...f,
-                      task_name: cat.title ?? f.task_name,
-                      department: cat.department_id ?? cat.department ?? f.department,
-                      task_desc: cat.task_desc ?? f.task_desc,
-                      time_measurement: cat.time_measurement ?? f.time_measurement,
-                      modification: cat.modification ?? f.modification,
-                      id: cat.id ?? f.id,
-                    }));
-                    openModal();
-                  }}
-                />
-              ))}
+                .filter((t) => t?.status === 1)
+                .map((task) => (
+                  <CategoryTask
+                    key={task.id}
+                    category={task}
+                    onClick={() => changeTaskID(task.id)}
+                  />
+                ))}
             </div>
           </div>
         )}
       </div>
 
-      {/* MODAL (Create Output) - keep modal content but without inner card */}
-      <div
-        className="modal fade"
-        id="add-task"
-        data-bs-backdrop="static"
-        data-bs-keyboard="false"
-        tabIndex="-1"
-        aria-labelledby="createTaskLabel"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog modal-dialog-centered modal-xl">
-          <div className="modal-content shadow-lg border-0 rounded-3">
-            <div className="modal-header bg-primary text-white">
-              <h5 className="modal-title fw-semibold">
-                <span className="material-symbols-outlined me-2 align-middle">add_task</span>
-                Create Task
-              </h5>
-              <button type="button" className="btn-close btn-close-white" data-bs-dismiss="modal" />
-            </div>
-
-            <div className="modal-body px-4 py-3">
-              <form noValidate ref={formRef}>
-                <InputLabel htmlFor={"task_name"}>Task Name</InputLabel>
-                <FormControl fullWidth>
-                  
-                  <OutlinedInput
-                    id="task_name"
-                    placeholder="e.g., Board Trustees Meeting"
-                    onInput={handleDataChange} 
-                    required
-                    type="text" 
-                    name="task_name"
-                  >
-                  </OutlinedInput>
-                </FormControl>
-
-                
-
-                <div className="p-2">
-                  <InputLabel>Offices</InputLabel>
-                  <FormGroup sx={{
-                      display:"grid",
-                      gridTemplateColumns:"1fr 1fr 1fr",
-                    }}>
-                      {allDepartments.map((dept) => (
-                        <FormControlLabel 
-                        label={dept.name}
-                        key = {dept.id} 
-                        control={
-                          <Checkbox
-                            name="department"
-                            id = {dept.name}
-                            value = {dept.id}
-                            onChange={handleDepartmentAppend}                          
-                          ></Checkbox>
-                        }                        
-                        ></FormControlLabel>
-                        
-                      ))}
-                    </FormGroup>
-                </div>
-                <div className="col-md-12 mb-3 d-none">
-                    
-                    <input
-                      type="number"
-                      name="target_quantity"
-                      className="form-control form-control"
-                      onInput={handleDataChange}
-                      defaultValue={formData.target_quantity ?? 0}
-                      min={1}
-                    />
-                  </div>
-                    
-                
-                <div className="col-md-12 mb-3">
-                  <InputLabel>Target Accomplishment</InputLabel>
-                  <TextField 
-                    fullWidth
-                    multiline
-                    name="task_desc"
-                    maxRows={5}
-                    rows={4}
-                    placeholder="Describe the measurable aspect of the output..."
-                    onInput={(e) => {
-                      handleDataChange(e);
-                      setPastTense(e.target.value);
-                    }} 
-                    required />
-                </div>
-
-                <div className="col-md-12 mb-3 d-none">
-                    <label className="form-label fw-semibold">Timeliness Mode</label>
-                    <select name="timeliness_mode" className="form-select form-select" onChange={handleDataChange} value={formData.timeliness_mode || "timeframe"}>
-                      <option value="timeframe">Timeframe (number + unit)</option>
-                    </select>
-                </div>
-
-                
-                  <div className="row g-2 ">
-                    <div className="col-md-6 mb-3  d-none">
-                      <label className="form-label fw-semibold">Target Timeliness </label>
-                      <input
-                        type="number"
-                        name="target_timeframe"
-                        className="form-control form-control-sm"
-                        onInput={handleDataChange}
-                        value={formData.target_timeframe ?? 0}
-                      />
-                    </div>
-
-                    
-                    <div className="col-md-12 mb-3">      
-                      <InputLabel>Time Unit</InputLabel>              
-                      <TextField type="text" name="time_measurement" className="form-control" onChange={handleDataChange} placeholder="eg. days"/>
-                      
-                    </div>
-                  </div>
-                
-
-                <div className="row g-2">
-                  <div className="col-md-6 mb-3  d-none">
-                    <label className="form-label fw-semibold">Target Efficiency</label>
-                    <input
-                      type="number"
-                      name="target_efficiency"
-                      className="form-control form-control"
-                      onInput={handleDataChange}
-                      defaultValue={formData.target_efficiency ?? 0}
-                      
-                    />
-                  </div>
-                        
-                  
-                  <div className="col-md-12 mb-3">
-                    <InputLabel >Efficiency Unit</InputLabel>
-                    <TextField type="text" name="modification" className="form-control" onChange={handleDataChange} placeholder="eg. corrections"/>                    
-                  </div>
-                </div>
-
-                
-
-                <div className="row">
-                  <div className="col-md-6 mb-3">
-                    <label className="form-label fw-semibold">Require Supporting Document</label>
-                    <div className="form-check form-switch">
-                      <input
-                        className="form-check-input"
-                        type="checkbox"
-                        id="requireDocToggle"
-                        checked={requireDocument}
-                        defaultChecked={true}
-                        onChange={() => setRequireDocument(!requireDocument)}
-                        style={{ cursor: "pointer", width: "3rem", height: "1.5rem" }}
-                      />
-                      <label className="form-check-label ms-2" htmlFor="requireDocToggle">
-                        {requireDocument ? "Yes, required" : "No, optional"}
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </form>
-            </div>
-
-            <div className="modal-footer d-flex justify-content-between">
-              <button type="button" className="btn btn-outline-secondary" data-bs-dismiss="modal">
-                Close
-              </button>
-              <button type="button" className="btn btn-primary px-4" onClick={handleSubmission} disabled={submitting}>
-                {submitting || translating ? (
-                  <span className="material-symbols-outlined spin me-2 align-middle">progress_activity</span>
-                ) : (
-                  <span className="me-2 align-middle material-symbols-outlined">add_circle</span>
-                )}
-                {submitting ? "Processing..." : "Create Output"}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Create Task Modal */}
+      <CreateTaskModal
+        modalId={MODAL_ID}
+        allDepartments={allDepartments}
+        taskForm={taskForm}
+        setTaskField={setTaskField}
+        toggleDepartment={toggleDepartment}
+        resetForm={resetTaskForm}
+        onSuccess={() => loadCategory()}
+      />
     </div>
   );
 }
 
 export default CategoryTasks;
-// ...existing code...

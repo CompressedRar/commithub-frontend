@@ -4,7 +4,7 @@ import DepartmentListItem from "./DepartmentListItem"
 
 
 function DepartmentList({
-    departments,
+    departments = [],
     currentDepartment,
     setCurrentDepartment,
     loading
@@ -12,7 +12,7 @@ function DepartmentList({
 
     const [searchQuery, setSearchQuery] = useState("")
 
-    const filtered = departments.filter(d =>
+    const filtered = (departments ?? []).filter(d =>
         (d.name || "").toLowerCase().includes(searchQuery.toLowerCase())
     )
 

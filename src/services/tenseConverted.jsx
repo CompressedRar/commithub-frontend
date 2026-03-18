@@ -17,7 +17,7 @@ export async function convert_tense(sentence) {
 
 
   const data = await res.json();
-  console.log();
+  console.log(data);
   return String(data.choices[0].message.content)
 
 }
