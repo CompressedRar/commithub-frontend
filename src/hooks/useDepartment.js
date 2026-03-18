@@ -29,16 +29,19 @@ export const useDepartment = () => {
             const res = await getDepartmentsLite()
             const data = res.data
 
+
             setDepartments(data)
+            console.log("First department", data, data[0])
 
             if (!currentDepartment && data.length > 0) {
-                console.log("First department", data, data[0])
+                
                 setCurrentDepartment(data[0].id)
             }
 
             return data
 
         } catch (error) {
+            console.error("fetching dept error", error)
 
             Swal.fire({
                 title: "Error",
