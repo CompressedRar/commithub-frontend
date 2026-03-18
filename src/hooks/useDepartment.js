@@ -51,7 +51,7 @@ export const useDepartment = () => {
             setLoading(false)
         }
 
-    }, [currentDepartment])
+    }, [])
 
     const createDepartment = async (formData) => {
 
@@ -88,7 +88,7 @@ export const useDepartment = () => {
 
     useEffect(() => {
         fetchFullDepartments()        
-    }, [])
+    }, [fetchFullDepartments])
 
 
     return {        
