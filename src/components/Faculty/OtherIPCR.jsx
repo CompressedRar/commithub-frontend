@@ -17,6 +17,7 @@ import SupportingDocumentButton from "./IPCR/Header/SupportingDocumentButton"
 import { TaskSection } from "./IPCR/Task/TaskSection"
 import { useParams, useSearchParams } from "react-router-dom"
 import { Step, StepLabel, Stepper } from "@mui/material"
+import CalculateRatingButton from "./IPCR/Header/CalculateRatingButton"
 
 
 
@@ -42,7 +43,7 @@ function OtherIPCR({ onMouseOver}) {
 
     const { settings, handleRemarks, isMonitoringPhase } = useSettings();
 
-    const { downloading, downloadStandard, downloadWeighted, downloadPlanned, stats, ipcrInfo, categoryTypes, arrangedSubTasks, loadIPCR } = useIPCR();
+    const { downloading, downloadStandard, downloadWeighted, downloadPlanned, stats, ipcrInfo, categoryTypes, arrangedSubTasks, loadIPCR, handleCalculateRatings, loading } = useIPCR();
 
     const handleChange = (event) => {
         const action = event.target.value;
@@ -140,7 +141,7 @@ function OtherIPCR({ onMouseOver}) {
             </Stepper>   
 
             <ManageTaskSupportingDocuments ipcr_id={ipcrInfo.id} batch_id={ipcrInfo.batch_id} dept_mode={false} sub_tasks={arrangedSubTasks}></ManageTaskSupportingDocuments>
-            <div className="d-flex justify-content-end align-items-center gap-2 mb-4">
+            <div className="d-flex justify-content-end align-items-center gap-2 my-4">
                 <button
                     className="btn btn-outline-secondary d-none align-items-center gap-2"
                     data-bs-dismiss="modal"
@@ -149,6 +150,7 @@ function OtherIPCR({ onMouseOver}) {
                 </button>
                 <SupportingDocumentButton />
                 <DownloadIPCRButton onDownload={handleChange} downloading={downloading} />
+                <CalculateRatingButton onCalculate={handleCalculateRatings} loading={loading} />
             </div>
             
             <div className="card shadow-sm">

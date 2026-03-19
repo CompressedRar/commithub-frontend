@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react"
-import { downloadIPCR, downloadPlannedIPCR, downloadWeightedIPCR, getIPCR, updateSubTask } from "../services/pcrServices"
+import { calculateSubTaskRating, downloadIPCR, downloadPlannedIPCR, downloadWeightedIPCR, getIPCR, updateSubTask } from "../services/pcrServices"
 import { downloadFile } from "../utils/download";
 import Swal from "sweetalert2"
 
@@ -8,6 +8,8 @@ export const useIPCR = () => {
     const [ipcrInfo, setIPCRInfo] = useState(null)
     const [arrangedSubTasks, setArrangedSubTasks] = useState({})
     const [categoryTypes, setCategoryTypes] = useState({})
+    const [loading, setLoading] = useState(false);
+    const [subTaskArray, setSubTaskArray] = useState([]);
     const [stats, setStats] = useState({
         quantity: 0,
         efficiency: 0,
@@ -22,13 +24,13 @@ export const useIPCR = () => {
 
     const [downloading, setDownloading] = useState(false);
 
-    const  loadIPCR = useCallback(async (ipcr_id) => {
+    const loadIPCR = useCallback(async (ipcr_id) => {
         try {
-            console.log("fetching id",ipcr_id);
+            console.log("fetching id", ipcr_id);
             const res = await getIPCR(ipcr_id).then(data => data.data);
             setIPCRInfo(res);
             processIPCRData(res);
-            
+
         } catch (error) {
             console.log(error)
             Swal.fire({
@@ -38,6 +40,45 @@ export const useIPCR = () => {
             })
         }
     }, [])
+
+    const handleCalculateRatings = useCallback(async () => {
+        const result = await Swal.fire({
+            title: "Calculate Ratings?",
+            text: "This will override the ratings for all tasks.",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, calculate it!",
+            cancelButtonText: "Cancel"
+        });
+
+        if (result.isConfirmed) {
+            try {
+                setLoading(true);
+
+                const res = await calculateSubTaskRating(subTaskArray);
+
+                await Swal.fire({
+                    title: "Success!",
+                    text: "Ratings have been calculated successfully.",
+                    icon: "success",
+                    timer: 1000
+                });
+
+
+            } catch (error) {
+                console.error(error);
+                Swal.fire({
+                    title: "Calculation Failed",
+                    text: error.response?.data?.error || "An unexpected error occurred.",
+                    icon: "error"
+                });
+            } finally {
+                setLoading(false);
+            }
+        }
+    }, [subTaskArray])
 
     const processIPCRData = useCallback((ipcrInfo) => {
         const sub_tasks = ipcrInfo.sub_tasks
@@ -52,8 +93,10 @@ export const useIPCR = () => {
         }
 
         let q = 0, e = 0, t = 0, a = 0
-
+        const allID = []
         sub_tasks.forEach(task => {
+            allID.push(task.id)
+
             const category = task.main_task.category.name
             const type = task.main_task.category.type
 
@@ -71,6 +114,7 @@ export const useIPCR = () => {
             a += task.average
             all_categories[category].push(task)
         })
+        setSubTaskArray(allID)
 
         const count = sub_tasks.length || 1
         newStats.quantity = q / count
@@ -84,7 +128,7 @@ export const useIPCR = () => {
     }, [])
 
 
-    const downloadPlanned = (async (ipcr_id)=>{
+    const downloadPlanned = useCallback(async (ipcr_id) => {
         try {
             setDownloading(true);
             const res = await downloadPlannedIPCR(ipcr_id);
@@ -120,7 +164,7 @@ export const useIPCR = () => {
         }
     }, [])
 
-    const downloadStandard = useCallback(async (ipcr_id)=>{
+    const downloadStandard = useCallback(async (ipcr_id) => {
         try {
             setDownloading(true);
             const res = await downloadIPCR(ipcr_id);
@@ -138,8 +182,8 @@ export const useIPCR = () => {
         }
     }, []);
 
-    
 
 
-    return { stats, setStats, downloading, downloadWeighted, downloadPlanned, downloadStandard, ipcrInfo, arrangedSubTasks, categoryTypes, loadIPCR }
+
+    return { stats, setStats, downloading, downloadWeighted, downloadPlanned, downloadStandard, ipcrInfo, arrangedSubTasks, categoryTypes, loadIPCR, handleCalculateRatings, loading }
 }

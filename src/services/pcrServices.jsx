@@ -110,6 +110,11 @@ export async function updateSubTask(sub_task_id, field, value) {
     return api.patch(`/api/v1/task/sub_task/${sub_task_id}?field=${field}&value=${value}`)
 }
 
+export async function calculateSubTaskRating(subTaskIDArray) {
+    console.log("calculating sub task rating")
+    return api.post(`/api/v1/task/sub_task/calculate/`, { "sub_tasks": subTaskIDArray })
+}
+
 export async function updateADept(adept_id, field, value) {
     console.log("updating dept task")
     return api.patch(`/api/v1/task/assigned_department/${adept_id}?field=${field}&value=${value}`)
