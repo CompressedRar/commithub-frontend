@@ -16,8 +16,8 @@ import DownloadIPCRButton from "./IPCR/Header/DownloadIPCRButton"
 import SupportingDocumentButton from "./IPCR/Header/SupportingDocumentButton"
 import { TaskSection } from "./IPCR/Task/TaskSection"
 import { useParams, useSearchParams } from "react-router-dom"
-import { Step, StepLabel, Stepper } from "@mui/material"
 import CalculateRatingButton from "./IPCR/Header/CalculateRatingButton"
+import { PhaseStepper } from "./PhaseStepper"
 
 
 
@@ -41,7 +41,7 @@ function OtherIPCR({ onMouseOver}) {
     const [currentPhase, setCurrentPhase] = useState(null)
 
 
-    const { settings, handleRemarks, isMonitoringPhase } = useSettings();
+    const { settings, handleRemarks, isMonitoringPhase, isRatingPhase } = useSettings();
 
     const { downloading, downloadStandard, downloadWeighted, downloadPlanned, stats, ipcrInfo, categoryTypes, arrangedSubTasks, loadIPCR, handleCalculateRatings, loading } = useIPCR();
 
@@ -132,13 +132,7 @@ function OtherIPCR({ onMouseOver}) {
     return (
         <div className="py-4" style={{minWidth:"1200px"}} onMouseOver={onMouseOver}>
 
-            <Stepper activeStep={1} alternativeLabel>
-                    {["Planning", "Monitoring", "Rating",].map((label) => (
-                    <Step key={label} completed={currentPhase && currentPhase.includes(label.toLowerCase())}>
-                        <StepLabel>{label}</StepLabel>
-                    </Step>
-                ))}
-            </Stepper>   
+            <PhaseStepper currentPhase={currentPhase}></PhaseStepper>   
 
             <ManageTaskSupportingDocuments ipcr_id={ipcrInfo.id} batch_id={ipcrInfo.batch_id} dept_mode={false} sub_tasks={arrangedSubTasks}></ManageTaskSupportingDocuments>
             <div className="d-flex justify-content-end align-items-center gap-2 my-4">
@@ -150,7 +144,7 @@ function OtherIPCR({ onMouseOver}) {
                 </button>
                 <SupportingDocumentButton />
                 <DownloadIPCRButton onDownload={handleChange} downloading={downloading} />
-                <CalculateRatingButton onCalculate={handleCalculateRatings} loading={loading} />
+                {isRatingPhase(currentPhase) && <CalculateRatingButton onCalculate={handleCalculateRatings} loading={loading} />}
             </div>
             
             <div className="card shadow-sm">

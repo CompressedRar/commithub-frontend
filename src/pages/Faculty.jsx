@@ -3,6 +3,7 @@ import { usePeriod } from "../hooks/usePeriod";
 import IPCRContainer from "../components/Faculty/IPCRContainer";
 import EditIPCR from "../components/Faculty/EditIPCR";
 import { Stepper, Step, StepLabel } from '@mui/material';
+import { PhaseStepper } from "../components/Faculty/PhaseStepper";
 
 function Faculty() {
   const [currentPage, setCurrentPage] = useState(0);
@@ -22,13 +23,7 @@ function Faculty() {
 
   return (
     <div className="faculty-container">
-      <Stepper alternativeLabel sx={{ mb: 4 }}>
-        {["Planning", "Monitoring", "Rating"].map((label) => (
-          <Step key={label} completed={currentPhase?.includes(label.toLowerCase())}>
-            <StepLabel>{label}</StepLabel>
-          </Step>
-        ))}
-      </Stepper>
+      <PhaseStepper currentPhase={currentPhase}></PhaseStepper>
 
       {currentPage === 0 ? (
         <IPCRContainer switchPage={handleSwitchPage} />

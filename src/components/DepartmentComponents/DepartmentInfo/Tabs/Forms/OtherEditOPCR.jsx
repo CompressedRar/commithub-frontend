@@ -18,10 +18,8 @@ import { getSettings } from "../../../../../services/settingsService"
 import { getCategories } from "../../../../../services/categoryService"
 import ManageDeptSupportingDocuments from "../../../../Faculty/ManageDeptSupportingDocuments"
 import { useParams, useSearchParams } from "react-router-dom"
-import Stepper from '@mui/material/Stepper';
-import Step from '@mui/material/Step';
-import StepLabel from '@mui/material/StepLabel';
 import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { PhaseStepper } from "../../../../Faculty/PhaseStepper"
 
 function OtherEditOPCR(props) {
   const [opcrInfo, setOPCRInfo] = useState(null)
@@ -413,13 +411,7 @@ function OtherEditOPCR(props) {
   return (
     <div className="py-4" style={{ minWidth: "1200px" }} >
 
-      <Stepper activeStep={1} alternativeLabel>
-        {["Planning", "Monitoring", "Rating",].map((label) => (
-          <Step key={label} completed={currentPhase && currentPhase.includes(label.toLowerCase())}>
-            <StepLabel>{label}</StepLabel>
-          </Step>
-        ))}
-      </Stepper>
+      <PhaseStepper currentPhase={currentPhase}></PhaseStepper>
 
 
       {/* Header */}
@@ -637,7 +629,7 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
               </div>
               {task.description?.timeliness_mode == "timeframe" ? (
                 <div>
-                  <input disabled className="form-control form-control-sm" defaultValue={(task.working_days?.target / task.frequency).toFixed(0)} />
+                  <input disabled className="form-control form-control-sm" defaultValue={task.working_days?.target != 0 ? (task.working_days?.target / task.frequency).toFixed(0) : 0} />
                   <small className="text-muted d-block">{task.description?.time}/s with</small>
                 </div>
               ) :
@@ -649,7 +641,7 @@ function TaskSection({ category, tasks, assignedData, handleRemarks, ratingThres
                 )
               }
               <div>
-                <input disabled className="form-control form-control-sm" defaultValue={(task.corrections?.target / task.frequency).toFixed(0)} />
+                <input disabled className="form-control form-control-sm" defaultValue={task.corrections?.target != 0 ? parseFloat(task.corrections?.target / task.frequency).toFixed(0) : 0} />
                 <small className="text-muted d-block">{task.description?.alterations}</small>
               </div>
             </div>

@@ -27,11 +27,11 @@ import Positions from './pages/Positions'
 import NotFound from './pages/NotFound'
 import SystemSettings from './pages/SystemSettings'
 import OtherIPCR from './components/Faculty/OtherIPCR'
-import OtherEditOPCR from './components/DepartmentComponents/DepartmentInfo/Tabs/Forms/OtherEditOPCR'
 import OtherDraftedOPCR from './components/DepartmentComponents/DepartmentInfo/Tabs/Forms/OtherDraftedOPCR'
 import Analytics from './pages/Analytics'
 import ChangeForgotPassword from './pages/ChangeForgotPassword'
 import DepartmentPage from './pages/DepartmentPage'
+import OtherEditOPCR from './components/DepartmentComponents/OPCR/OtherEditOPCR'
 
 
 function App() {

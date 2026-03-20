@@ -162,6 +162,10 @@ export async function addSubTaskInIprc(main_task_id, batch_id, user_id, ipcr_id)
     return api.post(`/api/v1/pcr/ipcr/task/${main_task_id}&${batch_id}&${user_id}&${ipcr_id}`)
 }
 
+export async function computeOPCRRating(opcr_id) {
+    return api.post(`/api/v1/pcr/opcr/calculate/${opcr_id}`)
+}
+
 export async function generatePreSignedURL(data) {
     return api.post(`/api/v1/pcr/generate_presigned_url`, data)
 }
