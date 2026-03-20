@@ -25,7 +25,7 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
     try {
       const res = await getSupportingDocuments(ipcr_id);
       setDocuments(res.data);
-      console.log("IPCR DOCUEMTNGS",res.data)
+      console.log("IPCR DOCUEMTNGS", res.data)
     } catch (error) {
       console.error(error);
       Swal.fire({
@@ -38,7 +38,7 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
 
   const handleFileChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
-    
+
     const validFiles = selectedFiles.filter(f => {
       if (f.size > MAX_FILE_SIZE) {
         Swal.fire("File too large", `${f.name} exceeds 50MB`, "warning");
@@ -69,34 +69,34 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
     setPendingFiles(pendingFiles.filter((_, i) => i !== index));
   };
 
-  const handleCompile = async ()=> {
+  const handleCompile = async () => {
     try {
       setCompiling(true)
       let link = await getCompiledFromIPCR(ipcr_id)
-      .then((d) => {
-        const url = window.URL.createObjectURL(new Blob([d.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        
-        // You can name the file here
-        link.setAttribute('download', `Compiled_Report_${ipcr_id}.docx`);
-        
-        document.body.appendChild(link);
-        link.click();
+        .then((d) => {
+          const url = window.URL.createObjectURL(new Blob([d.data]));
+          const link = document.createElement('a');
+          link.href = url;
 
-        // 4. Cleanup: remove the link and revoke the temporary URL
-        link.parentNode.removeChild(link);
-        window.URL.revokeObjectURL(url);
-      })
-      .catch((err) => {
-        Swal.fire("Error", "No Images to Compile", "error")
-        setCompiling(false)
-       });
+          // You can name the file here
+          link.setAttribute('download', `Compiled_Report_${ipcr_id}.docx`);
 
-        setCompiling(false)
+          document.body.appendChild(link);
+          link.click();
+
+          // 4. Cleanup: remove the link and revoke the temporary URL
+          link.parentNode.removeChild(link);
+          window.URL.revokeObjectURL(url);
+        })
+        .catch((err) => {
+          Swal.fire("Error", "No Images to Compile", "error")
+          setCompiling(false)
+        });
+
+      setCompiling(false)
 
     }
-    catch(error){
+    catch (error) {
       console.log(error)
       Swal.fire("Error", "No Images to Compile", "error")
       setCompiling(false)
@@ -104,50 +104,54 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
   }
 
   const uploadFile = async () => {
-    if (pendingFiles.length === 0) return Swal.fire("Error", "No files selected", "error");
-    if (!selectedTask) return Swal.fire("Select Task", "Please select a task", "warning");
-
-    setUploading(true);
-    try {
-      for (const item of pendingFiles) {
-        // 1. Get S3 URL
-        const res = await generatePreSignedURL({ 
-          fileName: item.fileObject.name, 
-          fileType: item.fileObject.type 
-        });
-        
-        // 2. Upload to S3
-        await axios.put(res.data.link, item.fileObject, {
-          headers: { "Content-Type": item.fileObject.type },
-          onUploadProgress: (e) => {
-            setUploadProgress(Math.round((e.loaded * 100) / e.total));
-          },
-        });
-
-        // 3. Record in DB with the metadata from our table
-        await recordFileUploadInfo({
-          fileName: item.fileObject.name,
-          fileType: item.fileObject.type,
-          ipcrID: ipcr_id,
-          batchID: batch_id,
-          subTaskID: selectedTask,
-          title: item.title,
-          desc: item.desc,
-          eventDate: item.eventDate
-        });
-      }
-
-      Swal.fire("Success", "All files uploaded successfully", "success");
-      setPendingFiles([]);
-      setUploadProgress(0);
-      loadDocuments();
-      socket.emit("document");
-    } catch (error) {
-      Swal.fire("Upload Failed", error.message, "error");
-    } finally {
-      setUploading(false);
+  if (pendingFiles.length === 0) return Swal.fire("Error", "No files selected", "error");
+  if (!selectedTask) return Swal.fire("Select Task", "Please select a task", "warning");
+ 
+  setUploading(true);
+  try {
+    for (const item of pendingFiles) {
+ 
+      // 1. Request presigned URL — backend validates MIME type and returns a UUID key
+      const res = await generatePreSignedURL({
+        fileName: item.fileObject.name,   // sent for display_name sanitisation only
+        fileType: item.fileObject.type,   // validated against allowlist on backend
+      });
+ 
+      // 2. Upload directly to S3 using the presigned URL
+      await axios.put(res.data.link, item.fileObject, {
+        headers: { "Content-Type": item.fileObject.type },
+        onUploadProgress: (e) => {
+          setUploadProgress(Math.round((e.loaded * 100) / e.total));
+        },
+      });
+ 
+      // 3. Record in DB — use res.data.key (UUID path) not the raw filename
+      await recordFileUploadInfo({
+        fileName:  res.data.key,           // <-- UUID-based S3 key, e.g. "documents/uuid.pdf"
+        fileType:  item.fileObject.type,
+        ipcrID:    ipcr_id,
+        batchID:   batch_id,
+        subTaskID: selectedTask,
+        title:     item.title,
+        desc:      item.desc,
+        eventDate: item.eventDate,
+      });
     }
-  };
+ 
+    Swal.fire("Success", "All files uploaded successfully", "success");
+    setPendingFiles([]);
+    setUploadProgress(0);
+    loadDocuments();
+    socket.emit("document");
+ 
+  } catch (error) {
+    // Show the backend's validation error (e.g. "File type not allowed")
+    const msg = error.response?.data?.error || error.message;
+    Swal.fire("Upload Failed", msg, "error");
+  } finally {
+    setUploading(false);
+  }
+};
 
   const download = (link) => {
     window.open(link, "_blank", "noopener,noreferrer");
@@ -229,9 +233,9 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
                   <div className="row g-3 mb-3">
                     <div className="col-md-6">
                       <label className="form-label fw-bold small">1. Select Task</label>
-                      <select 
-                        className="form-select" 
-                        value={selectedTask} 
+                      <select
+                        className="form-select"
+                        value={selectedTask}
                         onChange={(e) => setSelectedTask(e.target.value)}
                       >
                         <option value="">-- Select Target Task --</option>
@@ -263,25 +267,25 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
                         <tbody>
                           {pendingFiles.map((item, index) => (
                             <tr key={index}>
-                              <td className="small text-truncate" style={{maxWidth: '150px'}}>{item.fileObject.name}</td>
+                              <td className="small text-truncate" style={{ maxWidth: '150px' }}>{item.fileObject.name}</td>
                               <td>
-                                <input 
-                                  type="text" className="form-control form-control-sm" 
-                                  value={item.title} 
-                                  onChange={(e) => updatePendingMetadata(index, 'title', e.target.value)} 
+                                <input
+                                  type="text" className="form-control form-control-sm"
+                                  value={item.title}
+                                  onChange={(e) => updatePendingMetadata(index, 'title', e.target.value)}
                                 />
                               </td>
                               <td>
-                                <textarea 
-                                  rows="1" className="form-control form-control-sm" 
-                                  value={item.desc} 
+                                <textarea
+                                  rows="1" className="form-control form-control-sm"
+                                  value={item.desc}
                                   onChange={(e) => updatePendingMetadata(index, 'desc', e.target.value)}
                                 />
                               </td>
                               <td>
-                                <input 
-                                  type="date" className="form-control form-control-sm" 
-                                  value={item.eventDate} 
+                                <input
+                                  type="date" className="form-control form-control-sm"
+                                  value={item.eventDate}
                                   onChange={(e) => updatePendingMetadata(index, 'eventDate', e.target.value)}
                                 />
                               </td>
@@ -297,9 +301,9 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
                     </div>
                   )}
 
-                  <button 
-                    className="btn btn-primary w-100" 
-                    onClick={uploadFile} 
+                  <button
+                    className="btn btn-primary w-100"
+                    onClick={uploadFile}
                     disabled={uploading || pendingFiles.length === 0 || !selectedTask}
                   >
                     {uploading ? `Uploading (${uploadProgress}%)...` : `Upload ${pendingFiles.length} Document(s)`}
@@ -315,15 +319,15 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
                   <span className="material-symbols-outlined text-success">folder_managed</span>
                   Uploaded Files ({documents.filter(d => d.status === 1).length})
                 </h6>
-                
+
                 {
-                  false && 
-                  <button className="btn btn-outline-primary d-flex" disabled={compiling} onClick={()=> {
-                    if(!compiling) handleCompile();
+                  false &&
+                  <button className="btn btn-outline-primary d-flex" disabled={compiling} onClick={() => {
+                    if (!compiling) handleCompile();
                   }}>
-                      
-                      {compiling ? <span className="spinner-border spinner-border-sm me-2"></span>
-                      : 
+
+                    {compiling ? <span className="spinner-border spinner-border-sm me-2"></span>
+                      :
                       <>
                         <span className="material-symbols-outlined">download</span>
                         Download Compiled Images
@@ -342,13 +346,13 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
                           <span className="material-symbols-outlined text-primary fs-5">description</span>
                           <div className="flex-grow-1">
                             <div className="fw-bold text-dark">{doc.title}</div>
-                            
+
                             <div className="fw-light small text-dark">{doc.file_name}</div>
                             <small className="text-muted d-block">
-                              {doc.task_name} 
+                              {doc.task_name}
                               <Divider></Divider>
                               <span className="fw-semibold">Description:</span> {doc.desc || "None"}
-                              <Divider></Divider> 
+                              <Divider></Divider>
                               <span className="fw-semibold">Event Date:</span> {new Date(doc.created_at).toUTCString().split(' ').slice(0, 4).join(' ')}</small>
                           </div>
                         </div>

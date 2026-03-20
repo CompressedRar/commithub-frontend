@@ -145,9 +145,8 @@ function HeadLayout() {
     <div className="d-flex flex-column flex-md-row vh-100 overflow-scroll">
 
       <Navigations links = {[
-          { href: "/head/department", icon: <ApartmentIcon></ApartmentIcon>, text: "Offices" },
+          { href: "/head/department", icon: <ApartmentIcon></ApartmentIcon>, text: "Office" },
           { href: "/head/ipcr", icon: <AssignmentIndIcon></AssignmentIndIcon>, text: "IPCR" },
-          { href: "/head/analytics", icon: <AnalyticsIcon></AnalyticsIcon>, text: "Performance Analytics" },
         ]}
         isOpen={sidebarCollapsed}
         closeNavigation={()=> {setSidebarCollapsed(false)}}

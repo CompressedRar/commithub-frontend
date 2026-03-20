@@ -46,71 +46,53 @@ function ManageDeptSupportingDocuments({ dept_id, dept_mode, sub_tasks }) {
   };
 
   const uploadFile = async () => {
-    if (!file) {
-      return Swal.fire({
-        title: "Empty File",
-        text: "You must add a file to upload.",
-        icon: "error",
-      });
-    }
-
-    if (!selectedTask) {
-      return Swal.fire({
-        title: "Select Task",
-        text: "Please select a task for this document.",
-        icon: "warning",
-      });
-    }
-
-    setUploading(true);
-    try {
-      // Step 1: Request pre-signed URL
-      const res = await generatePreSignedURL({ fileName: file.name, fileType: file.type });
-      const uploadUrl = res.data.link;
-
-      // Step 2: Upload file to S3
-      await axios.put(uploadUrl, file, {
-        headers: { "Content-Type": file.type },
-        onUploadProgress: (e) => {
-          const percent = Math.round((e.loaded * 100) / e.total);
-          setUploadProgress(percent);
-        },
-      });
-
-      // Step 3: Record upload info in database
-      const uploadRes = await recordFileUploadInfo({
-        fileName: file.name,
-        fileType: file.type,
-        ipcrID: ipcr_id,
-        batchID: "",
-        subTaskID: selectedTask,
-      });
-
-      Swal.fire({
-        title: "Success",
-        text: uploadRes.data.message,
-        icon: "success",
-      });
-
-      // Reset
-      setFile(null);
-      setSelectedTask("");
-      setUploadProgress(0);
-      document.getElementById("support").value = null;
-      loadDocuments();
-      socket.emit("document");
-
-    } catch (error) {
-      console.error("Upload error:", error);
-      Swal.fire({
-        title: "Error",
-        text: error.response?.data?.error || "File upload failed.",
-        icon: "error",
-      });
-    } finally {
-      setUploading(false);
-    }
-  };
+  if (!file) {
+    return Swal.fire({ title: "Empty File", text: "You must add a file to upload.", icon: "error" });
+  }
+  if (!selectedTask) {
+    return Swal.fire({ title: "Select Task", text: "Please select a task for this document.", icon: "warning" });
+  }
+ 
+  setUploading(true);
+  try {
+    // Step 1: Request presigned URL — backend validates MIME type, returns UUID key
+    const res = await generatePreSignedURL({ fileName: file.name, fileType: file.type });
+    const uploadUrl = res.data.link;
+ 
+    // Step 2: Upload file to S3
+    await axios.put(uploadUrl, file, {
+      headers: { "Content-Type": file.type },
+      onUploadProgress: (e) => {
+        const percent = Math.round((e.loaded * 100) / e.total);
+        setUploadProgress(percent);
+      },
+    });
+ 
+    // Step 3: Record in DB — use res.data.key (UUID S3 path), NOT file.name
+    const uploadRes = await recordFileUploadInfo({
+      fileName: res.data.key,      // <-- was: file.name  (the root cause of NoSuchKey)
+      fileType: file.type,
+      ipcrID:   ipcr_id,
+      batchID:  "",
+      subTaskID: selectedTask,
+    });
+ 
+    Swal.fire({ title: "Success", text: uploadRes.data.message, icon: "success" });
+ 
+    setFile(null);
+    setSelectedTask("");
+    setUploadProgress(0);
+    document.getElementById("support").value = null;
+    loadDocuments();
+    socket.emit("document");
+ 
+  } catch (error) {
+    const msg = error.response?.data?.error || error.message || "File upload failed.";
+    Swal.fire({ title: "Error", text: msg, icon: "error" });
+  } finally {
+    setUploading(false);
+  }
+};
 
   const download = (link) => {
     window.open(link, "_blank", "noopener,noreferrer");
