@@ -16,6 +16,7 @@ import {
   OPCRLoadingSpinner,
 } from "./OPCRShared";
 import CalculateRatingButton from "../../Faculty/IPCR/Header/CalculateRatingButton";
+import RatingIndicator from "../../Faculty/IPCR/Header/RatingIndicator";
 
 function OtherEditOPCR() {
   const { opcr_id } = useParams();
@@ -103,15 +104,9 @@ function OtherEditOPCR() {
           )}
         </div>
       </div>
+      
 
-      {canEval && (
-        <div className="alert alert-info d-flex align-items-center gap-2 mb-4" role="alert">
-          <span className="material-symbols-outlined">info</span>
-          <span>
-            Only modify fields highlighted with a <strong className="text-success">green background</strong>.
-          </span>
-        </div>
-      )}
+      {canEval && <RatingIndicator isRatingPhase={isRatingPhase(currentPhase)} />}
 
       {/* Main Card */}
       <div className="container-fluid border rounded">

@@ -283,9 +283,9 @@ export function OPCREditableRatingBadges({ task, canEval, isRatingPhase, setRati
         <input
           key={field}
           type="number"
-          style={{ width: "100%", height: "100%" }}
+          style={{ width: "100%", height: "100%", fontWeight:"bolder" }}
           id={`${task.rating?.id}-${field}`}
-          className="form-control form-control-sm no-spinner text-center"
+          className={`form-control form-control-sm no-spinner text-center ${canEval? "bg-success bg-opacity-25" : ""}`}
           disabled={!isEditable}
           max={5}
           min={1}

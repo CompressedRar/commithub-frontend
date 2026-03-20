@@ -42,7 +42,7 @@ export default function EditableRatingBadges({ task, isRatingPhase, handleDataCh
                 onPaste={handlePasteRate}
                 min={1}
                 max={5}
-                style={{width:"100%", height:"100%", textAlign:"center"}}
+                style={{width:"100%", height:"100%", textAlign:"center", fontWeight:"bolder"}}
                 rating = {true}
             />
             <SubTaskField
@@ -57,7 +57,7 @@ export default function EditableRatingBadges({ task, isRatingPhase, handleDataCh
                 onPaste={handlePasteRate}
                 min={1}
                 max={5}
-                style={{width:"100%", height:"100%", textAlign:"center"}}
+                style={{width:"100%", height:"100%", textAlign:"center", fontWeight:"bolder"}}
                 rating = {true}
             />
             <SubTaskField
@@ -72,7 +72,7 @@ export default function EditableRatingBadges({ task, isRatingPhase, handleDataCh
                 onPaste={handlePasteRate}
                 min={1}
                 max={5}
-                style={{width:"100%", height:"100%", textAlign:"center"}}
+                style={{width:"100%", height:"100%", textAlign:"center", fontWeight:"bolder"}}
                 rating = {true}
             />
             
@@ -80,7 +80,7 @@ export default function EditableRatingBadges({ task, isRatingPhase, handleDataCh
                 <input 
                     type="number" className="form-control form-control-sm no-spinner text-center" 
                     value = {parseFloat(task.average).toFixed(1)} 
-                    style={{width:"100%", height:"100%"}}
+                    style={{width:"100%", height:"100%", fontWeight:"bolder"}}
                     disabled={true}
                 />
             </div>

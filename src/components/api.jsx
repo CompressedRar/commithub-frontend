@@ -9,26 +9,26 @@ const token = localStorage.getItem("token");
 
 
 export function objectToFormData(obj) {
-    const formData = new FormData();
-    Object.entries(obj).forEach(([key, value]) => {
-        if (value instanceof File) {
-            formData.append(key, value);
-        } else if (value !== null && value !== undefined) {
-            formData.append(key, value);
-        }
-    });
-    return formData;
+  const formData = new FormData();
+  Object.entries(obj).forEach(([key, value]) => {
+    if (value instanceof File) {
+      formData.append(key, value);
+    } else if (value !== null && value !== undefined) {
+      formData.append(key, value);
+    }
+  });
+  return formData;
 }
 
 
-export function checkRole(){
-  if (token){
+export function checkRole() {
+  if (token) {
     var payload = jwtDecode(token)
-    if (payload.role == "faculty"){
-      return <Navigate to = "/faculty/dashboard"></Navigate>
+    if (payload.role == "faculty") {
+      return <Navigate to="/faculty/dashboard"></Navigate>
     }
-    else if (payload.role == "administrator"){
-      return <Navigate to = "/sadmin/dashboard"></Navigate>
+    else if (payload.role == "administrator") {
+      return <Navigate to="/sadmin/dashboard"></Navigate>
     }
   }
 }
@@ -38,32 +38,24 @@ console.log("BACKEND: ", backend_url)
 export var socket = io(backend_url)
 
 const api = axios.create({
-        baseURL: backend_url,
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-    })
+  baseURL: backend_url || "",
+  withCredentials: true,   // <-- sends the HttpOnly cookie automatically
+});
 
 if (token) {
   api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 }
 
 // Temporary debugging: log outgoing auth requests to find repeated login attempts
-api.interceptors.request.use((config) => {
-  try {
-    const url = config.url || "";
-    if (url.includes('/api/v1/auth/login') || url.includes('/api/v1/auth/verify-otp')) {
-      console.debug('[Auth Request]', (config.method || '').toUpperCase(), url, { data: config.data, headers: config.headers });
-      const stack = new Error().stack;
-      if (stack) {
-        // Show short stack to help locate caller (top 3 frames)
-        console.debug('Stack (top frames):', stack.split('\n').slice(2,6).join('\n'));
-      }
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Clear any stale in-memory state and send user to login
+      window.location.href = "/";
     }
-  } catch (e) {
-    // ignore
+    return Promise.reject(error);
   }
-  return config;
-}, (error) => Promise.reject(error));
+);
 
 export default api

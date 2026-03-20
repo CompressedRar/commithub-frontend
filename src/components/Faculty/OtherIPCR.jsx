@@ -18,16 +18,17 @@ import { TaskSection } from "./IPCR/Task/TaskSection"
 import { useParams, useSearchParams } from "react-router-dom"
 import CalculateRatingButton from "./IPCR/Header/CalculateRatingButton"
 import { PhaseStepper } from "./PhaseStepper"
+import RatingIndicator from "./IPCR/Header/RatingIndicator"
 
 
 
-function OtherIPCR({ onMouseOver}) {
+function OtherIPCR({ onMouseOver }) {
     // Core data states
 
     const [searchParams] = useSearchParams()
 
-    
-    
+
+
 
     const { ipcr_id } = useParams()
     const dept_id = searchParams.get("dept_id")
@@ -130,9 +131,9 @@ function OtherIPCR({ onMouseOver}) {
     }
 
     return (
-        <div className="py-4" style={{minWidth:"1200px"}} onMouseOver={onMouseOver}>
+        <div className="py-4" style={{ minWidth: "1200px" }} onMouseOver={onMouseOver}>
 
-            <PhaseStepper currentPhase={currentPhase}></PhaseStepper>   
+            <PhaseStepper currentPhase={currentPhase}></PhaseStepper>
 
             <ManageTaskSupportingDocuments ipcr_id={ipcrInfo.id} batch_id={ipcrInfo.batch_id} dept_mode={false} sub_tasks={arrangedSubTasks}></ManageTaskSupportingDocuments>
             <div className="d-flex justify-content-end align-items-center gap-2 my-4">
@@ -146,7 +147,10 @@ function OtherIPCR({ onMouseOver}) {
                 <DownloadIPCRButton onDownload={handleChange} downloading={downloading} />
                 {isRatingPhase(currentPhase) && <CalculateRatingButton onCalculate={handleCalculateRatings} loading={loading} />}
             </div>
-            
+
+
+            <RatingIndicator isRatingPhase={isRatingPhase(currentPhase)} />
+
             <div className="card shadow-sm">
                 <div className="card-body p-4">
                     <HeaderSection />

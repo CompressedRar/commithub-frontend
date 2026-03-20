@@ -89,7 +89,7 @@ function DeptIPCR({ ipcr, dept_id, dept_mode, onMouseOver }) {
                     <Box>
                         {ipcr.ipcr ? (
                             <Stack direction="row" spacing={1}>
-                                <Tooltip title="Download PDF">
+                                <Tooltip title="Download Excel">
                                     <Button
                                         size="small"
                                         variant="outlined"

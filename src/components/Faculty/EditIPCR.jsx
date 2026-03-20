@@ -15,6 +15,8 @@ import HeaderSection from "./IPCR/Header/HeaderSection"
 import DownloadIPCRButton from "./IPCR/Header/DownloadIPCRButton"
 import SupportingDocumentButton from "./IPCR/Header/SupportingDocumentButton"
 import { TaskSection } from "./IPCR/Task/TaskSection"
+import PlanningIndicator from "./IPCR/Header/PlanningIndicator"
+import RatingIndicator from "./IPCR/Header/RatingIndicator"
 
 
 function EditIPCR({ mode, ipcr_id, switchPage }) {
@@ -27,7 +29,7 @@ function EditIPCR({ mode, ipcr_id, switchPage }) {
     const [currentPhase, setCurrentPhase] = useState(null)
 
 
-    const { settings, handleRemarks, isMonitoringPhase } = useSettings();
+    const { settings, handleRemarks, isMonitoringPhase, isPlanningPhase, isRatingPhase } = useSettings();
 
     const { downloading, downloadStandard, downloadWeighted, downloadPlanned, stats, ipcrInfo, categoryTypes, arrangedSubTasks, loadIPCR } = useIPCR();
 
@@ -129,7 +131,11 @@ function EditIPCR({ mode, ipcr_id, switchPage }) {
                 <SupportingDocumentButton />
                 <DownloadIPCRButton onDownload={handleChange} downloading={downloading} />
             </div>
-            <MonitoringIndicator isMonitoringPhase={() => isMonitoringPhase(currentPhase)} />
+
+            <PlanningIndicator isPlanningPhase={isPlanningPhase(currentPhase)} />
+            
+            <MonitoringIndicator isMonitoringPhase={isMonitoringPhase(currentPhase)} />
+
             <div className="card shadow-sm">
                 <div className="card-body p-4">
                     <HeaderSection />
