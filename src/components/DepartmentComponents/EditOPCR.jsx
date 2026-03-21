@@ -15,7 +15,7 @@ import { jwtDecode } from "jwt-decode"
 import { getAccountInfo } from "../../services/userService"
 import { getSettings } from "../../services/settingsService"
 import { getCategories } from "../../services/categoryService"
-import ManageDeptSupportingDocuments from "../Faculty/ManageDeptSupportingDocuments"
+import ManageDeptSupportingDocuments from "../Faculty/SupportingDocument/ManageDeptSupportingDocuments"
 
 
 

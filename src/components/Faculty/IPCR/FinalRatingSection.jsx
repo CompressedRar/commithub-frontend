@@ -37,9 +37,9 @@ export default function FinalRatingsSection({ stats, handleRemarks }) {
                     <div className="card-body d-flex flex-column justify-content-center">
                         <h6 className="card-title fw-bold">Adjectival Rating</h6>
                         <p className="mb-0 fs-6 fw-bold text-warning">
-                            {handleRemarks(parseFloat(stats.average).toFixed(1))}
+                            {handleRemarks(parseFloat(stats.average).toFixed(2))}
                         </p>
-                        <small className="text mt-2">Overall Average: {parseFloat(stats.average).toFixed(1)}</small>
+                        <small className="text mt-2">Overall Average: {parseFloat(stats.average).toFixed(2)}</small>
                     </div>
                 </div>
             </div>

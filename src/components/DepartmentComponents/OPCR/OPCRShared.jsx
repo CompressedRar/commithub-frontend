@@ -149,7 +149,7 @@ export function OPCRFinalRatingsSection({ stats, opcrInfo, handleRemarks, rating
             <p className="mb-0 fs-5 fw-bold text-warning">
               {handleRemarks(parseFloat(stats.average || 0).toFixed(1), ratingThresholds)}
             </p>
-            <small className="text-muted mt-2">Overall Average: {parseFloat(stats.average || 0).toFixed(1)}</small>
+            <small className="text-muted mt-2">Overall Average: {parseFloat(stats.average || 0).toFixed(2)}</small>
           </div>
         </div>
       </div>
@@ -173,15 +173,15 @@ export function OPCRFinalRatingsSection({ stats, opcrInfo, handleRemarks, rating
                 )}
                 <div className="d-flex justify-content-between border-top pt-2">
                   <span>Total Weighted Average (A):</span>
-                  <strong>{parseFloat(totalWeightedAvg).toFixed(1)}</strong>
+                  <strong>{parseFloat(totalWeightedAvg).toFixed(2)}</strong>
                 </div>
               </div>
-              <br />
+              <br/>
               <h6 className="fw-bold">Adjectival Rating</h6>
               <p className="mb-0 fs-5 fw-bold text-warning">
-                {handleRemarks(totalWeightedAvg.toFixed(1), ratingThresholds)}
+                {handleRemarks(parseFloat(totalWeightedAvg).toFixed(2), ratingThresholds)}
               </p>
-              <small className="text-muted mt-2">Total Weighted Average: {parseFloat(totalWeightedAvg || 0).toFixed(1)}</small>
+              <small className="text-muted mt-2">Total Weighted Average: {parseFloat(totalWeightedAvg || 0).toFixed(2)}</small>
             </div>
           </div>
         </div>
@@ -196,7 +196,7 @@ export function OPCRFinalRatingsSection({ stats, opcrInfo, handleRemarks, rating
               <p className="mb-0 fs-6 fw-bold text-warning">
                 {handleRemarks(parseFloat(stats.average || 0).toFixed(1), ratingThresholds)}
               </p>
-              <small className="text-muted mt-2">Overall Average: {parseFloat(stats.average || 0).toFixed(1)}</small>
+              <small className="text-muted mt-2">Overall Average: {parseFloat(stats.average || 0).toFixed(2)}</small>
             </div>
           </div>
         </div>

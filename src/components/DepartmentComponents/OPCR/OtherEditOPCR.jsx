@@ -4,7 +4,7 @@ import { socket } from "../../api";
 import { useOPCR } from "../../../hooks/useOPCR";
 import { useCanEval } from "../../../hooks/useCanEval";
 import { useSettings } from "../../../hooks/useSettings";
-import ManageDeptSupportingDocuments from "../../Faculty/ManageDeptSupportingDocuments";
+import ManageDeptSupportingDocuments from "../../Faculty/SupportingDocument/ManageDeptSupportingDocuments";
 import { PhaseStepper } from "../../Faculty/PhaseStepper";
 import {
   OPCRHeaderSection,
