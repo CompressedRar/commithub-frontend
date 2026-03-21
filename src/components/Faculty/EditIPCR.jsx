@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { updateSubTask } from "../../services/pcrServices"
 import { socket } from "../api"
 import Swal from "sweetalert2"
-import ManageTaskSupportingDocuments from "./ManageTaskSupportingDocuments"
+import ManageTaskSupportingDocuments from "./SupportingDocument/ManageTaskSupportingDocuments"
 
 import { useSettings } from "../../hooks/useSettings"
 import { useIPCR } from "../../hooks/useIPCR"

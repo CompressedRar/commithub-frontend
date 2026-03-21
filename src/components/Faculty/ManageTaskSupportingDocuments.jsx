@@ -321,7 +321,7 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
                 </h6>
 
                 {
-                  false &&
+                  true &&
                   <button className="btn btn-outline-primary d-flex" disabled={compiling} onClick={() => {
                     if (!compiling) handleCompile();
                   }}>
