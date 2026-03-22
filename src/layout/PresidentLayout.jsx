@@ -202,7 +202,7 @@ function PresidentLayout() {
           className="flex-grow-1"
           style={{ backgroundColor: "#ffffffff", paddingTop: "3em" }}
         >
-          <div style={{ zoom: "0.8", padding: "2em" }}>
+          <div style={{ zoom: "0.8", padding: "2em", overflow:"scroll" }}>
             <Outlet />
           </div>
         </main>

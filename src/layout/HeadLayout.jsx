@@ -220,7 +220,7 @@ function HeadLayout() {
           className="flex-grow-1"
           style={{ backgroundColor: "#ffffffff" }}
         >
-          <div style={{ padding: "2em" }}>
+          <div style={{ padding: "2em", overflow:"scroll" }}>
             <Outlet />
           </div>
         </main>

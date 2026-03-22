@@ -186,7 +186,7 @@ function FacultyLayout() {
           className="flex-grow-1"
           style={{ backgroundColor: "#ffffffff" }}
         >
-          <div style={{ zoom: "0.8", padding: "2em" }}>
+          <div style={{ zoom: "0.8", padding: "2em", overflow:"scroll" }}>
             <Outlet />
           </div>
         </main>

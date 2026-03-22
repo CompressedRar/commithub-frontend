@@ -207,7 +207,7 @@ function AdminLayout() {
           className="flex-grow-1"
           style={{ backgroundColor: "#ffffffff" }}
         >
-          <div style={{ zoom: "0.9", padding: "2em" }}>
+          <div style={{ zoom: "0.9", padding: "2em", overflow:"scroll"}}>
             <Outlet />
           </div>
         </main>
