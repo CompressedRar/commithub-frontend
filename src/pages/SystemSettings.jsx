@@ -9,6 +9,13 @@ import FormulasTab from "../components/SystemSettings/FormulasTab";
 import RatingThresholdsTab from "../components/SystemSettings/RatingThreshold";
 import { useSystemSettings } from "../hooks/useSystemSettings";
 
+const TABS = [
+  { label: "Rating Thresholds", icon: <Grade sx={{ fontSize: 17 }} /> },
+  { label: "Formulas",           icon: <Calculate sx={{ fontSize: 17 }} /> },
+  { label: "Positions",          icon: <People sx={{ fontSize: 17 }} /> },
+  { label: "Periods & Officers", icon: <Event sx={{ fontSize: 17 }} /> },
+];
+
 export default function SystemSettings() {
   const { loading, saving, handleSave, ...stateProps } = useSystemSettings();
   const [activeTab, setActiveTab] = useState(0);
@@ -34,18 +41,41 @@ export default function SystemSettings() {
       </Box>
 
       {/* Tabs */}
-      <Paper sx={{ mb: 4 }}>
-        <Tabs 
-          value={activeTab} 
-          onChange={(e, newValue) => setActiveTab(newValue)} 
-          variant="scrollable"
-        >
-          <Tab icon={<Grade />} iconPosition="start" label="Rating Thresholds" />
-          <Tab icon={<Calculate />} iconPosition="start" label="Formulas" />
-          <Tab icon={<People />} iconPosition="start" label="Positions" />
-          <Tab icon={<Event />} iconPosition="start" label="Periods & Officers" />
-        </Tabs>
-      </Paper>
+            <Box sx={{ borderBottom: "1px solid", borderColor: "divider", mb: 4 }}>
+        <Box sx={{ display: "flex" }}>
+          {TABS.map((tab, i) => (
+            <Box
+              key={i}
+              onClick={() => setActiveTab(i)}
+              sx={{
+                display:        "inline-flex",
+                alignItems:     "center",
+                gap:            "6px",
+                px:             2,
+                py:             "10px",
+                fontSize:       "0.8125rem",
+                fontWeight:     activeTab === i ? 600 : 400,
+                color:          activeTab === i ? "primary.main" : "text.secondary",
+                borderBottom:   activeTab === i ? "3px solid" : "3px solid transparent",
+                borderColor:    activeTab === i ? "primary.main" : "transparent",
+                mb:             "-1px",          // overlap the container border-bottom
+                cursor:         "pointer",
+                userSelect:     "none",
+                whiteSpace:     "nowrap",
+                transition:     "color .15s",
+                "&:hover": {
+                  color:   activeTab === i ? "primary.main" : "text.primary",
+                  bgcolor: "action.hover",
+                  borderRadius: "4px 4px 0 0",
+                },
+              }}
+            >
+              {tab.icon}
+              {tab.label}
+            </Box>
+          ))}
+        </Box>
+      </Box>
 
       <Box>
         {activeTab === 0 && <RatingThresholdsTab {...stateProps} />}
