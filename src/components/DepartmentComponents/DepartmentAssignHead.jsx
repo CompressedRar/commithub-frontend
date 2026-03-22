@@ -176,7 +176,7 @@ function DepartmentAssignHead(props){
                 </div>
 
                 <div className="list-group">
-                    {departmentInfo.users && departmentUsers.filter(u => u.account_status === 1).map(user => (
+                    {departmentInfo.users && departmentUsers.filter(u => u.account_status === 1 && u.role === "faculty").map(user => (
                         <div key={user.id} className="list-group-item d-flex align-items-center justify-content-between">
                             <div className="d-flex align-items-center gap-3">
                                 <div className="rounded-circle border flex-shrink-0" style={{ width: "48px", height: "48px", backgroundImage: `url(${user.profile_picture_link || '/default-profile.png'})`, backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
