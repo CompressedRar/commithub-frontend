@@ -1,5 +1,6 @@
 import Box from '@mui/material/Box';
 import Stack from "@mui/material/Stack";
+import AppLogo from '../components/AppLogo';
 
 const UnsignedLayout = ({ children }) => {
   return (
@@ -8,12 +9,17 @@ const UnsignedLayout = ({ children }) => {
         
         <div className="col-md-6 d-none d-md-block p-0">
           <img src="nc-splash-new.jpg" alt="Background" className="img-fluid h-100 w-100 object-fit-cover" />
+          
         </div>
 
         <Box className="col-md-6 bg-white p-5 d-flex flex-column justify-content-center">
           <Stack mb={3}>
-            <img src="LogoNC.png" alt="Logo" width={60} height={60} className="mb-3" />
-            <h3 className="fw-bold">Welcome to CommitHub</h3>
+            <div className='d-flex align-items-center'>
+              <img src="NC.png" alt="NC Logo" width={60} height={60} className="mb-3" />
+              <img src="CommitHub.png" alt="CommitHub Logo" width={80} height={80} />
+            </div>
+
+            <h3 className="fw-bold">Welcome to  CommitHub</h3>
             <p className="text-muted small">Sign in to continue</p>
           </Stack>
           {children}

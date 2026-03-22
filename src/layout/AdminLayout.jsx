@@ -42,7 +42,7 @@ function AdminLayout() {
 
 
   const [menuAnchor, setAnchor] = useState(null)
-  
+
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -72,16 +72,16 @@ function AdminLayout() {
     }
   }
 
-  async function getUser(user_id){
+  async function getUser(user_id) {
     try {
       var res = await getAccountInfo(user_id)
       console.log(res.data)
       setUserInfo(res.data)
       setProfilePictureLink(res.data.profile_picture_link);
       setRole(res.data.role || null)
-      
+
     }
-    catch(error){
+    catch (error) {
       console.error(error);
     }
   }
@@ -105,12 +105,12 @@ function AdminLayout() {
   useEffect(() => {
     if (!token) return;
     readTokenInformation();
-    socket.on("user_modified", ()=> {
+    socket.on("user_modified", () => {
       readTokenInformation()
       console.log("USER UPDATED!!")
-      
+
     });
-    socket.on("user_updated", ()=> {
+    socket.on("user_updated", () => {
       readTokenInformation()
       console.log("USER UPDATED!!")
     });
@@ -119,77 +119,85 @@ function AdminLayout() {
   }, []);
 
   if (!token) return <Navigate to="/" replace />;
-  if (role && role !== "administrator" && role !=="president") return <Navigate to="/unauthorized" replace />;
+  if (role && role !== "administrator" && role !== "president") return <Navigate to="/unauthorized" replace />;
 
   return (
     <div className="d-flex flex-column flex-md-row vh-100 overflow-scroll">
-      <Navigations links = {[
-          { href: "/sadmin/dashboard", icon: <DashboardIcon></DashboardIcon>, text: "Dashboard" },
-          { href: "/sadmin/department", icon: <ApartmentIcon></ApartmentIcon>, text: "Offices" },
-          { href: "/sadmin/tasks", icon: <TaskIcon></TaskIcon>, text: "Key Result Areas" },
-          { href: "/sadmin/ipcr", icon: <AssignmentIndIcon></AssignmentIndIcon>, text: "IPCR" },
-          { href: "/sadmin/master", icon: <AssignmentIcon></AssignmentIcon>, text: "Master OPCR" },
-          { href: "/sadmin/users", icon: <GroupIcon></GroupIcon>, text: "User Management" },
-          { href: "/sadmin/logs", icon: <MonitorIcon></MonitorIcon>, text: "Audit Logs" },
-          { href: "/sadmin/analytics", icon: <AnalyticsIcon></AnalyticsIcon>, text: "Performance Analytics" },
-          { href: "/sadmin/settings", icon: <SettingsIcon></SettingsIcon>, text: "Settings" }
-        ]}
+      <Navigations links={[
+        { href: "/sadmin/dashboard", icon: <DashboardIcon></DashboardIcon>, text: "Dashboard" },
+        { href: "/sadmin/department", icon: <ApartmentIcon></ApartmentIcon>, text: "Offices" },
+        { href: "/sadmin/tasks", icon: <TaskIcon></TaskIcon>, text: "Key Result Areas" },
+        { href: "/sadmin/ipcr", icon: <AssignmentIndIcon></AssignmentIndIcon>, text: "IPCR" },
+        { href: "/sadmin/master", icon: <AssignmentIcon></AssignmentIcon>, text: "Master OPCR" },
+        { href: "/sadmin/users", icon: <GroupIcon></GroupIcon>, text: "User Management" },
+        { href: "/sadmin/logs", icon: <MonitorIcon></MonitorIcon>, text: "Audit Logs" },
+        { href: "/sadmin/analytics", icon: <AnalyticsIcon></AnalyticsIcon>, text: "Performance Analytics" },
+        { href: "/sadmin/settings", icon: <SettingsIcon></SettingsIcon>, text: "Settings" }
+      ]}
         isOpen={sidebarCollapsed}
-        closeNavigation={()=> {setSidebarCollapsed(false)}}
+        closeNavigation={() => { setSidebarCollapsed(false) }}
       ></Navigations>
 
 
       {/* 🔹 Main Content */}
-      
-      <Box 
-       sx={{ flexGrow: 1 }}
-      >  
-        <AppBar position="static" sx={{backgroundColor:"white", color: "text.primary", zIndex:1500, borderBottomStyle:"solid", borderWidth:"1px", borderColor:"lightgray"}}>
-          <Toolbar sx={{width:"100%", justifyContent:"space-between"}}>
-            <IconButton 
-              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            >
-              <MenuIcon></MenuIcon>
-            </IconButton>
 
-          
+      <Box
+        sx={{ flexGrow: 1 }}
+      >
+        <AppBar position="static" sx={{ backgroundColor: "white", color: "text.primary", zIndex: 1500, borderBottomStyle: "solid", borderWidth: "1px", borderColor: "lightgray" }}>
+          <Toolbar sx={{ width: "100%", justifyContent: "space-between" }}>
             <Stack gap={2} direction={"horizontal"}>
-              <Badge 
-                badgeContent = {notifications.filter((n) => !n.read).length} color="error" 
+              <IconButton
+                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              >
+                <MenuIcon></MenuIcon>
+
+              </IconButton>
+              <img
+                src={`${import.meta.env.BASE_URL}NC.png`}
+                alt="College Logo"
+                style={{ height: "50px", objectFit: "contain" }}
+              />
+            </Stack>
+
+
+            <Stack gap={2} direction={"horizontal"}>
+              <Badge
+                badgeContent={notifications.filter((n) => !n.read).length} color="error"
                 data-bs-toggle="modal"
                 data-bs-target="#notification-modal">
-                  <IconButton>
-                    <NotificationsIcon></NotificationsIcon>
-                  </IconButton>
-              </Badge>     
+                <IconButton>
+                  <NotificationsIcon></NotificationsIcon>
+                </IconButton>
+              </Badge>
 
-             
-                  
-                {!isMobile && (
-                  <Box display={"flex"} alignItems={"flex-end"} flexDirection={"column"}>
-                    <span className="fw-semibold">
-                      {userInfo?.first_name} {userInfo?.last_name}
-                    </span>
-                    <small className="text-muted">
-                      {userInfo?.department?.name || ""}
-                    </small>
-                  </Box>
-                )}   
-              <Avatar 
-                id="avatar"              
+
+
+              {!isMobile && (
+                <Box display={"flex"} alignItems={"flex-end"} flexDirection={"column"}>
+                  <span className="fw-semibold">
+                    {userInfo?.first_name} {userInfo?.last_name}
+                  </span>
+                  <small className="text-muted">
+                    {userInfo?.department?.name || ""}
+                  </small>
+                </Box>
+              )}
+              <Avatar
+                id="avatar"
                 onClick={(event) => {
                   setOptions(!options)
                   console.log("Setting anchor", event.currentTarget)
                   setAnchor(event.currentTarget)
                 }}
-                sx={{backgroundColor:"white", borderStyle:"solid", borderWidth:"1px", borderColor:"primary.main"}}
+                sx={{ backgroundColor: "white", borderStyle: "solid", borderWidth: "1px", borderColor: "primary.main" }}
                 src={profilePictureLink}
               />
 
-              
 
-              <AccountMenu isOpen={options} anchorEl={menuAnchor} closeMenu={()=> {setOptions(false)}} handleLogout={Logout}></AccountMenu>
-              
+
+              <AccountMenu isOpen={options} anchorEl={menuAnchor} closeMenu={() => { setOptions(false) }} handleLogout={Logout}></AccountMenu>
+
             </Stack>
 
           </Toolbar>
@@ -197,9 +205,9 @@ function AdminLayout() {
 
         <main
           className="flex-grow-1"
-          style={{ backgroundColor: "#ffffffff"}}
+          style={{ backgroundColor: "#ffffffff" }}
         >
-          <div style={{zoom:"0.9", padding:"2em"}}>
+          <div style={{ zoom: "0.9", padding: "2em" }}>
             <Outlet />
           </div>
         </main>

@@ -564,7 +564,7 @@ function HeaderSection() {
         </div>
         <div className="col-md-2 d-flex justify-content-center">
           <img
-            src={`${import.meta.env.BASE_URL}LogoNC.png`}
+            src={`${import.meta.env.BASE_URL}NC.png`}
             alt="College Logo"
             style={{ height: "80px", objectFit: "contain" }}
           />
