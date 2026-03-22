@@ -34,7 +34,7 @@ export default function ActivityTrendChart() {
 
   async function loadPerformance() {
     try {
-      const res = await getActivityTrend(timeframe);
+      const res = await getActivityTrend();
       const cleanData = res.data.map(d => ({
         name: d.name,
         value: Number(d.value),

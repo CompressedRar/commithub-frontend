@@ -36,9 +36,9 @@ export async function getPerformanceSummary() {
     return api.get(`/api/v1/chart/bar/summary/`)
 }
 
-export async function getActivityTrend(timeframe) {
+export async function getActivityTrend() {
     console.log("fetching activity trend")
-    return api.get(`/api/v1/chart/line/activity/?timeframe=${timeframe}`)
+    return api.get(`/api/v1/chart/line/activity/`)
 }
 
 export async function getSystemLogsTrend() {
