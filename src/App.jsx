@@ -69,7 +69,7 @@ function App() {
         <Route element = {<PresidentLayout></PresidentLayout>}>
           <Route path = "/ad/dashboard" element={<Administrator></Administrator>}></Route>
           <Route path = "/ad/analytics" element={<Analytics></Analytics>}></Route>
-          <Route path = "/ad/department" element={<Department></Department>}></Route>
+          <Route path = "/ad/department" element={<DepartmentPage></DepartmentPage>}></Route>
           <Route path = "/ad/tasks" element={<CategoryAndTask></CategoryAndTask>}></Route>
           <Route path = "/ad/ipcr" element={<Faculty></Faculty>}></Route>
           <Route path = "/ad/review" element={<PresPendingReviews></PresPendingReviews>}></Route>
