@@ -157,12 +157,7 @@ function DepartmentAssignHead(props){
                     </div>
 
                     {headInfo ? (
-                        <div className="d-flex align-items-center gap-2">
-                            <button className="btn btn-outline-danger btn-sm" onClick={() => removeHead(headInfo.id)}>
-                                <span className="material-symbols-outlined align-middle">assignment_ind</span>
-                                <span className="ms-1">Remove</span>
-                            </button>
-                        </div>
+                        null
                     ) : (
                         <div className="text-muted small">There is no member currently assigned as head.</div>
                     )}
@@ -172,7 +167,7 @@ function DepartmentAssignHead(props){
             <div className="other-member-container">
                 <div className="d-flex justify-content-between align-items-center mb-3">
                     <h5 className="fw-bold text-primary">Office Members</h5>
-                    <small className="text-muted">{departmentUsers.length} members</small>
+                    <small className="text-muted">{departmentInfo.users && departmentUsers.filter(u => u.account_status === 1 && u.role === "faculty").length} members</small>
                 </div>
 
                 <div className="list-group">
