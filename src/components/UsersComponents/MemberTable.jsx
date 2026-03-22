@@ -1,291 +1,137 @@
-import { useEffect, useState } from "react";
-import { getAccounts } from "../../services/userService";
-import { getDepartments } from "../../services/departmentService";
-import Members from "./Members";
-import MemberProfile from "./MemberProfile";
+import  { useEffect, useState, useMemo, useCallback } from "react";
 import { socket } from "../api";
 import Swal from "sweetalert2";
-import { auto } from "@popperjs/core";
+import { useDepartment } from "../../hooks/useDepartment";
+import { useMembers } from "../../hooks/useMembers";
 
-function MemberTable() {
-  const [allMembers, setAllMembers] = useState(null);
-  const [filteredMembers, setFilteredMembers] = useState(null);
-  const [tenMembers, setTenMembers] = useState(null);
-  const [pages, setPages] = useState(null);
-  const [memberLimit, setMemberLimit] = useState({ offset: 0, limit: 10 });
+// Sub-components
+import MemberFilters from "./MemberFilters";
+import MemberListTable from "./MemberListTable";
+import MemberPagination from "./MemberPagination";
+import UserModals from "./UserModals";
+
+const ITEMS_PER_PAGE = 10;
+
+export default function MemberTable() {
+  const [allMembers, setAllMembers] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [currentUserID, setCurrentUserID] = useState(null);
+  
+  // Filter/Sort State
   const [searchQuery, setQuery] = useState("");
-
   const [selectedDepartment, setSelectedDepartment] = useState("All");
   const [selectedRole, setSelectedRole] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'desc' });
 
-  const [currentUserID, setCurrentUserID] = useState(0);
-  const [allDepartments, setAllDepartments] = useState(null);
+  const { fetchDepartments } = useDepartment();
+  const { fetchMembers } = useMembers();
 
-  // Fetch departments
-  async function loadDepartments() {
+  // --- Data Fetching ---
+  const loadInitialData = useCallback(async () => {
     try {
-      const res = await getDepartments();
-      setAllDepartments(res.data);
+      const [depts, members] = await Promise.all([fetchDepartments(), fetchMembers()]);
+      setDepartments(depts);
+      setAllMembers(members);
     } catch (error) {
-      console.log(error);
-      Swal.fire("Error", "Fetching Departments failed.", "error");
+      Swal.fire("Error", "Failed to load system data.", "error");
     }
-  }
+  }, [fetchDepartments, fetchMembers]);
 
-  // Fetch all members
-  async function loadAllMembers() {
-    try {
-      const res = await getAccounts();
-      setAllMembers(res.data);
-      setFilteredMembers(res.data);
-      generatePagination(res.data);
-    } catch (error) {
-      console.log(error);
-      Swal.fire("Error", error.response?.data?.error || "Fetching accounts failed.", "error");
-    }
-  }
+  useEffect(() => {
+    loadInitialData();
+    socket.on("user_created", loadInitialData);
+    socket.on("user_modified", loadInitialData);
+    return () => {
+      socket.off("user_created", loadInitialData);
+      socket.off("user_modified", loadInitialData);
+    };
+  }, [loadInitialData]);
 
-  // Pagination
-  function loadLimited() {
-    if (!filteredMembers) return;
-    const slicedMembers = filteredMembers.slice(memberLimit.offset, memberLimit.limit);
-    setTenMembers(slicedMembers);
-  }
+  // --- Logic: Filtering & Sorting (The Brains) ---
+  const processedMembers = useMemo(() => {
+    let result = [...allMembers];
 
-  function generatePagination(array) {
-    const totalPages = Math.ceil(array.length / 10);
-    const newPages = Array.from({ length: totalPages }, (_, i) => ({
-      id: i + 1,
-      page: i + 1,
-    }));
-    setPages(newPages);
-  }
-
-  // Filter logic
-  function applyFilters() {
-    if (!allMembers) return;
-    let filtered = [...allMembers];
-
+    // 1. Filter
     if (selectedDepartment !== "All") {
-      filtered = filtered.filter(
-        (m) => m.department && m.department.id === parseInt(selectedDepartment)
-      );
+      result = result.filter(m => m.department?.id === parseInt(selectedDepartment));
     }
-
     if (selectedRole !== "All") {
-      filtered = filtered.filter(
-        (m) => m.role.toLowerCase() === selectedRole.toLowerCase()
+      result = result.filter(m => m.role.toLowerCase() === selectedRole.toLowerCase());
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(m => 
+        `${m.first_name} ${m.last_name} ${m.email} ${m.position?.name} ${m.role}`
+          .toLowerCase().includes(q)
       );
     }
 
-    if (searchQuery.trim() !== "") {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (m) =>
-          m.email.toLowerCase().includes(query) ||
-          m.first_name.toLowerCase().includes(query) ||
-          m.last_name.toLowerCase().includes(query) ||
-          m.position.name.toLowerCase().includes(query) ||
-          String(m.id).includes(query) ||
-          m.created_at.toLowerCase().includes(query) ||
-          m.role.toLowerCase().includes(query)
-      );
-    }
+    // 2. Sort
+    result.sort((a, b) => {
+      let valA = a[sortConfig.key] || '';
+      let valB = b[sortConfig.key] || '';
+      
+      // Handle nested objects if necessary (e.g., position.name)
+      if (sortConfig.key === 'position') {
+        valA = a.position?.name || '';
+        valB = b.position?.name || '';
+      }
 
-    setFilteredMembers(filtered);
-    generatePagination(filtered);
-    setMemberLimit({ offset: 0, limit: 10 });
-  }
+      if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (valA > valB) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
 
-  // Reactivity
-  useEffect(() => loadLimited(), [filteredMembers, memberLimit]);
-  useEffect(() => applyFilters(), [selectedDepartment, selectedRole]);
+    return result;
+  }, [allMembers, selectedDepartment, selectedRole, searchQuery, sortConfig]);
 
-  useEffect(() => {
-    const debounce = setTimeout(() => applyFilters(), 400);
-    return () => clearTimeout(debounce);
-  }, [searchQuery]);
+  // --- Logic: Pagination ---
+  const totalPages = Math.ceil(processedMembers.length / ITEMS_PER_PAGE);
+  const paginatedMembers = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return processedMembers.slice(start, start + ITEMS_PER_PAGE);
+  }, [processedMembers, currentPage]);
 
-  useEffect(() => {
-    (async () => {
-      await loadAllMembers();
-      await loadDepartments();
-    })();
-
-    socket.on("user_created", loadAllMembers);
-    socket.on("user_modified", loadAllMembers);
-
-  }, []);
+  // Reset to page 1 when filters change
+  useEffect(() => setCurrentPage(1), [searchQuery, selectedDepartment, selectedRole]);
 
   return (
-    <div className="container-fluid" style={{overflow:"auto"}}>
-      {/* 🔹 Add User Modal */}
-      <div
-        className="modal fade"
-        id="add-user"
-        data-bs-backdrop="static"
-        data-bs-keyboard="false"
-        tabIndex="-1"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog modal-dialog-centered modal-xl">
-          <div className="modal-content">
-            <div className="modal-header bg-primary text-white">
-              <h5 className="modal-title">Create Account</h5>
-              <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div className="modal-body p-0">
-              <iframe
-                className="w-100 border-0"
-                style={{ height: "90vh" }}
-                src="/create"
-                title="Create Account"
-              ></iframe>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 🔹 User Profile Modal */}
-      <div
-        className="modal fade"
-        id="user-profile"
-        data-bs-backdrop="static"
-        data-bs-keyboard="false"
-        tabIndex="-1"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog modal-dialog-centered modal-lg">
-          <div className="modal-content">
-            <div className="modal-header bg-primary text-white">
-              <h5 className="modal-title">Profile Page</h5>
-              <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div className="modal-body">
-              {currentUserID ? <MemberProfile key={currentUserID} id={currentUserID} /> : ""}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 🔹 Header and Filters */}
-      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
-        <h4 className="fw-bold text-primary mb-2 mb-md-0 d-flex align-items-center gap-2">
-          <span className="material-symbols-outlined">group</span> Accounts
+    <div className="container-fluid p-4">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h4 className="fw-bold text-primary mb-0 d-flex align-items-center gap-2">
+          <span className="material-symbols-outlined">group</span> 
+          Accounts <span className="badge bg-light text-primary border">{processedMembers.length}</span>
         </h4>
-
-        <button
-          data-bs-toggle="modal"
-          data-bs-target="#add-user"
-          className="btn btn-primary d-flex align-items-center gap-2"
-        >
-          <span className="material-symbols-outlined">add</span> Create Account
+        <button data-bs-toggle="modal" data-bs-target="#add-user" className="btn btn-primary shadow-sm">
+          Create Account
         </button>
       </div>
 
-      {/* 🔹 Filters Section */}
-      <div className="row g-2 mb-3">
-        <div className="col-12 col-md-4">
-          <select
-            className="form-select"
-            value={selectedDepartment}
-            onChange={(e) => setSelectedDepartment(e.target.value)}
-          >
-            <option value="All">All Office</option>
-            {allDepartments &&
-              allDepartments.map((dept) => (
-                <option key={dept.id} value={dept.id}>
-                  {dept.name}
-                </option>
-              ))}
-          </select>
-        </div>
+      <MemberFilters 
+        departments={departments}
+        selectedDepartment={selectedDepartment}
+        setSelectedDepartment={setSelectedDepartment}
+        selectedRole={selectedRole}
+        setSelectedRole={setSelectedRole}
+        searchQuery={searchQuery}
+        setQuery={setQuery}
+      />
 
-        <div className="col-12 col-md-4">
-          <select
-            className="form-select"
-            value={selectedRole}
-            onChange={(e) => setSelectedRole(e.target.value)}
-          >
-            <option value="All">All Roles</option>
-            <option value="Administrator">Super Administrator</option>
-            <option value="President">Admin</option>
-            <option value="Head">Head</option>
-            <option value="Faculty">Member</option>
-          </select>
-        </div>
+      <MemberListTable 
+        members={paginatedMembers} 
+        sortConfig={sortConfig}
+        setSortConfig={setSortConfig}
+        onViewProfile={setCurrentUserID} 
+      />
 
-        <div className="col-12 col-md-4">
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Search user..."
-            value={searchQuery}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        </div>
-      </div>
+      <MemberPagination 
+        currentPage={currentPage} 
+        totalPages={totalPages} 
+        onPageChange={setCurrentPage} 
+      />
 
-      {/* 🔹 Table Section */}
-      <div className="table-responsive">
-        <table className="table table-hover align-middle table-striped">
-          <thead className="table-primary">
-            <tr>
-              <th>Full Name</th>
-              <th>Email</th>
-              <th>Office</th>
-              <th>Position</th>
-              <th>Role</th>
-              <th className="text-center">Status</th>
-              <th>Date Created</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {tenMembers && tenMembers.length > 0 ? (
-              tenMembers.map((mems) => (
-                <Members
-                  key={mems.id}
-                  mems={mems}
-                  switchMember={(id) => setCurrentUserID(id)}
-                />
-              ))
-            ) : (
-              <tr>
-                <td colSpan="8" className="text-center py-5 text-muted">
-                  <span className="material-symbols-outlined fs-1 d-block">no_accounts</span>
-                  <small>No Users Found</small>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* 🔹 Pagination */}
-      {pages && (
-        <nav className="mt-3">
-          <ul className="pagination justify-content-center flex-wrap">
-            {pages.map((data) => (
-              <li key={data.id} className="page-item">
-                <button
-                  className="page-link"
-                  onClick={() =>
-                    setMemberLimit({
-                      offset: (data.page - 1) * 10,
-                      limit: data.page * 10,
-                    })
-                  }
-                >
-                  {data.page}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      )}
+      <UserModals currentUserID={currentUserID} />
     </div>
   );
 }
-
-export default MemberTable;

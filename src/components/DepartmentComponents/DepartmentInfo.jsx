@@ -1,19 +1,19 @@
 import { useEffect, useState } from "react";
 import { updateDepartment, getDepartment, archiveDepartment, generateDepartmentPerformanceReport } from "../../services/departmentService";
-import DepartmentMemberTable from "./DepartmentMemberTable";
+import DepartmentMemberTable from "./DepartmentInfo/Tabs/Members/DepartmentMemberTable";
 import { objectToFormData, socket } from "../api";
 import Swal from "sweetalert2";
 import { Modal } from "bootstrap";
-import DepartmentTasksTable from "./DepartmentTasksTable";
+import DepartmentTasksTable from "./DepartmentInfo/Tabs/Tasks/DepartmentTasksTable";
 import DepartmentAssignHead from "./DepartmentAssignHead";
-import PerformanceReviews from "./PerformanceReview";
+import PerformanceReviews from "./DepartmentInfo/Tabs/Forms/PerformanceReview";
 import CreateOPCRModal from "./CreateOPCRModal";
 import UserPerformanceInDepartment from "../Charts/UserPerformanceInDepartment";
 import { getSettings } from "../../services/settingsService";
 import TaskWeights from "./Tasks/TaskWeights";
 import FormulaSettings from "./Tasks/TaskFormulas";
 
-function DepartmentInfo({ id, firstLoad, loadDepts }) {
+function DepartmentInfo({ id, onLoadDepartments }) {
   const [deptInfo, setDeptinfo] = useState({});
   const [managerInfo, setManagerInfo] = useState(null);
   const [formData, setFormData] = useState({ department_name: "", icon: "" });
@@ -81,7 +81,7 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
       );
       loadDepartmentInfo(id);
       Modal.getInstance(document.getElementById("edit-department"))?.hide();
-      loadDepts();
+      onLoadDepartments();
     } catch (err) {
       Swal.fire("Error", err.response?.data?.error || "Failed to update office", "error");
     }
@@ -98,7 +98,7 @@ function DepartmentInfo({ id, firstLoad, loadDepts }) {
         res.data.message.includes("successfully") ? "success" : "error"
       );
       Modal.getInstance(document.getElementById("archive-department"))?.hide();
-      firstLoad();
+      onLoadDepartments();
     } catch (err) {
       Swal.fire("Error", err.response?.data?.error || "Failed to archive office", "error");
     }

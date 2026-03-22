@@ -1,0 +1,221 @@
+import { useEffect, useState } from "react"
+import { getDepartmentIPCR, getDepartmentOPCR } from "../../../../../services/departmentService"
+import { socket } from "../../../../api"
+import Swal from "sweetalert2"
+import DeptIPCR from "./DeptIPCR"
+import DeptOPCR from "./DeptOPCR"
+import { createOPCR } from "../../../../../services/pcrServices"
+import { getSettings } from "../../../../../services/settingsService"
+
+
+function PerformanceReviews(props){
+    const [allIPCR, setAllIPCR] = useState(null)
+    const [allOPCR, setAllOPCR] = useState(null)
+
+    const [filteredID, setFilteredID] = useState(null)
+
+    const [consolidating, setConsolidating] = useState(false)
+    const [currentPhase, setCurrentPhase] = useState(null) //monitoring, rating, planning
+
+    async function loadCurrentPhase() {
+        try {
+            const res = await getSettings()
+            const phase = res?.data?.data?.current_phase
+            console.log("Current phase:", phase)
+            setCurrentPhase(phase) //monitoring, rating, planning
+        } catch (error) {
+            console.error("Failed to load current phase:", error)
+        }
+    }
+
+    async function loadIPCR() {
+      setAllIPCR(null)
+        var res = await getDepartmentIPCR(props.deptid).then(data => data.data).catch(error => {
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
+
+        const data = res || [];
+
+        
+
+        const filtered = data.filter(
+                (item) => item.ipcr && item.ipcr.status === 1 && item.ipcr.form_status === "submitted" && item.member.account_status == 1
+            );
+
+        var filtArray = []
+
+        for(const i of filtered){
+            filtArray.push(i.ipcr.id)
+        }
+        
+        console.log("Department IPCRS",res)
+        
+        setFilteredID(filtArray)
+
+
+        console.log("performance review",res)
+
+        const filteredIPCR = data.filter(
+                (item) => item.member.account_status == 1
+            );
+        setAllIPCR(filteredIPCR)
+    }
+
+    const handleSubmission = () => {
+        
+    
+        if (filteredID.length === 0)
+          return Swal.fire("Error", "The office must have at least one submitted IPCR.", "error");
+    
+        Swal.fire({
+          title: "Create OPCR",
+          text: "Do you want to consolidate all submitted IPCRs?",
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonText: "Yes",
+          cancelButtonText: "No",
+        }).then((res) => {
+          if (res.isConfirmed) submission();
+        });
+      };
+
+    async function submission() {
+        setConsolidating(true)
+        try {
+            console.log("ALL IPCR ID",filteredID)
+
+            if (filteredID.length == 0){
+                console.log("NOT CREATING")
+                return
+            }
+
+            const res = await createOPCR(props.deptid, { "ipcr_ids": filteredID });
+            const msg = res.data.message;
+        
+
+            setConsolidating(false)
+        } catch (error) {
+            console.log(error)
+          Swal.fire("Error", error.response?.data?.error || "Failed to create OPCR", "error");
+          setConsolidating(false)
+        }
+      }
+
+    async function loadOPCR() {
+      setAllOPCR(null)
+      await submission()
+
+        var res = await getDepartmentOPCR(props.deptid).then(data => data.data).catch(error => {
+            Swal.fire({
+                title: "Error",
+                text: error.response.data.error,
+                icon: "error"
+            })
+        })
+
+        var filter = []
+
+        for(const opcr of res){
+            if(opcr.status == 1) {
+                filter.push(opcr)
+            }
+        }
+        console.log(res)
+        setAllOPCR(filter)
+    }
+    useEffect(()=> {
+        if (filteredID == null) return
+        
+        loadOPCR()
+    }, [filteredID])
+
+    useEffect(()=> {
+        loadIPCR()
+
+        // load current phase so we can control availability of OPCR / IPCR
+        loadCurrentPhase()
+
+        socket.on("ipcr_create", ()=>{
+            loadIPCR()
+
+        })
+
+
+        socket.on("ipcr", ()=>{
+            loadIPCR()
+        })
+
+        socket.on("assign", ()=>{
+            loadIPCR()
+        })
+        
+        socket.on("ipcr_create", ()=>{
+            loadIPCR()
+        })
+
+    }, [])
+    
+    function isMonitoringPhase() {
+        return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("monitoring")
+    }
+
+    function isRatingPhase() {
+        return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("rating")
+    }
+
+    function isPlanningPhase() {
+        return currentPhase && Array.isArray(currentPhase) && currentPhase.includes("planning")
+    }
+
+    //gawin yung highest performing deparmtent
+    return (
+        <div className="performance-reviews-container">
+
+
+            
+            <h3 className="d-flex align-items-center gap-3">
+                Office Performance Review and Commitment Form
+                <button className="btn btn-primary d-none" onClick={()=>{handleSubmission()}} disabled = {consolidating}>
+                    {!consolidating ? <span className="d-flex gap-2">
+                        <span className="material-symbols-outlined">compare_arrows</span>
+                        <span>Consolidate IPCRs</span>
+                    </span> : <span className="spinner-border spinner-border-sm me-2"></span>}
+                </button>
+            </h3>
+
+            <div className="all-ipcr-container" style={{display:"flex", flexDirection:"column", gap:"10px"}}>
+                {allOPCR && allOPCR.map(opcr => (
+                    <DeptOPCR opcr = {opcr}  dept_id = {props.deptid} opcr_id = {opcr.id} key={opcr.id} dept_mode = {props.dept_mode}></DeptOPCR>
+                ))}
+                {allOPCR && allOPCR.length === 0 && (
+                  <div className="empty-symbols">
+                    <span className="material-symbols-outlined">file_copy_off</span>    
+                    <span className="desc">No OPCRs Found</span>
+                  </div>
+                )}
+              </div>
+
+            <h3>Individual Performance Review and Commitment Forms</h3>
+            <div className="all-ipcr-container" style={{display:"flex", flexDirection:"column", gap:"10px"}}>
+                
+                {allIPCR && allIPCR.map(ipcr => (
+                    <DeptIPCR key={ipcr.ipcr?.id || ipcr.id}  dept_id = {props.deptid} ipcr = {ipcr} dept_mode = {props.dept_mode}></DeptIPCR>
+                ))}
+
+                {allIPCR && allIPCR.length === 0 && (
+                  <div className="empty-symbols">
+                    <span className="material-symbols-outlined">file_copy_off</span>    
+                    <span className="desc">No IPCR Found</span>
+                  </div>
+                )}
+
+            </div>
+        </div>
+    )
+}
+//iconvert lahat ng ipcr sa pendings katulad netong performance review 
+export default PerformanceReviews

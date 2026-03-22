@@ -19,6 +19,19 @@ export default function ActivityTrendChart() {
   const [rawData, setRawData] = useState([]);
   const timeframes = ['daily', 'weekly', 'monthly', 'yearly'];
 
+  function getWeekNumber(d) {
+    // Copy date so don't modify original
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    // Set to nearest Thursday: current date + 4 - current day number
+    // Make Sunday's day number 7
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    // Get first day of year
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    // Calculate full weeks to nearest Thursday
+    const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    return weekNo;
+  }
+
   async function loadPerformance() {
     try {
       const res = await getActivityTrend();
@@ -36,7 +49,7 @@ export default function ActivityTrendChart() {
 
   function processDataByTimeframe(allData, frame) {
     let processed = [];
-    
+
     if (frame === 'all') {
       processed = allData;
     } else if (frame === 'daily') {
@@ -57,113 +70,84 @@ export default function ActivityTrendChart() {
     // Try to parse various date formats
     const date = new Date(dateString);
     if (!isNaN(date)) return date;
-    
+
     // Fallback for other formats
     return new Date(dateString);
   }
 
-  function groupByDay(data) {
-    const grouped = {};
-    
-    data.forEach(item => {
-      const date = parseDate(item.name);
-      const dayKey = date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-      
-      if (!grouped[dayKey]) {
-        grouped[dayKey] = { values: [], key: dayKey };
-      }
-      grouped[dayKey].values.push(item.value);
-    });
-
+  function aggregateData(grouped) {
     return Object.values(grouped).map(group => ({
       name: group.key,
-      value: Math.round(group.values.reduce((a, b) => a + b, 0) / group.values.length),
+      // Use reduce to SUM the values, not average them
+      value: group.values.reduce((a, b) => a + b, 0),
     }));
+  }
+
+  function groupByDay(data) {
+    const grouped = {};
+    data.forEach(item => {
+      const date = parseDate(item.name);
+      const key = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      if (!grouped[key]) grouped[key] = { values: [], key };
+      grouped[key].values.push(item.value);
+    });
+    return aggregateData(grouped);
   }
 
   function groupByWeek(data) {
     const grouped = {};
-    
     data.forEach(item => {
       const date = parseDate(item.name);
-      const year = date.getFullYear();
-      const weekNum = getWeekNumber(date);
-      const weekKey = `${year} W${weekNum}`;
-      
-      if (!grouped[weekKey]) {
-        grouped[weekKey] = { values: [], key: weekKey };
-      }
-      grouped[weekKey].values.push(item.value);
+      // Create a "Year-WeekNumber" key
+      const key = `Week ${getWeekNumber(date)}, ${date.getFullYear()}`;
+      if (!grouped[key]) grouped[key] = { values: [], key };
+      grouped[key].values.push(item.value);
     });
-
-    return Object.values(grouped).map(group => ({
-      name: group.key,
-      value: Math.round(group.values.reduce((a, b) => a + b, 0) / group.values.length),
-    }));
+    return aggregateData(grouped);
   }
 
   function groupByMonth(data) {
     const grouped = {};
-    
     data.forEach(item => {
       const date = parseDate(item.name);
-      const monthKey = date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
-      
-      if (!grouped[monthKey]) {
-        grouped[monthKey] = { values: [], key: monthKey };
-      }
-      grouped[monthKey].values.push(item.value);
+      const key = date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+      if (!grouped[key]) grouped[key] = { values: [], key };
+      grouped[key].values.push(item.value);
     });
-
-    return Object.values(grouped).map(group => ({
-      name: group.key,
-      value: Math.round(group.values.reduce((a, b) => a + b, 0) / group.values.length),
-    }));
+    return aggregateData(grouped);
   }
 
   function groupByYear(data) {
     const grouped = {};
-    
     data.forEach(item => {
       const date = parseDate(item.name);
-      const yearKey = date.getFullYear().toString();
-      
-      if (!grouped[yearKey]) {
-        grouped[yearKey] = { values: [], key: yearKey };
-      }
-      grouped[yearKey].values.push(item.value);
+      const key = date.getFullYear().toString();
+      if (!grouped[key]) grouped[key] = { values: [], key };
+      grouped[key].values.push(item.value);
     });
-
-    return Object.values(grouped).map(group => ({
-      name: group.key,
-      value: Math.round(group.values.reduce((a, b) => a + b, 0) / group.values.length),
-    }));
+    return aggregateData(grouped);
   }
 
-  function getWeekNumber(date) {
-    const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
-    const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
-    return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
-  }
+  function computeStats(processedData) {
+    if (!processedData || processedData.length === 0) {
+      setStats(null);
+      return;
+    }
 
-  function computeStats(data) {
-    if (!data.length) return;
+    const values = processedData.map(d => d.value);
+    const current = values[values.length - 1]; 
+    const previous = values.length > 1 ? values[values.length - 2] : current;
 
-    const values = data.map(d => d.value);
-    const first = values[0];
-    const last = values[values.length - 1];
-    const avg = (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2);
+    const total = values.reduce((a, b) => a + b, 0);
+    const avg = (total / values.length).toFixed(1);
     const peak = Math.max(...values);
-    const change = first > 0
-      ? (((last - first) / first) * 100).toFixed(0)
+    
+    // Trend calculation
+    const change = previous > 0
+      ? (((current - previous) / previous) * 100).toFixed(0)
       : 0;
 
-    setStats({
-      current: last,
-      avg,
-      peak,
-      change,
-    });
+    setStats({ current, avg, peak, change });
   }
 
   useEffect(() => {
@@ -202,9 +186,8 @@ export default function ActivityTrendChart() {
           {stats && (
             <div className="text-end">
               <div
-                className={`fw-semibold ${
-                  stats.change >= 0 ? "text-success" : "text-danger"
-                }`}
+                className={`fw-semibold ${stats.change >= 0 ? "text-success" : "text-danger"
+                  }`}
               >
                 {stats.change >= 0 ? "↗" : "↘"} {Math.abs(stats.change)}%
               </div>
@@ -218,11 +201,10 @@ export default function ActivityTrendChart() {
           {timeframes.map(tf => (
             <button
               key={tf}
-              className={`btn btn-sm ${
-                timeframe === tf
+              className={`btn btn-sm ${timeframe === tf
                   ? 'btn-secondary'
                   : 'btn-outline-secondary'
-              }`}
+                }`}
               onClick={() => setTimeframe(tf)}
             >
               {tf.charAt(0).toUpperCase() + tf.slice(1)}
@@ -241,26 +223,26 @@ export default function ActivityTrendChart() {
               <p className="text-muted">No activity trend data available</p>
             </div>
           ) : (
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis
-                dataKey="name"
-                tick={{ fontSize: 11 }}
-                interval="preserveStartEnd"
-              />
-              <YAxis allowDecimals={false} />
-              <Tooltip />
-              <Line
-                type="monotone"
-                dataKey="value"
-                stroke={CHART_COLORS.LINE}
-                strokeWidth={3}
-                dot={false}
-                activeDot={{ r: 6 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={data}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="name"
+                  tick={{ fontSize: 11 }}
+                  interval="preserveStartEnd"
+                />
+                <YAxis allowDecimals={false} />
+                <Tooltip />
+                <Line
+                  type="monotone"
+                  dataKey="value"
+                  stroke={CHART_COLORS.LINE}
+                  strokeWidth={3}
+                  dot={false}
+                  activeDot={{ r: 6 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
           )}
         </div>
       </div>

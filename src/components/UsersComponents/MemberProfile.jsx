@@ -37,6 +37,12 @@ function MemberProfile(props){
     const [firstEmail, setFirstEmail] = useState(null)
     const [isEmailValid, setEmailValid] = useState(true)
 
+    // Inline admin password confirmation
+    const [showConfirm, setShowConfirm] = useState(false)
+    const [adminPassword, setAdminPassword] = useState("")
+    const [confirmError, setConfirmError] = useState("")
+    const [showAdminPassword, setShowAdminPassword] = useState(false)
+
     // Load user info
     async function loadUserInformation(){
         await loadDepartments()
@@ -178,41 +184,41 @@ function MemberProfile(props){
 
 
     // Update user
-    const handleUpdate = async () => {
+    // Step 1 — clicking Save opens the inline confirmation panel
+    const handleUpdate = () => {
         if (!isMounted.current) return;
-        if(!isEmailValid) {
+        if (!isEmailValid) {
             Swal.fire({ title: "Error", text: "Email already taken", icon: "error" })
             return
         }
+        setAdminPassword("")
+        setConfirmError("")
+        setShowConfirm(true)
+    }
 
-        // Ask for admin password confirmation before updating
-        const { value: adminPassword } = await Swal.fire({
-            title: "Confirm Changes",
-            text: "Please enter your admin password to confirm this update",
-            input: "password",
-            inputAttributes: { autocapitalize: "off", autocorrect: "off" },
-            showCancelButton: true
-        })
-
-        if (!adminPassword) {
+    // Step 2 — submitting the inline confirmation panel calls the API
+    const handleConfirmUpdate = async () => {
+        if (!adminPassword.trim()) {
+            setConfirmError("Please enter your password.")
             return
         }
-
+        setUpdating(true)
+        setConfirmError("")
         try {
             const confirmationToken = await verifyAdminPassword({ password: adminPassword })
             const data = objectToFormData(formData)
             data.set("confirmation_token", confirmationToken.data.confirmation_token)
-            if(fileInput.current?.files[0]) data.set("profile_picture_link", fileInput.current.files[0])
+            if (fileInput.current?.files[0]) data.set("profile_picture_link", fileInput.current.files[0])
 
-            setUpdating(true)
             const res = await updateMemberInfo(data).then(d => d.data.message)
-            Swal.fire({ title: res.includes("success") ? "Success" : "Error", text: res, icon: res.includes("success") ? "success" : "error" })
-            setUpdating(false)
+            Swal.fire({ title: res.toLowerCase().includes("success") ? "Success" : "Error", text: res, icon: res.toLowerCase().includes("success") ? "success" : "error" })
+            setShowConfirm(false)
+            setAdminPassword("")
             await loadUserInformation()
-        } catch(err) {
-            Swal.fire("Error", err.response?.data?.error || "Invalid password", "error")
+        } catch (err) {
+            setConfirmError(err.response?.data?.error || "Incorrect password. Please try again.")
+        } finally {
             setUpdating(false)
-            return
         }
     }
 
@@ -349,10 +355,54 @@ function MemberProfile(props){
 
                 {/* Buttons */}
                 <div className="d-flex justify-content-end gap-2 mt-4">
-                    <button className="btn btn-success" disabled={dataChanged || updating} onClick={handleUpdate}>
-                        {updating ? <span className="spinner-border spinner-border-sm me-2"></span> : <> <span className="material-symbols-outlined align-middle me-1">save</span> Save Changes </>}
+                    <button className="btn btn-success" disabled={dataChanged || updating || showConfirm} onClick={handleUpdate}>
+                        <span className="material-symbols-outlined align-middle me-1">save</span> Save Changes
                     </button>
                 </div>
+
+                {/* Inline admin password confirmation — avoids SweetAlert z-index conflict with Bootstrap modal */}
+                {showConfirm && (
+                    <div className="mt-3 p-3 border rounded-3 bg-light">
+                        <p className="mb-2 fw-semibold text-secondary" style={{fontSize:"0.875rem"}}>
+                            <span className="material-symbols-outlined align-middle me-1" style={{fontSize:"1rem"}}>lock</span>
+                            Enter your admin password to confirm changes
+                        </p>
+                        <div className="input-group mb-1">
+                            <input
+                                type={showAdminPassword ? "text" : "password"}
+                                className={`form-control form-control-sm ${confirmError ? "is-invalid" : ""}`}
+                                placeholder="Admin password"
+                                value={adminPassword}
+                                onChange={e => { setAdminPassword(e.target.value); setConfirmError("") }}
+                                onKeyDown={e => e.key === "Enter" && handleConfirmUpdate()}
+                                autoFocus
+                            />
+                            <button
+                                className="btn btn-outline-secondary btn-sm"
+                                type="button"
+                                onClick={() => setShowAdminPassword(p => !p)}
+                                tabIndex={-1}
+                            >
+                                <span className="material-symbols-outlined" style={{fontSize:"1rem",verticalAlign:"middle"}}>
+                                    {showAdminPassword ? "visibility_off" : "visibility"}
+                                </span>
+                            </button>
+                        </div>
+                        {confirmError && <div className="text-danger small mb-2">{confirmError}</div>}
+                        <div className="d-flex gap-2 mt-2">
+                            <button className="btn btn-success btn-sm" disabled={updating} onClick={handleConfirmUpdate}>
+                                {updating
+                                    ? <span className="spinner-border spinner-border-sm me-1"></span>
+                                    : <span className="material-symbols-outlined align-middle me-1" style={{fontSize:"1rem"}}>check</span>
+                                }
+                                Confirm
+                            </button>
+                            <button className="btn btn-outline-secondary btn-sm" disabled={updating} onClick={() => { setShowConfirm(false); setAdminPassword(""); setConfirmError("") }}>
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                )}
 
                 <hr className="my-4" />
 

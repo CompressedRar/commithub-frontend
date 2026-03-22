@@ -15,7 +15,7 @@ import { jwtDecode } from "jwt-decode"
 import { getAccountInfo } from "../../services/userService"
 import { getSettings } from "../../services/settingsService"
 import { getCategories } from "../../services/categoryService"
-import ManageDeptSupportingDocuments from "../Faculty/ManageDeptSupportingDocuments"
+import ManageDeptSupportingDocuments from "../Faculty/SupportingDocument/ManageDeptSupportingDocuments"
 
 
 
@@ -564,7 +564,7 @@ function HeaderSection() {
         </div>
         <div className="col-md-2 d-flex justify-content-center">
           <img
-            src={`${import.meta.env.BASE_URL}LogoNC.png`}
+            src={`${import.meta.env.BASE_URL}NC.png`}
             alt="College Logo"
             style={{ height: "80px", objectFit: "contain" }}
           />

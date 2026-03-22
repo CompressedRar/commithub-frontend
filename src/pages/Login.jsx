@@ -3,7 +3,6 @@ import { authenticateAccount, verifyOtp } from "../services/userService";
 import { objectToFormData } from "../components/api";
 import Swal from "sweetalert2";
 import { jwtDecode } from "jwt-decode";
-import { useLocation } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../assets/styles/Login.css";
 
@@ -24,7 +23,6 @@ import { Link } from "@mui/material";
 import ForgotPassword from "./ForgotPassword";
 
 function Login() {
-  const location = useLocation();
   const [loginFormData, setLoginFormData] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [loggingIn, setLoggingIn] = useState(false);
@@ -127,7 +125,7 @@ function Login() {
         {/* Right Side (Form) */}
         <Box className="col-md-6 bg-white p-5 d-flex flex-column justify-content-center">
           <Stack>
-            <img src="LogoNC.png" alt="CommitHub Logo" width={60} height={60} className="mb-3" />
+            <img src="NC.png" alt="CommitHub Logo" width={60} height={60} className="mb-3" />
             <h3 className="fw-bold">Welcome to CommitHub</h3>
             <p className="text-muted small">Sign in to continue</p>
           </Stack>

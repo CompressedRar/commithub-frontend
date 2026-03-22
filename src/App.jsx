@@ -4,6 +4,7 @@ import {Route ,Routes} from 'react-router-dom'
 
 import AuthLayout from './layout/AuthLayout'
 import Login from "./pages/Login"
+import LoginPage from "./pages/LoginPage"
 import Register from "./pages/Register"
 import Administrator from './pages/Administrator'
 import AdminLayout from './layout/AdminLayout'
@@ -17,8 +18,6 @@ import Unauthorized from './pages/Unauthorized'
 import Faculty from './pages/Faculty'
 import HeadLayout from './layout/HeadLayout'
 import HeadDepartment from './pages/HeadDepartment'
-import PendingReviews from './components/DepartmentComponents/PendingReviews'
-import PendingApprovals from './components/DepartmentComponents/PendingApprovals'
 import PresPendingApprovals from './components/DepartmentComponents/PresPendingApprovals'
 import PresPendingReviews from './components/DepartmentComponents/PresPendingReviews'
 import HeadPendingReviews from './components/DepartmentComponents/HeadPendingReviews'
@@ -28,10 +27,11 @@ import Positions from './pages/Positions'
 import NotFound from './pages/NotFound'
 import SystemSettings from './pages/SystemSettings'
 import OtherIPCR from './components/Faculty/OtherIPCR'
-import OtherEditOPCR from './components/DepartmentComponents/OtherEditOPCR'
-import OtherDraftedOPCR from './components/DepartmentComponents/OtherDraftedOPCR'
+import OtherDraftedOPCR from './components/DepartmentComponents/DepartmentInfo/Tabs/Forms/OtherDraftedOPCR'
 import Analytics from './pages/Analytics'
 import ChangeForgotPassword from './pages/ChangeForgotPassword'
+import DepartmentPage from './pages/DepartmentPage'
+import OtherEditOPCR from './components/DepartmentComponents/OPCR/OtherEditOPCR'
 
 
 function App() {
@@ -41,7 +41,7 @@ function App() {
         <Route path="*" element={<NotFound />} />
 
         <Route element = {<AuthLayout />}>
-          <Route path='/' element = {<Login></Login>}></Route>
+          <Route path='/' element = {<LoginPage></LoginPage>}></Route>
           <Route path='/forgot-password/:token' element = {<ChangeForgotPassword></ChangeForgotPassword>}></Route>
           <Route path='/register' element = {<Register></Register>}></Route>
           <Route path='/create' element = {<Register ></Register>}></Route>
@@ -51,7 +51,7 @@ function App() {
         <Route element = {<AdminLayout></AdminLayout>}>
           <Route path = "/sadmin/dashboard" element={<Administrator></Administrator>}></Route>
           <Route path = "/sadmin/analytics" element={<Analytics></Analytics>}></Route>
-          <Route path = "sadmin/department" element={<Department></Department>}></Route>
+          <Route path = "sadmin/department" element={<DepartmentPage></DepartmentPage>}></Route>
           <Route path = "/sadmin/users" element={<UserManagement></UserManagement>}></Route>
           <Route path = "/sadmin/tasks" element={<CategoryAndTask></CategoryAndTask>}></Route>
           <Route path = "/sadmin/logs" element={<AuditLogs></AuditLogs>}></Route>
@@ -69,7 +69,7 @@ function App() {
         <Route element = {<PresidentLayout></PresidentLayout>}>
           <Route path = "/ad/dashboard" element={<Administrator></Administrator>}></Route>
           <Route path = "/ad/analytics" element={<Analytics></Analytics>}></Route>
-          <Route path = "/ad/department" element={<Department></Department>}></Route>
+          <Route path = "/ad/department" element={<DepartmentPage></DepartmentPage>}></Route>
           <Route path = "/ad/tasks" element={<CategoryAndTask></CategoryAndTask>}></Route>
           <Route path = "/ad/ipcr" element={<Faculty></Faculty>}></Route>
           <Route path = "/ad/review" element={<PresPendingReviews></PresPendingReviews>}></Route>
