@@ -23,7 +23,7 @@ function PCR({ deptid, dept_mode }) {
                 title="Office Performance Review and Commitment Form" 
                 onAction={handleConsolidate}
                 actionLoading={consolidating}
-                showAction={true} // Keeping d-none logic from original: change to true if needed
+                showAction={false} // Keeping d-none logic from original: change to true if needed
             />
             
             <div className="all-ipcr-container d-flex flex-column gap-2 mb-4">

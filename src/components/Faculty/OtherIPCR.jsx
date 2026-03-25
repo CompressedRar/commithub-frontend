@@ -88,7 +88,7 @@ function OtherIPCR({ onMouseOver }) {
 
     useEffect(() => {
         loadIPCR(ipcr_id)
-        loadRatingThresholds()
+        loadRatingThresholds() 
 
 
         socket.on("ipcr", () => loadIPCR(ipcr_id))
@@ -132,16 +132,21 @@ function OtherIPCR({ onMouseOver }) {
             <PhaseStepper currentPhase={currentPhase}></PhaseStepper>
 
             <ManageTaskSupportingDocuments ipcr_id={ipcrInfo.id} batch_id={ipcrInfo.batch_id} dept_mode={false} sub_tasks={arrangedSubTasks}></ManageTaskSupportingDocuments>
-            <div className="d-flex justify-content-end align-items-center gap-2 my-4">
+            <div className="d-flex justify-content-between align-items-center gap-2 my-4">
                 <button
-                    className="btn btn-outline-secondary d-none align-items-center gap-2"
-                    data-bs-dismiss="modal"
-                >
+                    className="btn btn-outline-secondary d-flex align-items-center gap-2"
+                    onClick={() => {
+                        window.history.back()
+                    }}
+                    >
                     <span className="material-symbols-outlined">undo</span>
+                    Back
                 </button>
-                <SupportingDocumentButton />
-                <DownloadIPCRButton onDownload={handleChange} downloading={downloading} />
-                {isRatingPhase(currentPhase) && <CalculateRatingButton onCalculate={handleCalculateRatings} loading={loading} />}
+                <div className="d-flex gap-2">
+                    <SupportingDocumentButton />
+                    <DownloadIPCRButton onDownload={handleChange} downloading={downloading} />
+                    {isRatingPhase(currentPhase) && <CalculateRatingButton onCalculate={handleCalculateRatings} loading={loading} />}
+                </div>
             </div>
 
 

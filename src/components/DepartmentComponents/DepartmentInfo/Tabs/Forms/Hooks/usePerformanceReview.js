@@ -96,6 +96,7 @@ export function usePerformanceData(deptId) {
     // Auto-load OPCR when IDs change (Logic from your original code)
     useEffect(() => {
         if (filteredID.length > 0) loadOPCR();
+        createOPCR(deptId, { ipcr_ids: filteredID });
     }, [filteredID, loadOPCR]);
 
     return {
