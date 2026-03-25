@@ -18,6 +18,7 @@ import AccountMenu from "../components/AccountMenu";
 
 import MenuIcon from '@mui/icons-material/Menu';
 import { AppBar, Avatar, Box, Stack, Toolbar } from "@mui/material";
+import { useAuth } from "../hooks/useAuth";
 
 function FacultyLayout() {
   const token = localStorage.getItem("token");
@@ -32,6 +33,7 @@ function FacultyLayout() {
 
   const [menuAnchor, setAnchor] = useState(null)
 
+  const { verifyToken } = useAuth();
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", handleResize);
@@ -49,6 +51,8 @@ function FacultyLayout() {
 
   function readTokenInformation() {
     try {
+      
+      
       const payload = jwtDecode(token);
       setUserInfo(payload);
       setRole(payload.role || null);
@@ -91,7 +95,9 @@ function FacultyLayout() {
   }
 
   useEffect(() => {
+    verifyToken();
     if (!token) return;
+    
     readTokenInformation();
     socket.on("user_modified", () => {
       readTokenInformation()

@@ -4,6 +4,7 @@ import { objectToFormData } from "../components/api";
 import { jwtDecode } from "jwt-decode";
 import Swal from "sweetalert2";
 
+
 export const useAuth = () => {
   // --- States ---
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -15,6 +16,7 @@ export const useAuth = () => {
   const [otpRequested, setOtpRequested] = useState(false);
   const [forgotPassOpen, setForgotPassOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
 
   // --- Token Logic ---
   const detectToken = (token = localStorage.getItem("token")) => {
@@ -74,6 +76,31 @@ export const useAuth = () => {
     }
   };
 
+  const verifyToken = async () =>{
+    try {
+      const currentTime = Date.now() / 1000;
+      const token = localStorage.getItem("token"); 
+      if (!token) return;
+
+      const payload = jwtDecode(token);
+      console.log(payload.exp, payload.exp < currentTime)
+
+      
+      if (payload.exp < currentTime) {
+        handleAutomaticLogout();
+        
+      }
+    }
+    catch(error){
+      console.log(error)
+    }
+  }
+
+  function handleAutomaticLogout() {
+    localStorage.removeItem("token");  
+    window.location.replace('/')      
+  }
+
   return {
     // Data
     formData, otp, loading,
@@ -82,6 +109,6 @@ export const useAuth = () => {
     forgotPassOpen, setForgotPassOpen,
     showPassword, setShowPassword,
     // Actions
-    handleInputChange, login, verify, setOtp, detectToken
+    handleInputChange, login, verify, setOtp, detectToken, verifyToken
   };
 };

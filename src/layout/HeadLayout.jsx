@@ -24,6 +24,7 @@ import AccountMenu from "../components/AccountMenu";
 
 import MenuIcon from '@mui/icons-material/Menu';
 import { AppBar, Avatar, Box, Stack, Toolbar } from "@mui/material";
+import { useAuth } from "../hooks/useAuth";
 
 function HeadLayout() {
   const token = localStorage.getItem("token");
@@ -37,6 +38,8 @@ function HeadLayout() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   const [menuAnchor, setAnchor] = useState(null)
+
+  const { verifyToken } = useAuth();
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -55,6 +58,7 @@ function HeadLayout() {
 
   function readTokenInformation() {
     try {
+      
       const payload = jwtDecode(token);
       setUserInfo(payload);
       setRole(payload.role || null);
@@ -121,6 +125,7 @@ function HeadLayout() {
   }, []);
 
   useEffect(() => {
+    verifyToken()
     if (!token) return;
     readTokenInformation();
     socket.on("user_modified", () => {

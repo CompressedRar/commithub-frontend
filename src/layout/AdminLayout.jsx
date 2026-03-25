@@ -28,6 +28,7 @@ import AccountMenu from "../components/AccountMenu";
 
 import MenuIcon from '@mui/icons-material/Menu';
 import { AppBar, Avatar, Box, Stack, Toolbar } from "@mui/material";
+import { useAuth } from "../hooks/useAuth";
 
 function AdminLayout() {
   const token = localStorage.getItem("token");
@@ -42,12 +43,12 @@ function AdminLayout() {
 
 
   const [menuAnchor, setAnchor] = useState(null)
-
+  
+  const { verifyToken } = useAuth();
+  
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    
   }, []);
 
   async function loadNotification(user_id) {
@@ -59,8 +60,10 @@ function AdminLayout() {
     }
   }
 
-  function readTokenInformation() {
+  async function readTokenInformation() {
     try {
+      
+
       const payload = jwtDecode(token);
       setUserInfo(payload);
       setRole(payload.role || null);
@@ -103,8 +106,13 @@ function AdminLayout() {
   }
 
   useEffect(() => {
+    
+
+    verifyToken();
+    
     if (!token) return;
     readTokenInformation();
+    
     socket.on("user_modified", () => {
       readTokenInformation()
       console.log("USER UPDATED!!")
@@ -118,7 +126,6 @@ function AdminLayout() {
 
   }, []);
 
-  if (!token) return <Navigate to="/" replace />;
   if (role && role !== "administrator" && role !== "president") return <Navigate to="/unauthorized" replace />;
 
   return (
