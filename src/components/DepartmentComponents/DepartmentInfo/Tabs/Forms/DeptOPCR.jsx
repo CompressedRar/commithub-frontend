@@ -43,7 +43,7 @@ function DeptOPCR({ opcr, opcr_id, dept_id, dept_mode }) {
 
     const handleView = () => {
         const baseRoute = dept_mode ? "/head/opcr" : "/sadmin/opcr";
-        navigate(`${baseRoute}/${opcr_id}?dept_id=${dept_id}&mode=check`);
+        navigate(`${baseRoute}/${opcr_id}?dept_id=${dept_id}`);
     };
 
     return (

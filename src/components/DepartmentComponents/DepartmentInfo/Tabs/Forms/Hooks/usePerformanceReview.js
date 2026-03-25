@@ -70,7 +70,9 @@ export function usePerformanceData(deptId) {
         if (result.isConfirmed) {
             setConsolidating(true);
             try {
+                console.log("CREATING OPCR")
                 await createOPCR(deptId, { ipcr_ids: filteredID });
+
                 await loadOPCR(); // Refresh OPCR list after creation
             } catch (error) {
                 Swal.fire("Error", error.response?.data?.error || "Failed to create OPCR", "error");

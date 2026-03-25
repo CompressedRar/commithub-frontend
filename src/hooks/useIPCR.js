@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react"
 import { calculateSubTaskRating, downloadIPCR, downloadPlannedIPCR, downloadWeightedIPCR, getIPCR, updateSubTask } from "../services/pcrServices"
 import { downloadFile } from "../utils/download";
 import Swal from "sweetalert2"
+import { jwtDecode } from "jwt-decode";
 
 export const useIPCR = () => {
 
@@ -23,6 +24,30 @@ export const useIPCR = () => {
     });
 
     const [downloading, setDownloading] = useState(false);
+    const VALID_VISITORS = ["administrator", "president"]
+
+    function verifyVisitor(ipcr_info) {
+        const token = localStorage.getItem("token");
+        if (token) {
+            try {
+                const payload = jwtDecode(token);
+
+                if(VALID_VISITORS.includes(String(payload.role).toLowerCase())) return;
+
+                console.log(payload)
+                if (payload.department.id != ipcr_info.user_info.department_id) {
+                    window.location.href = "/unauthorized"
+                }
+
+            } catch (err) {
+                window.location.href = "/unauthorized"
+
+            }
+        }
+        else {
+            window.location.href = "/unauthorized"
+        }
+    }
 
     const loadIPCR = useCallback(async (ipcr_id) => {
         try {
@@ -30,6 +55,8 @@ export const useIPCR = () => {
             const res = await getIPCR(ipcr_id).then(data => data.data);
             setIPCRInfo(res);
             processIPCRData(res);
+            verifyVisitor(res);
+
 
         } catch (error) {
             console.log(error)

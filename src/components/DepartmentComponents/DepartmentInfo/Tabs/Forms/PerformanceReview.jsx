@@ -106,6 +106,7 @@ function PerformanceReviews(props){
       }
 
     async function loadOPCR() {
+    console.log("CREATING OPCR")
       setAllOPCR(null)
       await submission()
 
@@ -128,10 +129,11 @@ function PerformanceReviews(props){
         setAllOPCR(filter)
     }
     useEffect(()=> {
+        console.log(filteredID)
         if (filteredID == null) return
         
         loadOPCR()
-    }, [filteredID])
+    }, [])
 
     useEffect(()=> {
         loadIPCR()

@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from "react"
 import { updateSubTask } from "../../services/pcrServices"
 import { socket } from "../api"
-import Swal from "sweetalert2"
 import ManageTaskSupportingDocuments from "./SupportingDocument/ManageTaskSupportingDocuments"
 
 import { useSettings } from "../../hooks/useSettings"
@@ -10,29 +9,23 @@ import SignaturesSection from "./IPCR/SignatureSection"
 import FinalRatingsSection from "./IPCR/FinalRatingSection"
 
 import OathSection from "./IPCR/OathSection"
-import MonitoringIndicator from "./IPCR/Header/MonitoringIndicator"
 import HeaderSection from "./IPCR/Header/HeaderSection"
 import DownloadIPCRButton from "./IPCR/Header/DownloadIPCRButton"
 import SupportingDocumentButton from "./IPCR/Header/SupportingDocumentButton"
 import { TaskSection } from "./IPCR/Task/TaskSection"
-import { useParams, useSearchParams } from "react-router-dom"
+import { useParams} from "react-router-dom"
 import CalculateRatingButton from "./IPCR/Header/CalculateRatingButton"
 import { PhaseStepper } from "./PhaseStepper"
 import RatingIndicator from "./IPCR/Header/RatingIndicator"
+import { jwtDecode } from "jwt-decode"
+
 
 
 
 function OtherIPCR({ onMouseOver }) {
     // Core data states
 
-    const [searchParams] = useSearchParams()
-
-
-
-
     const { ipcr_id } = useParams()
-    const dept_id = searchParams.get("dept_id")
-    const mode = searchParams.get("mode")
 
     const [field, setField] = useState("")
     const [value, setValue] = useState(0)
@@ -42,7 +35,7 @@ function OtherIPCR({ onMouseOver }) {
     const [currentPhase, setCurrentPhase] = useState(null)
 
 
-    const { settings, handleRemarks, isMonitoringPhase, isRatingPhase } = useSettings();
+    const { settings, handleRemarks,  isRatingPhase } = useSettings();
 
     const { downloading, downloadStandard, downloadWeighted, downloadPlanned, stats, ipcrInfo, categoryTypes, arrangedSubTasks, loadIPCR, handleCalculateRatings, loading } = useIPCR();
 
@@ -57,6 +50,8 @@ function OtherIPCR({ onMouseOver }) {
         setField(e.target.name)
         setValue(e.target.value)
     }
+
+    
 
     function handleSpanChange(e) {
         setField(e.target.className)
@@ -87,6 +82,7 @@ function OtherIPCR({ onMouseOver }) {
     }
 
     useEffect(() => {
+        
         loadCurrentPhase()
     }, [settings])
 
@@ -187,7 +183,7 @@ function OtherIPCR({ onMouseOver }) {
                                         handleSpanChange={handleSpanChange}
                                         handleRemarks={(rating) => handleRemarks(rating)}
                                         setSubTaskID={setSubTaskID}
-                                        mode={mode}
+                                        mode={"check"}
                                         currentPhase={currentPhase}
                                     />
                                 ))}

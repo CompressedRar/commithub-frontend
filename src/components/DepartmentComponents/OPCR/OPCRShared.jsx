@@ -400,7 +400,7 @@ export function OPCRTaskRow({ task, assignedData, canEval, isRatingPhase, setRat
 
       {/* Rating */}
       <td className="text-center">
-        {editable
+        {isRatingPhase
           ? <OPCREditableRatingBadges task={task} canEval={canEval} isRatingPhase={isRatingPhase} setRating={setRating} />
           : <OPCRRatingBadges task={task} />
         }

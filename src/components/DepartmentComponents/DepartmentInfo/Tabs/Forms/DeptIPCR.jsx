@@ -44,7 +44,7 @@ function DeptIPCR({ ipcr, dept_id, dept_mode, onMouseOver }) {
 
     const handleView = () => {
         const routePrefix = dept_mode ? "head" : "sadmin";
-        navigate(`/${routePrefix}/ipcr/${ipcr.ipcr.id}?dept_id=${dept_id}&mode=check`);
+        navigate(`/${routePrefix}/ipcr/${ipcr.ipcr.id}`);
     };
 
     return (
