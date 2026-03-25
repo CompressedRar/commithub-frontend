@@ -97,8 +97,8 @@ export const useAuth = () => {
   }
 
   function handleAutomaticLogout() {
-    localStorage.removeItem("token");  
-    window.location.replace('/')      
+    //localStorage.removeItem("token");  
+    //window.location.replace('/')      
   }
 
   return {

@@ -46,13 +46,41 @@ if (token) {
   api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 }
 
-// Temporary debugging: log outgoing auth requests to find repeated login attempts
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      try {
+        const payload = jwtDecode(token);
+        const currentTime = Date.now() / 1000;
+
+        // Check if token is expired
+        if (payload.exp < currentTime) {
+          localStorage.removeItem("token");
+          window.location.href = "/"; 
+        }
+      } catch (e) {
+        localStorage.removeItem("token");
+        window.location.href = "/";
+      }
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Clear any stale in-memory state and send user to login
-      window.location.href = "/";
+      const token = localStorage.getItem("token"); 
+      if (token){
+         localStorage.removeItem("token"); 
+         window.location.href = "/";
+      }      
     }
     return Promise.reject(error);
   }
