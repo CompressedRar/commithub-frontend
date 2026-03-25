@@ -343,14 +343,18 @@ function MemberProfile(props){
                             {positions.map(p=> <option key={p.id} value={p.id}>{p.name}</option>)}
                         </select>
                     </div>
-                    <div className="col-md-6">
-                        <label htmlFor="role" className="form-label">Role</label>
-                        <select id="role" name="role" className="form-select" value={formData.role} onChange={handleDataChange}>
-                            <option value="faculty">Faculty</option>
-                            <option value="head">Head</option>
-                            <option value="president">Administrator</option>
-                        </select>
-                    </div>
+                    {
+                        formData.role != "administrator" &&
+                        <div className="col-md-6">
+                            
+                            <label htmlFor="role" className="form-label">Role</label>
+                            <select id="role" name="role" className="form-select" value={formData.role} onChange={handleDataChange}>
+                                <option value="faculty">Faculty</option>
+                                <option value="head">Head</option>
+                                <option value="president">Administrator</option>
+                            </select>
+                        </div>
+                    }
                 </div>
 
                 {/* Buttons */}

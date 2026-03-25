@@ -24,6 +24,7 @@ export const useAccount = () => {
                 });
             
                 setAccount(res);
+                console.log(res)
                 setAccountIPCR(res.ipcrs);
             }
         } catch (error) {
