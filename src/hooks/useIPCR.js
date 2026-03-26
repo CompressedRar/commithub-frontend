@@ -68,7 +68,7 @@ export const useIPCR = () => {
         }
     }, [])
 
-    const handleCalculateRatings = useCallback(async () => {
+    const handleCalculateRatings = useCallback(async (ipcr_id) => {
         const result = await Swal.fire({
             title: "Calculate Ratings?",
             text: "This will override the ratings for all tasks.",
@@ -85,6 +85,7 @@ export const useIPCR = () => {
                 setLoading(true);
 
                 const res = await calculateSubTaskRating(subTaskArray);
+                
 
                 await Swal.fire({
                     title: "Success!",
@@ -92,6 +93,8 @@ export const useIPCR = () => {
                     icon: "success",
                     timer: 1000
                 });
+                await loadIPCR(ipcr_id)
+
 
 
             } catch (error) {

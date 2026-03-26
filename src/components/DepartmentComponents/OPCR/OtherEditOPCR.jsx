@@ -99,7 +99,7 @@ function OtherEditOPCR() {
             ]}
           />
 
-          {false && canEval && (
+          {isRatingPhase(currentPhase) && canEval && (
             <CalculateRatingButton onCalculate={handleCalculateRatings} loading={loading} />
           )}
         </div>
@@ -109,7 +109,7 @@ function OtherEditOPCR() {
       {canEval && <RatingIndicator isRatingPhase={isRatingPhase(currentPhase)} />}
 
       {/* Main Card */}
-      <div className="container-fluid border rounded">
+      <div className="container-fluid border rounded" key={loading}>
         <div className="card-body p-4">
           <OPCRHeaderSection />
           <OfficerInfoSection headData={headData} />

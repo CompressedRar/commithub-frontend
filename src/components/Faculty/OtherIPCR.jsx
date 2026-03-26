@@ -147,14 +147,14 @@ function OtherIPCR({ onMouseOver }) {
                     <SupportingDocumentButton />
                     <DownloadIPCRButton onDownload={handleChange} downloading={downloading} />
                     {isRatingPhase(currentPhase) && <UploadIPCRButton onUpload={()=> {loadIPCR(ipcr_id)}}></UploadIPCRButton>}
-                    {false && <CalculateRatingButton onCalculate={handleCalculateRatings} loading={loading} />}
+                    {isRatingPhase(currentPhase) && <CalculateRatingButton onCalculate={()=>{handleCalculateRatings(ipcr_id)}} loading={loading} />}
                 </div>
             </div>
 
 
             <RatingIndicator isRatingPhase={isRatingPhase(currentPhase)} />
 
-            <div className="card shadow-sm">
+            <div className="card shadow-sm" key={loading}>
                 <div className="card-body p-4">
                     <HeaderSection />
                     <OathSection ipcrInfo={ipcrInfo} />
