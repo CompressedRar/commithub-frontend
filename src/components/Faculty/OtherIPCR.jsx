@@ -147,7 +147,7 @@ function OtherIPCR({ onMouseOver }) {
                     <SupportingDocumentButton />
                     <DownloadIPCRButton onDownload={handleChange} downloading={downloading} />
                     {isRatingPhase(currentPhase) && <UploadIPCRButton onUpload={()=> {loadIPCR(ipcr_id)}}></UploadIPCRButton>}
-                    {isRatingPhase(currentPhase) && <CalculateRatingButton onCalculate={handleCalculateRatings} loading={loading} />}
+                    {false && <CalculateRatingButton onCalculate={handleCalculateRatings} loading={loading} />}
                 </div>
             </div>
 
