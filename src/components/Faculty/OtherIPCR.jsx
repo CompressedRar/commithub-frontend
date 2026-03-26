@@ -146,7 +146,7 @@ function OtherIPCR({ onMouseOver }) {
                 <div className="d-flex gap-2">
                     <SupportingDocumentButton />
                     <DownloadIPCRButton onDownload={handleChange} downloading={downloading} />
-                    <UploadIPCRButton onUpload={()=> {loadIPCR(ipcr_id)}}></UploadIPCRButton>
+                    {isRatingPhase(currentPhase) && <UploadIPCRButton onUpload={()=> {loadIPCR(ipcr_id)}}></UploadIPCRButton>}
                     {isRatingPhase(currentPhase) && <CalculateRatingButton onCalculate={handleCalculateRatings} loading={loading} />}
                 </div>
             </div>
