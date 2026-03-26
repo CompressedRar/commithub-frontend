@@ -58,6 +58,7 @@ function TaskInfo({ id, backAfterArchive }) {
     handleArchive,
   } = useTaskInfo(id, { onArchived: backAfterArchive });
 
+
   return (
     <div className="py-2">
 
@@ -155,7 +156,7 @@ function TaskInfo({ id, backAfterArchive }) {
             type="text"
             name="modification"
             className="form-control"
-            value={formData.modification ?? ""}
+            value={formData.modifications ?? ""}
             onChange={handleChange}
           />
         </FormField>

@@ -44,7 +44,7 @@ export function useCreateTask({ taskForm, requireDocument, onSuccess, onClose })
 
       const { data } = await createMainTask(formData);
 
-      if (data?.message === "Task successfully created.") {
+      if (data?.message) {
         Swal.fire("Success", data.message, "success");
         onSuccess?.();
         onClose?.();
