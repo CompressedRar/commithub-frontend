@@ -18,6 +18,7 @@ import CalculateRatingButton from "./IPCR/Header/CalculateRatingButton"
 import { PhaseStepper } from "./PhaseStepper"
 import RatingIndicator from "./IPCR/Header/RatingIndicator"
 import { jwtDecode } from "jwt-decode"
+import UploadIPCRButton from "./IPCR/Header/UploadIPCR"
 
 
 
@@ -145,6 +146,7 @@ function OtherIPCR({ onMouseOver }) {
                 <div className="d-flex gap-2">
                     <SupportingDocumentButton />
                     <DownloadIPCRButton onDownload={handleChange} downloading={downloading} />
+                    <UploadIPCRButton onUpload={()=> {loadIPCR(ipcr_id)}}></UploadIPCRButton>
                     {isRatingPhase(currentPhase) && <CalculateRatingButton onCalculate={handleCalculateRatings} loading={loading} />}
                 </div>
             </div>
