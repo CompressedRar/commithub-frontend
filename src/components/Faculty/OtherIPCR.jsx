@@ -113,7 +113,7 @@ function OtherIPCR({ onMouseOver }) {
         }, 100)
 
         return () => clearTimeout(debounce)
-    }, [value])
+    }, [value, field])
 
 
 
