@@ -28,7 +28,7 @@ export default function SystemSettings() {
   }
 
   return (
-    <Container maxWidth="xl" sx={{margin:"auto"}}>
+    <Container  sx={{margin:"auto", minWidth:"100vw"}}>
       {/* Header */}
       <Box >
 
