@@ -99,7 +99,7 @@ function OtherEditOPCR() {
             ]}
           />
 
-          {isRatingPhase(currentPhase) && canEval && (
+          {false && canEval && (
             <CalculateRatingButton onCalculate={handleCalculateRatings} loading={loading} />
           )}
         </div>
