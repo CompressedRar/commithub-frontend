@@ -243,6 +243,13 @@ export async function getCompiledFromIPCR(ipcr_id) {
     })
 }
 
+export async function getPresentationFromIPCR(ipcr_id) {
+    console.log("fetching ipcr")
+    return api.get(`/api/v1/pcr/supporting_docu/presentation/${ipcr_id}`, {
+        responseType:'blob'
+    })
+}
+
 export async function getCompiledFromDept(dept_id) {
     console.log("fetching ipcr")
     return api.get(`/api/v1/pcr/supporting_dept/compile/${dept_id}`)

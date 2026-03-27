@@ -2,16 +2,16 @@ import {
   Badge, Box, Button, Chip, Divider,
   Stack, Tooltip, Typography,
 } from "@mui/material";
-import FolderOpenIcon       from "@mui/icons-material/FolderOpen";
-import SimCardDownloadIcon  from "@mui/icons-material/SimCardDownload";
-import { getCompiledFromIPCR } from "../../../services/pcrServices";
+import FolderOpenIcon from "@mui/icons-material/FolderOpen";
+import SimCardDownloadIcon from "@mui/icons-material/SimCardDownload";
+import { getCompiledFromIPCR, getPresentationFromIPCR } from "../../../services/pcrServices";
 import Swal from "sweetalert2";
 import { useState } from "react";
 
-import { useDocuments }    from "./hook/useDocuments";
-import DocumentChecklist   from "../DocumentChecklist";
-import UploadPanel         from "./UploadPanel";
-import DocumentList        from "./DocumentList";
+import { useDocuments } from "./hook/useDocuments";
+import DocumentChecklist from "../DocumentChecklist";
+import UploadPanel from "./UploadPanel";
+import DocumentList from "./DocumentList";
 
 function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks }) {
   const [compiling, setCompiling] = useState(false);
@@ -23,7 +23,7 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
     loading,
     removeDocument,
     loadDocuments,
-    search,     setSearch,
+    search, setSearch,
     filterType, setFilterType,
     filterTask, setFilterTask,
     fileTypes,
@@ -49,6 +49,25 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
     }
   };
 
+  const handlePresentation = async () => {
+    try {
+      setCompiling(true);
+      const d = await getPresentationFromIPCR(ipcr_id);
+      const url = window.URL.createObjectURL(new Blob([d.data]));
+      const a = document.createElement("a");
+      a.href = url;
+      a.setAttribute("download", `Compiled_Report_${ipcr_id}.pptx`);
+      document.body.appendChild(a);
+      a.click();
+      a.parentNode.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch {
+      Swal.fire("Error", "No documents to compile.", "error");
+    } finally {
+      setCompiling(false);
+    }
+  };
+
   return (
     <div
       className="modal fade"
@@ -63,29 +82,16 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
         <div className="modal-content border-0 shadow-lg rounded-3">
 
           {/* Header */}
-          <div className="modal-header border-0 pb-0 px-4 pt-4">
+          <div className="modal-header border-0 pb-0 px-4 pt-4 gap-2">
             <Stack direction="row" alignItems="center" spacing={1.5} sx={{ flex: 1 }}>
               <FolderOpenIcon color="primary" />
               <Typography variant="h6" fontWeight={700}>Supporting Documents</Typography>
               <Chip label={activeDocuments.length} size="small" color="primary" />
             </Stack>
-            <Stack direction="row" spacing={1} alignItems="center">
-              <Tooltip title="Download compiled report (.docx)">
-                <span>
-                  <Button
-                    size="small" variant="outlined"
-                    startIcon={compiling
-                      ? <span className="spinner-border spinner-border-sm" />
-                      : <SimCardDownloadIcon />}
-                    onClick={handleCompile}
-                    disabled={compiling || activeDocuments.length === 0}
-                  >
-                    {compiling ? "Compiling…" : "Compile"}
-                  </Button>
-                </span>
-              </Tooltip>
-              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" />
-            </Stack>
+
+
+            
+            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" />
           </div>
 
           <Divider sx={{ mx: 3, mt: 2 }} />
@@ -107,10 +113,57 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
               />
             )}
 
-            <Stack direction="row" alignItems="center" spacing={1} mb={1.5}>
-              <Typography variant="subtitle1" fontWeight={700}>Uploaded Files</Typography>
-              <Chip label={activeDocuments.length} size="small" color="success" />
-            </Stack>
+            <div className="d-flex justify-content-between">
+              <Stack direction="row" alignItems="center" spacing={1} mb={1.5}>
+                <Typography variant="subtitle1" fontWeight={700}>Uploaded Files</Typography>
+                <Chip label={activeDocuments.length} size="small" color="success" />
+              </Stack>
+              {
+                !compiling ?
+                  <Stack direction={"row"} spacing={2}>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <Tooltip title="Download compiled report (.docx)">
+                        <span>
+                          <Button
+                            size="small" variant="outlined"
+                            startIcon={compiling
+                              ? <span className="spinner-border spinner-border-sm" />
+                              : <SimCardDownloadIcon />}
+                            onClick={handleCompile}
+                            disabled={compiling || activeDocuments.length === 0}
+                          >
+                            {compiling ? "Compiling…" : "Compile into DOCX"}
+                          </Button>
+                        </span>
+                      </Tooltip>
+                    </Stack>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <Tooltip title="Download compiled report (.docx)">
+                        <span>
+                          <Button
+                            size="small" variant="outlined"
+                            startIcon={compiling
+                              ? <span className="spinner-border spinner-border-sm" />
+                              : <SimCardDownloadIcon />}
+                            onClick={handlePresentation}
+                            disabled={compiling || activeDocuments.length === 0}
+                          >
+                            {compiling ? "Compiling…" : "Compile to PPTX"}
+                          </Button>
+                        </span>
+                      </Tooltip>
+                    </Stack>
+                  </Stack>
+                  : <Button
+                    size="small" variant="outlined"
+                    startIcon={<span className="spinner-border spinner-border-sm" />
+                    }
+                    disabled={compiling || activeDocuments.length === 0}
+                  >
+                    {"Compiling…"}
+                  </Button>
+              }
+            </div>
 
             <DocumentList
               groupedDocuments={groupedDocuments}
@@ -119,9 +172,9 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
               loading={loading}
               deptMode={dept_mode}
               onRemove={removeDocument}
-              search={search}           setSearch={setSearch}
-              filterType={filterType}   setFilterType={setFilterType}
-              filterTask={filterTask}   setFilterTask={setFilterTask}
+              search={search} setSearch={setSearch}
+              filterType={filterType} setFilterType={setFilterType}
+              filterTask={filterTask} setFilterTask={setFilterTask}
               fileTypes={fileTypes}
               taskNames={taskNames}
             />
