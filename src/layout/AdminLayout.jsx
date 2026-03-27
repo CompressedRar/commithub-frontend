@@ -101,6 +101,7 @@ function AdminLayout() {
       if (result.isConfirmed) {
         localStorage.removeItem("token");
         window.location.reload();
+        
       }
     });
   }
@@ -125,6 +126,8 @@ function AdminLayout() {
     socket.on("notification_sent", () => readTokenInformation());
 
   }, []);
+  
+  if (!token) return <Navigate to="/" replace />;
 
   if (role && role !== "administrator" && role !== "president") return <Navigate to="/unauthorized" replace />;
 
