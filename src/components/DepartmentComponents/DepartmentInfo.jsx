@@ -98,7 +98,8 @@ function DepartmentInfo({ id, onLoadDepartments }) {
         res.data.message.includes("successfully") ? "success" : "error"
       );
       Modal.getInstance(document.getElementById("archive-department"))?.hide();
-      onLoadDepartments();
+      await onLoadDepartments();
+      window.location.reload();
     } catch (err) {
       Swal.fire("Error", err.response?.data?.error || "Failed to archive office", "error");
     }
