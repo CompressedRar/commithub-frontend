@@ -44,7 +44,7 @@ function Administrator() {
   return (
     <div className="container-fluid">
       {/* Header Section */}
-      <DashboardHeader></DashboardHeader>
+      <DashboardHeader onRefresh={fetchData} onDownload={handleDownload} downloading={downloading} loading={loading}></DashboardHeader>
       
 
       {error && (
