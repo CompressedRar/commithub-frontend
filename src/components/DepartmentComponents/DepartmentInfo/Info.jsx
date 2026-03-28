@@ -9,7 +9,7 @@ import useDepartmentInfo from "../../../hooks/useDepartmentInfo";
 
 function DepartmentInfo({id,onLoadDepartments, headMode = false}) {
 
-    const dept = useDepartmentInfo(id,onLoadDepartments)
+    const dept = useDepartmentInfo(id, onLoadDepartments)
     const phase = useDepartmentPhase()
 
     if(phase.loading){

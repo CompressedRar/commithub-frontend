@@ -7,6 +7,7 @@ import {
   archiveDepartment
 } from "../services/departmentService";
 import { objectToFormData } from "../components/api";
+import { Modal } from "bootstrap";
 
 export default function useDepartmentInfo(id, onLoadDepartments){
 
@@ -87,9 +88,11 @@ export default function useDepartmentInfo(id, onLoadDepartments){
 
             const res = await archiveDepartment(id)
 
-            Swal.fire("Success",res.data.message,"success")
+            await Swal.fire("Success",res.data.message,"success")
 
-            onLoadDepartments?.()
+            await onLoadDepartments?.()
+            Modal.getInstance(document.getElementById("archive-department"))?.hide();
+            window.location.reload();
 
         }catch(err){
 
