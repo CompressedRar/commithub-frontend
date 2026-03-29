@@ -98,7 +98,7 @@ function CategoryTask({ category = {}, onClick }) {
         <div className="ms-3">
           {/* Offices */}
           <div className="d-flex flex-wrap align-items-center gap-2 mb-1">
-            <div className="flex-grow-1">
+            <div className="d-flex flex-grow-1 flex-column gap-2">
               <label className="form-label fw-semibold mb-1">Assigned Offices</label>
               <DepartmentList departments={category.departments} />
             </div>
