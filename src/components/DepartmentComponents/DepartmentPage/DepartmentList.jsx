@@ -72,7 +72,11 @@ function DepartmentList({
                                     key={dept.id}
                                     dept={dept}
                                     active={dept.id === currentDepartment}
-                                    onClick={()=>setCurrentDepartment(dept.id)}
+                                    onClick={()=>{
+                                        setCurrentDepartment(dept.id)
+                                        console.log("setting department", dept.id) // DEBUG
+                                        localStorage.setItem("currentDepartment", dept.id)
+                                    }}
                                 />
 
                             ))

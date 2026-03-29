@@ -36,6 +36,7 @@ export const useDepartment = () => {
             if (!currentDepartment && data.length > 0) {
                 
                 setCurrentDepartment(data[0].id)
+                loadPreviousDepartment()
             }
 
             return data
@@ -55,6 +56,14 @@ export const useDepartment = () => {
             setLoading(false)
         }
 
+    }, [])
+
+    const loadPreviousDepartment = useCallback(() => {
+        const previousDepartment = localStorage.getItem("currentDepartment");
+        if (previousDepartment) {
+            console.log("Setting previous department", previousDepartment)
+            setCurrentDepartment(previousDepartment)
+        }
     }, [])
 
     const createDepartment = async (formData) => {
@@ -91,10 +100,21 @@ export const useDepartment = () => {
     }
 
     useEffect(() => {
-        fetchFullDepartments()        
+        fetchFullDepartments();   
+        
     }, [fetchFullDepartments])
 
 
+    useEffect(()=> {
+        const previousDepartment = localStorage.getItem("currentDepartment");
+        if(previousDepartment){
+            console.log("Setting previous department", previousDepartment)
+            setCurrentDepartment(previousDepartment)
+        }     
+    }, [])
+
+    
+    useEffect(() => {console.log("Current department updated:", currentDepartment)}, [currentDepartment])
     return {        
         departments,
         currentDepartment,        
