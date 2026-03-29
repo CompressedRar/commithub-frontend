@@ -310,11 +310,6 @@ function DepartmentAssignTask(props) {
       loadMembers();
       loadAssignedMembers();
     });
-
-    return () => {
-      socket.off("user_assigned");
-      socket.off("user_unassigned");
-    };
   }, []);
 
   return (
