@@ -38,8 +38,18 @@ export default function CategoryAndTask() {
       const res = await getCategories();
       const data = res?.data ?? [];
       setAllCategory(data);
-      if (!selectedCategoryId && data.length > 0) setSelectedCategoryId(data[0].id);
-      if (data.length === 0) setSelectedCategoryId(null);
+
+      const previouslySelectedId = localStorage.getItem("selectedCategoryId");
+
+      console.log("Current ID:", previouslySelectedId);
+      if (previouslySelectedId) {
+        console.log("triggered set id", previouslySelectedId);
+        setSelectedCategoryId(previouslySelectedId);
+      } else {
+        console.log("No previously selected ID found, defaulting to first category if available.");
+        if (!selectedCategoryId && data.length > 0) setSelectedCategoryId(data[0].id);
+        if (data.length === 0) setSelectedCategoryId(null);
+      }
 
     } catch (error) {
       console.error(error);
@@ -49,22 +59,22 @@ export default function CategoryAndTask() {
     }
   }
 
-  async function handleCategoryOrder(e){
+  async function handleCategoryOrder(e) {
     if (e.target.value == "") return;
 
     const debounce = setTimeout(async () => {
       try {
-      var res = await updateCategoryOrder(selectedCategoryId, e.target.value)
+        var res = await updateCategoryOrder(selectedCategoryId, e.target.value)
 
         Swal.fire("Success", res.data.message, "success");
       }
-      catch(error){
+      catch (error) {
         Swal.fire("Error", error?.response?.data?.error || "Updating Priority No. Failed", "error");
       }
     }, 700);
     return () => clearTimeout(debounce);
 
-    
+
   }
 
   useEffect(() => {
@@ -119,9 +129,20 @@ export default function CategoryAndTask() {
 
   // When categories change, ensure selected id stays valid
   useEffect(() => {
-    if (selectedCategoryId && !allCategory.find((c) => c.id === selectedCategoryId)) {
-      setSelectedCategoryId(allCategory.length ? allCategory[0].id : null);
+    const previouslySelectedId = localStorage.getItem("selectedCategoryId");
+
+    console.log("Current ID:", previouslySelectedId);
+    if (previouslySelectedId) {
+      console.log("triggered set id", previouslySelectedId);
+      setSelectedCategoryId(previouslySelectedId);
+    } else {
+      if (selectedCategoryId && !allCategory.find((c) => c.id === selectedCategoryId)) {
+        console.log("loading category changed and current selected id is no longer valid, resetting to first category");
+        setSelectedCategoryId(allCategory.length ? allCategory[0].id : null);
+      }
     }
+
+
   }, [allCategory, selectedCategoryId]);
 
   return (
@@ -135,28 +156,28 @@ export default function CategoryAndTask() {
                   <h5 className="mb-0 fw-bold">Key Result Areas</h5>
                   <small className="text-muted">Select KRA to manage tasks</small>
                 </div>
-                
+
                 <Button variant="contained" onClick={openCreateModal} title="Create category">
                   <span className="material-symbols-outlined">add</span>
                 </Button>
               </div>
-              
+
 
               <div className="mb-3">
                 <FormControl fullWidth>
                   <InputLabel htmlFor="search">Search KRA Name</InputLabel>
                   <OutlinedInput
-                    id="search"                                    
+                    id="search"
                     fullWidth
                     placeholder="Search KRA..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     label="Search KRA"
-                   />
+                  />
                 </FormControl>
               </div>
 
-              
+
 
               <List>
                 {loading ? (
@@ -174,21 +195,22 @@ export default function CategoryAndTask() {
                         selected={active}
                         onClick={() => {
                           setSelectedCategoryId(cat.id);
+                          localStorage.setItem("selectedCategoryId", cat.id);
                           setActiveRightTab("items");
                         }}
                         title={cat.name}
                         sx={{
-                          display:"flex",
-                          justifyContent:"space-between"
+                          display: "flex",
+                          justifyContent: "space-between"
                         }}
                       >
                         <div className="d-flex align-items-center gap-2">
 
                           <ListItemIcon>
                             <span className="material-symbols-outlined">folder</span>
-                          </ListItemIcon>                                                  
+                          </ListItemIcon>
                           <div className="text-start">
-                            <div style={{textOverflow:"ellipsis", textWrap:"wrap"}}>{cat.name}</div>
+                            <div style={{ textOverflow: "ellipsis", textWrap: "wrap" }}>{cat.name}</div>
                           </div>
                         </div>
                         <Chip label={cat.task_count ?? 0}></Chip>
@@ -206,8 +228,8 @@ export default function CategoryAndTask() {
         {/* RIGHT: content with tabs */}
         <div className="col-12 col-md-12 col-lg-7 col-xl-8">
           <div className="p-3 border roundedshadow-sm rounded">
-           <div className="header d-flex justify-content-between align-items-center">
-              
+            <div className="header d-flex justify-content-between align-items-center">
+
 
               <div className="btn-group" role="tablist">
                 <button className={`btn btn-sm ${activeRightTab === "items" ? "btn-primary" : "btn-outline-secondary"}`} onClick={() => setActiveRightTab("items")}>Items</button>
@@ -245,45 +267,45 @@ export default function CategoryAndTask() {
                       </div>
                     </div>
                     <div className="col-12 col-lg-12">
-                              <div className="p-3 bg-white border rounded-3 h-100">
-                                <div className="d-flex justify-content-between align-items-center mb-2">
-                                  <div>
-                                    <h6 className="mb-0 fw-semibold">KRA Summary</h6>
-                                    <small className="text-muted">Quick metrics</small>
-                                  </div>
-                                </div>
-                    
-                                <div className="d-flex gap-2 mt-3 flex-wrap">
+                      <div className="p-3 bg-white border rounded-3 h-100">
+                        <div className="d-flex justify-content-between align-items-center mb-2">
+                          <div>
+                            <h6 className="mb-0 fw-semibold">KRA Summary</h6>
+                            <small className="text-muted">Quick metrics</small>
+                          </div>
+                        </div>
 
-                                  <div className="p-3 bg-light rounded-2 text-center" style={{ minWidth: 100 }}>
-                                    <input type="number" onInput={handleCategoryOrder} min={0} defaultValue={allCategory.find((c) => c.id === selectedCategoryId)?.priority_order} className="form-control no-spinner"/>
-                                    <small className="text-muted d-block">Priority No.</small>
-                                  </div>
+                        <div className="d-flex gap-2 mt-3 flex-wrap">
 
-                                  <div className="p-3 bg-light rounded-2 text-center" style={{ minWidth: 100 }}>
-                                    <div className="fw-bold">{allCategory.find((c) => c.id === selectedCategoryId)?.task_count ?? 0}</div>
-                                    <small className="text-muted d-block">Tasks</small>
-                                  </div>
-                    
-                                  <div className="p-3 bg-light rounded-2 text-center" style={{ minWidth: 100 }}>
-                                    <div className="fw-bold">{parseFloat(allCategory.find((c) => c.id === selectedCategoryId)?.average_rating).toFixed(2) ?? 0}</div>
-                                    <small className="text-muted d-block">Avg Rating</small>
-                                  </div>
-                                </div>
+                          <div className="p-3 bg-light rounded-2 text-center" style={{ minWidth: 100 }}>
+                            <input type="number" onInput={handleCategoryOrder} min={0} defaultValue={allCategory.find((c) => c.id === selectedCategoryId)?.priority_order} className="form-control no-spinner" />
+                            <small className="text-muted d-block">Priority No.</small>
+                          </div>
 
-                                <div className="mt-2">
-                                  <CategoryPerformanceCharts categoryId={selectedCategoryId} />
-                                </div>
-                    
-                                <div className="mt-3">
-                                  <CategoryTaskAverages cat_id={selectedCategoryId} />
-                                </div>
+                          <div className="p-3 bg-light rounded-2 text-center" style={{ minWidth: 100 }}>
+                            <div className="fw-bold">{allCategory.find((c) => c.id === selectedCategoryId)?.task_count ?? 0}</div>
+                            <small className="text-muted d-block">Tasks</small>
+                          </div>
 
-                                <div className="">
-                                  <CategorySummaryPerDepartment category_id={selectedCategoryId}></CategorySummaryPerDepartment>
-                                </div>
-                              </div>
+                          <div className="p-3 bg-light rounded-2 text-center" style={{ minWidth: 100 }}>
+                            <div className="fw-bold">{parseFloat(allCategory.find((c) => c.id === selectedCategoryId)?.average_rating).toFixed(2) ?? 0}</div>
+                            <small className="text-muted d-block">Avg Rating</small>
+                          </div>
+                        </div>
+
+                        <div className="mt-2">
+                          <CategoryPerformanceCharts categoryId={selectedCategoryId} />
+                        </div>
+
+                        <div className="mt-3">
+                          <CategoryTaskAverages cat_id={selectedCategoryId} />
+                        </div>
+
+                        <div className="">
+                          <CategorySummaryPerDepartment category_id={selectedCategoryId}></CategorySummaryPerDepartment>
+                        </div>
                       </div>
+                    </div>
 
                   </div>
                 )
@@ -293,13 +315,13 @@ export default function CategoryAndTask() {
                   <div className="fw-semibold mb-1">No KRA selected</div>
                   <div className="mb-3">Create or select a KRA from the left panel.</div>
                   <div>
-                      <button className="btn btn-primary " onClick={openCreateModal}>
-                        <span className = "d-flex">
-                          <span className="material-symbols-outlined me-1">add</span>
-                          Create KRA
-                        </span>
-                      </button>
-                    </div>
+                    <button className="btn btn-primary " onClick={openCreateModal}>
+                      <span className="d-flex">
+                        <span className="material-symbols-outlined me-1">add</span>
+                        Create KRA
+                      </span>
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
