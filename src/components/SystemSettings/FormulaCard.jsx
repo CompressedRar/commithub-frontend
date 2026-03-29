@@ -7,7 +7,7 @@ import {
 } from "@mui/material";
 import { Inventory2, Speed, Schedule, Info, Code, Tune } from "@mui/icons-material";
 
-export function FormulaCard({ title, icon, formulaKey, formulas, setFormulas, description }) {
+export function FormulaCard({ title, icon, formulaKey, formulas, setFormulas, description, isValid }) {
   const [viewMode, setViewMode] = useState("builder"); // 'builder' or 'json'
   
   // Local state for the builder
@@ -118,7 +118,7 @@ export function FormulaCard({ title, icon, formulaKey, formulas, setFormulas, de
           <Box display="flex" alignItems="center" gap={1} mt={2}>
             <Info fontSize="small" color="primary" />
             <Typography variant="caption" color="text.secondary">
-              Logic: If (expression) matches range, return rating.
+              {isValid ? "Valid formula configuration." : "Invalid configuration detected. Please ensure all rating levels have appropriate range definitions."}
             </Typography>
           </Box>
         </CardContent>

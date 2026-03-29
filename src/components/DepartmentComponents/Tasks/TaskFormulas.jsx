@@ -9,10 +9,16 @@ import {
 import Swal from "sweetalert2";
 import { updateAssignedDepartmentTaskFormula } from "../../../services/departmentService";
 import { FormulaCard } from "../../SystemSettings/FormulaCard";
+import { validateFormula } from "../../../services/settingsService";
 
 export default function FormulaSettings({ task_data }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [validity, setValidity] = useState({
+    quantity: true,
+    efficiency: true,
+    timeliness: true
+  });
 
   // Formulas state following the structure from task_data
   const [formulas, setFormulas] = useState({
@@ -38,13 +44,45 @@ export default function FormulaSettings({ task_data }) {
   async function save() {
     try {
       setSaving(true);
+
+      // STEP 1: Validate all formulas sequentially
+      const results = {
+        quantity: false,
+        efficiency: false,
+        timeliness: false
+      };
+
+      for (const key of ["quantity", "efficiency", "timeliness"]) {
+        try {
+          const res = await validateFormula(formulas[key]);
+          
+          // WAIT here
+          results[key] = true;
+        } catch (err) {
+          results[key] = false;
+        }
+      }
+
+      setValidity(results);
+
+      // STEP 2: Check if any invalid
+      const hasInvalid = Object.values(results).some(v => !v);
+
+      if (hasInvalid) {
+        Swal.fire("Invalid Formula", "Please fix invalid formulas before saving.", "error");
+        return;
+      }
+
+      // STEP 3: Save only if valid
       await updateAssignedDepartmentTaskFormula(task_data.assigned_dept_id, {
         quantity_formula: formulas.quantity,
         efficiency_formula: formulas.efficiency,
         timeliness_formula: formulas.timeliness,
         enable_formulas: enableFormulas
       });
+
       Swal.fire("Success", "Formulas updated successfully", "success");
+
     } catch (error) {
       Swal.fire("Error", "Failed to save formulas", "error");
     } finally {
@@ -91,6 +129,7 @@ export default function FormulaSettings({ task_data }) {
             formulaKey="quantity"
             formulas={formulas}
             setFormulas={setFormulas}
+            isValid={validity.quantity}
             description="Define range logic for Quality/Quantity"
           />
           <FormulaCard
@@ -99,6 +138,7 @@ export default function FormulaSettings({ task_data }) {
             formulaKey="efficiency"
             formulas={formulas}
             setFormulas={setFormulas}
+            isValid={validity.efficiency}
             description="Define range logic for Efficiency"
           />
           <FormulaCard
@@ -107,6 +147,7 @@ export default function FormulaSettings({ task_data }) {
             formulaKey="timeliness"
             formulas={formulas}
             setFormulas={setFormulas}
+            isValid={validity.timeliness}
             description="Define range logic for Timeliness"
           />
         </Grid>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Swal from "sweetalert2";
-import { getSettings, updateSettings, verifyAdminPassword, resetPeriod } from "../services/settingsService";
+import { getSettings, updateSettings, verifyAdminPassword, resetPeriod, validateFormula } from "../services/settingsService";
 import { computePeriodId, computePeriodLabel, parseDateString, checkDateOverlap, computeCurrentPhase, toInputDate } from "../utils/periodUtils";
 
 export function useSystemSettings() {
@@ -90,8 +90,26 @@ export function useSystemSettings() {
   }
 
   async function handleSave() {
-    if (!Object.values(formulaValidations).every(Boolean)) {
-      Swal.fire("Error", "Please fix invalid formulas before saving.", "error");
+    setSaving(true); // move this up so UI reflects immediately
+
+  // STEP 1: Validate all formulas
+    const results = { quantity: true, efficiency: true, timeliness: true };
+
+    for (const key of ["quantity", "efficiency", "timeliness"]) {
+      try {
+        await validateFormula(formulas[key]);
+        results[key] = true;
+      } catch {
+        results[key] = false;
+      }
+    }
+
+    setFormulaValidations(results);
+
+    // STEP 2: Block save if any invalid
+    if (!Object.values(results).every(Boolean)) {
+      Swal.fire("Invalid Formula", "Please fix invalid formulas before saving.", "error");
+      setSaving(false);
       return;
     }
 

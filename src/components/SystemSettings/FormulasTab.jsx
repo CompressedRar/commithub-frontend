@@ -9,7 +9,7 @@ import { FormulaCard } from "./FormulaCard";
 
 
 
-export default function FormulasTab({ enableFormulas, setEnableFormulas, formulas, setFormulas, setFormulaValidations }) {
+export default function FormulasTab({ enableFormulas, setEnableFormulas, formulas, setFormulas, formulaValidations, setFormulaValidations }) {
   return (
     <Box>
       
@@ -26,17 +26,17 @@ export default function FormulasTab({ enableFormulas, setEnableFormulas, formula
         <Grid container spacing={4}>
           <FormulaCard
             title="Quality Formula" icon={<Inventory2 />}
-            formulaKey="quantity" formulas={formulas} setFormulas={setFormulas}
+            formulaKey="quantity" formulas={formulas} setFormulas={setFormulas} isValid={formulaValidations.quantity}
             description="Define how quality metrics are calculated"
           />
           <FormulaCard
             title="Efficiency Formula" icon={<Speed />}
-            formulaKey="efficiency" formulas={formulas} setFormulas={setFormulas}
+            formulaKey="efficiency" formulas={formulas} setFormulas={setFormulas} isValid={formulaValidations.efficiency}
             description="Define how efficiency metrics are calculated"
           />
           <FormulaCard
             title="Timeliness Formula" icon={<Schedule />}
-            formulaKey="timeliness" formulas={formulas} setFormulas={setFormulas}
+            formulaKey="timeliness" formulas={formulas} setFormulas={setFormulas} isValid={formulaValidations.timeliness}
             description="Define how timeliness metrics are calculated"
           />
         </Grid>
