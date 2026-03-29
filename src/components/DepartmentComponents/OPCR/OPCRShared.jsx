@@ -319,7 +319,7 @@ export function OPCRTaskRow({ task, assignedData, canEval, isRatingPhase, setRat
       return (
         <div>
           <input disabled className="form-control form-control-sm" defaultValue={val} />
-          <small className="text-muted d-block">{task.description?.time}/s with</small>
+          <small className="text-muted d-block">{task.description?.time}</small>
         </div>
       );
     }
@@ -365,7 +365,7 @@ export function OPCRTaskRow({ task, assignedData, canEval, isRatingPhase, setRat
         <div className="d-grid gap-2">
           <div>
             <input disabled className="form-control form-control-sm" defaultValue={(task.summary?.target ?? 0).toFixed?.(0) ?? task.summary?.target} />
-            <small className="text-muted d-block">{task.description?.target} {task.description?.timeliness_mode === "timeframe" ? "in" : ""}</small>
+            <small className="text-muted d-block">{task.description?.target} {task.description?.timeliness_mode === "timeframe" ? "" : ""}</small>
           </div>
           {renderTimeliness(task.working_days, false)}
           <div>
@@ -393,7 +393,7 @@ export function OPCRTaskRow({ task, assignedData, canEval, isRatingPhase, setRat
           {renderTimeliness(task.working_days, true)}
           <div>
             <input disabled className="form-control form-control-sm" defaultValue={task.corrections?.actual !== 0 ? parseFloat(task.corrections?.actual / freq).toFixed(0) : 0} />
-            <small className="text-muted d-block">{task.description?.alterations}/s</small>
+            <small className="text-muted d-block">{task.description?.alterations}</small>
           </div>
         </div>
       </td>
