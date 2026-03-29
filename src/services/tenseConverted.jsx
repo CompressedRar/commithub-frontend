@@ -23,6 +23,7 @@ export async function convert_tense(sentence) {
 }
 
 export async function create_description(sentence) {
+  console.log("Creating description for", sentence)
   const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -31,7 +32,7 @@ export async function create_description(sentence) {
     },
     body: JSON.stringify({
       model: "llama-3.1-8b-instant",
-      messages: [{ role: "system", content: `create a brief one sentence description with target quantity target timeframe or deadline based on this data no explanations: ` }, {role:"user", content:`${sentence}`}],
+      messages: [{ role: "system", content: `create a brief one sentence description about the task based on this data with time measurement and modification unit without the id  no explanations: ` }, {role:"user", content:`${sentence}`}],
     }),
   });
 

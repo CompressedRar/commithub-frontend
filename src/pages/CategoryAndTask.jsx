@@ -278,17 +278,17 @@ export default function CategoryAndTask() {
                         <div className="d-flex gap-2 mt-3 flex-wrap">
 
                           <div className="p-3 bg-light rounded-2 text-center" style={{ minWidth: 100 }}>
-                            <input type="number" onInput={handleCategoryOrder} min={0} defaultValue={allCategory.find((c) => c.id === selectedCategoryId)?.priority_order} className="form-control no-spinner" />
+                            <input type="number" onInput={handleCategoryOrder} min={0} defaultValue={allCategory.find((c) => c.id == selectedCategoryId)?.priority_order} className="form-control no-spinner" />
                             <small className="text-muted d-block">Priority No.</small>
                           </div>
 
                           <div className="p-3 bg-light rounded-2 text-center" style={{ minWidth: 100 }}>
-                            <div className="fw-bold">{allCategory.find((c) => c.id === selectedCategoryId)?.task_count ?? 0}</div>
+                            <div className="fw-bold">{allCategory.find((c) => c.id == selectedCategoryId)?.task_count ?? 0}</div>
                             <small className="text-muted d-block">Tasks</small>
                           </div>
 
                           <div className="p-3 bg-light rounded-2 text-center" style={{ minWidth: 100 }}>
-                            <div className="fw-bold">{parseFloat(allCategory.find((c) => c.id === selectedCategoryId)?.average_rating).toFixed(2) ?? 0}</div>
+                            <div className="fw-bold">{parseFloat(allCategory.find((c) => c.id == selectedCategoryId)?.average_rating).toFixed(2) ?? 0}</div>
                             <small className="text-muted d-block">Avg Rating</small>
                           </div>
                         </div>
