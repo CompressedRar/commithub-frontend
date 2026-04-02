@@ -19,7 +19,7 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import DocumentCard from "./DocumentCard";
 import DocumentSearchBar from "./DocumentSearchBar";
 
-function TaskSection({ taskName, userGroups, deptMode, onRemove }) {
+function TaskSection({ taskName, userGroups, deptMode, onRemove, onApprove, onReject }) {
   const [open, setOpen] = useState(true);
   const total = Object.values(userGroups).reduce((acc, docs) => acc + docs.length, 0);
 
@@ -83,6 +83,8 @@ function TaskSection({ taskName, userGroups, deptMode, onRemove }) {
                   doc={doc}
                   deptMode={deptMode}
                   onRemove={onRemove}
+                  onApprove={onApprove}
+                  onReject={onReject}
                 />
               ))}
             </Box>
@@ -109,6 +111,7 @@ function DocumentList({
   setFilterTask,
   fileTypes,
   taskNames,
+  onApprove, onReject
 }) {
   if (loading) {
     return (
@@ -117,6 +120,7 @@ function DocumentList({
       </Box>
     );
   }
+  console.log("all docus",filteredDocuments)
 
   return (
     <Box>
@@ -153,6 +157,8 @@ function DocumentList({
             userGroups={userGroups}
             deptMode={deptMode}
             onRemove={onRemove}
+            onApprove={onApprove}
+            onReject={onReject}
           />
         ))
       )}

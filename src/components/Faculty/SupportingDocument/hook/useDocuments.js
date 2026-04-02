@@ -3,6 +3,7 @@ import {
   archiveDocument,
   getDeptSupportingDocuments,
   getSupportingDocuments,
+  approveDocument, rejectDocument
 } from "../../../../services/pcrServices";
 import Swal from "sweetalert2";
 import { socket } from "../../../api";
@@ -63,6 +64,51 @@ export function useDocuments({ mode, ipcr_id, dept_id }) {
     });
   }, [loadDocuments]);
 
+  const handleApproveDocument = useCallback((document_id) => {
+    Swal.fire({
+      title: "Approve Document",
+      text: "Are you sure you want to approve this document?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Approve",
+      confirmButtonColor: "#28a745",
+    }).then(async (result) => {
+      if (!result.isConfirmed) return;
+      try {
+        const res = await approveDocument(document_id);
+        Swal.fire("Approved", "Document approved successfully.", "success");
+        loadDocuments();
+        socket.emit("document");
+      } catch (err) {
+        console.error(err);
+        Swal.fire("Error", "Failed to approve.", "error");
+      }
+    });
+  }, [loadDocuments]);
+
+
+  const handleRejectDocument = useCallback((document_id) => {
+    Swal.fire({
+      title: "Reject Document",
+      text: "Are you sure you want to reject this document?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Reject",
+      confirmButtonColor: "#dc3545",
+    }).then(async (result) => {
+      if (!result.isConfirmed) return;
+      try {
+        const res = await rejectDocument(document_id);
+        Swal.fire("Rejected", res.data.message, "success");
+        loadDocuments();
+        socket.emit("document");
+      } catch (err) {
+        Swal.fire("Error", "Failed to reject.", "error");
+      }
+    });
+  }, [loadDocuments]);
+
+
   // ── Derived ─────────────────────────────────────────────────────────────────
   const activeDocuments = useMemo(
     () => documents.filter((d) => d.status === 1),
@@ -119,5 +165,7 @@ export function useDocuments({ mode, ipcr_id, dept_id }) {
     filterTask, setFilterTask,
     fileTypes,
     taskNames,
+    handleApproveDocument,
+    handleRejectDocument
   };
 }

@@ -134,8 +134,10 @@ function EditIPCR({ mode, ipcr_id, switchPage }) {
                     >
                         <span className="material-symbols-outlined">undo</span>
                     </button>
-                    <SupportingDocumentButton />
+                    
                     <DownloadIPCRButton onDownload={handleChange} downloading={downloading} />
+                    <SupportingDocumentButton />
+                    
                     <Divider orientation="vertical" flexItem /> 
                     
                     <SubmitIPCRButton onSubmit={()=> {handleSubmit(ipcrInfo.id, ipcrInfo.user)}} disabled={loading} status={ipcrInfo.form_status}></SubmitIPCRButton>

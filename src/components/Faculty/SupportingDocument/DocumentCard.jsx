@@ -6,6 +6,8 @@ import {
   Tooltip,
   Typography,
   Stack,
+  Divider,
+  Button,
 } from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -15,6 +17,10 @@ import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
 import EventOutlinedIcon from "@mui/icons-material/EventOutlined";
 import NotesIcon from "@mui/icons-material/Notes";
+import PendingIcon from '@mui/icons-material/Pending';
+import DocumentStatus from "./DocumentStatus";
+import CheckIcon from '@mui/icons-material/Check';
+import ClearIcon from '@mui/icons-material/Clear';
 
 const IMAGE_TYPES = new Set(["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"]);
 const PDF_TYPE = "application/pdf";
@@ -45,7 +51,7 @@ function getTypeLabel(fileType) {
   return map[fileType] || fileType || "File";
 }
 
-function DocumentCard({ doc, deptMode, onRemove }) {
+function DocumentCard({ doc, deptMode, onRemove, onApprove, onReject }) {
   const handleDownload = () => window.open(doc.download_url, "_blank", "noopener,noreferrer");
 
   const eventDate = doc.event_date
@@ -80,6 +86,10 @@ function DocumentCard({ doc, deptMode, onRemove }) {
       }}
     >
       {/* File type icon */}
+      <DocumentStatus status={doc.isApproved}></DocumentStatus>
+
+      <Divider orientation="vertical" flexItem sx={{ borderColor: "primary.100" }} />
+
       <Box
         sx={{
           width: 42,
@@ -173,6 +183,29 @@ function DocumentCard({ doc, deptMode, onRemove }) {
           </Tooltip>
         )}
       </Stack>
+
+      {
+        deptMode && doc.isApproved == "pending" && (
+          <>
+            <Divider orientation="vertical" flexItem sx={{ borderColor: "primary.100" }} />
+            <Stack direction="column" spacing={1} alignItems="center" justifyContent={"center"}>
+              <Tooltip title="Approve Document">
+                
+                <Button variant="contained" fullWidth  startIcon = {<CheckIcon/>}  onClick={() => onApprove(doc.id)} color="success">            
+                  Approve
+                </Button>
+                
+              </Tooltip>
+              <Tooltip title="Reject Document">
+                <Button variant="outlined" fullWidth startIcon = {<ClearIcon/>} onClick={() => onReject(doc.id)} color="error">
+                  Reject
+                </Button>
+              </Tooltip>
+            </Stack>
+          </>
+        )
+      }
+
     </Paper>
   );
 }

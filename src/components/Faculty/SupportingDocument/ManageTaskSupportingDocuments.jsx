@@ -28,6 +28,7 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
     filterTask, setFilterTask,
     fileTypes,
     taskNames,
+    handleApproveDocument, handleRejectDocument
   } = useDocuments({ mode: "ipcr", ipcr_id });
 
   const handleCompile = async () => {
@@ -177,6 +178,9 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
               filterTask={filterTask} setFilterTask={setFilterTask}
               fileTypes={fileTypes}
               taskNames={taskNames}
+              onApprove={handleApproveDocument}
+              onReject={handleRejectDocument}
+
             />
           </div>
 

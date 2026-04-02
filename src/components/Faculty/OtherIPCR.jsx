@@ -19,6 +19,8 @@ import { PhaseStepper } from "./PhaseStepper"
 import RatingIndicator from "./IPCR/Header/RatingIndicator"
 import { jwtDecode } from "jwt-decode"
 import UploadIPCRButton from "./IPCR/Header/UploadIPCR"
+import { Divider } from "@mui/material"
+import ApproveIPCRButton from "./IPCR/Header/ApproveIPCR"
 
 
 
@@ -38,7 +40,7 @@ function OtherIPCR({ onMouseOver }) {
 
     const { settings, handleRemarks,  isRatingPhase } = useSettings();
 
-    const { downloading, downloadStandard, downloadWeighted, downloadPlanned, stats, ipcrInfo, categoryTypes, arrangedSubTasks, loadIPCR, handleCalculateRatings, loading } = useIPCR();
+    const { downloading, downloadStandard, downloadWeighted, downloadPlanned, stats, ipcrInfo, categoryTypes, arrangedSubTasks, loadIPCR, handleCalculateRatings, loading, handleApprove } = useIPCR();
 
     const handleChange = (event) => {
         const action = event.target.value;
@@ -132,22 +134,31 @@ function OtherIPCR({ onMouseOver }) {
 
             <PhaseStepper currentPhase={currentPhase}></PhaseStepper>
 
-            <ManageTaskSupportingDocuments ipcr_id={ipcrInfo.id} batch_id={ipcrInfo.batch_id} dept_mode={false} sub_tasks={arrangedSubTasks}></ManageTaskSupportingDocuments>
+            <ManageTaskSupportingDocuments ipcr_id={ipcrInfo.id} batch_id={ipcrInfo.batch_id} dept_mode={true} sub_tasks={arrangedSubTasks}></ManageTaskSupportingDocuments>
             <div className="d-flex justify-content-between align-items-center gap-2 my-4">
                 <button
                     className="btn btn-outline-secondary d-flex align-items-center gap-2"
                     onClick={() => {
-                        window.history.back()
+                        // Get the current URL
+                        const currentUrl = new URL(window.location.href);
+
+                        // Navigate to the parent directory (the "../" syntax)
+                        const parentUrl = new URL('../', currentUrl).href;
+                        window.location.href = parentUrl+"department";
                     }}
                     >
                     <span className="material-symbols-outlined">undo</span>
                     Back
                 </button>
                 <div className="d-flex gap-2">
-                    <SupportingDocumentButton />
                     <DownloadIPCRButton onDownload={handleChange} downloading={downloading} />
+                    <SupportingDocumentButton />
+                    
                     {isRatingPhase(currentPhase) && <UploadIPCRButton onUpload={()=> {loadIPCR(ipcr_id)}}></UploadIPCRButton>}
                     {isRatingPhase(currentPhase) && <CalculateRatingButton onCalculate={()=>{handleCalculateRatings(ipcr_id)}} loading={loading} />}
+
+                    <Divider orientation="vertical" flexItem />
+                    <ApproveIPCRButton onApprove={() => handleApprove(ipcr_id)} loading = {loading} disabled={ipcrInfo?.form_status == "approved" || loading}></ApproveIPCRButton>
                 </div>
             </div>
 

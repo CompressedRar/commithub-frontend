@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react"
-import { assignMainIPCR, calculateSubTaskRating, downloadIPCR, downloadPlannedIPCR, downloadWeightedIPCR, getIPCR, updateSubTask } from "../services/pcrServices"
+import { approveIPCR, assignMainIPCR, calculateSubTaskRating, downloadIPCR, downloadPlannedIPCR, downloadWeightedIPCR, getIPCR, updateSubTask } from "../services/pcrServices"
 import { downloadFile } from "../utils/download";
 import Swal from "sweetalert2"
 import { jwtDecode } from "jwt-decode";
@@ -96,6 +96,43 @@ export const useIPCR = () => {
                 console.error(error);
                 Swal.fire({
                     title: "Submission Failed",
+                    text: error.response?.data?.error || "An unexpected error occurred.",
+                    icon: "error"
+                });
+            } finally {
+                setLoading(false);
+            }
+        }
+    }, [ipcrInfo]);
+
+    const handleApprove = useCallback(async (ipcr_id) => {
+        
+        const result = await Swal.fire({
+            title: "Approve IPCR?",
+            text: "Are you sure you want to approve this IPCR?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, approve it!",
+            cancelButtonText: "Cancel"
+        });
+
+        if (result.isConfirmed) {
+            try {
+                setLoading(true);
+                const res = await approveIPCR(ipcr_id);
+                await Swal.fire({
+                    title: "Success!",
+                    text: "IPCR has been approved successfully.",
+                    icon: "success",
+                    timer: 1000
+                });
+                await loadIPCR(ipcr_id);
+            } catch (error) {
+                console.error(error);
+                Swal.fire({
+                    title: "Approval Failed",
                     text: error.response?.data?.error || "An unexpected error occurred.",
                     icon: "error"
                 });
@@ -253,5 +290,10 @@ export const useIPCR = () => {
 
 
 
-    return { stats, setStats, downloading, downloadWeighted, downloadPlanned, downloadStandard, ipcrInfo, arrangedSubTasks, categoryTypes, loadIPCR, handleCalculateRatings, loading, handleSubmit }
+    return { stats, setStats, 
+        downloading, downloadWeighted, downloadPlanned, downloadStandard, 
+        ipcrInfo, arrangedSubTasks, categoryTypes, 
+        loadIPCR, handleCalculateRatings, 
+        loading, handleSubmit, handleApprove
+     }
 }
