@@ -17,6 +17,8 @@ import SupportingDocumentButton from "./IPCR/Header/SupportingDocumentButton"
 import { TaskSection } from "./IPCR/Task/TaskSection"
 import PlanningIndicator from "./IPCR/Header/PlanningIndicator"
 import RatingIndicator from "./IPCR/Header/RatingIndicator"
+import { Chip, Divider, Stack } from "@mui/material"
+import SubmitIPCRButton from "./IPCR/Header/SubmitIPCR"
 
 
 function EditIPCR({ mode, ipcr_id, switchPage }) {
@@ -31,7 +33,7 @@ function EditIPCR({ mode, ipcr_id, switchPage }) {
 
     const { settings, handleRemarks, isMonitoringPhase, isPlanningPhase, isRatingPhase } = useSettings();
 
-    const { downloading, downloadStandard, downloadWeighted, downloadPlanned, stats, ipcrInfo, categoryTypes, arrangedSubTasks, loadIPCR } = useIPCR();
+    const { downloading, downloadStandard, downloadWeighted, downloadPlanned, stats, ipcrInfo, categoryTypes, arrangedSubTasks, loadIPCR, handleSubmit, loading } = useIPCR();
 
     const handleChange = (event) => {
         const action = event.target.value;
@@ -82,11 +84,11 @@ function EditIPCR({ mode, ipcr_id, switchPage }) {
         loadRatingThresholds()
 
 
-        socket.on("ipcr", () => loadIPCR(ipcr_id))
+        socket.on(`ipcr-${ipcr_id}`, () => loadIPCR(ipcr_id))
         socket.on("assign", () => loadIPCR(ipcr_id))
 
         return () => {
-            socket.off("ipcr")
+            socket.off(`ipcr-${ipcr_id}`)
             socket.off("assign")
         }
     }, [ipcr_id])
@@ -120,16 +122,24 @@ function EditIPCR({ mode, ipcr_id, switchPage }) {
     return (
         <div className="py-4" style={{ minWidth: "1200px" }}>
             <ManageTaskSupportingDocuments ipcr_id={ipcrInfo.id} batch_id={ipcrInfo.batch_id} dept_mode={false} sub_tasks={arrangedSubTasks}></ManageTaskSupportingDocuments>
-            <div className="d-flex justify-content-end align-items-center gap-2 mb-4">
-                <button
-                    className="btn btn-outline-secondary d-none align-items-center gap-2"
-                    data-bs-dismiss="modal"
-                    onClick={switchPage}
-                >
-                    <span className="material-symbols-outlined">undo</span>
-                </button>
-                <SupportingDocumentButton />
-                <DownloadIPCRButton onDownload={handleChange} downloading={downloading} />
+            <div className="d-flex justify-content-between align-items-center gap-2 mb-4">
+                <Stack>
+                    <Chip label={String(ipcrInfo.form_status).toUpperCase()} color="primary" variant={ipcrInfo.form_status == "draft" ? "outlined": "filled"}></Chip>
+                </Stack>
+                <Stack direction="row" spacing={1} >
+                    <button
+                        className="btn btn-outline-secondary d-none align-items-center gap-2"
+                        data-bs-dismiss="modal"
+                        onClick={switchPage}
+                    >
+                        <span className="material-symbols-outlined">undo</span>
+                    </button>
+                    <SupportingDocumentButton />
+                    <DownloadIPCRButton onDownload={handleChange} downloading={downloading} />
+                    <Divider orientation="vertical" flexItem /> 
+                    
+                    <SubmitIPCRButton onSubmit={()=> {handleSubmit(ipcrInfo.id, ipcrInfo.user)}} disabled={loading} status={ipcrInfo.form_status}></SubmitIPCRButton>
+                </Stack>
             </div>
 
             <PlanningIndicator isPlanningPhase={isPlanningPhase(currentPhase)} />
