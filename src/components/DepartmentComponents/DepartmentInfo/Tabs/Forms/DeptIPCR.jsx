@@ -19,6 +19,7 @@ import {
 import { downloadIPCR } from "../../../../../services/pcrServices";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import IPCRStatus from "../../../../Faculty/IPCR/Header/IPCRStatus";
 
 function DeptIPCR({ ipcr, dept_id, dept_mode, onMouseOver }) {
     const [downloading, setDownloading] = useState(false);
@@ -67,6 +68,8 @@ function DeptIPCR({ ipcr, dept_id, dept_mode, onMouseOver }) {
                 <Stack direction="row" justifyContent="space-between" alignItems="center">
                     
                     <Stack direction="row" spacing={2} alignItems="center">
+                        
+                        <IPCRStatus status={ipcr.ipcr?.form_status} />
                         <Avatar 
                             src={ipcr.member.profile_picture_link} 
                             
@@ -80,14 +83,16 @@ function DeptIPCR({ ipcr, dept_id, dept_mode, onMouseOver }) {
                                 {ipcr.ipcr ? "INDIVIDUAL REVIEW" : "PENDING"}
                             </Typography>
                             <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                                {`${ipcr.member.first_name} ${ipcr.member.last_name}`}
+                                {`${ipcr.member.first_name} ${ipcr.member.last_name}`} 
+                                
                             </Typography>
                         </Box>
                     </Stack>
 
                     {/* ACTIONS SECTION */}
                     <Box>
-                        {ipcr.ipcr ? (
+                        {ipcr.ipcr && ipcr.ipcr.form_status != "draft" ? (
+                            
                             <Stack direction="row" spacing={1}>
                                 <Tooltip title="Download Excel">
                                     <Button
@@ -115,7 +120,7 @@ function DeptIPCR({ ipcr, dept_id, dept_mode, onMouseOver }) {
                             </Stack>
                         ) : (
                             <Chip 
-                                label="Unavailable" 
+                                label="Pending Submission" 
                                 size="small" 
                                 variant="outlined" 
                                 sx={{ height: 24, fontSize: '0.7rem', color: 'text.disabled' }} 

@@ -4,6 +4,7 @@ import { createOPCR } from "../../../../../../services/pcrServices";
 import { getSettings } from "../../../../../../services/settingsService";
 import { socket } from "../../../../../api";
 import Swal from "sweetalert2";
+import { all } from "axios";
 
 export function usePerformanceData(deptId) {
     const [allIPCR, setAllIPCR] = useState(null);
@@ -11,6 +12,7 @@ export function usePerformanceData(deptId) {
     const [filteredID, setFilteredID] = useState([]);
     const [consolidating, setConsolidating] = useState(false);
     const [currentPhase, setCurrentPhase] = useState(null);
+    const [ipcrCount, setIPCRCount] = useState(0);
 
     // Fetch System Phase
     const loadCurrentPhase = useCallback(async () => {
@@ -28,10 +30,15 @@ export function usePerformanceData(deptId) {
             const response = await getDepartmentIPCR(deptId);
             const data = response.data || [];
 
+            setIPCRCount(data.filter(item => 
+                item.ipcr?.status === 1 && 
+                item.member?.account_status == 1
+            ).length); // Set total IPCR count
+
             // Filter for internal state logic
             const filtered = data.filter(item => 
                 item.ipcr?.status === 1 && 
-                item.ipcr?.form_status === "submitted" && 
+                item.ipcr?.form_status === "approved" && 
                 item.member?.account_status == 1
             );
             
@@ -44,9 +51,12 @@ export function usePerformanceData(deptId) {
 
     // Fetch OPCRs
     const loadOPCR = useCallback(async () => {
+        
         try {
+
             const response = await getDepartmentOPCR(deptId);
             const data = response.data || [];
+            console.log("Fetched OPCRs:", data);
             setAllOPCR(data.filter(opcr => opcr.status == 1));
         } catch (error) {
             console.error("Failed to load OPCR", error);
@@ -55,7 +65,7 @@ export function usePerformanceData(deptId) {
 
     // Consolidation Logic
     const handleConsolidate = async () => {
-        if (filteredID.length === 0) {
+        if (filteredID.length === 100) {
             return Swal.fire("Error", "The office must have at least one submitted IPCR.", "error");
         }
 
@@ -96,12 +106,15 @@ export function usePerformanceData(deptId) {
     // Auto-load OPCR when IDs change (Logic from your original code)
     useEffect(() => {
         if (filteredID.length > 0) loadOPCR();
-        createOPCR(deptId, { ipcr_ids: filteredID });
+        console.log(allOPCR == null)
+        
     }, [filteredID, loadOPCR]);
 
     return {
         allIPCR,
         allOPCR,
+        filteredID,
+        ipcrCount,
         consolidating,
         currentPhase,
         handleConsolidate,
