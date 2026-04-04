@@ -87,10 +87,6 @@ function EditIPCR({ mode, ipcr_id, switchPage }) {
         socket.on(`ipcr-${ipcr_id}`, () => loadIPCR(ipcr_id))
         socket.on("assign", () => loadIPCR(ipcr_id))
 
-        return () => {
-            socket.off(`ipcr-${ipcr_id}`)
-            socket.off("assign")
-        }
     }, [ipcr_id])
 
     useEffect(() => {
@@ -121,7 +117,7 @@ function EditIPCR({ mode, ipcr_id, switchPage }) {
 
     return (
         <div className="py-4" style={{ minWidth: "1200px" }}>
-            <ManageTaskSupportingDocuments ipcr_id={ipcrInfo.id} batch_id={ipcrInfo.batch_id} dept_mode={false} sub_tasks={arrangedSubTasks}></ManageTaskSupportingDocuments>
+            <ManageTaskSupportingDocuments ipcr_id={ipcrInfo.id} key={ipcrInfo.id} batch_id={ipcrInfo.batch_id} dept_mode={false} sub_tasks={arrangedSubTasks}></ManageTaskSupportingDocuments>
             <div className="d-flex justify-content-between align-items-center gap-2 mb-4">
                 <Stack>
                     <Chip label={String(ipcrInfo.form_status).toUpperCase()} color="primary" variant={ipcrInfo.form_status == "draft" ? "outlined": "filled"}></Chip>

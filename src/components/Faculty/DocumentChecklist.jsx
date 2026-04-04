@@ -1,8 +1,6 @@
-import { useState } from "react";
+import { Box, Divider, Paper, Stack, Typography } from "@mui/material";
 
-
-
-export default function DocumentChecklist({ sub_tasks, documents }) {
+export default function DocumentChecklist({ sub_tasks, documents, validDocuments, pendingDocuments, rejectedDocuments }) {
   // Flatten all tasks and filter those requiring documents
   const tasksRequiringDocs = Object.entries(sub_tasks).flatMap(([category, tasks]) =>
     tasks
@@ -19,7 +17,7 @@ export default function DocumentChecklist({ sub_tasks, documents }) {
 
   // Check if document exists for a task
   const hasDocument = (taskId) => {
-    return documents.some(doc => doc.task_id == taskId && doc.status == 1) || documents.some(doc => doc.main_task_id == taskId && doc.status == 1);
+    return documents.some(doc => doc.task_id == taskId && doc.status == 1 && doc.isApproved == "approved") || documents.some(doc => doc.main_task_id == taskId && doc.status == 1 && doc.isApproved == "approved");
   };
 
 
@@ -48,9 +46,8 @@ export default function DocumentChecklist({ sub_tasks, documents }) {
             return (
               <div
                 key={task.id}
-                className={`list-group-item d-flex align-items-center gap-3 py-3 ${
-                  isComplete ? "bg-success bg-opacity-10 border-success" : "border-danger"
-                }`}
+                className={`list-group-item d-flex align-items-center gap-3 py-3 ${isComplete ? "bg-success bg-opacity-10 border-success" : "border-danger"
+                  }`}
               >
 
                 {/* Task Info */}
@@ -79,18 +76,57 @@ export default function DocumentChecklist({ sub_tasks, documents }) {
         </div>
 
         {/* Summary */}
-        <div className="mt-3 p-3 bg-light rounded-2">
-          <div className="row g-2 text-center">
-            <div className="col-6">
-              <div className="fw-semibold text-success">{tasksRequiringDocs.filter(t => hasDocument(t.id)).length}</div>
-              <small className="text-muted">Completed</small>
-            </div>
-            <div className="col-6">
-              <div className="fw-semibold text-danger">{tasksRequiringDocs.filter(t => !hasDocument(t.id)).length}</div>
-              <small className="text-muted">Pending</small>
-            </div>
-          </div>
-        </div>
+        <Paper
+          variant="outlined"
+          sx={{
+            mt: 3,
+            p: 2,
+            bgcolor: "grey.50",
+            borderRadius: 2,
+            borderColor: "grey.200",
+          }}
+        >
+          <Stack
+            direction="row"
+            spacing={1}
+            divider={<Divider orientation="vertical" flexItem sx={{ opacity: 0.6 }} />}
+            alignItems="center"
+          >
+            
+
+            {/* Valid */}
+            <Box sx={{ flex: 1, textAlign: "center" }}>
+              <Typography variant="h6" fontWeight="800" color="success.main" sx={{ lineHeight: 1 }}>
+                {validDocuments.length}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" fontWeight="700" sx={{ textTransform: "uppercase", fontSize: "0.65rem", letterSpacing: 0.5 }}>
+                Valid
+              </Typography>
+            </Box>
+
+            {/* Pending */}
+            <Box sx={{ flex: 1, textAlign: "center" }}>
+              <Typography variant="h6" fontWeight="800" color="warning.main" sx={{ lineHeight: 1 }}>
+                {pendingDocuments.length}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" fontWeight="700" sx={{ textTransform: "uppercase", fontSize: "0.65rem", letterSpacing: 0.5 }}>
+                Pending
+              </Typography>
+            </Box>
+
+            
+
+            {/* Rejected */}
+            <Box sx={{ flex: 1, textAlign: "center" }}>
+              <Typography variant="h6" fontWeight="800" color="error.main" sx={{ lineHeight: 1 }}>
+                {rejectedDocuments.length}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" fontWeight="700" sx={{ textTransform: "uppercase", fontSize: "0.65rem", letterSpacing: 0.5 }}>
+                Rejected
+              </Typography>
+            </Box>
+          </Stack>
+        </Paper>
       </div>
     </div>
   );

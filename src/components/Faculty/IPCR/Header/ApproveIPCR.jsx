@@ -1,11 +1,13 @@
-import { Button } from "@mui/material";
+import { Button, Tooltip } from "@mui/material";
 
-export default function ApproveIPCRButton({ onApprove, disabled, loading }) {
+export default function ApproveIPCRButton({ onApprove, disabled, loading, validTasks, totalTasks }) {
 
     return (
         
-        <Button variant="contained" color="success" onClick={onApprove} disabled={disabled} loading={loading}>
-            Approve IPCR
-        </Button>
+        <Tooltip title={"All tasks must have at least one valid document to approve."}>
+            <Button variant="contained" color="success" onClick={onApprove} disabled={disabled || validTasks < totalTasks} loading={loading}>
+                Approve IPCR 
+            </Button>
+        </Tooltip>
     )
 }

@@ -6,18 +6,19 @@ import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import SimCardDownloadIcon from "@mui/icons-material/SimCardDownload";
 import { getCompiledFromIPCR, getPresentationFromIPCR } from "../../../services/pcrServices";
 import Swal from "sweetalert2";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useDocuments } from "./hook/useDocuments";
 import DocumentChecklist from "../DocumentChecklist";
 import UploadPanel from "./UploadPanel";
 import DocumentList from "./DocumentList";
+import { socket } from "../../api";
 
 function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks }) {
   const [compiling, setCompiling] = useState(false);
 
   const {
-    activeDocuments,
+    activeDocuments, validDocuments, pendingDocuments, rejectedDocuments,
     filteredDocuments,
     groupedDocuments,
     loading,
@@ -26,6 +27,7 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
     search, setSearch,
     filterType, setFilterType,
     filterTask, setFilterTask,
+    filterStatus, setFilterStatus,
     fileTypes,
     taskNames,
     handleApproveDocument, handleRejectDocument
@@ -69,6 +71,16 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
     }
   };
 
+  
+  useEffect(() => {
+    loadDocuments();
+    socket.on("document", loadDocuments);
+    socket.on(`document-${ipcr_id}`, ()=> {
+      loadDocuments();
+      console.log("socket message detected for document changes")
+    });
+  }, [ipcr_id]);
+
   return (
     <div
       className="modal fade"
@@ -101,7 +113,7 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
           <div className="modal-body px-4 py-3">
             {!dept_mode && (
               <Box mb={3}>
-                <DocumentChecklist sub_tasks={sub_tasks} documents={activeDocuments} />
+                <DocumentChecklist sub_tasks={sub_tasks} documents={activeDocuments} validDocuments={validDocuments} pendingDocuments={pendingDocuments} rejectedDocuments={rejectedDocuments} />
               </Box>
             )}
 
@@ -131,7 +143,7 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
                               ? <span className="spinner-border spinner-border-sm" />
                               : <SimCardDownloadIcon />}
                             onClick={handleCompile}
-                            disabled={compiling || activeDocuments.length === 0}
+                            disabled={compiling || validDocuments.length === 0}
                           >
                             {compiling ? "Compiling…" : "Compile into DOCX"}
                           </Button>
@@ -147,7 +159,7 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
                               ? <span className="spinner-border spinner-border-sm" />
                               : <SimCardDownloadIcon />}
                             onClick={handlePresentation}
-                            disabled={compiling || activeDocuments.length === 0}
+                            disabled={compiling || validDocuments.length === 0}
                           >
                             {compiling ? "Compiling…" : "Compile to PPTX"}
                           </Button>
@@ -176,6 +188,7 @@ function ManageTaskSupportingDocuments({ ipcr_id, batch_id, dept_mode, sub_tasks
               search={search} setSearch={setSearch}
               filterType={filterType} setFilterType={setFilterType}
               filterTask={filterTask} setFilterTask={setFilterTask}
+              filterStatus={filterStatus} setFilterStatus={setFilterStatus}
               fileTypes={fileTypes}
               taskNames={taskNames}
               onApprove={handleApproveDocument}

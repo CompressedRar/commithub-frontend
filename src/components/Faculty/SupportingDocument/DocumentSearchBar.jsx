@@ -78,6 +78,7 @@ function DocumentSearchBar({
   setFilterType,
   filterTask,
   setFilterTask,
+  filterStatus, setFilterStatus,
   fileTypes,
   taskNames,
   resultCount,
@@ -160,6 +161,20 @@ function DocumentSearchBar({
             ))}
           </NativeSelect>
         )}
+
+        {/* Status filter */}
+        <NativeSelect
+          label="Status"
+          icon={FilterListIcon}
+          value={filterStatus}
+          onChange={setFilterStatus}
+        >
+          <option value="all">All Statuses</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+          <option value="pending">Pending</option>
+        </NativeSelect>
+
 
         {/* Clear all */}
         {hasActiveFilters && (

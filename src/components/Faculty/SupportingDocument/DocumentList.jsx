@@ -109,6 +109,7 @@ function DocumentList({
   setFilterType,
   filterTask,
   setFilterTask,
+  filterStatus, setFilterStatus,
   fileTypes,
   taskNames,
   onApprove, onReject
@@ -132,6 +133,8 @@ function DocumentList({
         setFilterType={setFilterType}
         filterTask={filterTask}
         setFilterTask={setFilterTask}
+        filterStatus={filterStatus}
+        setFilterStatus={setFilterStatus}
         fileTypes={fileTypes}
         taskNames={taskNames}
         resultCount={filteredDocuments.length}

@@ -11,6 +11,10 @@ export const useIPCR = () => {
     const [categoryTypes, setCategoryTypes] = useState({})
     const [loading, setLoading] = useState(false);
     const [subTaskArray, setSubTaskArray] = useState([]);
+
+    const [validTasks, setValidTasks] = useState(0);
+    const [totalTasks, setTotalTasks] = useState(0);
+
     const [stats, setStats] = useState({
         quantity: 0,
         efficiency: 0,
@@ -25,6 +29,18 @@ export const useIPCR = () => {
 
     const [downloading, setDownloading] = useState(false);
     const VALID_VISITORS = ["administrator", "president"]
+
+    const getTaskStats = (data) => {
+        const tasks = data.sub_tasks || [];
+        
+        const totalTasks = tasks.length;
+        setTotalTasks(totalTasks);
+        
+        // Count how many tasks have at least one valid document
+        const tasksWithValidDocs = tasks.filter(task => task.valid_document_count > 0).length;
+
+        setValidTasks(tasksWithValidDocs);
+    };
 
     function verifyVisitor(ipcr_info) {
         const token = localStorage.getItem("token");
@@ -56,6 +72,7 @@ export const useIPCR = () => {
             setIPCRInfo(res);
             processIPCRData(res);
             verifyVisitor(res);
+            getTaskStats(res);
 
 
         } catch (error) {
@@ -227,6 +244,8 @@ export const useIPCR = () => {
         newStats.timeliness = t / count
         newStats.average = a / count
 
+        console.log(all_categories)
+
         setArrangedSubTasks(all_categories)
         setCategoryTypes(all_category_type)
         setStats(newStats)
@@ -294,6 +313,7 @@ export const useIPCR = () => {
         downloading, downloadWeighted, downloadPlanned, downloadStandard, 
         ipcrInfo, arrangedSubTasks, categoryTypes, 
         loadIPCR, handleCalculateRatings, 
-        loading, handleSubmit, handleApprove
+        loading, handleSubmit, handleApprove, 
+        validTasks, totalTasks
      }
 }

@@ -19,7 +19,7 @@ import { PhaseStepper } from "./PhaseStepper"
 import RatingIndicator from "./IPCR/Header/RatingIndicator"
 import { jwtDecode } from "jwt-decode"
 import UploadIPCRButton from "./IPCR/Header/UploadIPCR"
-import { Divider } from "@mui/material"
+import { Chip, Divider, Stack } from "@mui/material"
 import ApproveIPCRButton from "./IPCR/Header/ApproveIPCR"
 
 
@@ -40,7 +40,7 @@ function OtherIPCR({ onMouseOver }) {
 
     const { settings, handleRemarks,  isRatingPhase } = useSettings();
 
-    const { downloading, downloadStandard, downloadWeighted, downloadPlanned, stats, ipcrInfo, categoryTypes, arrangedSubTasks, loadIPCR, handleCalculateRatings, loading, handleApprove } = useIPCR();
+    const { downloading, downloadStandard, downloadWeighted, downloadPlanned, stats, ipcrInfo, categoryTypes, arrangedSubTasks, loadIPCR, handleCalculateRatings, loading, handleApprove, validTasks, totalTasks } = useIPCR();
 
     const handleChange = (event) => {
         const action = event.target.value;
@@ -97,6 +97,8 @@ function OtherIPCR({ onMouseOver }) {
         socket.on("ipcr", () => loadIPCR(ipcr_id))
         socket.on("assign", () => loadIPCR(ipcr_id))
 
+        socket.on(`ipcr-${ipcr_id}`, () => loadIPCR(ipcr_id))
+
         return () => {
             socket.off("ipcr")
             socket.off("assign")
@@ -142,7 +144,6 @@ function OtherIPCR({ onMouseOver }) {
                         // Get the current URL
                         const currentUrl = new URL(window.location.href);
 
-                        // Navigate to the parent directory (the "../" syntax)
                         const parentUrl = new URL('../', currentUrl).href;
                         window.location.href = parentUrl+"department";
                     }}
@@ -158,14 +159,17 @@ function OtherIPCR({ onMouseOver }) {
                     {isRatingPhase(currentPhase) && <CalculateRatingButton onCalculate={()=>{handleCalculateRatings(ipcr_id)}} loading={loading} />}
 
                     <Divider orientation="vertical" flexItem />
-                    <ApproveIPCRButton onApprove={() => handleApprove(ipcr_id)} loading = {loading} disabled={ipcrInfo?.form_status == "approved" || loading}></ApproveIPCRButton>
+                    <ApproveIPCRButton  onApprove={() => handleApprove(ipcr_id)} loading = {loading} disabled={ipcrInfo?.form_status == "approved" || loading} validTasks={validTasks} totalTasks={totalTasks}></ApproveIPCRButton>
                 </div>
             </div>
+
+            
 
 
             <RatingIndicator isRatingPhase={isRatingPhase(currentPhase)} />
 
             <div className="card shadow-sm" key={loading}>
+                <span><Chip label={String(ipcrInfo.form_status).toUpperCase()} color="primary" variant={ipcrInfo.form_status == "draft" ? "outlined": "filled"}></Chip></span>
                 <div className="card-body p-4">
                     <HeaderSection />
                     <OathSection ipcrInfo={ipcrInfo} />
