@@ -22,6 +22,7 @@ import "../assets/styles/dashboard.css";
 import { useDashboardStats } from "../hooks/useDashboardStats";
 import DashboardHeader from "../components/Dashboard/DashboardHeader";
 import StatCard from "../components/Dashboard/StatCard";
+import OfficeOPCRChart from "../components/Charts/OfficeOPCRChart";
 
 function Administrator() {
 
@@ -127,6 +128,16 @@ function Administrator() {
           ) : (
             <div className="border rounded-4 p-3">
               <AllTaskAverages />
+            </div>
+          )}
+        </div>
+
+        <div className="col-12 col-md-6">
+          {loading ? (
+            <SkeletonChart />
+          ) : (
+            <div className="border rounded-4 p-3">
+              <OfficeOPCRChart />
             </div>
           )}
         </div>

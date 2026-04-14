@@ -54,7 +54,7 @@ export function TaskRow({ task, handleDataChange, setSubTaskID, mode, currentPha
             <tr className="align-middle">
                 <td className="fw-semibold small">
                     
-                    <Stack direction={"row"} gap={3}>
+                    <Stack direction={"row"} alignItems="center" gap={3}>
                         
                         <TaskDocumentStats 
                             validDocumentCount={task.valid_document_count}

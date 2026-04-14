@@ -399,3 +399,9 @@ export function formatAlertData(rawData) {
     isNew: !item.read
   }))
 }
+
+
+export async function getDepartmentsOPCR() {
+    console.log("registering category")
+    return api.get("/api/v1/chart/offices/opcr-progress");
+}
