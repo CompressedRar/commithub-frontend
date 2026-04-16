@@ -9,6 +9,8 @@ export default function GridCell({
   onDrop,
   onEditSpan,
   onRemove,
+  assignedColumn = null,
+  onEditColumn = null,
 }) {
   return (
     <TableCell
@@ -32,6 +34,33 @@ export default function GridCell({
     >
       {fieldData ? (
         <Box>
+          {/* Column indicator */}
+          {assignedColumn && (
+            <Box sx={{ mb: 1, display: "flex", gap: 0.5, alignItems: "center" }}>
+              <Chip
+                label={`Column: ${assignedColumn.name}`}
+                size="small"
+                color="info"
+                variant="outlined"
+                sx={{ fontSize: "0.7rem" }}
+              />
+              {onEditColumn && (
+                <Tooltip title="Change column">
+                  <IconButton
+                    size="small"
+                    sx={{ width: 24, height: 24, p: 0 }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEditColumn(rowIndex, colIndex);
+                    }}
+                  >
+                    <EditIcon fontSize="small" sx={{ fontSize: "0.8rem" }} />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </Box>
+          )}
+
           <Box
             display="flex"
             justifyContent="space-between"

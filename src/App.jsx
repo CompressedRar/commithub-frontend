@@ -33,7 +33,7 @@ import ChangeForgotPassword from './pages/ChangeForgotPassword'
 import DepartmentPage from './pages/DepartmentPage'
 import OtherEditOPCR from './components/DepartmentComponents/OPCR/OtherEditOPCR'
 import Builder from './components/FormBuilder/TaskBuilder/Builder'
-import { FieldMapper } from './components/FormBuilder'
+import { FieldMapper, FormBuilderPage } from './components/FormBuilder'
 
 
 function App() {
@@ -48,7 +48,7 @@ function App() {
           <Route path='/register' element = {<Register></Register>}></Route>
           <Route path='/create' element = {<Register ></Register>}></Route>
           <Route path='/logout' element = {<Logout></Logout>}></Route>
-          <Route path='/builder' element = {<Builder></Builder>}></Route>
+          <Route path='/builder' element = {<FormBuilderPage></FormBuilderPage>}></Route>
           <Route path='/mapper' element = {<FieldMapper></FieldMapper>}></Route>
         </Route>
 

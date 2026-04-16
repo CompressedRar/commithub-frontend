@@ -11,11 +11,14 @@ import GridCell from "./GridCell";
 export default function FieldMapperGrid({
   gridConfig,
   fieldMapping,
+  columnMapping = {},
+  columns = [],
   getFieldAtCell,
   onDragOver,
   onDropOnCell,
   onEditSpan,
   onRemove,
+  onEditColumn,
 }) {
   const getColumnLabel = (index) => {
     return String.fromCharCode(65 + index);
@@ -53,6 +56,14 @@ export default function FieldMapperGrid({
       field: cellData.field,
       span: cellData.span,
     };
+  };
+
+  const getAssignedColumn = (fieldId) => {
+    const columnId = columnMapping[fieldId];
+    if (columnId) {
+      return columns.find((col) => col.id === columnId);
+    }
+    return null;
   };
 
   return (
@@ -113,18 +124,24 @@ export default function FieldMapperGrid({
                     ? getPrimaryFieldData(rowIndex, colIndex)
                     : null;
 
+                  const assignedColumn = fieldData
+                    ? getAssignedColumn(fieldData.field.id)
+                    : null;
+
                   return (
                     <GridCell
                       key={`${rowIndex}-${colIndex}`}
                       rowIndex={rowIndex}
                       colIndex={colIndex}
                       fieldData={fieldData}
+                      assignedColumn={assignedColumn}
                       onDragOver={onDragOver}
                       onDrop={(e) =>
                         onDropOnCell(rowIndex, colIndex, e)
                       }
                       onEditSpan={onEditSpan}
                       onRemove={onRemove}
+                      onEditColumn={onEditColumn}
                     />
                   );
                 })}

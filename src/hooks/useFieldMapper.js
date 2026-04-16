@@ -7,6 +7,9 @@ export default function useFieldMapper() {
   });
 
   const [fieldMapping, setFieldMapping] = useState({});
+  
+  // Track which column each field is assigned to
+  const [columnMapping, setColumnMapping] = useState({});
 
   /**
    * Check if a cell is available for placement
@@ -50,10 +53,12 @@ export default function useFieldMapper() {
 
   /**
    * Add a field to a cell with optional row/column span
+   * AND assign it to a specific column layout
    * rowSpan: how many rows this field occupies (default 1)
    * colSpan: how many columns this field occupies (default 1)
+   * columnId: which display column this field belongs to
    */
-  const addFieldToCell = (rowIndex, colIndex, field, rowSpan = 1, colSpan = 1) => {
+  const addFieldToCell = (rowIndex, colIndex, field, rowSpan = 1, colSpan = 1, columnId = null) => {
     // Validate bounds
     if (rowIndex + rowSpan > gridConfig.rows || colIndex + colSpan > gridConfig.columns) {
       return false;
@@ -65,6 +70,8 @@ export default function useFieldMapper() {
     }
 
     const cellKey = `${rowIndex}-${colIndex}`;
+    const fieldId = field.id;
+    
     setFieldMapping((prev) => ({
       ...prev,
       [cellKey]: {
@@ -72,6 +79,15 @@ export default function useFieldMapper() {
         span: { rows: rowSpan, cols: colSpan },
       },
     }));
+    
+    // Assign to column if provided
+    if (columnId !== null) {
+      setColumnMapping((prev) => ({
+        ...prev,
+        [fieldId]: columnId,
+      }));
+    }
+    
     return true;
   };
 
@@ -114,9 +130,62 @@ export default function useFieldMapper() {
     const cellKey = `${rowIndex}-${colIndex}`;
     setFieldMapping((prev) => {
       const updated = { ...prev };
+      const fieldId = prev[cellKey]?.field?.id;
       delete updated[cellKey];
+      
+      // Also remove from column mapping
+      if (fieldId) {
+        setColumnMapping((colPrev) => {
+          const colUpdated = { ...colPrev };
+          delete colUpdated[fieldId];
+          return colUpdated;
+        });
+      }
+      
       return updated;
     });
+  };
+
+  /**
+   * Assign a field to a column
+   */
+  const assignFieldToColumn = (fieldId, columnId) => {
+    setColumnMapping((prev) => ({
+      ...prev,
+      [fieldId]: columnId,
+    }));
+  };
+
+  /**
+   * Remove field from column assignment
+   */
+  const removeFieldFromColumn = (fieldId) => {
+    setColumnMapping((prev) => {
+      const updated = { ...prev };
+      delete updated[fieldId];
+      return updated;
+    });
+  };
+
+  /**
+   * Get fields grouped by column
+   */
+  const getFieldsByColumn = () => {
+    const grouped = {};
+    
+    Object.values(fieldMapping).forEach((cellData) => {
+      const fieldId = cellData.field.id;
+      const columnId = columnMapping[fieldId];
+      
+      if (columnId !== undefined) {
+        if (!grouped[columnId]) {
+          grouped[columnId] = [];
+        }
+        grouped[columnId].push(cellData.field);
+      }
+    });
+    
+    return grouped;
   };
 
   /**
@@ -251,6 +320,7 @@ export default function useFieldMapper() {
    */
   const clearMapping = () => {
     setFieldMapping({});
+    setColumnMapping({});
   };
 
   /**
@@ -259,41 +329,51 @@ export default function useFieldMapper() {
   const clearGrid = () => {
     setGridConfig({ rows: 5, columns: 3 });
     setFieldMapping({});
+    setColumnMapping({});
   };
 
   /**
-   * Export mapping data
+   * Export mapping data with column information
    */
   const exportMapping = () => {
     const fieldMappingArray = Object.entries(fieldMapping).map(([cellKey, cellData]) => {
       const [row, col] = cellKey.split('-').map(Number);
+      const fieldId = cellData.field.id;
+      const assignedColumn = columnMapping[fieldId];
+      
       return {
         cell: cellKey,
         row,
         col,
-        fieldId: cellData.field.id,
+        fieldId,
         fieldTitle: cellData.field.title,
         fieldType: cellData.field.type,
         rowSpan: cellData.span.rows,
         colSpan: cellData.span.cols,
+        columnId: assignedColumn || null,
       };
     });
 
     return {
       gridConfig,
       fieldMapping: fieldMappingArray,
+      columnMapping,
     };
   };
 
   return {
     gridConfig,
     fieldMapping,
+    columnMapping,
     isCellAvailable,
     isAreaAvailable,
     updateGridDimensions,
     addFieldToCell,
     updateFieldSpan,
     removeFieldFromCell,
+    assignFieldToColumn,
+    removeFieldFromColumn,
+    getFieldsByColumn,
     getFieldAtCell,
     getPrimaryCellKey,
     getOccupiedCells,

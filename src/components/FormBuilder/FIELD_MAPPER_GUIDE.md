@@ -122,7 +122,7 @@ Much more organized and readable!
   id: 101,
   title: "Task Status",
   type: "CaseOutput",
-  inputFieldName: "progressPercent",    // Binds to User field
+  inputFieldNames: ["progressPercent"],    // Binds to User field
   cases: [
     { condition: "0-25", output: "Not Started" },
     { condition: "26-50", output: "In Progress" },
@@ -131,13 +131,22 @@ Much more organized and readable!
   ]
 }
 
-// Integer Modifier Example
+// Integer Modifier Example (can bind to 1-2 fields)
 {
   id: 102,
   title: "Effort Adjusted Hours",
   type: "IntegerModifier",
-  inputFieldName: "hourSpent",
-  formula: "value * 1.2"
+  inputFieldNames: ["hourSpent"],    // Array of 1-2 field names
+  formula: "{hourSpent} * 1.2"
+}
+
+// Integer Modifier with 2 fields
+{
+  id: 103,
+  title: "Combined Score",
+  type: "IntegerModifier",
+  inputFieldNames: ["score1", "score2"],    // 2 fields
+  formula: "{score1} + {score2} * 0.5"
 }
 ```
 

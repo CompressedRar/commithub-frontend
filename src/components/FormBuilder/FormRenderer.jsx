@@ -87,7 +87,11 @@ export default function FormRenderer({ fields, outputFields = [], values = {}, o
                     value={outputField.type === "IntegerModifier" ? "[Calculated Value]" : "[Case Output]"}
                     disabled
                     variant="outlined"
-                    helperText={`Bound to: ${outputField.inputFieldName}`}
+                    helperText={`Bound to: ${
+                        Array.isArray(outputField.inputFieldNames)
+                            ? outputField.inputFieldNames.join(", ")
+                            : outputField.inputFieldName
+                    }`}
                 />
             </Stack>
         );

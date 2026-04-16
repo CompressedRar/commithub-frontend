@@ -1,20 +1,29 @@
-﻿import { Box, Stack, Typography } from "@mui/material";
+﻿import { Box, Stack, Typography, Paper, Divider, IconButton, Drawer } from "@mui/material";
 import { useState } from "react";
+import MenuIcon from "@mui/icons-material/Menu";
+import EyeIcon from "@mui/icons-material/Visibility";
+import EyeOffIcon from "@mui/icons-material/VisibilityOff";
+import ViewAgendaIcon from "@mui/icons-material/ViewAgenda";
 import useFieldMapper from "../../../hooks/useFieldMapper";
 import FieldMapperHeader from "./FieldMapperHeader";
 import AvailableFieldsSidebar from "./AvailableFieldsSidebar";
 import FieldMapperGrid from "./FieldMapperGrid";
 import GridDimensionsDialog from "./GridDimensionsDialog";
 import SpanConfigDialog from "./SpanConfigDialog";
+import ColumnSelectionDialog from "./ColumnSelectionDialog";
+import FieldMappingPreview from "../FieldMappingPreview";
+import ColumnManager from "./ColumnManager";
 
 export default function FieldMapper({ fields = [], outputFields = [] }) {
   const {
     gridConfig,
     fieldMapping,
+    columnMapping,
     updateGridDimensions,
     addFieldToCell,
     updateFieldSpan,
     removeFieldFromCell,
+    assignFieldToColumn,
     getFieldAtCell,
     clearMapping,
     exportMapping,
@@ -23,6 +32,17 @@ export default function FieldMapper({ fields = [], outputFields = [] }) {
   // Dialog states
   const [dimensionDialogOpen, setDimensionDialogOpen] = useState(false);
   const [spanDialogOpen, setSpanDialogOpen] = useState(false);
+  const [columnManagerOpen, setColumnManagerOpen] = useState(false);
+  const [columnSelectionOpen, setColumnSelectionOpen] = useState(false);
+
+  // Drawer states
+  const [fieldsDrawerOpen, setFieldsDrawerOpen] = useState(true);
+  const [previewDrawerOpen, setPreviewDrawerOpen] = useState(true);
+
+  // Column state
+  const [columns, setColumns] = useState([
+    { id: 1, name: "Column 1", width: "100%" },
+  ]);
 
   // Grid input states
   const [rowsInput, setRowsInput] = useState(gridConfig.rows);
@@ -33,6 +53,7 @@ export default function FieldMapper({ fields = [], outputFields = [] }) {
   const [dragDropTarget, setDragDropTarget] = useState(null);
   const [editingCell, setEditingCell] = useState(null);
   const [draggedField, setDraggedField] = useState(null);
+  const [fieldForColumnSelection, setFieldForColumnSelection] = useState(null);
 
   // Computed values
   const allFields = [...fields, ...outputFields];
@@ -110,10 +131,21 @@ export default function FieldMapper({ fields = [], outputFields = [] }) {
         alert(
           "Cannot place field - not enough space or overlaps with another field!"
         );
+      } else {
+        // After successfully placing field, show column selection
+        setFieldForColumnSelection(draggedField);
+        setColumnSelectionOpen(true);
       }
       setDraggedField(null);
     }
     resetSpanDialog();
+  };
+
+  const handleConfirmColumnSelection = (columnId) => {
+    if (fieldForColumnSelection) {
+      assignFieldToColumn(fieldForColumnSelection.id, columnId);
+      setFieldForColumnSelection(null);
+    }
   };
 
   const handleEditSpan = (rowIndex, colIndex) => {
@@ -136,48 +168,175 @@ export default function FieldMapper({ fields = [], outputFields = [] }) {
     removeFieldFromCell(rowIndex, colIndex);
   };
 
+  const handleEditColumnForField = (rowIndex, colIndex) => {
+    const fieldData = fieldMapping[`${rowIndex}-${colIndex}`];
+    if (fieldData) {
+      setFieldForColumnSelection(fieldData.field);
+      setColumnSelectionOpen(true);
+    }
+  };
+
+  // Convert fieldMapping to cells array for preview component
+  const previewCells = Object.entries(fieldMapping).map(([key, cellData]) => {
+    const [rowIndex, colIndex] = key.split("-").map(Number);
+    return {
+      id: cellData.field.id,
+      fieldId: cellData.field.id,
+      row: rowIndex,
+      column: colIndex,
+      rowSpan: cellData.span.rows,
+      columnSpan: cellData.span.cols,
+    };
+  });
+
   return (
-    <Box padding="2em">
-      <Stack spacing={3}>
-        {/* Header */}
-        <FieldMapperHeader
-          onGridSettingsClick={handleGridSettingsClick}
-          onExport={handleExport}
-          onClearMapping={clearMapping}
-        />
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100vh", backgroundColor: "#fafafa" }}>
+      {/* Header Section */}
+      <Paper elevation={0} sx={{ p: 2, backgroundColor: "#ffffff", borderRadius: 0 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Box flex={1}>
+            <FieldMapperHeader
+              onGridSettingsClick={handleGridSettingsClick}
+              onExport={handleExport}
+              onClearMapping={clearMapping}
+            />
+          </Box>
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <IconButton
+              onClick={() => setColumnManagerOpen(true)}
+              title="Manage Columns"
+              size="small"
+            >
+              <ViewAgendaIcon />
+            </IconButton>
+            <IconButton
+              onClick={() => setFieldsDrawerOpen(!fieldsDrawerOpen)}
+              title={fieldsDrawerOpen ? "Hide Fields Panel" : "Show Fields Panel"}
+              color={fieldsDrawerOpen ? "primary" : "inherit"}
+              size="small"
+            >
+              <MenuIcon />
+            </IconButton>
+            <IconButton
+              onClick={() => setPreviewDrawerOpen(!previewDrawerOpen)}
+              title={previewDrawerOpen ? "Hide Preview Panel" : "Show Preview Panel"}
+              color={previewDrawerOpen ? "primary" : "inherit"}
+              size="small"
+            >
+              {previewDrawerOpen ? <EyeIcon /> : <EyeOffIcon />}
+            </IconButton>
+          </Box>
+        </Box>
+      </Paper>
 
-        {/* Main Content */}
-        <Box display="flex" gap={3}>
-          {/* Available Fields Sidebar */}
-          <AvailableFieldsSidebar
-            unusedFields={unusedFields}
-            onDragStart={handleDragStart}
-          />
+      <Divider sx={{ my: 0 }} />
 
-          {/* Grid */}
-          <FieldMapperGrid
-            gridConfig={gridConfig}
-            fieldMapping={fieldMapping}
-            getFieldAtCell={getFieldAtCell}
-            onDragOver={handleDragOver}
-            onDropOnCell={handleDropOnCell}
-            onEditSpan={handleEditSpan}
-            onRemove={handleRemoveFromCell}
-          />
+      {/* Main Content Area - Full Width Grid */}
+      <Box sx={{ display: "flex", flex: 1, overflow: "hidden" }}>
+        {/* Left Drawer - Available Fields */}
+        <Drawer
+          variant="persistent"
+          open={fieldsDrawerOpen}
+          sx={{
+            width: 280,
+            flexShrink: 0,
+            "& .MuiDrawer-paper": {
+              width: 280,
+              boxSizing: "border-box",
+              position: "relative",
+              borderRight: "1px solid #e0e0e0",
+            },
+          }}
+        >
+          <Box sx={{ p: 2, height: "100%", overflowY: "auto" }}>
+            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+              Available Fields
+            </Typography>
+            <AvailableFieldsSidebar
+              unusedFields={unusedFields}
+              onDragStart={handleDragStart}
+            />
+          </Box>
+        </Drawer>
+
+        {/* Center - Grid Editor (Full Width) */}
+        <Box sx={{ flex: 1, backgroundColor: "#ffffff", overflowY: "auto", p: 3, display: "flex", flexDirection: "column" }}>
+          <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+            Field Mapper Grid
+          </Typography>
+          <Box sx={{ flex: 1, overflow: "auto" }}>
+            <FieldMapperGrid
+              gridConfig={gridConfig}
+              fieldMapping={fieldMapping}
+              columnMapping={columnMapping}
+              columns={columns}
+              getFieldAtCell={getFieldAtCell}
+              onDragOver={handleDragOver}
+              onDropOnCell={handleDropOnCell}
+              onEditSpan={handleEditSpan}
+              onRemove={handleRemoveFromCell}
+              onEditColumn={handleEditColumnForField}
+            />
+          </Box>
         </Box>
 
-        {/* Stats */}
-        <Box display="flex" gap={3}>
-          <Typography variant="body2">
-            <strong>Grid Size:</strong> {gridConfig.rows} rows ×{" "}
-            {gridConfig.columns} columns
-          </Typography>
-          <Typography variant="body2">
-            <strong>Placed Fields:</strong> {Object.keys(fieldMapping).length} /{" "}
-            {allFields.length}
-          </Typography>
-        </Box>
-      </Stack>
+        {/* Right Drawer - Preview */}
+        <Drawer
+          variant="persistent"
+          open={previewDrawerOpen}
+          anchor="right"
+          sx={{
+            width: 420,
+            flexShrink: 0,
+            "& .MuiDrawer-paper": {
+              width: 420,
+              boxSizing: "border-box",
+              position: "relative",
+              borderLeft: "1px solid #e0e0e0",
+            },
+          }}
+        >
+          <Box sx={{ p: 2, height: "100%", overflowY: "auto" }}>
+            <FieldMappingPreview
+              gridDimensions={gridConfig}
+              cells={previewCells}
+              allFields={allFields}
+            />
+          </Box>
+        </Drawer>
+      </Box>
+
+      <Divider sx={{ my: 0 }} />
+
+      {/* Footer Stats */}
+      <Paper elevation={0} sx={{ p: 2, backgroundColor: "#ffffff", borderRadius: 0 }}>
+        <Stack direction="row" spacing={4}>
+          <Box>
+            <Typography variant="caption" color="textSecondary">
+              Grid Size
+            </Typography>
+            <Typography variant="body2" fontWeight="bold">
+              {gridConfig.rows} rows × {gridConfig.columns} columns
+            </Typography>
+          </Box>
+          <Box>
+            <Typography variant="caption" color="textSecondary">
+              Placed Fields
+            </Typography>
+            <Typography variant="body2" fontWeight="bold">
+              {Object.keys(fieldMapping).length} / {allFields.length}
+            </Typography>
+          </Box>
+          <Box>
+            <Typography variant="caption" color="textSecondary">
+              Unused Fields
+            </Typography>
+            <Typography variant="body2" fontWeight="bold" color={unusedFields.length === 0 ? "success.main" : "inherit"}>
+              {unusedFields.length}
+            </Typography>
+          </Box>
+        </Stack>
+      </Paper>
 
       {/* Dialogs */}
       <GridDimensionsDialog
@@ -203,6 +362,28 @@ export default function FieldMapper({ fields = [], outputFields = [] }) {
         }
         onClose={resetSpanDialog}
         onConfirm={handleConfirmSpan}
+      />
+
+      <ColumnManager
+        open={columnManagerOpen}
+        onClose={() => setColumnManagerOpen(false)}
+        onSave={(newColumns) => setColumns(newColumns)}
+        existingColumns={columns}
+        fieldCount={Object.keys(fieldMapping).length}
+        fieldMapping={fieldMapping}
+        columnMapping={columnMapping}
+      />
+
+      <ColumnSelectionDialog
+        open={columnSelectionOpen}
+        onClose={() => {
+          setColumnSelectionOpen(false);
+          setFieldForColumnSelection(null);
+        }}
+        onConfirm={handleConfirmColumnSelection}
+        columns={columns}
+        field={fieldForColumnSelection}
+        existingColumnId={fieldForColumnSelection ? columnMapping[fieldForColumnSelection.id] : null}
       />
     </Box>
   );

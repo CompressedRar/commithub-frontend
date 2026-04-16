@@ -107,7 +107,7 @@ export const sampleTaskData = {
       id: 101,
       title: "Task Status",
       type: "CaseOutput",
-      inputFieldName: "progressPercent",
+      inputFieldNames: ["progressPercent"],
       formula: null,
       cases: [
         { condition: "0-25", output: "Not Started" },
@@ -120,15 +120,15 @@ export const sampleTaskData = {
       id: 102,
       title: "Effort Adjusted Hours",
       type: "IntegerModifier",
-      inputFieldName: "hourSpent",
-      formula: "value * 1.2",
+      inputFieldNames: ["hourSpent"],
+      formula: "{hourSpent} * 1.2",
       cases: [],
     },
     {
       id: 103,
       title: "Risk Level",
       type: "CaseOutput",
-      inputFieldName: "issues",
+      inputFieldNames: ["issues"],
       formula: null,
       cases: [
         { condition: "0", output: "Low Risk" },

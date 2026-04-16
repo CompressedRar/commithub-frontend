@@ -9,7 +9,7 @@ export default function OutputFieldEditor({ data, onSave, userInputFields = [] }
     const [formData, setFormData] = useState({
         title: "",
         type: "IntegerModifier",
-        inputFieldName: "",
+        inputFieldNames: [],
         formula: "0",
         cases: [],
     });
@@ -19,7 +19,9 @@ export default function OutputFieldEditor({ data, onSave, userInputFields = [] }
             setFormData({
                 title: data.title || "",
                 type: data.type || "IntegerModifier",
-                inputFieldName: data.inputFieldName || "",
+                inputFieldNames: Array.isArray(data.inputFieldNames)
+                    ? data.inputFieldNames
+                    : (data.inputFieldName ? [data.inputFieldName] : []),
                 formula: data.formula || "0",
                 cases: data.cases || [],
             });
@@ -62,16 +64,52 @@ export default function OutputFieldEditor({ data, onSave, userInputFields = [] }
             alert("Output field title is required!");
             return;
         }
-        if (!formData.inputFieldName) {
-            alert("Please select an input field to bind with!");
-            return;
-        }
-        if (formData.type === "CaseOutput" && formData.cases.length === 0) {
-            alert("Please add at least one case for Case Output!");
-            return;
+        if (formData.type === "IntegerModifier") {
+            if (formData.inputFieldNames.length === 0) {
+                alert("Please select at least one input field for Integer Modifier!");
+                return;
+            }
+            if (formData.inputFieldNames.length > 2) {
+                alert("Integer Modifier can reference up to 2 input fields maximum!");
+                return;
+            }
+        } else if (formData.type === "CaseOutput") {
+            if (formData.inputFieldNames.length === 0) {
+                alert("Please select an input field!");
+                return;
+            }
+            if (formData.cases.length === 0) {
+                alert("Please add at least one case for Case Output!");
+                return;
+            }
         }
         onSave(formData);
     };
+
+    const handleSelectField = (fieldName) => {
+        setFormData((prev) => {
+            const isSelected = prev.inputFieldNames.includes(fieldName);
+            if (isSelected) {
+                return {
+                    ...prev,
+                    inputFieldNames: prev.inputFieldNames.filter((f) => f !== fieldName),
+                };
+            } else {
+                if (prev.inputFieldNames.length >= 2) {
+                    alert("Integer Modifier can only reference up to 2 fields!");
+                    return prev;
+                }
+                return {
+                    ...prev,
+                    inputFieldNames: [...prev.inputFieldNames, fieldName],
+                };
+            }
+        });
+    };
+
+    const numberInputFields = userInputFields.filter(
+        (field) => field.type === "Integer"
+    );
 
     return (
         <Box padding={"2em"} width={"100%"} height={"100vh"} display="flex" flexDirection="column">
@@ -115,45 +153,145 @@ export default function OutputFieldEditor({ data, onSave, userInputFields = [] }
                         <MenuItem value={"CaseOutput"}>Case Output</MenuItem>
                     </Select>
 
-                    <Select
-                        fullWidth
-                        name="inputFieldName"
-                        label="Bind with User Input Field"
-                        value={formData.inputFieldName}
-                        onChange={handleChange}
-                        variant="outlined"
-                        required
-                    >
-                        <MenuItem value="">
-                            <em>Select a user input field</em>
-                        </MenuItem>
-                        {userInputFields.map((field) => (
-                            <MenuItem key={field.id} value={field.name}>
-                                {field.title} ({field.name})
-                            </MenuItem>
-                        ))}
-                    </Select>
-
                     {formData.type === "IntegerModifier" && (
-                        <TextField
-                            fullWidth
-                            label="Formula"
-                            name="formula"
-                            value={formData.formula}
-                            onChange={handleChange}
-                            placeholder="e.g., {field_name} * 2 + 5"
-                            variant="outlined"
-                            helperText="Backend formula using field names in curly braces. Will be processed on the server."
-                            multiline
-                            rows={2}
-                        />
+                        <Stack spacing={2}>
+                            <Typography variant="subtitle2" fontWeight="bold">
+                                Select Number Input Fields (Up to 2)
+                                <Typography variant="caption" display="block" color="textSecondary" sx={{ mt: 0.5 }}>
+                                    Currently selected: {formData.inputFieldNames.length}/2
+                                </Typography>
+                            </Typography>
+                            {numberInputFields.length === 0 ? (
+                                <Typography variant="body2" color="error">
+                                    No number input fields available. Create Integer fields first.
+                                </Typography>
+                            ) : (
+                                <Box sx={{ border: "1px solid #ddd", borderRadius: 1, p: 2 }}>
+                                    {numberInputFields.map((field) => (
+                                        <Box
+                                            key={field.id}
+                                            sx={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: 2,
+                                                p: 1.5,
+                                                mb: 1,
+                                                backgroundColor: formData.inputFieldNames.includes(field.name)
+                                                    ? "#e3f2fd"
+                                                    : "transparent",
+                                                border: formData.inputFieldNames.includes(field.name)
+                                                    ? "2px solid #1976d2"
+                                                    : "1px solid #e0e0e0",
+                                                borderRadius: 1,
+                                                cursor: "pointer",
+                                                "&:hover": { backgroundColor: "#f5f5f5" },
+                                            }}
+                                            onClick={() => handleSelectField(field.name)}
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                checked={formData.inputFieldNames.includes(field.name)}
+                                                onChange={() => handleSelectField(field.name)}
+                                                style={{ cursor: "pointer" }}
+                                            />
+                                            <Box flex={1}>
+                                                <Typography variant="body2" fontWeight="bold">
+                                                    {field.title}
+                                                </Typography>
+                                                <Typography variant="caption" color="textSecondary">
+                                                    {field.name} (Type: {field.type})
+                                                </Typography>
+                                            </Box>
+                                        </Box>
+                                    ))}
+                                </Box>
+                            )}
+                            <TextField
+                                fullWidth
+                                label="Formula"
+                                name="formula"
+                                value={formData.formula}
+                                onChange={handleChange}
+                                placeholder={
+                                    formData.inputFieldNames.length === 1
+                                        ? "e.g., {" + formData.inputFieldNames[0] + "} * 2"
+                                        : formData.inputFieldNames.length === 2
+                                        ? "e.g., {" +
+                                          formData.inputFieldNames[0] +
+                                          "} + {" +
+                                          formData.inputFieldNames[1] +
+                                          "} * 1.5"
+                                        : "e.g., {fieldName} * 2"
+                                }
+                                variant="outlined"
+                                helperText="Backend formula using field names in curly braces. Will be processed on the server."
+                                multiline
+                                rows={2}
+                            />
+                        </Stack>
                     )}
 
                     {formData.type === "CaseOutput" && (
                         <Stack spacing={2}>
                             <Typography variant="subtitle2" fontWeight="bold">
-                                Case Mappings
+                                Select Input Field
                             </Typography>
+                            {numberInputFields.length === 0 ? (
+                                <Typography variant="body2" color="error">
+                                    No number input fields available. Create Integer fields first.
+                                </Typography>
+                            ) : (
+                                <Box sx={{ border: "1px solid #ddd", borderRadius: 1, p: 2 }}>
+                                    {numberInputFields.map((field) => (
+                                        <Box
+                                            key={field.id}
+                                            sx={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: 2,
+                                                p: 1.5,
+                                                mb: 1,
+                                                backgroundColor: formData.inputFieldNames.includes(field.name)
+                                                    ? "#e3f2fd"
+                                                    : "transparent",
+                                                border: formData.inputFieldNames.includes(field.name)
+                                                    ? "2px solid #1976d2"
+                                                    : "1px solid #e0e0e0",
+                                                borderRadius: 1,
+                                                cursor: "pointer",
+                                                "&:hover": { backgroundColor: "#f5f5f5" },
+                                            }}
+                                            onClick={() =>
+                                                setFormData((prev) => ({
+                                                    ...prev,
+                                                    inputFieldNames: [field.name],
+                                                }))
+                                            }
+                                        >
+                                            <input
+                                                type="radio"
+                                                name="caseInput"
+                                                checked={formData.inputFieldNames.includes(field.name)}
+                                                onChange={() =>
+                                                    setFormData((prev) => ({
+                                                        ...prev,
+                                                        inputFieldNames: [field.name],
+                                                    }))
+                                                }
+                                                style={{ cursor: "pointer" }}
+                                            />
+                                            <Box flex={1}>
+                                                <Typography variant="body2" fontWeight="bold">
+                                                    {field.title}
+                                                </Typography>
+                                                <Typography variant="caption" color="textSecondary">
+                                                    {field.name} (Type: {field.type})
+                                                </Typography>
+                                            </Box>
+                                        </Box>
+                                    ))}
+                                </Box>
+                            )}
                             <Table size="small" sx={{ border: "1px solid #ddd" }}>
                                 <TableHead>
                                     <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
@@ -234,6 +372,6 @@ export default function OutputFieldEditor({ data, onSave, userInputFields = [] }
                     Save Output Field
                 </Button>
             </Stack>
-        </Box>
+        </Box >
     );
 }
