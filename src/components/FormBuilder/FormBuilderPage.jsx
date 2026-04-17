@@ -22,6 +22,7 @@ function TabPanel(props) {
 
 export default function FormBuilderPage() {
   const [tabValue, setTabValue] = useState(0);
+  const [templateId, setTemplateId] = useState(null);
   const formBuilderHook = useFormBuilder();
   const { fields, outputFields } = formBuilderHook;
 
@@ -43,6 +44,11 @@ export default function FormBuilderPage() {
         <Typography variant="body2" color="textSecondary">
           Build form templates with input fields, output fields, and layout configuration
         </Typography>
+        {templateId && (
+          <Typography variant="body2" color="success.main" sx={{ mt: 1 }}>
+            ✓ Template ID: {templateId}
+          </Typography>
+        )}
       </Box>
 
       {/* Tabs */}
@@ -63,7 +69,7 @@ export default function FormBuilderPage() {
 
       {/* Tab Panels */}
       <TabPanel value={tabValue} index={0}>
-        <Builder />
+        <Builder onTemplateSaved={setTemplateId} />
       </TabPanel>
 
       <TabPanel value={tabValue} index={1}>
@@ -73,6 +79,7 @@ export default function FormBuilderPage() {
             outputFields={outputFields}
             fieldMapping={fieldMapping}
             gridConfig={gridConfig}
+            templateId={templateId}
           />
         ) : (
           <Box sx={{ py: 4, textAlign: "center" }}>

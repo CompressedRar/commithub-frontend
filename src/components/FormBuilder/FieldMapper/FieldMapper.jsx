@@ -1,5 +1,5 @@
 ﻿import { Box, Stack, Typography, Paper, Divider, IconButton, Drawer } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MenuIcon from "@mui/icons-material/Menu";
 import EyeIcon from "@mui/icons-material/Visibility";
 import EyeOffIcon from "@mui/icons-material/VisibilityOff";
@@ -14,11 +14,11 @@ import ColumnSelectionDialog from "./ColumnSelectionDialog";
 import FieldMappingPreview from "../FieldMappingPreview";
 import ColumnManager from "./ColumnManager";
 
-export default function FieldMapper({ fields = [], outputFields = [] }) {
-  const {
+export default function FieldMapper({ fields = [], outputFields = [],
     gridConfig,
     fieldMapping,
     columnMapping,
+
     updateGridDimensions,
     addFieldToCell,
     updateFieldSpan,
@@ -26,8 +26,8 @@ export default function FieldMapper({ fields = [], outputFields = [] }) {
     assignFieldToColumn,
     getFieldAtCell,
     clearMapping,
-    exportMapping,
-  } = useFieldMapper();
+    exportMapping
+ }) {
 
   // Dialog states
   const [dimensionDialogOpen, setDimensionDialogOpen] = useState(false);
@@ -58,9 +58,9 @@ export default function FieldMapper({ fields = [], outputFields = [] }) {
   // Computed values
   const allFields = [...fields, ...outputFields];
   const usedFieldIds = new Set(
-    Object.values(fieldMapping).map((cellData) => cellData.field.id)
+    Object.values(fieldMapping).map((cellData) => String(cellData.field.id))
   );
-  const unusedFields = allFields.filter((field) => !usedFieldIds.has(field.id));
+  const unusedFields = allFields.filter((field) => !usedFieldIds.has(field.field_id));
 
   // Header handlers
   const handleGridSettingsClick = () => {
@@ -180,7 +180,7 @@ export default function FieldMapper({ fields = [], outputFields = [] }) {
   const previewCells = Object.entries(fieldMapping).map(([key, cellData]) => {
     const [rowIndex, colIndex] = key.split("-").map(Number);
     return {
-      id: cellData.field.id,
+      id: cellData.id,
       fieldId: cellData.field.id,
       row: rowIndex,
       column: colIndex,
@@ -188,6 +188,10 @@ export default function FieldMapper({ fields = [], outputFields = [] }) {
       columnSpan: cellData.span.cols,
     };
   });
+
+  useEffect(()=> {
+    console.log("Fields, outputFields, gridConfig, fieldMapping, or columnMapping changed:", { allFields,unusedFields, usedFieldIds });
+  }, [allFields, unusedFields, usedFieldIds]);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", height: "100vh", backgroundColor: "#fafafa" }}>

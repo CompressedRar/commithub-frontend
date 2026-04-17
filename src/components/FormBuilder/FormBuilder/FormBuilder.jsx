@@ -21,6 +21,7 @@ export default function FormBuilder({
   outputFields = [],
   fieldMapping = {},
   gridConfig = { rows: 3, columns: 3 },
+  templateId = null,
 }) {
   const [formConfig, setFormConfig] = useState({
     title: "Task Form",

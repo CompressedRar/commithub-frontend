@@ -247,6 +247,8 @@ export default function useFieldMapper() {
    * Max: 20 rows, 10 columns
    */
   const updateGridDimensions = (rows, columns) => {
+
+    console.log("Updating grid dimensions to:", { rows, columns });
     const validRows = Math.min(Math.max(rows, 1), 20);
     const validColumns = Math.min(Math.max(columns, 1), 10);
 
@@ -338,7 +340,7 @@ export default function useFieldMapper() {
   const exportMapping = () => {
     const fieldMappingArray = Object.entries(fieldMapping).map(([cellKey, cellData]) => {
       const [row, col] = cellKey.split('-').map(Number);
-      const fieldId = cellData.field.id;
+      const fieldId = cellData.field.field_id;
       const assignedColumn = columnMapping[fieldId];
       
       return {
@@ -361,6 +363,19 @@ export default function useFieldMapper() {
     };
   };
 
+  const loadMappingFromTemplate = (templateData) => {
+    const { gridConfig, fieldMapping: templateFieldMapping, columnMapping: templateColumnMapping } = templateData;
+
+    console.log("Loading mapping from template with data:", templateData);
+    setGridConfig({ rows: gridConfig.rows, columns: gridConfig.columns });
+
+    setFieldMapping(templateFieldMapping);
+
+    // Set column mapping
+    setColumnMapping(templateColumnMapping);
+  };
+
+
   return {
     gridConfig,
     fieldMapping,
@@ -381,5 +396,6 @@ export default function useFieldMapper() {
     clearMapping,
     clearGrid,
     exportMapping,
+    loadMappingFromTemplate
   };
 }

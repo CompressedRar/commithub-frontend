@@ -3,7 +3,19 @@ import { GridView as GridViewIcon } from "@mui/icons-material";
 import { useState } from "react";
 import FieldMapper from "./FieldMapper";
 
-export default function FieldMapperPanel({ fields = [], outputFields = [] }) {
+export default function FieldMapperPanel({ fields = [], outputFields = [],
+    gridConfig,
+    fieldMapping,
+    columnMapping,
+    updateGridDimensions,
+    addFieldToCell,
+    updateFieldSpan,
+    removeFieldFromCell,
+    assignFieldToColumn,
+    getFieldAtCell,
+    clearMapping,
+    exportMapping
+ }) {
     const [expanded, setExpanded] = useState(false);
 
     return (
@@ -32,7 +44,10 @@ export default function FieldMapperPanel({ fields = [], outputFields = [] }) {
 
             {expanded && (
                 <Box sx={{ border: "1px solid #ddd", borderRadius: 1, overflow: "hidden" }}>
-                    <FieldMapper fields={fields} outputFields={outputFields} />
+                    {
+                        gridConfig != null && fieldMapping != null && columnMapping != null && 
+                        <FieldMapper fields={fields} outputFields={outputFields} gridConfig={gridConfig} fieldMapping={fieldMapping} columnMapping={columnMapping} updateGridDimensions={updateGridDimensions} addFieldToCell={addFieldToCell} updateFieldSpan={updateFieldSpan} removeFieldFromCell={removeFieldFromCell} assignFieldToColumn={assignFieldToColumn} getFieldAtCell={getFieldAtCell} clearMapping={clearMapping} exportMapping={exportMapping} />
+                    }
                 </Box>
             )}
         </Box>

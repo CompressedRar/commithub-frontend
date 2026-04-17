@@ -5,6 +5,7 @@ import {
   Stack,
   Chip,
 } from "@mui/material";
+import { useEffect } from "react";
 
 const FieldMappingPreview = ({
   gridDimensions = { rows: 3, columns: 3 },
@@ -13,7 +14,7 @@ const FieldMappingPreview = ({
 }) => {
   // Helper to get field by ID
   const getFieldById = (fieldId) => {
-    return allFields.find((f) => f.id === fieldId);
+    return allFields.find((f) => f.field_id === fieldId);
   };
 
   // Helper to get background color based on field type
@@ -52,7 +53,9 @@ const FieldMappingPreview = ({
 
   const grid = createGrid();
   const processedCells = new Set();
-
+  useEffect(()=> {
+    console.log("Grid dimensions or cells changed, updating preview:", { gridDimensions, cells, allFields });
+  }, [gridDimensions, cells, allFields])
   return (
     <Stack spacing={2}>
       <Box>
@@ -141,7 +144,8 @@ const FieldMappingPreview = ({
                     }
                   }
 
-                  const field = getFieldById(cell.fieldId);
+                  const field = getFieldById(String(cell.fieldId));
+                  console.log("Rednerinf field in cell:", { cell, field });
                   const bgColor = getFieldColor(field);
                   const textColor = getTextColor(bgColor);
 

@@ -1,11 +1,15 @@
-import { Box, Card, CardContent, Stack, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
+import { Box, Card, CardContent, Stack, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, Alert } from "@mui/material";
 import { Preview as PreviewIcon } from "@mui/icons-material";
 import { useState } from "react";
 import FormRenderer from "./FormRenderer";
+import { createFormSubmission, formatSubmissionData, getErrorMessage } from "../../services/formBuilderService";
+import Swal from "sweetalert2";
 
-export default function FormPreview({ fields, outputFields = [] }) {
+export default function FormPreview({ fields, outputFields = [], templateId = null }) {
     const [open, setOpen] = useState(false);
     const [formValues, setFormValues] = useState({});
+    const [submitting, setSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState(null);
 
     const handleChange = (fieldId, value) => {
         setFormValues((prev) => ({
@@ -14,9 +18,54 @@ export default function FormPreview({ fields, outputFields = [] }) {
         }));
     };
 
-    const handleSubmit = () => {
-        console.log("Form submitted with values:", formValues);
-        alert(JSON.stringify(formValues, null, 2));
+    const handleSubmit = async () => {
+        if (!templateId) {
+            Swal.fire("Error", "Template not found. Please save the template first.", "error");
+            return;
+        }
+
+        setSubmitting(true);
+        setSubmitError(null);
+
+        try {
+            const fieldValues = formatSubmissionData(formValues, fields);
+            const result = await createFormSubmission(templateId, fieldValues, false);
+            
+            Swal.fire("Success", "Form submitted successfully!", "success");
+            setFormValues({});
+            setOpen(false);
+        } catch (error) {
+            const errorMsg = getErrorMessage(error);
+            setSubmitError(errorMsg);
+            Swal.fire("Error", errorMsg, "error");
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const handleSaveDraft = async () => {
+        if (!templateId) {
+            Swal.fire("Error", "Template not found. Please save the template first.", "error");
+            return;
+        }
+
+        setSubmitting(true);
+        setSubmitError(null);
+
+        try {
+            const fieldValues = formatSubmissionData(formValues, fields);
+            await createFormSubmission(templateId, fieldValues, true);
+            
+            Swal.fire("Success", "Form saved as draft!", "info");
+            setFormValues({});
+            setOpen(false);
+        } catch (error) {
+            const errorMsg = getErrorMessage(error);
+            setSubmitError(errorMsg);
+            Swal.fire("Error", errorMsg, "error");
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     return (
@@ -41,12 +90,33 @@ export default function FormPreview({ fields, outputFields = [] }) {
                             values={formValues}
                             onChange={handleChange}
                         />
+                        {submitError && (
+                            <Alert severity="error" sx={{ mt: 2 }}>
+                                {submitError}
+                            </Alert>
+                        )}
                     </Box>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpen(false)}>Close</Button>
-                    <Button onClick={handleSubmit} variant="contained" color="primary">
-                        Submit
+                    <Button onClick={() => setOpen(false)} disabled={submitting}>
+                        Close
+                    </Button>
+                    {templateId && (
+                        <Button 
+                            onClick={handleSaveDraft} 
+                            variant="outlined"
+                            disabled={submitting}
+                        >
+                            {submitting ? "Saving..." : "Save Draft"}
+                        </Button>
+                    )}
+                    <Button 
+                        onClick={handleSubmit} 
+                        variant="contained" 
+                        color="primary"
+                        disabled={submitting || !templateId}
+                    >
+                        {submitting ? "Submitting..." : "Submit"}
                     </Button>
                 </DialogActions>
             </Dialog>
