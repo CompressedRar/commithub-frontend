@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { addSubTaskInIprc, getIPCR, removeSubTaskInIprc } from "../../services/pcrServices"
 import { getAssignedAccountTasks } from "../../services/userService"
 import { getDepartmentTasks, getGeneralDeptTasks } from "../../services/departmentService"
+import { UserTaskResponse } from "../FormTaskComponents"
 import Swal from "sweetalert2"
 import { socket } from "../api"
 
@@ -16,6 +17,9 @@ function ManageTask(props){
     const [allTasks, setAllTasks] = useState([]) //filtered na available task --main-task to
 
     const [tasksAndIfSubTaskExist, setTasksAndSubTaskExists] = useState({})
+    
+    // Form-based task response state
+    const [selectedFormTask, setSelectedFormTask] = useState(null)
 
     //need ko malaman kung alltasks ay meron nang subtasks
     //check si alltasks base sa dept id at batch id
@@ -305,6 +309,16 @@ function ManageTask(props){
                                                     {tasksAndIfSubTaskExist[task.id]?
                                                     <button className="btn btn-danger" onClick={()=>{removeIPCRTask(task.id)}}>Remove</button>:
                                                     <button className="btn btn-primary " onClick={()=> {addIPCRTask(task.id)}}>Add</button>}
+                                                    
+                                                    {task.form_template_id && (
+                                                        <button 
+                                                            className="btn btn-info btn-sm ms-2" 
+                                                            onClick={() => setSelectedFormTask(task.id)}
+                                                            title="Answer this form-based task"
+                                                        >
+                                                            📋 Answer Form
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </label>
                                         </div>
@@ -318,6 +332,20 @@ function ManageTask(props){
                     </div>
                 </div>
             </div>
+
+            {/* Form-Based Task Response Dialog */}
+            {selectedFormTask && (
+                <UserTaskResponse
+                    open={selectedFormTask !== null}
+                    onClose={() => setSelectedFormTask(null)}
+                    taskId={selectedFormTask}
+                    onResponseSubmitted={() => {
+                        Swal.fire("Success", "Response submitted successfully!", "success");
+                        loadDepartmentTasks(batchID);
+                        setSelectedFormTask(null);
+                    }}
+                />
+            )}
         </div>
     )
 }

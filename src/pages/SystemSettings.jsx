@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Box, Container, Typography, Tabs, Tab, Button, CircularProgress, Paper } from "@mui/material";
-import { Save, Grade, Calculate, People, Event, Settings } from "@mui/icons-material";
+import { Save, Grade, Calculate, People, Event, Settings, BuildCircleOutlined } from "@mui/icons-material";
 
 
 import Positions from "./Positions";
 import Periods from "../components/SystemSettings/Periods";
 import FormulasTab from "../components/SystemSettings/FormulasTab";
 import RatingThresholdsTab from "../components/SystemSettings/RatingThreshold";
+import FormBuilderTab from "../components/SystemSettings/FormBuilderTab";
 import { useSystemSettings } from "../hooks/useSystemSettings";
 
 const TABS = [
@@ -14,6 +15,7 @@ const TABS = [
   { label: "Formulas",           icon: <Calculate sx={{ fontSize: 17 }} /> },
   { label: "Positions",          icon: <People sx={{ fontSize: 17 }} /> },
   { label: "Periods & Officers", icon: <Event sx={{ fontSize: 17 }} /> },
+  { label: "Form Builder",       icon: <BuildCircleOutlined sx={{ fontSize: 17 }} /> },
 ];
 
 export default function SystemSettings() {
@@ -82,6 +84,7 @@ export default function SystemSettings() {
         {activeTab === 1 && <FormulasTab {...stateProps} />}
         {activeTab === 2 && <Positions />}
         {activeTab === 3 && <Periods {...stateProps} />}
+        {activeTab === 4 && <FormBuilderTab mainFormTemplateId={stateProps.mainFormTemplateId} setMainFormTemplateId={stateProps.setMainFormTemplateId} />}
       </Box>
 
       <Paper 

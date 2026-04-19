@@ -71,6 +71,8 @@ export default function useFieldMapper() {
 
     const cellKey = `${rowIndex}-${colIndex}`;
     const fieldId = field.id;
+
+    console.log("Adding field to cell with data:", { rowIndex, colIndex, field, rowSpan, colSpan, columnId });
     
     setFieldMapping((prev) => ({
       ...prev,

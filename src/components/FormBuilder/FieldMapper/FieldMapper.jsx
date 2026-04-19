@@ -58,10 +58,13 @@ export default function FieldMapper({ fields = [], outputFields = [],
   // Computed values
   const allFields = [...fields, ...outputFields];
   const usedFieldIds = new Set(
-    Object.values(fieldMapping).map((cellData) => String(cellData.field.id))
+    Object.values(fieldMapping).map((cellData) => cellData.field.id)
   );
-  const unusedFields = allFields.filter((field) => !usedFieldIds.has(field.field_id));
 
+  const unusedFields = allFields.filter((field) => !usedFieldIds.has(field.id));
+
+
+  
   // Header handlers
   const handleGridSettingsClick = () => {
     setRowsInput(gridConfig.rows);
@@ -180,8 +183,8 @@ export default function FieldMapper({ fields = [], outputFields = [],
   const previewCells = Object.entries(fieldMapping).map(([key, cellData]) => {
     const [rowIndex, colIndex] = key.split("-").map(Number);
     return {
-      id: cellData.id,
-      fieldId: cellData.field.id,
+      id: cellData.field.id,
+      fieldId: cellData.field.field_id,
       row: rowIndex,
       column: colIndex,
       rowSpan: cellData.span.rows,
@@ -190,7 +193,7 @@ export default function FieldMapper({ fields = [], outputFields = [],
   });
 
   useEffect(()=> {
-    console.log("Fields, outputFields, gridConfig, fieldMapping, or columnMapping changed:", { allFields,unusedFields, usedFieldIds });
+    console.log("Fields, outputFields, gridConfig, fieldMapping, or columnMapping changed:", { allFields,unusedFields, usedFieldIds, fieldMapping });
   }, [allFields, unusedFields, usedFieldIds]);
 
   return (

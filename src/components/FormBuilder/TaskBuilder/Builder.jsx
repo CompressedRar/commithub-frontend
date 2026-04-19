@@ -14,6 +14,7 @@ import useOutputFieldHandlers from "../../../hooks/useOutputFieldHandlers";
 import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
 import { useTemplateLoader } from "../../../hooks/useTemplateLoader";
 import { useLoadTemplates } from "../../../hooks/useLoadTemplates";
+import { useTemplateUpdate } from "../../../hooks/useTemplateUpdate";
 import { sampleTaskData } from "../sampleTaskData";
 import useFieldMapper from "../../../hooks/useFieldMapper";
 
@@ -56,19 +57,55 @@ export default function Builder({ onTemplateSaved = null }) {
 
     const { loading: loadingTemplate, loadTemplate } = useTemplateLoader();
     const { templates, loading: loadingTemplates, error: templatesError } = useLoadTemplates();
+    const { updatingTemplate, updateError, updateSuccess, saveTemplateUpdate } = useTemplateUpdate();
 
     const [clearConfirmOpen, setClearConfirmOpen] = useState(false);
     const [loaderDialogOpen, setLoaderDialogOpen] = useState(false);
+    const [currentTemplateId, setCurrentTemplateId] = useState(null);
+    
 
     const handleClearAll = () => {
         clearFields();
+        setCurrentTemplateId(null);
         setClearConfirmOpen(false);
     };
 
     const handleSaveTemplate = async () => {
 
         console.log("Saving template with data:", { fields, outputFields, gridConfig, fieldMapping, columnMapping });
-        await saveTemplate({ fields, outputFields, gridConfig, fieldMapping, columnMapping }, onTemplateSaved);
+        const handleSaveSuccess = (templateId) => {
+            setCurrentTemplateId(templateId);
+            if (onTemplateSaved) {
+                onTemplateSaved(templateId);
+            }
+        };
+        await saveTemplate({ fields, outputFields, gridConfig, fieldMapping, columnMapping }, handleSaveSuccess);
+    };
+
+    const handleSaveTemplateUpdate = async () => {
+        if (!currentTemplateId) {
+            import("sweetalert2").then(({ default: Swal }) => {
+                Swal.fire("Error", "No template loaded. Please load a template first.", "error");
+            });
+            return;
+        }
+        await saveTemplateUpdate(
+            currentTemplateId,
+            { fields, outputFields, gridConfig, fieldMapping, columnMapping }
+        );
+    };
+
+    const handleCreateForm = async () => {
+        if (!currentTemplateId) {
+            import("sweetalert2").then(({ default: Swal }) => {
+                Swal.fire("Error", "No template loaded. Please load a template first.", "error");
+            });
+            return;
+        }
+        // TODO: Navigate to form submission page or open form submission dialog
+        import("sweetalert2").then(({ default: Swal }) => {
+            Swal.fire("Info", "Create form functionality coming soon! Template ID: " + currentTemplateId, "info");
+        });
     };
 
     const handleLoadSampleData = () => {
@@ -77,31 +114,17 @@ export default function Builder({ onTemplateSaved = null }) {
         formBuilderHook.loadOutputFields(sampleTaskData.outputFields);
     };
 
-    const handleLoadTemplateFromDialog = async (template) => {
-        // Check if there are existing fields and ask for confirmation
-        if (fields.length > 0 || outputFields.length > 0) {
-            const result = await new Promise((resolve) => {
-                import("sweetalert2").then(({ default: Swal }) => {
-                    Swal.fire({
-                        title: "Load Template?",
-                        text: "This will replace your current fields. Continue?",
-                        icon: "warning",
-                        showCancelButton: true,
-                        confirmButtonText: "Load",
-                    }).then((result) => {
-                        resolve(result.isConfirmed);
-                    });
-                });
-            });
-
-            if (!result) return;
-        }
+    const handleLoadTemplateFromDialog = async () => {
+        
 
         // Load the template
-        const templateData = await loadTemplate(template.id);
-        console.log(templateData)
+        const templateData = await loadTemplate(8);
+        console.log("Loaded template data:", templateData);
         
         if (templateData) {
+            // Set the current template ID
+            setCurrentTemplateId(8);
+            
             // Clear current fields
             clearFields();
             
@@ -122,23 +145,15 @@ export default function Builder({ onTemplateSaved = null }) {
                 console.log("Loading field mapping:", templateData);
                 loadMappingFromTemplate(templateData);
             }
-
-
-            import("sweetalert2").then(({ default: Swal }) => {
-                Swal.fire(
-                    "Loaded",
-                    `Template "${templateData.templateName}" loaded successfully!`,
-                    "success"
-                );
-            });
+            
         }
     };
 
     const userInputFields = getUserInputFields();
 
     useEffect(() => {
-        console.log("Fields, outputFields, gridConfig, fieldMapping, or columnMapping changed:", { fields, outputFields, gridConfig, fieldMapping, columnMapping });
-    }, [gridConfig, fieldMapping, columnMapping, fields, outputFields]);
+        handleLoadTemplateFromDialog();
+    }, []);
 
     return (
         <Box padding={"2em"}>
@@ -146,58 +161,13 @@ export default function Builder({ onTemplateSaved = null }) {
                 {/* Header */}
                 <Box display={"flex"} gap={2} justifyContent={"space-between"} alignItems={"center"}>
                     <Typography variant="h4">Form Template Builder</Typography>
-                    <Box display={"flex"} gap={1}>
-                        <Button 
-                            variant="outlined" 
-                            color="success" 
-                            onClick={() => setLoaderDialogOpen(true)}
-                            sx={{ textTransform: 'none' }}
-                            disabled={loadingTemplate}
-                        >
-                            📂 Load Template
-                        </Button>
-                        <Button 
-                            variant="outlined" 
-                            color="info" 
-                            onClick={handleLoadSampleData}
-                            sx={{ textTransform: 'none' }}
-                        >
-                            📋 Load Sample Task
-                        </Button>
-                        <FormPreview fields={fields} outputFields={outputFields} templateId={null} />
-                        <Button 
-                            variant="contained" 
-                            onClick={openSaveDialog}
-                            disabled={fields.length === 0}
-                        >
-                            Save Task Template
-                        </Button>
-                        <Button 
-                            variant="outlined" 
-                            color="error" 
-                            onClick={() => setClearConfirmOpen(true)} 
-                            disabled={fields.length === 0 && outputFields.length === 0}
-                        >
-                            Clear All
-                        </Button>
-                    </Box>
+                    <FormPreview fields={fields} outputFields={outputFields} templateId={currentTemplateId} />
+                    
                 </Box>
 
-                {saveSuccess && (
-                    <Alert severity="success">Template saved successfully!</Alert>
-                )}
+                
 
-                {templatesError && (
-                    <Alert severity="warning">{templatesError}</Alert>
-                )}
-
-                {templates.length > 0 && !loadingTemplates && (
-                    <Alert severity="info">
-                        {templates.length} template{templates.length !== 1 ? "s" : ""} available. Click "Load Template" to use one.
-                    </Alert>
-                )}
-
-                {/* Input Fields Section */}
+                
                 <InputFieldsPanel
                     fields={fields}
                     onAddAdminField={inputFieldHandlers.handleAddAdminField}
@@ -218,7 +188,7 @@ export default function Builder({ onTemplateSaved = null }) {
 
                 {/* Field Mapper Section */}
                 {fields.length > 0 && (gridConfig != {} && fieldMapping != {} && columnMapping != {}) && (
-                    <FieldMapperPanel key={templateName} fields={fields} outputFields={outputFields}  gridConfig={gridConfig} fieldMapping={fieldMapping} columnMapping={columnMapping} updateGridDimensions={updateGridDimensions} addFieldToCell={addFieldToCell} updateFieldSpan={updateFieldSpan} removeFieldFromCell={removeFieldFromCell} assignFieldToColumn={assignFieldToColumn} getFieldAtCell={getFieldAtCell} clearMapping={clearMapping} exportMapping={exportMapping}  />
+                    <FieldMapperPanel key={templateName} fields={fields} outputFields={outputFields}  gridConfig={gridConfig} fieldMapping={fieldMapping} columnMapping={columnMapping} updateGridDimensions={updateGridDimensions} addFieldToCell={addFieldToCell} updateFieldSpan={updateFieldSpan} removeFieldFromCell={removeFieldFromCell} assignFieldToColumn={assignFieldToColumn} getFieldAtCell={getFieldAtCell} clearMapping={clearMapping} exportMapping={exportMapping} templateId={currentTemplateId} onSaveTemplate={handleSaveTemplateUpdate} onCreateForm={handleCreateForm} />
                 )}
             </Stack>
 

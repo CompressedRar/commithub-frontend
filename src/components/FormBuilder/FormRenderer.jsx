@@ -1,12 +1,32 @@
 import { Box, TextField, Stack, Typography } from "@mui/material";
 
-export default function FormRenderer({ fields, outputFields = [], values = {}, onChange = () => {}, readOnly = false }) {
+export default function FormRenderer({
+    fields = [],
+    outputFields = [],
+    values = {},
+    onChange = () => {},
+    readOnly = false,
+    mode = "admin", // "admin" | "user"
+}) {
+
+    // 🔥 Normalize field id (CRITICAL FIX)
+    const getFieldKey = (field) => field.id;
+
     const handleChange = (fieldId, value) => {
-        onChange(fieldId, value);
+        onChange(fieldId, {"value": value, "title": fields.find(f => f.id === fieldId)?.title || "Unnamed Field"});
     };
 
+    // 🔥 Filter fields based on mode
+    const filteredFields = fields.filter((field) => {
+        if (mode === "admin") return field.user === "Admin";
+        if (mode === "user") return field.user === "User";
+        return false;
+    });
+
     const renderField = (field) => {
-        const value = values[field.id] || "";
+        const fieldKey = getFieldKey(field);
+        const value = values[fieldKey] ?? "";
+
         const commonProps = {
             fullWidth: true,
             placeholder: field.placeholder,
@@ -22,9 +42,11 @@ export default function FormRenderer({ fields, outputFields = [], values = {}, o
                     return (
                         <TextField
                             {...commonProps}
-                            value={value}
-                            onChange={(e) => handleChange(field.id, e.target.value)}
-                            multiline={false}
+                            value={value.value}
+                            onChange={(e) => {
+                                console.log("Integer field change:",fieldKey, e.target.value);
+                                handleChange(fieldKey, e.target.value)
+                            }}
                         />
                     );
 
@@ -33,9 +55,30 @@ export default function FormRenderer({ fields, outputFields = [], values = {}, o
                         <TextField
                             {...commonProps}
                             type="number"
-                            value={value}
-                            onChange={(e) => handleChange(field.id, e.target.value)}
+                            value={value.value}
+                            onChange={(e) => {
+                                console.log("Integer field change:",fieldKey, e.target.value);
+                                handleChange(fieldKey, e.target.value)
+                            }}
                             inputProps={{ step: "1" }}
+                            helperText={
+                                mode === "admin"
+                                    ? "Define the expected integer value."
+                                    : "Enter a numeric value."
+                            }
+                        />
+                    );
+
+                case "Number":
+                    return (
+                        <TextField
+                            {...commonProps}
+                            type="number"
+                            value={value.value}
+                            onChange={(e) => {
+                                console.log("Integer field change:",fieldKey, e.target.value);
+                                handleChange(fieldKey, e.target.value)
+                            }}
                         />
                     );
 
@@ -43,8 +86,11 @@ export default function FormRenderer({ fields, outputFields = [], values = {}, o
                     return (
                         <TextField
                             {...commonProps}
-                            value={value}
-                            onChange={(e) => handleChange(field.id, e.target.value)}
+                            value={value.value}
+                            onChange={(e) => {
+                                console.log("Integer field change:",fieldKey, e.target.value);
+                                handleChange(fieldKey, e.target.value)
+                            }}
                         />
                     );
             }
@@ -56,35 +102,36 @@ export default function FormRenderer({ fields, outputFields = [], values = {}, o
                     {field.title}
                     {field.required && <span style={{ color: "red" }}> *</span>}
                 </Typography>
-                {field.description && field.user === "User" && (
+
+                {/* 🔥 Only show description to USER mode */}
+                {field.description && mode === "user" && (
                     <Typography variant="caption" sx={{ color: "#666", mb: 1 }}>
                         {field.description}
                     </Typography>
                 )}
+
                 {inputComponent}
             </Stack>
         );
     };
 
-    if (!fields || fields.length === 0) {
-        return (
-            <Box p={2}>
-                <Typography color="textSecondary">No fields to display</Typography>
-            </Box>
-        );
-    }
-
     const renderOutputField = (outputField) => {
-        // In a real implementation, calculate the output based on formula/cases
-        // For now, just show a preview
         return (
-            <Stack spacing={0.5} key={outputField.id}>
-                <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "#2196F3" }}>
-                    {outputField.title} (Output Field)
+            <Stack spacing={0.5} key={outputField.field_id}>
+                <Typography
+                    variant="subtitle2"
+                    sx={{ fontWeight: "bold", color: "#2196F3" }}
+                >
+                    {outputField.title} (Output)
                 </Typography>
+
                 <TextField
                     fullWidth
-                    value={outputField.type === "IntegerModifier" ? "[Calculated Value]" : "[Case Output]"}
+                    value={
+                        outputField.type === "IntegerModifier"
+                            ? "[Calculated Value]"
+                            : "[Case Output]"
+                    }
                     disabled
                     variant="outlined"
                     helperText={`Bound to: ${
@@ -97,23 +144,35 @@ export default function FormRenderer({ fields, outputFields = [], values = {}, o
         );
     };
 
+    if (!filteredFields || filteredFields.length === 0) {
+        return (
+            <Box p={2}>
+                <Typography color="textSecondary">
+                    No fields available for this mode
+                </Typography>
+            </Box>
+        );
+    }
+
     return (
         <Stack spacing={2}>
             {/* Input Fields */}
-            {fields.map((field) => (
-                <Box key={field.id}>{renderField(field)}</Box>
+            {filteredFields.map((field) => (
+                <Box key={field.field_id}>{renderField(field)}</Box>
             ))}
 
-            {/* Output Fields */}
-            {outputFields && outputFields.length > 0 && (
-                <>
-                    <Box sx={{ borderTop: "2px solid #2196F3", pt: 2, mt: 2 }}>
-                        <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#2196F3" }}>
-                            Output Fields
-                        </Typography>
-                        {outputFields.map((field) => renderOutputField(field))}
-                    </Box>
-                </>
+            {/* 🔥 Output fields should only appear in USER mode */}
+            {mode === "user" && outputFields && outputFields.length > 0 && (
+                <Box sx={{ borderTop: "2px solid #2196F3", pt: 2, mt: 2 }}>
+                    <Typography
+                        variant="h6"
+                        sx={{ fontWeight: "bold", mb: 2, color: "#2196F3" }}
+                    >
+                        Output Fields
+                    </Typography>
+
+                    {outputFields.map((field) => renderOutputField(field))}
+                </Box>
             )}
         </Stack>
     );

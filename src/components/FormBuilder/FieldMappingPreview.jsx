@@ -14,7 +14,7 @@ const FieldMappingPreview = ({
 }) => {
   // Helper to get field by ID
   const getFieldById = (fieldId) => {
-    return allFields.find((f) => f.field_id === fieldId);
+    return allFields.find((f) => f.id === fieldId);
   };
 
   // Helper to get background color based on field type
@@ -144,7 +144,7 @@ const FieldMappingPreview = ({
                     }
                   }
 
-                  const field = getFieldById(String(cell.fieldId));
+                  const field = getFieldById(cell.id);
                   console.log("Rednerinf field in cell:", { cell, field });
                   const bgColor = getFieldColor(field);
                   const textColor = getTextColor(bgColor);

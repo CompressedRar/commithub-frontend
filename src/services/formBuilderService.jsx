@@ -65,7 +65,7 @@ export async function listFormTemplates(skip = 0, limit = 20, active = true) {
  */
 export async function updateFormTemplate(templateId, updateData) {
     try {
-        const response = await api.put(`/api/v1/form-templates/${templateId}`, updateData);
+        const response = await api.patch(`/api/v1/form-templates/${templateId}`, updateData);
         return response.data;
     } catch (error) {
         console.error("Error updating template:", error.response?.data || error.message);
@@ -192,7 +192,7 @@ export async function getUserSubmissions(userId, templateId = null, skip = 0, li
     try {
         const params = { skip, limit };
         if (templateId) params.templateId = templateId;
-        
+
         const response = await api.get(`/api/v1/form-submissions/user/${userId}`, { params });
         return response.data;
     } catch (error) {
@@ -212,7 +212,7 @@ export async function updateFormSubmission(submissionId, fieldValues, isDraft = 
     try {
         const data = { fieldValues: fieldValues };
         if (isDraft !== null) data.isDraft = isDraft;
-        
+
         const response = await api.put(`/api/v1/form-submissions/${submissionId}`, data);
         return response.data;
     } catch (error) {
@@ -259,9 +259,9 @@ export async function getSubmissionStats(templateId) {
  * @param {string} templateName - Name for the template
  * @returns {Object} - Formatted template data
  */
-export function formatTemplateData(formState, templateName, ) {
+export function formatTemplateData(formState, templateName,) {
     const { fields, outputFields, gridConfig, fieldMapping, columnMapping } = formState;
-    
+
     return {
         name: templateName,
         title: templateName,
@@ -274,6 +274,7 @@ export function formatTemplateData(formState, templateName, ) {
         inputFields: fields.map((field) => ({
             id: field.id,
             title: field.title,
+            field_id: field.field_id,
             placeholder: field.placeholder || "",
             description: field.description || "",
             name: field.name || "",
@@ -284,6 +285,7 @@ export function formatTemplateData(formState, templateName, ) {
         })),
         outputFields: outputFields.map((field) => ({
             id: field.id,
+            field_id: field.field_id,
             title: field.title,
             type: field.type,
             inputFieldName: field.inputFieldName,
@@ -301,13 +303,14 @@ export function formatTemplateData(formState, templateName, ) {
  */
 export function formatSubmissionData(formValues, inputFields) {
     const fieldValues = {};
-    
+
     inputFields.forEach((field) => {
         if (formValues[field.id] !== undefined) {
-            fieldValues[field.id] = formValues[field.id];
+            fieldValues[field.id] = inputFields.find(f => f.id === field.id);
+            fieldValues[field.id]["value"] = formValues[field.id]; // Map to field_id if available
         }
     });
-    
+
     return fieldValues;
 }
 
@@ -327,4 +330,18 @@ export function getErrorMessage(error) {
         return error.message;
     }
     return "An unexpected error occurred";
+}
+
+export const createTask = async (payload) => {
+
+    console.log("Creating task with payload:", payload);
+    return api.post("/api/v1/btasks", payload);
+};
+
+export const submitTask = async (taskId, values) => {
+    return api.post(`/api/v1/btasks/${taskId}/submit`, { values });
+};
+
+export const getCreatedTasks = async () => {
+    return api.get(`/api/v1/btasks/template/8`);
 }

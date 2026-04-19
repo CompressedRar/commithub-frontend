@@ -14,7 +14,10 @@ export default function FieldMapperPanel({ fields = [], outputFields = [],
     assignFieldToColumn,
     getFieldAtCell,
     clearMapping,
-    exportMapping
+    exportMapping,
+    templateId = null,
+    onSaveTemplate = null,
+    onCreateForm = null
  }) {
     const [expanded, setExpanded] = useState(false);
 
@@ -27,12 +30,24 @@ export default function FieldMapperPanel({ fields = [], outputFields = [],
                             <GridViewIcon />
                             <Typography variant="h6">Field Mapper</Typography>
                         </Box>
-                        <Button
-                            variant={expanded ? "contained" : "outlined"}
-                            onClick={() => setExpanded(!expanded)}
-                        >
-                            {expanded ? "Hide Mapper" : "Open Mapper"}
-                        </Button>
+                        <Box display="flex" gap={1}>
+                            {templateId && onSaveTemplate && (
+                                <Button
+                                    variant="contained"
+                                    color="success"
+                                    size="small"
+                                    onClick={onSaveTemplate}
+                                >
+                                    Update Template
+                                </Button>
+                            )}
+                            <Button
+                                variant={expanded ? "contained" : "outlined"}
+                                onClick={() => setExpanded(!expanded)}
+                            >
+                                {expanded ? "Hide Mapper" : "Open Mapper"}
+                            </Button>
+                        </Box>
                     </Box>
                     {!expanded && (
                         <Typography variant="caption" color="textSecondary" display="block" sx={{ mt: 1 }}>
