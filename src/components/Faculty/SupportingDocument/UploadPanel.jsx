@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback, memo } from "react";
+import { useRef, useState, useCallback, memo, useEffect } from "react";
 import {
   Alert,
   Box,
@@ -22,6 +22,32 @@ import { generatePreSignedURL, recordFileUploadInfo } from "../../../services/pc
 import { socket } from "../../api";
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024;
+
+const formatRules = {
+  pdf: [".pdf"],
+  image: [".jpg", ".jpeg", ".png", ".webp"],
+  excel: [".xls", ".xlsx", ".csv"],
+  doc: [".doc", ".docx"],
+  any: null,
+  none: null,
+};
+
+const isFileAllowed = (file, format) => {
+  if (!format || format === "none" || format === "any") return true;
+
+  const allowed = formatRules[format];
+  if (!allowed) return true;
+
+  const ext = "." + file.name.split(".").pop().toLowerCase();
+  return allowed.includes(ext);
+};
+
+const getAcceptString = (format) => {
+  if (!format || format === "none" || format === "any") return undefined;
+  
+  const allowed = formatRules[format];
+  return allowed ? allowed.join(",") : undefined;
+};
 
 // ── Isolated row — memo prevents sibling re-renders on every keystroke ────────
 const PendingFileRow = memo(function PendingFileRow({ item, index, onUpdate, onRemove }) {
@@ -79,15 +105,33 @@ function UploadPanel({ subTasks, ipcr_id, batch_id, onUploaded }) {
   const [uploading,       setUploading]       = useState(false);
   const [uploadProgress,  setUploadProgress]  = useState(0);
 
+    const selectedTaskObj = Object.values(subTasks || {})
+    .flat()
+    .find((t) => String(t.id) === selectedTask);
+
+    console.log("Selected Task Object:", selectedTaskObj);
   // ── File staging ─────────────────────────────────────────────────────────
   const handleAddFiles = useCallback((e) => {
+    const format = selectedTaskObj?.document_format;
+
     const valid = Array.from(e.target.files).filter((f) => {
       if (f.size > MAX_FILE_SIZE) {
         Swal.fire("File too large", `${f.name} exceeds 50 MB.`, "warning");
         return false;
       }
+
+      if (!isFileAllowed(f, format)) {
+        Swal.fire(
+          "Invalid format",
+          `${f.name} is not allowed.\nRequired: ${format}`,
+          "error"
+        );
+        return false;
+      }
+
       return true;
     });
+
     setPendingFiles((prev) => [
       ...prev,
       ...valid.map((f) => ({
@@ -97,8 +141,9 @@ function UploadPanel({ subTasks, ipcr_id, batch_id, onUploaded }) {
         eventDate: new Date().toISOString().split("T")[0],
       })),
     ]);
+
     e.target.value = null;
-  }, []);
+  }, [selectedTaskObj]);
 
   const handleUpdate = useCallback((index, field, value) => {
     setPendingFiles((prev) => {
@@ -152,6 +197,10 @@ function UploadPanel({ subTasks, ipcr_id, batch_id, onUploaded }) {
       setUploading(false);
     }
   }, [selectedTask, pendingFiles, ipcr_id, batch_id, onUploaded]);
+
+  useEffect(()=> {
+    console.log(subTasks)
+  }, [subTasks])
 
   return (
     <Paper variant="outlined" sx={{ borderRadius: 2, mb: 3, overflow: "hidden" }}>
@@ -212,13 +261,32 @@ function UploadPanel({ subTasks, ipcr_id, batch_id, onUploaded }) {
             <Typography variant="caption" fontWeight={600} color="text.secondary" display="block" mb={0.5}>
               Add Files
             </Typography>
-            <input ref={fileInputRef} type="file" multiple hidden onChange={handleAddFiles} />
+            
+            <input 
+              ref={fileInputRef} 
+              type="file" 
+              multiple 
+              hidden 
+              /* THIS is where the magic happens */
+              accept={getAcceptString(selectedTaskObj?.document_format)} 
+              onChange={handleAddFiles} 
+            />
+            
             <Button
               variant="outlined" startIcon={<AttachFileIcon />} size="small" sx={{ height: 40 }}
-              onClick={() => fileInputRef.current?.click()} disabled={uploading}
+              onClick={() => {
+                // Prevent opening the file picker if no task is selected
+                if (!selectedTask) {
+                  Swal.fire("Select Task", "Please select a task first so we know what file types to allow.", "info");
+                  return;
+                }
+                fileInputRef.current?.click();
+              }} 
+              disabled={uploading}
             >
               Browse…
             </Button>
+            
             <Typography variant="caption" color="text.secondary" display="block" mt={0.5}>
               Max 50 MB per file
             </Typography>

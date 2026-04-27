@@ -21,6 +21,7 @@ export function TaskSection({
             </tr>            
             
             {tasks.map((task) => (
+                
                 <TaskRow
                     key={task.id}
                     task={task}

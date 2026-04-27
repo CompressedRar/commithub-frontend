@@ -32,6 +32,10 @@ import Analytics from './pages/Analytics'
 import ChangeForgotPassword from './pages/ChangeForgotPassword'
 import DepartmentPage from './pages/DepartmentPage'
 import OtherEditOPCR from './components/DepartmentComponents/OPCR/OtherEditOPCR'
+import Builder from './components/FormBuilder/TaskBuilder/Builder'
+import { FieldMapper, FormBuilderPage } from './components/FormBuilder'
+import FormTaskManagementPage from './components/FormTaskComponents/ExampleIntegration'
+import TaskLists from './components/FormBuilder/TaskCollections/TaskLists'
 
 
 function App() {
@@ -46,6 +50,10 @@ function App() {
           <Route path='/register' element = {<Register></Register>}></Route>
           <Route path='/create' element = {<Register ></Register>}></Route>
           <Route path='/logout' element = {<Logout></Logout>}></Route>
+          <Route path='/builder' element = {<FormBuilderPage></FormBuilderPage>}></Route>
+          <Route path='/mapper' element = {<FieldMapper></FieldMapper>}></Route>
+          <Route path='/sample' element={<FormTaskManagementPage></FormTaskManagementPage>}></Route>
+          <Route path="/btasks" element={<TaskLists></TaskLists>}></Route>
         </Route>
 
         <Route element = {<AdminLayout></AdminLayout>}>

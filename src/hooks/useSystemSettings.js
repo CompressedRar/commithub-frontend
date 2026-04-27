@@ -35,6 +35,9 @@ export function useSystemSettings() {
   // Officers
   const [officers, setOfficers] = useState({ president: "", mayor: "" });
 
+  // Form Builder
+  const [mainFormTemplateId, setMainFormTemplateId] = useState(null);
+
   useEffect(() => {
     loadSettings();
   }, []);
@@ -81,6 +84,9 @@ export function useSystemSettings() {
         ratingEnd: toInputDate(data.rating_end_date),
         currentPhase: null
       });
+
+      // Form Builder
+      setMainFormTemplateId(data.main_form_template_id || null);
     } catch (error) {
       console.error(error);
       Swal.fire("Error", "Failed to load system settings", "error");
@@ -141,7 +147,8 @@ export function useSystemSettings() {
       rating_start_date: fmt(periodState.ratingStart),
       rating_end_date: fmt(periodState.ratingEnd),
       auto_period_id: !!periodState.autoPeriodId,
-      enable_formula: enableFormulas
+      enable_formula: enableFormulas,
+      main_form_template_id: mainFormTemplateId || null
     };
 
     const { value: adminPassword } = await Swal.fire({
@@ -208,6 +215,7 @@ export function useSystemSettings() {
     enableFormulas, setEnableFormulas,
     periodState, setPeriodState,
     officers, setOfficers,
+    mainFormTemplateId, setMainFormTemplateId,
     handleSave, handleResetPeriod
   };
 }

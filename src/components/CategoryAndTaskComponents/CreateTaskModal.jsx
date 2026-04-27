@@ -31,11 +31,16 @@ function CreateTaskModal({
   resetForm,
   onSuccess,
 }) {
-  const [requireDocument, setRequireDocument] = useState(false);
+  const [requireDocument, setRequireDocument] = useState(true);
+  const [documentFormat, setDocumentFormat] = useState("none");
 
   const closeModal = () => {
     const modal = Modal.getInstance(document.getElementById(modalId));
     modal?.hide();
+  };
+
+  const handleFormatChange = (e) => {
+    setDocumentFormat(e.target.value);
   };
 
   const handleClose = () => {
@@ -47,6 +52,7 @@ function CreateTaskModal({
   const { submitting, handleSubmit } = useCreateTask({
     taskForm,
     requireDocument,
+    documentFormat,
     onSuccess: () => { onSuccess?.(); },
     onClose: handleClose,
   });
@@ -167,7 +173,7 @@ function CreateTaskModal({
               </div>
 
               {/* Require Document */}
-              <div className="mb-3">
+              <div className="mb-3 d-none">
                 <label className="form-label fw-semibold">Require Supporting Document</label>
                 <div className="form-check form-switch">
                   <input
@@ -183,13 +189,35 @@ function CreateTaskModal({
                   </label>
                 </div>
               </div>
+              {/* Supporting Document Format */}
+              <div className="mb-3">
+                <InputLabel>Supporting Document Format</InputLabel>
+
+                <TextField
+                  select
+                  fullWidth
+                  name="document_format"
+                  value={documentFormat}
+                  onChange={handleFormatChange}
+                  SelectProps={{
+                    native: true,
+                  }}
+                >
+                  <option value="none">None</option>
+                  <option value="any">Any format</option>
+                  <option value="pdf">PDF</option>
+                  <option value="image">Image (JPG/PNG)</option>
+                  <option value="excel">Excel</option>
+                  <option value="doc">Word Document</option>
+                </TextField>
+              </div>
 
             </form>
           </div>
 
           {/* Footer */}
           <div className="modal-footer d-flex justify-content-between">
-            <Button variant="outlined" color="secondary" onClick={handleClose}>
+            <Button variant="outlined" onClick={handleClose}>
               Close
             </Button>
             <Button

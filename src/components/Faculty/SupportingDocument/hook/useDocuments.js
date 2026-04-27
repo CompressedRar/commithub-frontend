@@ -3,6 +3,7 @@ import {
   archiveDocument,
   getDeptSupportingDocuments,
   getSupportingDocuments,
+  approveDocument, rejectDocument
 } from "../../../../services/pcrServices";
 import Swal from "sweetalert2";
 import { socket } from "../../../api";
@@ -18,6 +19,7 @@ export function useDocuments({ mode, ipcr_id, dept_id }) {
   const [search,     setSearch]     = useState("");
   const [filterType, setFilterType] = useState("all");
   const [filterTask, setFilterTask] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all");
 
   // ── Load ────────────────────────────────────────────────────────────────────
   const loadDocuments = useCallback(async () => {
@@ -38,8 +40,9 @@ export function useDocuments({ mode, ipcr_id, dept_id }) {
   useEffect(() => {
     loadDocuments();
     socket.on("document", loadDocuments);
-    return () => socket.off("document", loadDocuments);
-  }, [loadDocuments]);
+    socket.on(`document-${ipcr_id}`, loadDocuments);
+
+  }, []);
 
   // ── Remove ──────────────────────────────────────────────────────────────────
   const removeDocument = useCallback((document_id) => {
@@ -63,9 +66,69 @@ export function useDocuments({ mode, ipcr_id, dept_id }) {
     });
   }, [loadDocuments]);
 
+  const handleApproveDocument = useCallback((document_id) => {
+    Swal.fire({
+      title: "Approve Document",
+      text: "Are you sure you want to approve this document?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Approve",
+      confirmButtonColor: "#28a745",
+    }).then(async (result) => {
+      if (!result.isConfirmed) return;
+      try {
+        const res = await approveDocument(document_id);
+        Swal.fire("Approved", "Document approved successfully.", "success");
+        loadDocuments();
+        socket.emit(`document-${ipcr_id}`);
+      } catch (err) {
+        console.error(err);
+        Swal.fire("Error", "Failed to approve.", "error");
+      }
+    });
+  }, [loadDocuments]);
+
+
+  const handleRejectDocument = useCallback((document_id) => {
+    Swal.fire({
+      title: "Reject Document",
+      text: "Are you sure you want to reject this document?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Reject",
+      confirmButtonColor: "#dc3545",
+    }).then(async (result) => {
+      if (!result.isConfirmed) return;
+      try {
+        const res = await rejectDocument(document_id);
+        Swal.fire("Rejected", res.data.message, "success");
+        loadDocuments();
+        socket.emit(`document-${ipcr_id}`);
+      } catch (err) {
+        Swal.fire("Error", "Failed to reject.", "error");
+      }
+    });
+  }, [loadDocuments]);
+
+
   // ── Derived ─────────────────────────────────────────────────────────────────
   const activeDocuments = useMemo(
     () => documents.filter((d) => d.status === 1),
+    [documents]
+  );
+
+  const validDocuments = useMemo(
+    () => documents.filter((d) => d.status === 1 && d.isApproved === "approved"),
+    [documents]
+  );
+
+  const pendingDocuments = useMemo(
+    () => documents.filter((d) => d.status === 1 && d.isApproved === "pending"),
+    [documents]
+  );
+
+  const rejectedDocuments = useMemo(
+    () => documents.filter((d) => d.status === 1 && d.isApproved === "rejected"),
     [documents]
   );
 
@@ -91,9 +154,10 @@ export function useDocuments({ mode, ipcr_id, dept_id }) {
         doc.desc?.toLowerCase().includes(q);
       const matchType = filterType === "all" || doc.file_type === filterType;
       const matchTask = filterTask === "all" || doc.task_name === filterTask;
-      return matchSearch && matchType && matchTask;
+      const matchStatus = filterStatus === "all" || doc.isApproved === filterStatus;
+      return matchSearch && matchType && matchTask && matchStatus;
     });
-  }, [activeDocuments, search, filterType, filterTask]);
+  }, [activeDocuments, search, filterType, filterTask, filterStatus]);
 
   const groupedDocuments = useMemo(() => {
     const g = {};
@@ -108,7 +172,7 @@ export function useDocuments({ mode, ipcr_id, dept_id }) {
   }, [filteredDocuments]);
 
   return {
-    activeDocuments,
+    activeDocuments, validDocuments, pendingDocuments, rejectedDocuments,
     filteredDocuments,
     groupedDocuments,
     loading,
@@ -117,7 +181,10 @@ export function useDocuments({ mode, ipcr_id, dept_id }) {
     search,     setSearch,
     filterType, setFilterType,
     filterTask, setFilterTask,
+    filterStatus, setFilterStatus,
     fileTypes,
     taskNames,
+    handleApproveDocument,
+    handleRejectDocument
   };
 }

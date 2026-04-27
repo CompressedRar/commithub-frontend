@@ -265,3 +265,12 @@ export async function uploadIPCRExcel(file) {
         }
     })
 }
+
+
+export async function approveDocument(document_id) {
+    return api.patch(`/api/v1/pcr/supporting_docu/approve/${document_id}`)
+}
+
+export async function rejectDocument(document_id) {
+    return api.patch(`/api/v1/pcr/supporting_docu/reject/${document_id}`)
+}

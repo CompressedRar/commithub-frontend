@@ -10,6 +10,8 @@ function PCR({ deptid, dept_mode }) {
         allIPCR, 
         allOPCR, 
         consolidating, 
+        filteredID,
+        ipcrCount,
         handleConsolidate 
     } = usePerformanceData(deptid);
     
@@ -20,10 +22,10 @@ function PCR({ deptid, dept_mode }) {
             {/* OPCR SECTION */}
             
             <SectionHeader 
-                title="Office Performance Review and Commitment Form" 
+                title="Office Performance Commitment and Review Form" 
                 onAction={handleConsolidate}
                 actionLoading={consolidating}
-                showAction={false} // Keeping d-none logic from original: change to true if needed
+                showAction={ipcrCount == filteredID.length} // Keeping d-none logic from original: change to true if needed
             />
             
             <div className="all-ipcr-container d-flex flex-column gap-2 mb-4">
@@ -36,13 +38,13 @@ function PCR({ deptid, dept_mode }) {
                         dept_mode={dept_mode} 
                     />
                 ))}
-                {allOPCR?.length === 0 && <EmptyState message="No OPCRs Found" />}
+                {(allOPCR == null || allOPCR.length === 0)  && <EmptyState message="Consolidate IPCRs to create OPCR" />}
             </div>
 
             <hr />
 
             {/* IPCR SECTION */}
-            <h3>Individual Performance Review and Commitment Forms</h3>
+            <SectionHeader title="Individual Performance Commitment and Review" showAction={false} />
             <div className="all-ipcr-container d-flex flex-column gap-2">
                 {allIPCR?.map(ipcr => (
                     <DeptIPCR 
@@ -52,7 +54,7 @@ function PCR({ deptid, dept_mode }) {
                         dept_mode={dept_mode} 
                     />
                 ))}
-                {allIPCR?.length === 0 && <EmptyState message="No IPCR Found" />}
+                {(allIPCR == null || allIPCR.length === 0) && <EmptyState message="No IPCR Found" />}
             </div>
         </div>
     );

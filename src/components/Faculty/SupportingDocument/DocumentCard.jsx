@@ -6,6 +6,8 @@ import {
   Tooltip,
   Typography,
   Stack,
+  Divider,
+  Button,
 } from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -15,6 +17,10 @@ import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
 import EventOutlinedIcon from "@mui/icons-material/EventOutlined";
 import NotesIcon from "@mui/icons-material/Notes";
+import PendingIcon from '@mui/icons-material/Pending';
+import DocumentStatus from "./DocumentStatus";
+import CheckIcon from '@mui/icons-material/Check';
+import ClearIcon from '@mui/icons-material/Clear';
 
 const IMAGE_TYPES = new Set(["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"]);
 const PDF_TYPE = "application/pdf";
@@ -45,22 +51,22 @@ function getTypeLabel(fileType) {
   return map[fileType] || fileType || "File";
 }
 
-function DocumentCard({ doc, deptMode, onRemove }) {
+function DocumentCard({ doc, deptMode, onRemove, onApprove, onReject }) {
   const handleDownload = () => window.open(doc.download_url, "_blank", "noopener,noreferrer");
 
   const eventDate = doc.event_date
     ? new Date(doc.event_date).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      })
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    })
     : doc.created_at
-    ? new Date(doc.created_at).toLocaleDateString("en-US", {
+      ? new Date(doc.created_at).toLocaleDateString("en-US", {
         year: "numeric",
         month: "short",
         day: "numeric",
       })
-    : null;
+      : null;
 
   return (
     <Paper
@@ -80,6 +86,10 @@ function DocumentCard({ doc, deptMode, onRemove }) {
       }}
     >
       {/* File type icon */}
+      <DocumentStatus status={doc.isApproved}></DocumentStatus>
+
+      <Divider orientation="vertical" flexItem sx={{ borderColor: "primary.100" }} />
+
       <Box
         sx={{
           width: 42,
@@ -156,23 +166,72 @@ function DocumentCard({ doc, deptMode, onRemove }) {
             </Stack>
           )}
         </Stack>
+
+        <Stack direction={"column"} spacing={1} alignItems={"start"} mt={1}>
+          {doc.relevance_score != null && (
+            <Chip
+              label={`Relevance: ${Math.round(doc.relevance_score )}%`}
+              size="small"
+              variant="outlined"
+              sx={{ fontSize: "0.68rem", height: 20 }}
+            />
+          )}
+          {
+            doc.relevance_justification && (
+              <Typography variant="caption" color="text.secondary" mt={0.5} sx={{
+                maxWidth: "auto",
+                overflow: "hidden",
+                textWrap:"wrap",
+              }}>
+                {doc.relevance_justification}
+              </Typography>
+            )
+          }
+        </Stack>
       </Box>
 
       {/* Actions */}
-      <Stack direction="row" spacing={0.5} flexShrink={0} alignItems="center">
-        <Tooltip title="Download">
-          <IconButton size="small" onClick={handleDownload} color="primary">
-            <DownloadIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-        {!deptMode && (
-          <Tooltip title="Remove">
-            <IconButton size="small" onClick={() => onRemove(doc.id)} color="error">
-              <DeleteOutlineIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        )}
-      </Stack>
+      {
+        doc.isApproved != "rejected" && (
+          <Stack direction="row" spacing={0.5} flexShrink={0} alignItems="center">
+            <Tooltip title="Download">
+              <IconButton size="small" onClick={handleDownload} color="primary">
+                <DownloadIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+            {!deptMode && (
+              <Tooltip title="Remove">
+                <IconButton size="small" onClick={() => onRemove(doc.id)} color="error">
+                  <DeleteOutlineIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
+          </Stack>
+        )
+      }
+
+      {
+        deptMode && doc.isApproved == "pending" && (
+          <>
+            <Divider orientation="vertical" flexItem sx={{ borderColor: "primary.100" }} />
+            <Stack direction="column" spacing={1} alignItems="center" justifyContent={"center"}>
+              <Tooltip title="Approve Document">
+
+                <Button variant="contained" fullWidth startIcon={<CheckIcon />} onClick={() => onApprove(doc.id)} color="success">
+                  Approve
+                </Button>
+
+              </Tooltip>
+              <Tooltip title="Reject Document">
+                <Button variant="outlined" fullWidth startIcon={<ClearIcon />} onClick={() => onReject(doc.id)} color="error">
+                  Reject
+                </Button>
+              </Tooltip>
+            </Stack>
+          </>
+        )
+      }
+
     </Paper>
   );
 }

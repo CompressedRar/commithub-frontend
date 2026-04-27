@@ -13,6 +13,7 @@
     "flask": "cd ../backend && python -m flask --app flask_app run"
   },
   "dependencies": {
+    "@base-ui/react": "^1.4.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@gpt4free/g4f.dev": "^1.0.5",

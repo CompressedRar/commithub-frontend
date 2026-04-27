@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Modal } from "bootstrap";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { Button, Stack } from "@mui/material";
@@ -8,6 +8,7 @@ import EditIcon from "@mui/icons-material/Edit";
 
 import CategoryTask from "./CategoryTask";
 import CreateTaskModal from "./CreateTaskModal";
+import { AdminTaskCreator } from "../FormTaskComponents";
 import { useCategoryTasks } from "../../hooks/useCategoryTasks";
 import { useEditableTitle } from "../../hooks/useEditableTitle";
 
@@ -15,6 +16,7 @@ const MODAL_ID = "add-task";
 
 function CategoryTasks({ id: categoryId, changeTaskID, reloadAll }) {
   const titleRef = useRef(null);
+  const [openFormTaskCreator, setOpenFormTaskCreator] = useState(false);
 
   const {
     categoryInfo,
@@ -38,6 +40,11 @@ function CategoryTasks({ id: categoryId, changeTaskID, reloadAll }) {
 
   const openModal = () => {
     new Modal(document.getElementById(MODAL_ID)).show();
+  };
+
+  const handleFormTaskCreated = () => {
+    loadCategory(); // Refresh task list
+    setOpenFormTaskCreator(false);
   };
 
   if (!categoryId) {
@@ -103,14 +110,29 @@ function CategoryTasks({ id: categoryId, changeTaskID, reloadAll }) {
 
         {/* Primary Actions */}
         <div className="d-flex justify-content-between w-100 gap-2 align-items-center">
-          <Button
-            variant="contained"
-            size="large"
-            endIcon={<AddBoxIcon />}
-            onClick={openModal}
-          >
-            Create Task
-          </Button>
+          <div className="d-flex gap-2">
+            <Button
+              variant="contained"
+              size="large"
+              endIcon={<AddBoxIcon />}
+              onClick={openModal}
+            >
+              Create Task
+            </Button>
+            {
+              /*<Button
+            
+              variant="contained"
+              color="success"
+              size="large"
+              endIcon={<AddBoxIcon />}
+              onClick={() => setOpenFormTaskCreator(true)}
+              title="Create task from form template"
+            >
+              Create Form Task
+            </Button> */
+            }
+          </div>
           <Button
             variant="outlined"
             size="large"
@@ -161,6 +183,13 @@ function CategoryTasks({ id: categoryId, changeTaskID, reloadAll }) {
         toggleDepartment={toggleDepartment}
         resetForm={resetTaskForm}
         onSuccess={() => loadCategory()}
+      />
+
+      {/* Create Form-Based Task Dialog */}
+      <AdminTaskCreator
+        open={openFormTaskCreator}
+        onClose={() => setOpenFormTaskCreator(false)}
+        onTaskCreated={handleFormTaskCreated}
       />
     </div>
   );

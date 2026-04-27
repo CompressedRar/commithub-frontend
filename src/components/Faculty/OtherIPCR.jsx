@@ -19,6 +19,8 @@ import { PhaseStepper } from "./PhaseStepper"
 import RatingIndicator from "./IPCR/Header/RatingIndicator"
 import { jwtDecode } from "jwt-decode"
 import UploadIPCRButton from "./IPCR/Header/UploadIPCR"
+import { Chip, Divider, Stack } from "@mui/material"
+import ApproveIPCRButton from "./IPCR/Header/ApproveIPCR"
 
 
 
@@ -38,7 +40,7 @@ function OtherIPCR({ onMouseOver }) {
 
     const { settings, handleRemarks,  isRatingPhase } = useSettings();
 
-    const { downloading, downloadStandard, downloadWeighted, downloadPlanned, stats, ipcrInfo, categoryTypes, arrangedSubTasks, loadIPCR, handleCalculateRatings, loading } = useIPCR();
+    const { downloading, downloadStandard, downloadWeighted, downloadPlanned, stats, ipcrInfo, categoryTypes, arrangedSubTasks, loadIPCR, handleCalculateRatings, loading, handleApprove, validTasks, totalTasks } = useIPCR();
 
     const handleChange = (event) => {
         const action = event.target.value;
@@ -95,6 +97,8 @@ function OtherIPCR({ onMouseOver }) {
         socket.on("ipcr", () => loadIPCR(ipcr_id))
         socket.on("assign", () => loadIPCR(ipcr_id))
 
+        socket.on(`ipcr-${ipcr_id}`, () => loadIPCR(ipcr_id))
+
         return () => {
             socket.off("ipcr")
             socket.off("assign")
@@ -132,29 +136,40 @@ function OtherIPCR({ onMouseOver }) {
 
             <PhaseStepper currentPhase={currentPhase}></PhaseStepper>
 
-            <ManageTaskSupportingDocuments ipcr_id={ipcrInfo.id} batch_id={ipcrInfo.batch_id} dept_mode={false} sub_tasks={arrangedSubTasks}></ManageTaskSupportingDocuments>
+            <ManageTaskSupportingDocuments ipcr_id={ipcrInfo.id} batch_id={ipcrInfo.batch_id} dept_mode={true} sub_tasks={arrangedSubTasks}></ManageTaskSupportingDocuments>
             <div className="d-flex justify-content-between align-items-center gap-2 my-4">
                 <button
                     className="btn btn-outline-secondary d-flex align-items-center gap-2"
                     onClick={() => {
-                        window.history.back()
+                        // Get the current URL
+                        const currentUrl = new URL(window.location.href);
+
+                        const parentUrl = new URL('../', currentUrl).href;
+                        window.location.href = parentUrl+"department";
                     }}
                     >
                     <span className="material-symbols-outlined">undo</span>
                     Back
                 </button>
                 <div className="d-flex gap-2">
-                    <SupportingDocumentButton />
                     <DownloadIPCRButton onDownload={handleChange} downloading={downloading} />
+                    <SupportingDocumentButton />
+                    
                     {isRatingPhase(currentPhase) && <UploadIPCRButton onUpload={()=> {loadIPCR(ipcr_id)}}></UploadIPCRButton>}
                     {isRatingPhase(currentPhase) && <CalculateRatingButton onCalculate={()=>{handleCalculateRatings(ipcr_id)}} loading={loading} />}
+
+                    <Divider orientation="vertical" flexItem />
+                    <ApproveIPCRButton  onApprove={() => handleApprove(ipcr_id)} loading = {loading} disabled={ipcrInfo?.form_status == "approved" || loading} validTasks={validTasks} totalTasks={totalTasks}></ApproveIPCRButton>
                 </div>
             </div>
+
+            
 
 
             <RatingIndicator isRatingPhase={isRatingPhase(currentPhase)} />
 
             <div className="card shadow-sm" key={loading}>
+                <span><Chip label={String(ipcrInfo.form_status).toUpperCase()} color="primary" variant={ipcrInfo.form_status == "draft" ? "outlined": "filled"}></Chip></span>
                 <div className="card-body p-4">
                     <HeaderSection />
                     <OathSection ipcrInfo={ipcrInfo} />

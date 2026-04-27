@@ -42,7 +42,7 @@ function UploadIPCRButton({onUpload}) {
 
             {/* Only visible button */}
             <Button
-                variant="contained"
+                variant="outlined"
                 startIcon={<UploadFileIcon />}
                 onClick={handleButtonClick}
                 disabled={loading}

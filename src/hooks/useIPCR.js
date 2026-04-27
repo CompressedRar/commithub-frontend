@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react"
-import { calculateSubTaskRating, downloadIPCR, downloadPlannedIPCR, downloadWeightedIPCR, getIPCR, updateSubTask } from "../services/pcrServices"
+import { approveIPCR, assignMainIPCR, calculateSubTaskRating, downloadIPCR, downloadPlannedIPCR, downloadWeightedIPCR, getIPCR, updateSubTask } from "../services/pcrServices"
 import { downloadFile } from "../utils/download";
 import Swal from "sweetalert2"
 import { jwtDecode } from "jwt-decode";
@@ -11,6 +11,10 @@ export const useIPCR = () => {
     const [categoryTypes, setCategoryTypes] = useState({})
     const [loading, setLoading] = useState(false);
     const [subTaskArray, setSubTaskArray] = useState([]);
+
+    const [validTasks, setValidTasks] = useState(0);
+    const [totalTasks, setTotalTasks] = useState(0);
+
     const [stats, setStats] = useState({
         quantity: 0,
         efficiency: 0,
@@ -25,6 +29,18 @@ export const useIPCR = () => {
 
     const [downloading, setDownloading] = useState(false);
     const VALID_VISITORS = ["administrator", "president"]
+
+    const getTaskStats = (data) => {
+        const tasks = data.sub_tasks || [];
+        
+        const totalTasks = tasks.length;
+        setTotalTasks(totalTasks);
+        
+        // Count how many tasks have at least one valid document
+        const tasksWithValidDocs = tasks.filter(task => task.valid_document_count > 0).length;
+
+        setValidTasks(tasksWithValidDocs);
+    };
 
     function verifyVisitor(ipcr_info) {
         const token = localStorage.getItem("token");
@@ -56,6 +72,7 @@ export const useIPCR = () => {
             setIPCRInfo(res);
             processIPCRData(res);
             verifyVisitor(res);
+            getTaskStats(res);
 
 
         } catch (error) {
@@ -67,6 +84,81 @@ export const useIPCR = () => {
             })
         }
     }, [])
+
+    const handleSubmit = useCallback(async (ipcr_id, user_id) => {
+        
+        const result = await Swal.fire({
+            title: "Submit IPCR?",
+            text: "Are you sure you want to submit this IPCR?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, submit it!",
+            cancelButtonText: "Cancel"
+        });
+
+        if (result.isConfirmed) {
+            try {
+                setLoading(true);
+                const res = await assignMainIPCR(ipcr_id, user_id);
+                await Swal.fire({
+                    title: "Success!",
+                    text: "IPCR has been submitted successfully.",
+                    icon: "success",
+                    timer: 1000
+                });
+                await loadIPCR(ipcr_id);
+            } catch (error) {
+                console.error(error);
+                Swal.fire({
+                    title: "Submission Failed",
+                    text: error.response?.data?.error || "An unexpected error occurred.",
+                    icon: "error"
+                });
+            } finally {
+                setLoading(false);
+            }
+        }
+    }, [ipcrInfo]);
+
+    const handleApprove = useCallback(async (ipcr_id) => {
+        
+        const result = await Swal.fire({
+            title: "Approve IPCR?",
+            text: "Are you sure you want to approve this IPCR?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, approve it!",
+            cancelButtonText: "Cancel"
+        });
+
+        if (result.isConfirmed) {
+            try {
+                setLoading(true);
+                const res = await approveIPCR(ipcr_id);
+                await Swal.fire({
+                    title: "Success!",
+                    text: "IPCR has been approved successfully.",
+                    icon: "success",
+                    timer: 1000
+                });
+                await loadIPCR(ipcr_id);
+            } catch (error) {
+                console.error(error);
+                Swal.fire({
+                    title: "Approval Failed",
+                    text: error.response?.data?.error || "An unexpected error occurred.",
+                    icon: "error"
+                });
+            } finally {
+                setLoading(false);
+            }
+        }
+    }, [ipcrInfo]);
+
 
     const handleCalculateRatings = useCallback(async (ipcr_id) => {
         const result = await Swal.fire({
@@ -152,6 +244,8 @@ export const useIPCR = () => {
         newStats.timeliness = t / count
         newStats.average = a / count
 
+        console.log(all_categories)
+
         setArrangedSubTasks(all_categories)
         setCategoryTypes(all_category_type)
         setStats(newStats)
@@ -215,5 +309,11 @@ export const useIPCR = () => {
 
 
 
-    return { stats, setStats, downloading, downloadWeighted, downloadPlanned, downloadStandard, ipcrInfo, arrangedSubTasks, categoryTypes, loadIPCR, handleCalculateRatings, loading }
+    return { stats, setStats, 
+        downloading, downloadWeighted, downloadPlanned, downloadStandard, 
+        ipcrInfo, arrangedSubTasks, categoryTypes, 
+        loadIPCR, handleCalculateRatings, 
+        loading, handleSubmit, handleApprove, 
+        validTasks, totalTasks
+     }
 }

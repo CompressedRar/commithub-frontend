@@ -4,6 +4,8 @@ import Swal from "sweetalert2"
 import { numericKeyDown, handlePasteNumeric, sanitizeNumberInput } from "../../../../utils/inputSanitization"
 import EditableRatingBadges from "./EditableRatingBadges"
 import { useSettings } from "../../../../hooks/useSettings"
+import { Stack } from "@mui/material"
+import TaskDocumentStats from "./TaskDocumentStatus"
 
 export function TaskRow({ task, handleDataChange, setSubTaskID, mode, currentPhase }) {
 
@@ -48,8 +50,22 @@ export function TaskRow({ task, handleDataChange, setSubTaskID, mode, currentPha
 
     return (
         <>
+
             <tr className="align-middle">
-                <td className="fw-semibold small">{task.title}</td>
+                <td className="fw-semibold small">
+                    
+                    <Stack direction={"row"} alignItems="center" gap={3}>
+                        
+                        <TaskDocumentStats 
+                            validDocumentCount={task.valid_document_count}
+                            totalDocumentCount={task.total_document_count}
+                            pendingDocumentCount={task.pending_document_count}
+                            rejectedDocumentCount={task.rejected_document_count}
+                        ></TaskDocumentStats>
+                        {task.title}
+                    </Stack>
+                    
+                </td>
                 <td className>
                     <div className="d-grid gap-2">
                         <div>
