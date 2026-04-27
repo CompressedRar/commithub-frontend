@@ -119,7 +119,9 @@ function CategoryTasks({ id: categoryId, changeTaskID, reloadAll }) {
             >
               Create Task
             </Button>
-            <Button
+            {
+              /*<Button
+            
               variant="contained"
               color="success"
               size="large"
@@ -128,7 +130,8 @@ function CategoryTasks({ id: categoryId, changeTaskID, reloadAll }) {
               title="Create task from form template"
             >
               Create Form Task
-            </Button>
+            </Button> */
+            }
           </div>
           <Button
             variant="outlined"

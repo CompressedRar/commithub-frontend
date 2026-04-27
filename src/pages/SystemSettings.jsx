@@ -10,12 +10,15 @@ import RatingThresholdsTab from "../components/SystemSettings/RatingThreshold";
 import FormBuilderTab from "../components/SystemSettings/FormBuilderTab";
 import { useSystemSettings } from "../hooks/useSystemSettings";
 
+/**
+ * { label: "Form Builder",       icon: <BuildCircleOutlined sx={{ fontSize: 17 }} /> },
+ */
 const TABS = [
   { label: "Rating Thresholds", icon: <Grade sx={{ fontSize: 17 }} /> },
   { label: "Formulas",           icon: <Calculate sx={{ fontSize: 17 }} /> },
   { label: "Positions",          icon: <People sx={{ fontSize: 17 }} /> },
   { label: "Periods & Officers", icon: <Event sx={{ fontSize: 17 }} /> },
-  { label: "Form Builder",       icon: <BuildCircleOutlined sx={{ fontSize: 17 }} /> },
+  
 ];
 
 export default function SystemSettings() {

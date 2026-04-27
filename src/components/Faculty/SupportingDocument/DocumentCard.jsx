@@ -166,6 +166,28 @@ function DocumentCard({ doc, deptMode, onRemove, onApprove, onReject }) {
             </Stack>
           )}
         </Stack>
+
+        <Stack direction={"column"} spacing={1} alignItems={"start"} mt={1}>
+          {doc.relevance_score != null && (
+            <Chip
+              label={`Relevance: ${Math.round(doc.relevance_score )}%`}
+              size="small"
+              variant="outlined"
+              sx={{ fontSize: "0.68rem", height: 20 }}
+            />
+          )}
+          {
+            doc.relevance_justification && (
+              <Typography variant="caption" color="text.secondary" mt={0.5} sx={{
+                maxWidth: "auto",
+                overflow: "hidden",
+                textWrap:"wrap",
+              }}>
+                {doc.relevance_justification}
+              </Typography>
+            )
+          }
+        </Stack>
       </Box>
 
       {/* Actions */}
