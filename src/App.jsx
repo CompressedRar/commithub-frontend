@@ -36,6 +36,7 @@ import Builder from './components/FormBuilder/TaskBuilder/Builder'
 import { FieldMapper, FormBuilderPage } from './components/FormBuilder'
 import FormTaskManagementPage from './components/FormTaskComponents/ExampleIntegration'
 import TaskLists from './components/FormBuilder/TaskCollections/TaskLists'
+import CommitHubLanding from './pages/Landing'
 
 
 function App() {
@@ -45,6 +46,7 @@ function App() {
         <Route path="*" element={<NotFound />} />
 
         <Route element = {<AuthLayout />}>
+        <Route path='/main' element = {<CommitHubLanding></CommitHubLanding>}></Route>
           <Route path='/' element = {<LoginPage></LoginPage>}></Route>
           <Route path='/forgot-password/:token' element = {<ChangeForgotPassword></ChangeForgotPassword>}></Route>
           <Route path='/register' element = {<Register></Register>}></Route>
