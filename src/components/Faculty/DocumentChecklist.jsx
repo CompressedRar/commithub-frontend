@@ -97,7 +97,7 @@ export default function DocumentChecklist({ sub_tasks, documents, validDocuments
             {/* Valid */}
             <Box sx={{ flex: 1, textAlign: "center" }}>
               <Typography variant="h6" fontWeight="800" color="success.main" sx={{ lineHeight: 1 }}>
-                {validDocuments.length}
+                {validDocuments ? validDocuments.length : 0}
               </Typography>
               <Typography variant="caption" color="text.secondary" fontWeight="700" sx={{ textTransform: "uppercase", fontSize: "0.65rem", letterSpacing: 0.5 }}>
                 Valid
@@ -107,7 +107,7 @@ export default function DocumentChecklist({ sub_tasks, documents, validDocuments
             {/* Pending */}
             <Box sx={{ flex: 1, textAlign: "center" }}>
               <Typography variant="h6" fontWeight="800" color="warning.main" sx={{ lineHeight: 1 }}>
-                {pendingDocuments.length}
+                {pendingDocuments ? pendingDocuments.length : 0}
               </Typography>
               <Typography variant="caption" color="text.secondary" fontWeight="700" sx={{ textTransform: "uppercase", fontSize: "0.65rem", letterSpacing: 0.5 }}>
                 Pending
@@ -119,7 +119,7 @@ export default function DocumentChecklist({ sub_tasks, documents, validDocuments
             {/* Rejected */}
             <Box sx={{ flex: 1, textAlign: "center" }}>
               <Typography variant="h6" fontWeight="800" color="error.main" sx={{ lineHeight: 1 }}>
-                {rejectedDocuments.length}
+                {rejectedDocuments ? rejectedDocuments.length : 0}
               </Typography>
               <Typography variant="caption" color="text.secondary" fontWeight="700" sx={{ textTransform: "uppercase", fontSize: "0.65rem", letterSpacing: 0.5 }}>
                 Rejected
