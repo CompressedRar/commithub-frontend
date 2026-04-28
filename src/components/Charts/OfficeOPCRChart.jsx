@@ -137,7 +137,7 @@ export default function OfficeOPCRChart({ height = 320 }) {
                 <Box display="flex" alignItems="center" gap={1}>
                   <Typography variant="h6">{fastest.department_name}</Typography>
                   <Typography color="textSecondary">{fastest.days_spent} day(s)</Typography>
-                  <Button size="small" variant="outlined" disabled={!fastest.opcr_id}
+                  <Button  size="small" variant="outlined" sx={{display:"none"}} disabled={!fastest.opcr_id}
                     onClick={() => {
                       const currentUrl = new URL(window.location.href);
 
