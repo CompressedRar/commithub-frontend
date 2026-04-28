@@ -397,7 +397,7 @@ export default function CommitHubLanding() {
 
         {/* ── CTA ────────────────────────────────────────── */}
         <section style={{ padding:"120px 60px", textAlign:"center", position:"relative", overflow:"hidden", background:"#ffffff" }} id="about">
-          <div style={{ position:"absolute", inset:0, background:`radial-gradient(ellipse 60% 80% at 50% 50%, ${T.primaryLighter} 0%, transparent 65%)`, pointerEvents:"none" }} />
+          
           <Reveal>
             <span style={{ display:"block", fontSize:10, letterSpacing:"0.14em", textTransform:"uppercase", color:T.primary, marginBottom:18, fontWeight:500 }}>Ready to begin</span>
             <h2 style={{ fontSize:"clamp(30px,5vw,54px)", fontWeight:700, lineHeight:1.12, color:"rgb(20,20,20)", marginBottom:20, letterSpacing:"-0.025em" }}>
