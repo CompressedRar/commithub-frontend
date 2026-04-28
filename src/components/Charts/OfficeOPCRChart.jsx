@@ -144,7 +144,7 @@ export default function OfficeOPCRChart({ height = 320 }) {
                       const parentUrl = new URL('./', currentUrl).href;
 
                       console.log(parentUrl + `opcr/${fastest.opcr_id}`)
-                      window.location.href = parentUrl + `opcr/${fastest.opcr_id}`;
+                      window.location.replace(parentUrl + `opcr/${fastest.opcr_id}`); 
                     }} rel="noopener noreferrer">
                     View OPCR
                   </Button>
