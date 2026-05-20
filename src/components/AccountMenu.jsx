@@ -5,15 +5,22 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import MenuList from "@mui/material/MenuList";
+import { Avatar, Button } from "@mui/material";
+import AccountProfile, { AccountCollections } from "./UsersComponents/AccountProfiles";
+import { use, useEffect } from "react";
 
 
-export default function AccountMenu({isOpen, closeMenu, anchorEl, handleLogout}){
+export default function AccountMenu({isOpen, closeMenu, anchorEl, handleLogout, accounts, onSwitch}) {
+    useEffect(() => {
+        console.log("Accounts in menu", accounts)
+    }, [accounts])
     return (
     <Menu
         id="basic-menu"
         anchorEl={anchorEl}
         open={isOpen}
         onClose={closeMenu}
+        
         slotProps={{
           list: {
             'aria-labelledby': 'basic-button',
@@ -28,6 +35,9 @@ export default function AccountMenu({isOpen, closeMenu, anchorEl, handleLogout})
 
               <ListItemText primary={"Account Settings"} />
             </MenuItem>
+
+            <AccountCollections accounts={accounts} onSwitch={onSwitch}></AccountCollections>
+            
         
             <MenuItem id="logout" onClick={()=> {
                 handleLogout()

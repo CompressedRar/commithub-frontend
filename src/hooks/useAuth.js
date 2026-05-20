@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { authenticateAccount, verifyOtp } from "../services/userService";
+import { authenticateAccount, verifyOtp, switchAccount, getAccountsByProfile } from "../services/userService";
 import { objectToFormData } from "../components/api";
 import { jwtDecode } from "jwt-decode";
 import Swal from "sweetalert2";
+import { ContactPage } from "@mui/icons-material";
 
 
 export const useAuth = () => {
@@ -16,6 +17,7 @@ export const useAuth = () => {
   const [otpRequested, setOtpRequested] = useState(false);
   const [forgotPassOpen, setForgotPassOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [profileAccounts, setProfileAccounts] = useState([]);
 
 
   // --- Token Logic ---
@@ -48,6 +50,7 @@ export const useAuth = () => {
       if (res.data.token) {
         localStorage.setItem("token", res.data.token);
         detectToken(res.data.token);
+        fetchAllAccounts()
       } else if (res.data.message === "OTP sent" || res.data.two_factor_enabled) {
         setUserEmail(formData.email);
         setOtpRequested(true);
@@ -60,6 +63,33 @@ export const useAuth = () => {
     }
   };
 
+  async function switchProfile(profile_id, user_id) {
+    if (localStorage.getItem("token")) {
+      
+      const res = await switchAccount(profile_id, user_id);
+      if (res.data.token) {
+        console.log("switching account", res.data.token)
+        localStorage.setItem("token", res.data.token);
+        detectToken(res.data.token);
+      }
+ 
+    }
+
+  }
+
+  async function fetchAllAccounts() {
+
+    const token = localStorage.getItem("token");
+    
+    if (token) {
+      const payload = jwtDecode(token);
+      const res = await getAccountsByProfile(payload.profile_id);
+      setProfileAccounts(res.data);
+      console.log("fetching accounts by profile", res.data)  
+    }
+  }
+
+
   const verify = async (e) => {
     if (e) e.preventDefault();
     setLoading(true);
@@ -68,6 +98,7 @@ export const useAuth = () => {
       if (res.data.token) {
         localStorage.setItem("token", res.data.token);
         detectToken(res.data.token);
+        fetchAllAccounts()
       }
     } catch (error) {
       Swal.fire({ title: "Error", text: error.response?.data?.error, icon: "error" });
@@ -83,6 +114,7 @@ export const useAuth = () => {
       if (!token) return;
 
       const payload = jwtDecode(token);
+      fetchAllAccounts()
       console.log(payload.exp, payload.exp < currentTime)
 
       
@@ -108,6 +140,7 @@ export const useAuth = () => {
     otpRequested, setOtpRequested,
     forgotPassOpen, setForgotPassOpen,
     showPassword, setShowPassword,
+     switchProfile, profileAccounts,
     // Actions
     handleInputChange, login, verify, setOtp, detectToken, verifyToken
   };

@@ -33,7 +33,7 @@ function FacultyLayout() {
 
   const [menuAnchor, setAnchor] = useState(null)
 
-  const { verifyToken } = useAuth();
+  const { verifyToken, switchProfile, profileAccounts } = useAuth();
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", handleResize);
@@ -181,7 +181,7 @@ function FacultyLayout() {
 
 
 
-              <AccountMenu isOpen={options} anchorEl={menuAnchor} closeMenu={() => { setOptions(false) }} handleLogout={Logout}></AccountMenu>
+              <AccountMenu isOpen={options} anchorEl={menuAnchor} closeMenu={() => { setOptions(false) }} handleLogout={Logout} onSwitch={switchProfile} accounts={profileAccounts}></AccountMenu>
 
             </Stack>
 

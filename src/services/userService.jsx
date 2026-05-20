@@ -37,7 +37,19 @@ export async function verifyForgotPass(token) {
     })
 }
 
+export async function switchAccount(profile_id, user_id) {
+    console.log("switching account")
+    return api.get(`/api/v1/users/switch/${profile_id}&${user_id}`, {
+        headers: {
+            "Content-type": "application/json"
+        }
+     })
+}
 
+export async function getAccountsByProfile(profile_id) {
+    console.log("getting accounts by profile")
+    return api.get(`/api/v1/users/profile/${profile_id}`)
+}
 
 export async function authenticateAccount(data) {
     console.log("authenticating")

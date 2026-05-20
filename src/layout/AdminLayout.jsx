@@ -44,7 +44,7 @@ function AdminLayout() {
 
   const [menuAnchor, setAnchor] = useState(null)
   
-  const { verifyToken } = useAuth();
+  const { verifyToken, switchAccount, profileAccounts } = useAuth();
   
 
   useEffect(() => {
@@ -206,7 +206,7 @@ function AdminLayout() {
 
 
 
-              <AccountMenu isOpen={options} anchorEl={menuAnchor} closeMenu={() => { setOptions(false) }} handleLogout={Logout}></AccountMenu>
+              <AccountMenu isOpen={options} anchorEl={menuAnchor} closeMenu={() => { setOptions(false) }} handleLogout={Logout} onSwitch={switchAccount} accounts={profileAccounts}></AccountMenu>
 
             </Stack>
 

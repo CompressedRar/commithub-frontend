@@ -42,13 +42,10 @@ function PresidentLayout() {
 
 
   const [menuAnchor, setAnchor] = useState(null)
-  const { verifyToken } = useAuth();
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  const { verifyToken, switchProfile, profileAccounts } = useAuth();
 
+
+  
   async function loadNotification(user_id) {
     try {
       const res = await getAccountNotification(user_id);
@@ -195,7 +192,7 @@ function PresidentLayout() {
 
 
 
-              <AccountMenu isOpen={options} anchorEl={menuAnchor} closeMenu={() => { setOptions(false) }} handleLogout={Logout}></AccountMenu>
+              <AccountMenu isOpen={options} anchorEl={menuAnchor} closeMenu={() => { setOptions(false) }} handleLogout={Logout} onSwitch={switchProfile} accounts={profileAccounts}></AccountMenu>
 
             </Stack>
 
