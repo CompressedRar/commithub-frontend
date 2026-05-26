@@ -3,7 +3,7 @@ import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { getAccountInfo, getAccountNotification, readNotification } from "../services/userService";
-import AccountSettings from "../components/UsersComponents/AccountSettings";
+import AccountSettings from "../pages/AccountSettings";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../assets/styles/Main.css";
 import NotificationModal from "../components/NotificationModal";
@@ -226,7 +226,7 @@ function PresidentLayout() {
               <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div className="modal-body">
-              {userInfo && <AccountSettings id={userInfo.id} />}
+              {userInfo && <AccountSettings userID={userInfo.id} profileID={userInfo.profile_id}></AccountSettings>}
             </div>
           </div>
         </div>

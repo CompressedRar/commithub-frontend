@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { socket } from "../components/api";
 import Swal from "sweetalert2";
 import { getAccountInfo, getAccountNotification } from "../services/userService";
-import AccountSettings from "../components/UsersComponents/AccountSettings";
 import "../assets/styles/Main.css";
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -29,9 +28,11 @@ import AccountMenu from "../components/AccountMenu";
 import MenuIcon from '@mui/icons-material/Menu';
 import { AppBar, Avatar, Box, Stack, Toolbar } from "@mui/material";
 import { useAuth } from "../hooks/useAuth";
+import AccountSettings from "../pages/AccountSettings";
 
 function AdminLayout() {
   const token = localStorage.getItem("token");
+
   const [payloads, setPayload] = useState(null)
   const [role, setRole] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
@@ -44,12 +45,10 @@ function AdminLayout() {
 
   const [menuAnchor, setAnchor] = useState(null)
   
-  const { verifyToken, switchAccount, profileAccounts } = useAuth();
+  const { verifyToken, switchProfile, profileAccounts } = useAuth();
   
 
-  useEffect(() => {
-    
-  }, []);
+
 
   async function loadNotification(user_id) {
     try {
@@ -206,7 +205,7 @@ function AdminLayout() {
 
 
 
-              <AccountMenu isOpen={options} anchorEl={menuAnchor} closeMenu={() => { setOptions(false) }} handleLogout={Logout} onSwitch={switchAccount} accounts={profileAccounts}></AccountMenu>
+              <AccountMenu isOpen={options} anchorEl={menuAnchor} closeMenu={() => { setOptions(false) }} handleLogout={Logout} onSwitch={switchProfile} accounts={profileAccounts}></AccountMenu>
 
             </Stack>
 
@@ -245,7 +244,7 @@ function AdminLayout() {
               ></button>
             </div>
             <div className="modal-body">
-              {userInfo && <AccountSettings id={userInfo.id} />}
+              {userInfo && <AccountSettings userID={userInfo.id} profileID={userInfo.profile_id}></AccountSettings>}
             </div>
           </div>
         </div>

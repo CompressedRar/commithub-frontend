@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { authenticateAccount, verifyOtp, switchAccount, getAccountsByProfile } from "../services/userService";
 import { objectToFormData } from "../components/api";
 import { jwtDecode } from "jwt-decode";
 import Swal from "sweetalert2";
 import { ContactPage } from "@mui/icons-material";
-
+import { socket } from "../components/api";
 
 export const useAuth = () => {
   // --- States ---
@@ -63,7 +63,7 @@ export const useAuth = () => {
     }
   };
 
-  async function switchProfile(profile_id, user_id) {
+  const switchProfile = useCallback(async (profile_id, user_id) => {
     if (localStorage.getItem("token")) {
       
       const res = await switchAccount(profile_id, user_id);
@@ -75,7 +75,9 @@ export const useAuth = () => {
  
     }
 
-  }
+  }, [profileAccounts]);
+
+
 
   async function fetchAllAccounts() {
 
@@ -132,6 +134,13 @@ export const useAuth = () => {
     //localStorage.removeItem("token");  
     //window.location.replace('/')      
   }
+
+  useEffect(() => {
+    socket.on("user_created", () => {
+      console.log("user created event received")
+      fetchAllAccounts();
+    }); 
+  }, []);
 
   return {
     // Data

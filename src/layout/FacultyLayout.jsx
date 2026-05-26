@@ -4,7 +4,7 @@ import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { getAccountInfo, getAccountNotification, readNotification } from "../services/userService";
-import AccountSettings from "../components/UsersComponents/AccountSettings";
+import AccountSettings from "../pages/AccountSettings";
 import NotificationModal from "../components/NotificationModal";
 import { socket } from "../components/api";
 
@@ -22,6 +22,7 @@ import { useAuth } from "../hooks/useAuth";
 
 function FacultyLayout() {
   const token = localStorage.getItem("token");
+
   const [role, setRole] = useState(null);
   const [profilePictureLink, setProfilePictureLink] = useState("");
   const [userInfo, setUserInfo] = useState(null);
@@ -34,11 +35,7 @@ function FacultyLayout() {
   const [menuAnchor, setAnchor] = useState(null)
 
   const { verifyToken, switchProfile, profileAccounts } = useAuth();
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+
 
   async function loadNotification(user_id) {
     try {
@@ -221,7 +218,7 @@ function FacultyLayout() {
               ></button>
             </div>
             <div className="modal-body">
-              {userInfo && <AccountSettings id={userInfo.id} />}
+              {userInfo && <AccountSettings userID={userInfo.id} profileID={userInfo.profile_id}></AccountSettings>}
             </div>
           </div>
         </div>

@@ -150,3 +150,93 @@ export async function createUserTasks(user_id, id_array){
         }
     })
 }
+
+// Profile Settings (email, password, recovery_email, two_factor)
+export async function getProfileSettings(profile_id) {
+    console.log("getting profile settings")
+    return api.get(`/api/v1/users/profiles/${profile_id}`)
+}
+
+export async function updateProfileSettings(profile_id, data) {
+    console.log("updating profile settings")
+    return api.patch(`/api/v1/users/profiles/${profile_id}`, data, {
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+}
+
+export async function updateProfilePicture(profile_id, file) {
+    console.log("updating profile picture")
+    const formData = new FormData()
+    formData.append("profile_picture", file)
+    return api.patch(`/api/v1/users/profiles/${profile_id}/picture`, formData, {
+        headers: {
+            "Content-Type": "multipart/form-data"
+        }
+    })
+}
+
+export async function updateRecoveryEmail(profile_id, recovery_email) {
+    console.log("updating recovery email")
+    return api.patch(`/api/v1/users/profiles/${profile_id}`, { recovery_email }, {
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+}
+
+export async function enableTwoFactor(profile_id, enabled) {
+    console.log("updating two factor status")
+    return api.patch(`/api/v1/users/profiles/${profile_id}`, { two_factor_enabled: enabled }, {
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+}
+
+// User Account Settings (first_name, last_name, middle_name, position, department, role)
+export async function getUserSettings(user_id) {
+    console.log("getting user settings")
+    return api.get(`/api/v1/users/${user_id}`)
+}
+
+export async function updateUserSettings(user_id, data) {
+    console.log("updating user settings")
+    return api.patch(`/api/v1/users/settings/${user_id}`, data, {
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+}
+
+export async function updateUserName(user_id, first_name, middle_name, last_name) {
+    console.log("updating user name")
+    return api.patch(`/api/v1/users/settings/${user_id}`, {
+        first_name,
+        middle_name,
+        last_name
+    }, {
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+}
+
+export async function updateUserPosition(user_id, position_id) {
+    console.log("updating user position")
+    return api.patch(`/api/v1/users/settings/${user_id}`, { position_id }, {
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+}
+
+export async function updateUserDepartment(user_id, department_id) {
+    console.log("updating user department")
+    return api.patch(`/api/v1/users/settings/${user_id}`, { department_id }, {
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+}

@@ -4,7 +4,7 @@ import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { getAccountInfo, getAccountNotification, readNotification } from "../services/userService";
-import AccountSettings from "../components/UsersComponents/AccountSettings";
+import AccountSettings from "../pages/AccountSettings";
 import NotificationModal from "../components/NotificationModal";
 import { socket } from "../components/api";
 
@@ -253,7 +253,7 @@ function HeadLayout() {
               ></button>
             </div>
             <div className="modal-body">
-              {userInfo && <AccountSettings id={userInfo.id} />}
+              {userInfo && <AccountSettings userID={userInfo.id} profileID={userInfo.profile_id}></AccountSettings>}
             </div>
           </div>
         </div>
